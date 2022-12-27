@@ -1,5 +1,6 @@
 const { application } = require("express");
 const express = require("express");
+const { CURSOR_FLAGS } = require("mongodb");
  
 // recordRoutes is an instance of the express router.
 // We use it to define our routes.
@@ -25,14 +26,27 @@ recordRoutes.route("/record").get(function (req, res) {
    });
 });
 
-recordRoutes.route("/record/req").post(function (req, res) {
+recordRoutes.route("/record/req").post(async function (req, res) {
   let db_connect = dbo.getDb();
+  let tourney_names = req.body.tourney_names;
   let myobj = req.body.request;
-  db_connect.collection(req.body.tourney_name).find(myobj).toArray(function (err, result) {
-    if (err) throw err;
-    res.json(result);
-  });
- });
+  var results = [];
+
+  for (let i = 0; i < tourney_names.length; i++) {
+    const result = await new Promise((resolve, reject) => {
+      db_connect
+        .collection(tourney_names[i])
+        .find(myobj)
+        .toArray((err, result) => {
+          if (err) reject(err);
+          resolve(result);
+        });
+    });
+    results = results.concat(result);
+  }
+
+  res.json(results);
+});
  
  
 // This section will help you get a single record by id
