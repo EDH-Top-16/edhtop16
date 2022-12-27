@@ -47,6 +47,17 @@ recordRoutes.route("/record/req").post(async function (req, res) {
 
   res.json(results);
 });
+
+recordRoutes.route("/record/list_tourneys").post(async function (req, res) {
+    let db_connect = dbo.getDb("test");
+    db_connect
+      .collection("metadata")
+      .find(req.body)
+      .toArray(function (err, result) {
+        if (err) throw err;
+        res.json(result);
+      });   
+});
  
  
 // This section will help you get a single record by id
