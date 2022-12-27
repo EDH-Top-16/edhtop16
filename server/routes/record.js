@@ -1,3 +1,4 @@
+const { application } = require("express");
 const express = require("express");
  
 // recordRoutes is an instance of the express router.
@@ -23,6 +24,16 @@ recordRoutes.route("/record").get(function (req, res) {
      res.json(result);
    });
 });
+
+recordRoutes.route("/record/req").post(function (req, res) {
+  let db_connect = dbo.getDb();
+  let myobj = req.body.request;
+  db_connect.collection(req.body.tourney_name).find(myobj).toArray(function (err, result) {
+    if (err) throw err;
+    res.json(result);
+  });
+ });
+ 
  
 // This section will help you get a single record by id
 recordRoutes.route("/record/:id").get(function (req, res) {
