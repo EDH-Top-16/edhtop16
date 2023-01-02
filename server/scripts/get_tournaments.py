@@ -45,8 +45,8 @@ if __name__ == '__main__':
 
     tournaments = fetch_tournaments()
     
-    # Is this check needed??
     for tourney in tournaments:
+        # Is this check needed??
         if tourney['TID'] not in existing_tourneys:
             standings = [i for i in tourney['standings'] if i['decklist']]
             if standings:
