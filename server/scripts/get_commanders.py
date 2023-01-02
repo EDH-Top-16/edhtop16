@@ -7,6 +7,7 @@ client = MongoClient("mongodb://localhost:27017")
 
 db = client['test']
 
+# TODO: get collections from metadata
 collections = ['test']#, 'mox_masters']
 
 def wubrgify(color_string):
