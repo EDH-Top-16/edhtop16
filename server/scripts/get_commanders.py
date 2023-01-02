@@ -8,7 +8,7 @@ client = MongoClient("mongodb://localhost:27017")
 db = client['test']
 
 # TODO: get collections from metadata
-collections = ['test']#, 'mox_masters']
+collections = [i for i in db.list_collection_names() if i != 'metadata']
 
 def wubrgify(color_string):
     """Parse colors in WUBRG(C) order; removes duplicates and misordering"""
@@ -18,13 +18,13 @@ def wubrgify(color_string):
     return res if res else "C" # return "C" for colorless if W, U, B, R, G all not in color string
 
 for c in collections:
-    print(f"Updating Collection {c} with commander/color identity metadata")
+    print(f"Updating Collection '{c}' with commander/color identity metadata")
     col = client['test'][c]
     for i in tqdm(col.find()):
         if 'Commander' in i.keys() and 'Color_ID' in i.keys(): # Metadata already exists
             continue
         try:
-            decklist_url = i['Decklist']
+            decklist_url = i['decklist']
         except KeyError:
             print("Warning: no decklist url") # TODO: provide more useful logging data here
             continue

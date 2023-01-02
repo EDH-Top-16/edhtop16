@@ -1,7 +1,6 @@
 from pymongo import MongoClient
 import mtg_api # Import from file
 from functools import reduce
-from tqdm import tqdm
 import requests
 import datetime
 import json
