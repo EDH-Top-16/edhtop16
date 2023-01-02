@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 client = MongoClient("mongodb://localhost:27017")
 
-db = client['test']
+db = client['cedhtop16']
 
 # TODO: get collections from metadata
 collections = [i for i in db.list_collection_names() if i != 'metadata']
@@ -19,7 +19,7 @@ def wubrgify(color_string):
 
 for c in collections:
     print(f"Updating Collection '{c}' with commander/color identity metadata")
-    col = client['test'][c]
+    col = db[c]
     for i in tqdm(col.find()):
         if 'Commander' in i.keys() and 'Color_ID' in i.keys(): # Metadata already exists
             continue

@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     client = MongoClient("mongodb://localhost:27017")
 
-    db = client['test']
+    db = client['cedhtop16']
 
     existing_tourneys = []
 
@@ -48,6 +48,8 @@ if __name__ == '__main__':
     for tourney in tournaments:
         # Is this check needed??
         if tourney['TID'] not in existing_tourneys:
+            for i, j in enumerate(tourney['standings']):
+                j.update({'standing': i+1})
             standings = [i for i in tourney['standings'] if i['decklist']]
             if standings:
                 db['metadata'].insert_one({
