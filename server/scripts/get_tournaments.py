@@ -53,6 +53,7 @@ if __name__ == '__main__':
             if standings:
                 db['metadata'].insert_one({
                     'TID': tourney['TID'],
+                    'tournamentName': tourney['tournamentName'] if tourney['tournamentName'] else 'Unnamed Tournament',
                     'size': len(tourney['standings']),
                     'date': datetime.datetime.fromtimestamp(tourney['dateCreated']),
                     'dateCreated': tourney['dateCreated']
