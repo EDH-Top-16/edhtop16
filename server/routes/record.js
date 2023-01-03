@@ -12,11 +12,26 @@ const dbo = require("../db/conn");
  
 // This help convert the id from string to ObjectId for the _id.
 const ObjectId = require("mongodb").ObjectId;
- 
+
+function parseTourneyFilters(filters){
+  let db_connect = dbo.getDb();
+  if(filters.hasOwnProperty("date") && filters.hasOwnProperty("dateCreated")){
+    throw new Error("Request cannot have both date and datecreated fields");
+  }
+  let dateName = (filters.hasOwnProperty("date")) ? "date" : "dateCreated";
+  let dateValue = (filters.hasOwnProperty("date")) ? filters.date : filters.dateCreated;
+  db_connect.collection("metadata")
+    .find(
+      {
+        [dateName]: dateValue,
+        size: filters.size
+      }
+    ).toArray(function (err, res){if (err) throw err; callback(res);});
+}
  
 // This section will help you get a list of all the records.
 recordRoutes.route("/record").get(function (req, res) {
- let db_connect = dbo.getDb("test");
+ let db_connect = dbo.getDb();
  db_connect
    .collection("test")
    .find({})
@@ -28,14 +43,18 @@ recordRoutes.route("/record").get(function (req, res) {
 
 recordRoutes.route("/record/req").post(async function (req, res) {
   let db_connect = dbo.getDb();
-  let tourney_names = req.body.tourney_names;
-  let myobj = req.body.request;
+  let tourney_ids = parseTourneyFilters(req.body.tourney_filter);
+  // TODO: add all the other fields
+  let myobj = {
+    standing: res.body.standing,
+    colorID: res.body.colorID
+  }
   var results = [];
 
-  for (let i = 0; i < tourney_names.length; i++) {
+  for (let i = 0; i < tourney_ids.length; i++) {
     const result = await new Promise((resolve, reject) => {
       db_connect
-        .collection(tourney_names[i])
+        .collection(tourney_ids[i])
         .find(myobj)
         .toArray((err, result) => {
           if (err) reject(err);

@@ -21,7 +21,7 @@ for c in collections:
     print(f"Updating Collection '{c}' with commander/color identity metadata")
     col = db[c]
     for i in tqdm(col.find()):
-        if 'Commander' in i.keys() and 'Color_ID' in i.keys(): # Metadata already exists
+        if 'commander' in i.keys() and 'colorID' in i.keys(): # Metadata already exists
             continue
         try:
             decklist_url = i['decklist']
@@ -53,4 +53,4 @@ for c in collections:
     
         # print(commander_string, '')
         # print(color_id)
-        col.update_one(i, {'$set': {'Commander': commander_string, 'Color_ID': color_id}})
+        col.update_one(i, {'$set': {'commander': commander_string, 'colorID': color_id}})
