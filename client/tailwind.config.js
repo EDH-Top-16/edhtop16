@@ -6,6 +6,7 @@ module.exports = {
       colors: {
         bg_primary: "#2A2655",
         nav: "#514F86",
+        banner: "#312D5A",
         text: "#B7B5FF",
         subtext: "#514F86",
         searchbar: "#DEDFFF",
