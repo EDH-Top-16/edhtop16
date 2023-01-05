@@ -39,7 +39,7 @@ async function parseTourneyFilters(filters){
 }
  
 // This section will help you get a list of all the records.
-recordRoutes.route("/record").get(function (req, res) {
+recordRoutes.route("/api").get(function (req, res) {
  let db_connect = dbo.getDb();
  db_connect
    .collection("test")
@@ -50,7 +50,7 @@ recordRoutes.route("/record").get(function (req, res) {
    });
 });
 
-recordRoutes.route("/record/req").post(async function (req, res) {
+recordRoutes.route("/api/req").post(async function (req, res) {
   let db_connect = dbo.getDb();
   let tourney_ids = await parseTourneyFilters(req.body.tourney_filter);
   // let tourney_ids = req.body.tourney_filter;
@@ -71,13 +71,14 @@ recordRoutes.route("/record/req").post(async function (req, res) {
           resolve(result);
         });
     });
+    result.map((x) => (x.tournamentName = tourney_ids[i].tournamentName));
     results = results.concat(result);
   }
 
   res.json(results);
 });
 
-recordRoutes.route("/record/list_tourneys").post(async function (req, res) {
+recordRoutes.route("/api/list_tourneys").post(async function (req, res) {
     let db_connect = dbo.getDb();
     db_connect
       .collection("metadata")
@@ -88,7 +89,7 @@ recordRoutes.route("/record/list_tourneys").post(async function (req, res) {
       });   
 });
 
-recordRoutes.route("/record/get_commanders").get(function (req, res) {
+recordRoutes.route("/api/get_commanders").get(function (req, res) {
   let db_connect = dbo.getDb();
   db_connect
     .collection("commanders")

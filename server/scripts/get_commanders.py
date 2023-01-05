@@ -22,8 +22,8 @@ for c in collections:
     commander_col = db['commanders']
     col = db[c]
     for i in tqdm(col.find()):
-        # if 'commander' in i.keys() and 'colorID' in i.keys(): # Metadata already exists
-        #     continue
+        if 'commander' in i.keys() and 'colorID' in i.keys(): # Metadata already exists
+            continue
         try:
             decklist_url = i['decklist']
         except KeyError:
