@@ -8,7 +8,7 @@ client = MongoClient("mongodb://localhost:27017")
 db = client['cedhtop16']
 
 # TODO: get collections from metadata
-collections = [i for i in db.list_collection_names() if i != 'metadata']
+collections = [i for i in db.list_collection_names() if (i != 'metadata' and i != 'commanders')]
 
 def wubrgify(color_string):
     """Parse colors in WUBRG(C) order; removes duplicates and misordering"""
@@ -19,10 +19,11 @@ def wubrgify(color_string):
 
 for c in collections:
     print(f"Updating Collection '{c}' with commander/color identity metadata")
+    commander_col = db['commanders']
     col = db[c]
     for i in tqdm(col.find()):
-        if 'commander' in i.keys() and 'colorID' in i.keys(): # Metadata already exists
-            continue
+        # if 'commander' in i.keys() and 'colorID' in i.keys(): # Metadata already exists
+        #     continue
         try:
             decklist_url = i['decklist']
         except KeyError:
@@ -39,7 +40,7 @@ for c in collections:
         if len(commanders) == 1:
             commander_string = commanders[0]
         elif len(commanders) == 2: # Partners, Friends Forever, Background, whatever Wizards plans to do next
-            commander_string = commanders[0] + ' / ' + commanders[1]
+            commander_string = commanders[0] + ' / ' + commanders[1] if commanders[1] > commanders[0] else commanders[1] + ' / ' + commanders[0]
         else:
             print("Warning: Number of commanders is not 1 or 2. Skipped.") # TODO: provide more useful logging data here
             continue
@@ -54,3 +55,4 @@ for c in collections:
         # print(commander_string, '')
         # print(color_id)
         col.update_one(i, {'$set': {'commander': commander_string, 'colorID': color_id}})
+        commander_col.find_one_and_update({'commander': commander_string}, {'$inc': {'count': 1}, '$set': {'colorID':color_id}}, upsert=True)
