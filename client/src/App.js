@@ -1,7 +1,11 @@
+import Nav from "./components/Nav";
+import DeckView from "./components/DeckView";
+
 function App() {
   return (
-    <div>
-      <h1 className="text-4xl text-red-500">Hello World</h1>
+    <div className="bg-bg_primary min-w-screen min-h-screen">
+      <Nav />
+      <DeckView />
     </div>
   );
 }
