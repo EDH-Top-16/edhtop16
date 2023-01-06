@@ -25,7 +25,7 @@ async function parseTourneyFilters(filters){
     let dateName = ("date" in filters) ? "date" : "dateCreated";
     let dateValue = (dateName == "date") ? filters.date : filters.dateCreated;
     query = {
-      [dateName]: dateValue,
+      [dateName]: (dateValue != undefined) ? dateValue: {$gt: 0},
       size: filters.size
     };
   }
@@ -44,10 +44,10 @@ async function parseTourneyFilters(filters){
 
 // Main API endpoint. Returns a list of playerobjects with variouus stats relating performance and deck.
 // Alongside filtering these datapoints, you can also filter based on the tournament based on size, recency, etc.
-recordRoutes.route("/api/req").post(async function (req, res, next) {
+recordRoutes.route("/api/req").post(async function (req, res) {
   let db_connect = dbo.getDb();
   try{
-    var tourney_ids = await parseTourneyFilters(req.body.tourney_filter, next);
+    var tourney_ids = await parseTourneyFilters(req.body.tourney_filter);
   } catch (err) {
     res.status(400);
     res.send(err.message);
@@ -82,14 +82,14 @@ recordRoutes.route("/api/req").post(async function (req, res, next) {
 
 // Get a list of all tournaments as well as tournament IDs and metadata
 recordRoutes.route("/api/list_tourneys").post(async function (req, res) {
-    let db_connect = dbo.getDb();
-    db_connect
-      .collection("metadata")
-      .find(req.body)
-      .toArray(function (err, result) {
-        if (err) throw err;
-        res.json(result);
-      });   
+  try{
+    var tourney_ids = await parseTourneyFilters(req.body);
+  } catch (err) {
+    res.status(400);
+    res.send(err.message);
+    return;
+  }
+  res.json(tourney_ids);
 });
 
 // Get all commanders present, their color IDs, and their count.
