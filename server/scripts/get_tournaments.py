@@ -5,6 +5,10 @@ import requests
 import datetime
 import json
 
+# Paste your api key into a text file called 'eminence_api_key.txt'
+with open("./eminence_api_key.txt", 'r') as f:
+    apiKey = f.readline().replace('\n', '')
+
 def fetch_tournaments():
     data = {'last': 365, # TODO: CHANGE THIS TO A REASONABLE NUMBER WHEN ATTACHING TO CRON JOB
         'columns': ['name',
@@ -22,7 +26,7 @@ def fetch_tournaments():
         'lossesBracket']}
     
     headers = {'Content-Type': 'application/json',
-        'Authorization': '8pvFjN3qwz1rH5xlK6G7Ui',
+        'Authorization': apiKey,
         'Accept': 'application/json'}
 
     r = requests.post("https://eminence.events/api", json=data, headers=headers)
