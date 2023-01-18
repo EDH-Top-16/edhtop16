@@ -32,8 +32,11 @@ for c in collections:
 
         try:
             commanders = mtg_api.get_deck(decklist_url).get_commander()
-        except KeyError:
-            print("Warning: error while fetching decklist.") # TODO: provide more useful logging data here  
+        except (KeyError, AttributeError):
+            print("Warning: error while fetching decklist.") # TODO: provide more useful logging data here
+            commander_string = "Unknown Commander"
+            col.update_one(i, {'$set': {'commander': commander_string, 'colorID': 'N/A'}})
+            commander_col.find_one_and_update({'commander': commander_string}, {'$inc': {'count': 1}, '$set': {'colorID':'N/A'}}, upsert=True)
             continue
         
         # Get single string for name(s) of commander(s)
@@ -43,6 +46,9 @@ for c in collections:
             commander_string = commanders[0] + ' / ' + commanders[1] if commanders[1] > commanders[0] else commanders[1] + ' / ' + commanders[0]
         else:
             print("Warning: Number of commanders is not 1 or 2. Skipped.") # TODO: provide more useful logging data here
+            commander_string = "Unknown Commander"
+            col.update_one(i, {'$set': {'commander': commander_string, 'colorID': 'N/A'}})
+            commander_col.find_one_and_update({'commander': commander_string}, {'$inc': {'count': 1}, '$set': {'colorID':'N/A'}}, upsert=True)
             continue
         
         # Get color identity for commander(s)
