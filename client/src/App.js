@@ -1,11 +1,11 @@
 import Nav from "./components/Nav";
-import DeckView from "./components/DeckView";
+import CommanderView from "./components/CommanderView/CommanderView";
 
 function App() {
   return (
     <div className="bg-bg_primary min-w-screen min-h-screen">
       <Nav />
-      <DeckView />
+      <CommanderView />
     </div>
   );
 }

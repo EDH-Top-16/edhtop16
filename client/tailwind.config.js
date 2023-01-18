@@ -10,6 +10,7 @@ module.exports = {
         text: "#B7B5FF",
         subtext: "#514F86",
         searchbar: "#DEDFFF",
+        highlight: "#F87171",
       },
       dropShadow: {
         nav: "4px 0px 4px rgba(0, 0, 0, 0.5)",

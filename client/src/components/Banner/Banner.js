@@ -1,3 +1,4 @@
+import ColorSelection from "./ColorSelection";
 import Searchbar from "./Searchbar";
 
 export default function Banner({
@@ -7,9 +8,12 @@ export default function Banner({
   enableFilters,
 }) {
   return (
-    <div className="relative w-full h-full bg-banner top-16 px-24 py-12">
+    <div className="relative w-full h-full bg-banner mt-16 px-24 py-12">
       <h1 className="text-3xl font-bold text-text">{title}</h1>
-      <div className="mt-12">{enableSearchbar ? <Searchbar /> : <></>}</div>
+      <div className="flex w-3/6 space-x-32 mt-12">
+        {enableSearchbar ? <Searchbar /> : <></>}
+        {enableColors ? <ColorSelection /> : <></>}
+      </div>
     </div>
   );
 }
