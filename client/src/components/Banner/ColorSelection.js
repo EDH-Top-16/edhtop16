@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { W, U, B, R, G, C } from "../../images/index";
+import { validColors, colorImages } from "../../images/index";
 
 /*
  * TODO: implement communication with filter
@@ -8,11 +8,6 @@ import { W, U, B, R, G, C } from "../../images/index";
 export default function ColorSelection() {
   // We store colors into an array which will impact the filter
   const [colors, setColors] = useState([]);
-  const [toggle, setToggle] = useState(true);
-  // Safeguard against invalid inputs; also used to create each button
-  const validColors = ["W", "U", "B", "R", "G", "C"];
-  // Used to help the map function display each image
-  const images = { W, U, B, R, G, C };
 
   /**
    * Select function that keeps track of what colors you've selected
@@ -44,7 +39,7 @@ export default function ColorSelection() {
               : "border-2 border-highlight rounded-3xl"
           }
           onClick={() => select(color)}
-          src={images[color]}
+          src={colorImages[color]}
           alt={color}
         />
       ))}

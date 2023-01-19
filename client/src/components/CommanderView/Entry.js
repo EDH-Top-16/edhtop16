@@ -1,16 +1,20 @@
-import { W, U, B, R, G, C } from "../../images/index";
+import { validColors, colorImages } from "../../images/index";
 
 export default function Entry({ rank, name, metadata, colors }) {
   return (
-    <div className="flex">
-      <p>{rank}</p>
-      <a>{name}</a>
-      <p>{metadata}</p>
-      <div>
+    <tr className="flex space-x-24 text-white text-lg">
+      <td>{rank}</td>
+      <td>
+        <a className="underline" href="">
+          {name}
+        </a>
+      </td>
+      <td>{metadata}</td>
+      <td className="flex space-x-4 [&>img]:w-6">
         {colors.map((color) => (
-          <a>{color}</a>
+          <img key={color} src={colorImages[color]} alt={color} />
         ))}
-      </div>
-    </div>
+      </td>
+    </tr>
   );
 }
