@@ -1,6 +1,10 @@
 import axios from "axios";
 
 /**
+ * @TODO need to make tiebreaker (average winrate)
+ */
+
+/**
  *
  * @returns all valid commanders from our api
  */
@@ -16,7 +20,7 @@ export const getCommanders = () => {
   return axios
     .post(process.env.REACT_APP_uri + "/api/req", data, config)
     .then((res) =>
-      res.data.filter((el) => el.commander != "Unknown Commander")
+      res.data.filter((el) => el.commander !== "Unknown Commander")
     );
 };
 
@@ -35,9 +39,6 @@ export function getCommanderRankings(data, filters) {
        * @TODO change 16 to filter value
        */
       if (data[i].standing <= 16) {
-        /**
-         * @BOOKMARK
-         */
         if (!data[i].hasOwnProperty("top16")) data[i].top16 = 1;
         uniqueCommanders.push(data[i]);
       }
@@ -45,16 +46,13 @@ export function getCommanderRankings(data, filters) {
     // Otherwise, we'll look at the standing and apply filters
     else {
       let match = uniqueCommanders.find(
-        (el) => el.commander == data[i].commander
+        (el) => el.commander === data[i].commander
       );
 
       /**
        * @TODO change 16 to filter value
        */
       if (data[i].standing <= 16) {
-        /**
-         * @TODO increment topX count
-         */
         match.top16 += 1;
       }
     }
@@ -63,7 +61,7 @@ export function getCommanderRankings(data, filters) {
   /**
    * @TODO change 16 to filter value
    */
-  let sorted = uniqueCommanders.sort((a, b) => a.top16 - b.top16);
+  let sorted = uniqueCommanders.sort((a, b) => b.top16 - a.top16);
 
   console.log(sorted);
   return sorted;
