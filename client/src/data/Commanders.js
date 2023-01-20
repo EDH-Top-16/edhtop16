@@ -35,6 +35,10 @@ export function getCommanderRankings(data, filters) {
        * @TODO change 16 to filter value
        */
       if (data[i].standing <= 16) {
+        /**
+         * @BOOKMARK
+         */
+        if (!data[i].hasOwnProperty("top16")) data[i].top16 = 1;
         uniqueCommanders.push(data[i]);
       }
     }
@@ -51,10 +55,6 @@ export function getCommanderRankings(data, filters) {
         /**
          * @TODO increment topX count
          */
-        if (!match.hasOwnProperty("top16")) {
-          match.top16 = 1;
-          continue;
-        }
         match.top16 += 1;
       }
     }
