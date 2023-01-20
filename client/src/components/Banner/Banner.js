@@ -1,5 +1,6 @@
 import ColorSelection from "./ColorSelection";
 import Searchbar from "./Searchbar";
+import Filter from "./Filter";
 
 export default function Banner({
   title,
@@ -14,6 +15,7 @@ export default function Banner({
         {enableSearchbar ? <Searchbar /> : <></>}
         {enableColors ? <ColorSelection /> : <></>}
       </div>
+      {enableFilters ? <Filter /> : <></>}
     </div>
   );
 }

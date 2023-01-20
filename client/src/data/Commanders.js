@@ -1,7 +1,7 @@
 import axios from "axios";
 
 /**
- * @TODO need to make tiebreaker (average winrate)
+ * @TODO need to make tiebreaker (top 16/4/1);
  */
 
 /**
@@ -24,23 +24,24 @@ export function getCommanders(filters) {
 }
 
 /**
- *
  * @returns each unique commander(s) rankings given some data
  */
-export function getCommanderRankings(data) {
+export function getCommanderRankings(data, x) {
   var uniqueCommanders = [];
 
   // Iterating through the entirety of the array to find unique comanders
   for (let i = 0; i < data.length; i++) {
     // If so-far unique, push it to the uniqueCommanders array given the filters
     if (!uniqueCommanders.find((el) => el.commander === data[i].commander)) {
-      /**
-       * @TODO change 16 to filter value
-       */
-      if (data[i].standing <= 16) {
-        if (!data[i].hasOwnProperty("top16")) data[i].top16 = 1;
-        uniqueCommanders.push(data[i]);
+      if (data[i].standing <= x) {
+        if (!data[i].hasOwnProperty("topX")) data[i].topX = 1;
+      } else {
+        if (!data[i].hasOwnProperty("topX")) data[i].topX = 0;
       }
+
+      data[i].count = 1;
+
+      uniqueCommanders.push(data[i]);
     }
     // Otherwise, we'll look at the standing and apply filters
     else {
@@ -48,19 +49,14 @@ export function getCommanderRankings(data) {
         (el) => el.commander === data[i].commander
       );
 
-      /**
-       * @TODO change 16 to filter value
-       */
-      if (data[i].standing <= 16) {
-        match.top16 += 1;
+      if (data[i].standing <= x) {
+        match.topX++;
       }
+      match.count++;
     }
   }
 
-  /**
-   * @TODO add the rank
-   */
-  let sorted = uniqueCommanders.sort((a, b) => b.top16 - a.top16);
+  let sorted = uniqueCommanders.sort((a, b) => b.topX - a.topX);
 
   console.log(sorted);
   return sorted;
