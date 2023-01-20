@@ -14,7 +14,7 @@ export default function Entry({ rank, name, metadata, colors }) {
           <p>{data}</p>
         ))}
       </td>
-      <td className="flex space-x-4 [&>img]:w-6">
+      <td className="flex space-x-4 !m-0 align-middle [&>img]:w-6">
         {colors.split("").map((color) => (
           <img key={color} src={colorImages[color]} alt={color} />
         ))}

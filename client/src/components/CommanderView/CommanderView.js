@@ -3,7 +3,7 @@ import axios from "axios";
 
 import Banner from "../Banner/Banner";
 import Entry from "./Entry";
-import { getCommanders } from "../../data/Commanders";
+import { getCommanders, getCommanderRankings } from "../../data/Commanders";
 
 export default function CommanderView() {
   const [commanders, setCommanders] = useState([]);
@@ -11,7 +11,9 @@ export default function CommanderView() {
 
   useEffect(() => {
     getCommanders().then((data) => {
-      setCommanders(data);
+      // console.log("Data:", data);
+      const commanderRankings = getCommanderRankings(data);
+      setCommanders(commanderRankings);
       setIsLoading(false);
     });
   }, []);
@@ -20,22 +22,22 @@ export default function CommanderView() {
     <div className="flex flex-col w-11/12 ml-auto mr-0">
       <Banner title={"View Decks"} enableSearchbar={true} enableColors={true} />
       <table className="block mx-24 my-12 table-fixed">
-        <tbody className="[&>tr]:space-y-6 [&>tr>td]:w-max [&>tr>td]:px-4">
-          <tr>
+        <tbody className="[&>tr]:space-y-6 [&>tr>td]:w-max [&>tr>td]:p-4">
+          <tr className="text-subtext text-lg underline">
             <td>#</td>
             <td>Name</td>
             <td>%</td>
             <td>Colors</td>
           </tr>
           {isLoading ? (
-            <></>
+            <tr>Loading...</tr>
           ) : (
             commanders &&
             commanders.map((k, v) => (
               <Entry
-                key={v}
+                key={commanders[v].id}
                 name={commanders[v].commander}
-                metadata={[]}
+                metadata={[commanders[v].top16]}
                 colors={commanders[v].colorID}
               />
             ))
