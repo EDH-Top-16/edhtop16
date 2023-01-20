@@ -9,11 +9,9 @@ export default function Entry({ rank, name, metadata, colors }) {
           {name}
         </a>
       </td>
-      <td>
-        {metadata.map((data) => (
-          <p>{data}</p>
-        ))}
-      </td>
+      {metadata.map((data) => (
+        <td>{data}</td>
+      ))}
       <td className="flex space-x-4 !m-0 align-middle [&>img]:w-6">
         {colors.split("").map((color) => (
           <img key={color} src={colorImages[color]} alt={color} />

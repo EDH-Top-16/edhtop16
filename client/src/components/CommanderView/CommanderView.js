@@ -26,7 +26,7 @@ export default function CommanderView() {
           <tr className="text-subtext text-lg underline">
             <td>#</td>
             <td>Name</td>
-            <td>%</td>
+            <td>Top 16s</td>
             <td>Colors</td>
           </tr>
           {isLoading ? (
@@ -35,6 +35,7 @@ export default function CommanderView() {
             commanders &&
             commanders.map((k, v) => (
               <Entry
+                rank={v + 1}
                 key={commanders[v].id}
                 name={commanders[v].commander}
                 metadata={[commanders[v].top16]}

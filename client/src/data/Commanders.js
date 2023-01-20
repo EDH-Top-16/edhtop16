@@ -8,7 +8,7 @@ import axios from "axios";
  *
  * @returns all valid commanders from our api
  */
-export const getCommanders = () => {
+export function getCommanders(filters) {
   const config = {
     headers: {
       "Content-Type": "application/json",
@@ -16,19 +16,18 @@ export const getCommanders = () => {
     },
   };
 
-  const data = {};
   return axios
-    .post(process.env.REACT_APP_uri + "/api/req", data, config)
+    .post(process.env.REACT_APP_uri + "/api/req", filters, config)
     .then((res) =>
       res.data.filter((el) => el.commander !== "Unknown Commander")
     );
-};
+}
 
 /**
  *
  * @returns each unique commander(s) rankings given some data
  */
-export function getCommanderRankings(data, filters) {
+export function getCommanderRankings(data) {
   var uniqueCommanders = [];
 
   // Iterating through the entirety of the array to find unique comanders
@@ -59,7 +58,7 @@ export function getCommanderRankings(data, filters) {
   }
 
   /**
-   * @TODO change 16 to filter value
+   * @TODO add the rank
    */
   let sorted = uniqueCommanders.sort((a, b) => b.top16 - a.top16);
 
