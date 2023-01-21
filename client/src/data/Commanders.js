@@ -39,6 +39,7 @@ export function getCommanderRankings(data, x) {
         if (!data[i].hasOwnProperty("topX")) data[i].topX = 0;
       }
 
+      data[i].tiebreaker = 0;
       data[i].count = 1;
 
       uniqueCommanders.push(data[i]);
@@ -52,12 +53,26 @@ export function getCommanderRankings(data, x) {
       if (data[i].standing <= x) {
         match.topX++;
       }
+
+      // Tiebreaker value is 4/1/16 for x = 16/4/1
+      let tiebreaker = x === 16 ? 4 : x === 4 ? 1 : 16;
+      if (data[i].standing <= tiebreaker) {
+        match.tiebreaker += 1;
+      }
+
       match.count++;
     }
   }
 
-  let sorted = uniqueCommanders.sort((a, b) => b.topX - a.topX);
+  // Sort the array with respect to topXs and tiebreaker
+  let rankedCommanders = uniqueCommanders.sort((a, b) => {
+    if (b.topX - a.topX === 0) {
+      return b.tiebreaker - a.tiebreaker;
+    } else {
+      return b.topX - a.topX;
+    }
+  });
 
-  console.log(sorted);
-  return sorted;
+  console.log(rankedCommanders);
+  return rankedCommanders;
 }

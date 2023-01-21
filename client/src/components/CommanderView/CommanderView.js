@@ -49,7 +49,6 @@ export default function CommanderView() {
             commanders.map((k, v) => (
               <Entry
                 rank={v + 1}
-                key={commanders[v].id}
                 name={commanders[v].commander}
                 metadata={[
                   commanders[v].topX,
