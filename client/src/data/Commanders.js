@@ -1,10 +1,6 @@
 import axios from "axios";
 
 /**
- * @TODO need to make tiebreaker (top 16/4/1);
- */
-
-/**
  *
  * @returns all valid commanders from our api
  */
