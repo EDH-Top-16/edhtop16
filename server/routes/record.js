@@ -53,14 +53,20 @@ recordRoutes.route("/api/req").post(async function (req, res) {
     res.send(err.message);
     return;
   }
-  // Generate query
-  let query = {};
-  const keys = ['name', 'profile', 'decklist', 'wins', 'winsSwiss', 'winsBracket', 'winRate', 'winRateSwiss', 'winRateBracket', 'draws', 'losses', 'lossesSwiss', 'lossesBracket', 'standing', 'colorID', 'commander'];
-  keys.forEach(element => {
-    if(element in req.body){
-      query[element] = req.body[element];
-    }
-  });
+  var query = {};
+  try{
+    // Generate query
+    const keys = ['name', 'profile', 'decklist', 'wins', 'winsSwiss', 'winsBracket', 'winRate', 'winRateSwiss', 'winRateBracket', 'draws', 'losses', 'lossesSwiss', 'lossesBracket', 'standing', 'colorID', 'commander'];
+    keys.forEach(element => {
+      if(element in req.body){
+        query[element] = req.body[element];
+      }
+    });
+  } catch (err){
+    res.status(400);
+    res.send("Error: invalid filters.");
+    return;
+  }
   var results = [];
   
   for (let i = 0; i < tourney_ids.length; i++) {
