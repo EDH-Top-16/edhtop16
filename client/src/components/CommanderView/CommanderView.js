@@ -11,15 +11,20 @@ import { getCommanders, getCommanderRankings } from "../../data/Commanders";
 export default function CommanderView() {
   const [commanders, setCommanders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [topX, setTopX] = useState(16);
 
   useEffect(() => {
     getCommanders().then((data) => {
       // console.log("Data:", data);
-      const commanderRankings = getCommanderRankings(data, 16);
+      const commanderRankings = getCommanderRankings(data, topX);
       setCommanders(commanderRankings);
       setIsLoading(false);
     });
-  }, []);
+  }, [topX]);
+
+  function changeTopX() {
+    setTopX(topX === 16 ? 4 : topX === 4 ? 1 : 16);
+  }
 
   return (
     <div className="flex flex-col w-11/12 ml-auto mr-0">
@@ -37,7 +42,9 @@ export default function CommanderView() {
           <tr className="text-subtext text-lg underline">
             <td>#</td>
             <td>Name</td>
-            <td>Top 16s</td>
+            <td className="cursor-pointer" onClick={() => changeTopX()}>
+              Top {topX}s
+            </td>
             <td>Entries</td>
             <td>Conversion</td>
             <td>Colors</td>
