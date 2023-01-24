@@ -1,10 +1,11 @@
-import Nav from "./components/Nav";
-import CommanderView from "./components/CommanderView/CommanderView";
-import CommanderPage from "./components/CommanderView/CommanderPage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import Nav from "./components/Nav";
+import CommanderView from "./components/CommanderView/CommanderView";
+import DeckView from "./components/DeckView/DeckView";
+
 /**
- * @TODO use the path as commander name
+ * @TODO make a list of valid URLs so commander/asdf isn't an actual page lol
  */
 
 function App() {
@@ -14,10 +15,7 @@ function App() {
         <Nav />
         <Routes>
           <Route index element={<CommanderView />} />
-          <Route
-            path="commander/*"
-            element={<CommanderPage commander={"name"} />}
-          />
+          <Route path="commander/*" element={<DeckView />} />
         </Routes>
       </BrowserRouter>
     </div>

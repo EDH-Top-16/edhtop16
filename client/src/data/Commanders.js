@@ -27,7 +27,9 @@ export function getCommanderRankings(data, x) {
 
   // Iterating through the entirety of the array to find unique comanders
   for (let i = 0; i < data.length; i++) {
-    // If so-far unique, push it to the uniqueCommanders array given the filters
+    /**
+     * If so-far unique, push it to the uniqueCommanders array given the filters
+     */
     if (!uniqueCommanders.find((el) => el.commander === data[i].commander)) {
       if (data[i].standing <= x) {
         if (!data[i].hasOwnProperty("topX")) data[i].topX = 1;
@@ -38,10 +40,16 @@ export function getCommanderRankings(data, x) {
       data[i].tiebreaker = 0;
       data[i].count = 1;
 
+      // Creates the slug out of its name
+      let slug = data[i].commander.replaceAll("/", "+");
+
+      data[i].slug = slug;
+
       uniqueCommanders.push(data[i]);
-    }
-    // Otherwise, we'll look at the standing and apply filters
-    else {
+    } else {
+      /**
+       * Otherwise, we'll look at the standing and apply filters
+       */
       let match = uniqueCommanders.find(
         (el) => el.commander === data[i].commander
       );

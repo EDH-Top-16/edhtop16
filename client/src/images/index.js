@@ -1,4 +1,4 @@
-//Images
+// Images
 export const logo = require("./EGLogo.png");
 
 // SVG
@@ -12,3 +12,6 @@ export const C = require("./colors/C.svg").default;
 export const validColors = ["W", "U", "B", "R", "G", "C"];
 // Used to help the map function display each image
 export const colorImages = { W, U, B, R, G, C };
+
+export const deckIcon = require("./deckIcon.svg").default;
+export const bracketIcon = require("./bracketIcon.svg").default;
