@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 import { validColors, colorImages } from "../../images/index";
 
 export default function Entry({ rank, name, metadata, colors }) {
@@ -5,9 +7,11 @@ export default function Entry({ rank, name, metadata, colors }) {
     <tr className="text-text text-lg">
       <td>{rank}</td>
       <td>
-        <a className="underline" href="">
-          {name}
-        </a>
+        <Link to={`/commander/${name}`}>
+          <a className="underline" href="">
+            {name}
+          </a>
+        </Link>
       </td>
       {metadata.map((data) => (
         <td>{data}</td>

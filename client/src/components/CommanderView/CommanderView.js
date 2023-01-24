@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Link } from "react-router-dom";
+
 
 import Banner from "../Banner/Banner";
 import Entry from "./Entry";
@@ -28,7 +28,6 @@ export default function CommanderView() {
   }
 
   return (
-    <BrowserRouter>
       <div className="flex flex-col w-11/12 ml-auto mr-0">
         {/* Banner */}
         <Banner
@@ -56,29 +55,22 @@ export default function CommanderView() {
             ) : (
               commanders &&
               commanders.map((k, v) => (
-                <Routes
-                  path={`/commander/${commanders[v].commander}`}
-                  component={
-                    <Entry
-                      rank={v + 1}
-                      name={commanders[v].commander}
-                      metadata={[
-                        commanders[v].topX,
-                        commanders[v].count,
-                        (
-                          (commanders[v].topX / commanders[v].count) *
-                          100
-                        ).toFixed(2) + "%",
-                      ]}
-                      colors={commanders[v].colorID}
-                    />
-                  }
+                <Entry
+                  rank={v + 1}
+                  name={commanders[v].commander}
+                  metadata={[
+                    commanders[v].topX,
+                    commanders[v].count,
+                    (
+                      (commanders[v].topX / commanders[v].count) *
+                      100
+                    ).toFixed(2) + "%",
+                  ]}
+                  colors={commanders[v].colorID}
                 />
-              ))
-            )}
+              )))}
           </tbody>
         </table>
       </div>
-    </BrowserRouter>
   );
 }
