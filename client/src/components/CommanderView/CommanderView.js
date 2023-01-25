@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import Banner from "../Banner/Banner";
-import Entry from "./Entry";
+import Entry from "../Entry";
 import { getCommanders, getCommanderRankings } from "../../data/Commanders";
 
 /**
@@ -53,19 +53,20 @@ export default function CommanderView() {
             <tr>Loading...</tr>
           ) : (
             commanders &&
-            commanders.map((k, v) => (
+            commanders.map((v, i) => (
               <Entry
-                slug={commanders[v].slug.replaceAll("+", "/")}
-                rank={v + 1}
-                name={commanders[v].commander}
+                enableLink={true}
+                slug={commanders[i].slug.replaceAll("+", "/")}
+                rank={i + 1}
+                name={commanders[i].commander}
                 metadata={[
-                  commanders[v].topX,
-                  commanders[v].count,
-                  ((commanders[v].topX / commanders[v].count) * 100).toFixed(
+                  commanders[i].topX,
+                  commanders[i].count,
+                  ((commanders[i].topX / commanders[i].count) * 100).toFixed(
                     2
                   ) + "%",
                 ]}
-                colors={commanders[v].colorID}
+                colors={commanders[i].colorID}
               />
             ))
           )}
