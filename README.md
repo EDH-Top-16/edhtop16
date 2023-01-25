@@ -19,5 +19,5 @@ Frontend, UI/UX, Functionality: [@g00gol]
 
 Backend, custom APIs, Python Scripting: [@JasonQiu21]
 
-Mentor, API Keys, DB Access: Zain
+Mentor, API Keys, DB Access: Zain and the Eminence Team
 ```
