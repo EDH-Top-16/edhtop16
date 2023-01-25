@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import axios from "axios";
+import {getCommanderNames} from "../../data/Commanders";
 
 export default function Searchbar() {
   const inputRef = useRef(null);
@@ -6,6 +8,14 @@ export default function Searchbar() {
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
 
+  useEffect(() => {
+    getCommanderNames().then((data) => {
+      // console.log("Data:", data);
+      setSuggestions(data);
+      // setIsLoading(false);
+    });
+  }, []);
+  console.log("asdf", suggestions);
   const handleChange = (event) => {
     setSearchTerm(event.target.value);
     setSuggestions(["Tymna", "Kraum / Tymna", "Thrasios / Tymna"]);
@@ -34,13 +44,13 @@ export default function Searchbar() {
         value={searchTerm}
         onChange={handleChange}
       />
-      {suggestions.length > 0 && (
+      {/* {suggestions.length > 0 && (
         <ul className="absolute bg-white">
           {suggestions.map((suggestion) => (
             <li key={suggestion}>{suggestion}</li>
           ))}
         </ul>
-      )}
+      )} */}
     </div>
   );
 }
