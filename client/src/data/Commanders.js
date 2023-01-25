@@ -83,7 +83,7 @@ export function getCommanderRankings(data, x) {
 
 export function getDeckRankings(data) {
   let rankedDecks = data.sort((a, b) => {
-    return a.winRate > b.winRate;
+    return b.winRate - a.winRate;
   });
 
   return rankedDecks;
