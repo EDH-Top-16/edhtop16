@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import {getCommanderNames} from "../../data/Commanders";
+import { getCommanderNames, filterNames } from "../../data/Commanders";
 
 export default function Searchbar() {
   const inputRef = useRef(null);
@@ -11,14 +11,16 @@ export default function Searchbar() {
   useEffect(() => {
     getCommanderNames().then((data) => {
       // console.log("Data:", data);
-      setSuggestions(data);
+      var filtered = filterNames(data, searchTerm);
+      setSuggestions(filtered);
       // setIsLoading(false);
     });
-  }, []);
+  }, [searchTerm]);
+
   console.log("asdf", suggestions);
+
   const handleChange = (event) => {
     setSearchTerm(event.target.value);
-    setSuggestions(["Tymna", "Kraum / Tymna", "Thrasios / Tymna"]);
   };
 
   const handleClickOutside = (event) => {

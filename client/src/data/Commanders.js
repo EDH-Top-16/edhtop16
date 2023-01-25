@@ -1,7 +1,6 @@
 import axios from "axios";
 
 /**
- *
  * @returns all valid commanders from our api
  */
 export function getCommanders(filters) {
@@ -96,8 +95,20 @@ export function getCommanderNames() {
     );
 }
 
+export function filterNames(data, input) {
+  const names = data.map((obj) => {
+    return obj.commander;
+  });
+
+  const filtered = names.filter((x) => {
+    return x.toLowerCase().includes(input.toLowerCase());
+  });
+
+  return filtered;
+}
+
 /**
- * @returns decks ranked by 
+ * @returns decks ranked by
  */
 export function getDeckRankings(data) {
   let rankedDecks = data.sort((a, b) => {

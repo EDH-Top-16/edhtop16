@@ -27,7 +27,7 @@ export default function Entry({
           ) : (
             <span className="flex">
               {name}
-              {mox && mox != "" ? (
+              {mox && mox !== "" ? (
                 <a href={mox}>
                   <img className="ml-2 w-6" src={moxIcon} alt="mox" />
                 </a>
