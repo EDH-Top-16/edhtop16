@@ -81,6 +81,20 @@ export function getCommanderRankings(data, x) {
   return rankedCommanders;
 }
 
+export function getCommanderNames() {
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+  };
+
+  return axios
+    .get(process.env.REACT_APP_uri + "/api/get_commanders", config)
+    .then((res) =>
+      res.data.filter((el) => el.commander !== "Unknown Commander")
+    );
+}
 
 /**
  * @returns decks ranked by 
