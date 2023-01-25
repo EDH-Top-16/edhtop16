@@ -43,8 +43,8 @@ export default function DeckView() {
             <td>#</td>
             <td>Player Name</td>
             <td>Wins</td>
-            <td>Draws</td>
             <td>Losses</td>
+            <td>Draws</td>
             <td>Tournament</td>
           </tr>
           {isLoading ? (
@@ -56,7 +56,7 @@ export default function DeckView() {
                 rank={i + 1}
                 name={decks[i].name}
                 mox={decks[i].decklist}
-                metadata={[decks[i].wins, decks[i].draws, decks[i].losses]}
+                metadata={[decks[i].wins, decks[i].losses, decks[i].draws]}
                 tournament={decks[i].tournamentName}
               />
             ))
