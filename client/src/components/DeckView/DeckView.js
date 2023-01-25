@@ -29,12 +29,7 @@ export default function DeckView() {
   return (
     <div className="flex flex-col w-11/12 ml-auto mr-0">
       {/* Banner */}
-      <Banner
-        title={commander}
-        enableSearchbar={true}
-        enableColors={true}
-        enableFilters={true}
-      />
+      <Banner title={commander} enableSearchbar={true} enableFilters={true} />
 
       {/* Table of decks */}
       <table className="block mx-24 my-12 table-fixed">
