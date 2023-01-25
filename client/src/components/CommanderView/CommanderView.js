@@ -56,7 +56,7 @@ export default function CommanderView() {
             commanders.map((v, i) => (
               <Entry
                 enableLink={true}
-                slug={commanders[i].slug.replaceAll("+", "/")}
+                slug={commanders[i].slug}
                 rank={i + 1}
                 name={commanders[i].commander}
                 metadata={[

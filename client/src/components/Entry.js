@@ -1,14 +1,16 @@
 import { Link } from "react-router-dom";
 
-import { colorImages } from "../images/index";
+import { colorImages, moxIcon } from "../images/index";
 
 export default function Entry({
   enableLink,
   slug,
   rank,
   name,
+  mox,
   metadata,
   colors,
+  tournament,
 }) {
   return (
     <tr className="text-text text-lg">
@@ -23,8 +25,15 @@ export default function Entry({
               </span>
             </Link>
           ) : (
-            <span className="" href="">
+            <span className="flex">
               {name}
+              {mox && mox != "" ? (
+                <a href={mox}>
+                  <img className="ml-2 w-6" src={moxIcon} alt="mox" />
+                </a>
+              ) : (
+                <></>
+              )}
             </span>
           )}
         </td>
@@ -43,6 +52,8 @@ export default function Entry({
       ) : (
         <></>
       )}
+
+      {tournament ? <td>{tournament}</td> : <></>}
     </tr>
   );
 }

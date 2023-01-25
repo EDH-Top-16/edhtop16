@@ -13,13 +13,13 @@ export default function DeckView() {
   const [isLoading, setIsLoading] = useState(true);
 
   let params = useParams();
-  const commander = params["*"];
+  const commander = params["*"].replaceAll("+", "/");
 
   useEffect(() => {
     getCommanders({
       commander: commander,
     }).then((data) => {
-      // console.log("Data:", data);
+      console.log("Data:", data);
       const deckRankings = getDeckRankings(data);
       setDecks(deckRankings);
       setIsLoading(false);
@@ -41,17 +41,25 @@ export default function DeckView() {
         <tbody className="[&>tr]:space-y-6 [&>tr>td]:w-max [&>tr>td]:px-2 [&>tr>td]:py-4">
           <tr className="text-subtext text-lg underline">
             <td>#</td>
-            <td>Name</td>
-            <td className="cursor-pointer">Tops</td>
-            <td>Entries</td>
-            <td>Conversion</td>
-            <td>Colors</td>
+            <td>Player Name</td>
+            <td>Wins</td>
+            <td>Draws</td>
+            <td>Losses</td>
+            <td>Tournament</td>
           </tr>
           {isLoading ? (
             <tr>Loading...</tr>
           ) : (
             decks &&
-            decks.map((x, i) => <Entry rank={i + 1} name={decks[i].name} />)
+            decks.map((x, i) => (
+              <Entry
+                rank={i + 1}
+                name={decks[i].name}
+                mox={decks[i].decklist}
+                metadata={[decks[i].wins, decks[i].draws, decks[i].losses]}
+                tournament={decks[i].tournamentName}
+              />
+            ))
           )}
         </tbody>
       </table>
