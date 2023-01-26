@@ -12,16 +12,43 @@ export default function CommanderView() {
   const [commanders, setCommanders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [topX, setTopX] = useState(16);
+  const [colors, setColors] = useState([]);
+  const [filters, setFilters] = useState([]);
+  const [allFilters, setAllFilters] = useState([]);
 
+  /**
+   * These two functionsg get data from colorSelection and filters child components
+   */
+  function getColors(data) {
+    setColors(data);
+  }
+  function getFilters(data) {
+    setFilters(data);
+  }
+
+  /**
+   * @TODO Build filterString from colors and filters
+   */
   useEffect(() => {
-    getCommanders().then((data) => {
+    setAllFilters(colors);
+  }, [colors, filters]);
+
+  /**
+   * Main getCommanders() API call
+   */
+  useEffect(() => {
+    getCommanders(allFilters).then((data) => {
       // console.log("Data:", data);
       const commanderRankings = getCommanderRankings(data, topX);
       setCommanders(commanderRankings);
       setIsLoading(false);
     });
-  }, [topX]);
+  }, [topX, allFilters]);
 
+  /**
+   * Changes the topX filter
+   * @TODO Probably should move to backend (?)
+   */
   function changeTopX() {
     setTopX(topX === 16 ? 4 : topX === 4 ? 1 : 16);
   }
@@ -34,6 +61,8 @@ export default function CommanderView() {
         enableSearchbar={true}
         enableColors={true}
         enableFilters={true}
+        getFilters={getFilters}
+        getColors={getColors}
       />
 
       {/* Table of commanders */}

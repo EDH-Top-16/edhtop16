@@ -10,14 +10,11 @@ export default function Searchbar() {
 
   useEffect(() => {
     getCommanderNames().then((data) => {
-      // console.log("Data:", data);
       var filtered = filterNames(data, searchTerm);
       setSuggestions(filtered);
       // setIsLoading(false);
     });
   }, [searchTerm]);
-
-  console.log("asdf", suggestions);
 
   const handleChange = (event) => {
     setSearchTerm(event.target.value);
@@ -46,13 +43,13 @@ export default function Searchbar() {
         value={searchTerm}
         onChange={handleChange}
       />
-      {/* {suggestions.length > 0 && (
+      {suggestions.length > 0 && (
         <ul className="absolute bg-white">
           {suggestions.map((suggestion) => (
             <li key={suggestion}>{suggestion}</li>
           ))}
         </ul>
-      )} */}
+      )}
     </div>
   );
 }

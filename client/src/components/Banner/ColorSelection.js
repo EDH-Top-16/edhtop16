@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { validColors, colorImages } from "../../images/index";
 
 /*
  * TODO: implement communication with filter
  */
-export default function ColorSelection() {
+export default function ColorSelection({ getColors }) {
   // We store colors into an array which will impact the filter
   const [colors, setColors] = useState([]);
 
@@ -23,6 +23,10 @@ export default function ColorSelection() {
       setColors(colors.filter((x) => x !== color));
     }
   }
+
+  useEffect(() => {
+    getColors(colors);
+  }, [colors]);
 
   return (
     <div
