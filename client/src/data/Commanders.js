@@ -10,7 +10,7 @@ export function getCommanders(filters) {
       Accept: "application/json",
     },
   };
-
+  console.log(filters)
   return axios
     .post(process.env.REACT_APP_uri + "/api/req", filters, config)
     .then((res) =>

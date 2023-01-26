@@ -17,7 +17,9 @@ export default function ColorSelection({ getColors }) {
       return;
     }
 
-    if (!colors.includes(color)) {
+    if (color === "C" && !colors.includes(color)) {
+      setColors(["C"]);
+    } else if (!colors.includes(color) && !colors.includes("C")) {
       setColors((prev) => [...prev, color]);
     } else {
       setColors(colors.filter((x) => x !== color));
@@ -25,7 +27,13 @@ export default function ColorSelection({ getColors }) {
   }
 
   useEffect(() => {
-    getColors(colors);
+    let sortedColors = [];
+    ['W', 'U', 'B', 'R', 'G'].forEach((color) => {
+      if(colors.includes(color)){
+        sortedColors.push(color);
+      }
+    });
+    getColors(sortedColors);
   }, [colors]);
 
   return (

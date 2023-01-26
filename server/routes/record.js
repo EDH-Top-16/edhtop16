@@ -56,6 +56,7 @@ recordRoutes.route("/api/req").post(async function (req, res) {
   var query = {};
   try{
     // Generate query
+    // TODO: soft/hard match toggling for colorID
     const keys = ['name', 'profile', 'decklist', 'wins', 'winsSwiss', 'winsBracket', 'winRate', 'winRateSwiss', 'winRateBracket', 'draws', 'losses', 'lossesSwiss', 'lossesBracket', 'standing', 'colorID', 'commander'];
     keys.forEach(element => {
       if(element in req.body){

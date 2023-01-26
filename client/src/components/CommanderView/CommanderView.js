@@ -30,7 +30,7 @@ export default function CommanderView() {
    * @TODO Build filterString from colors and filters
    */
   useEffect(() => {
-    setAllFilters(colors);
+    setAllFilters(colors.join("") == "" ? {} : {colorID: (colors.join(""))}); // Assume: colorless is never included with other colors
   }, [colors, filters]);
 
   /**
