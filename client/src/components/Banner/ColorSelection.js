@@ -16,7 +16,9 @@ export default function ColorSelection({ getColors }) {
     if (validColors.indexOf(color) === -1) {
       return;
     }
-
+    /*
+    * @TODO: remove colorless when another color is selected
+    */
     if (color === "C" && !colors.includes(color)) {
       setColors(["C"]);
     } else if (!colors.includes(color) && !colors.includes("C")) {
@@ -28,7 +30,7 @@ export default function ColorSelection({ getColors }) {
 
   useEffect(() => {
     let sortedColors = [];
-    ['W', 'U', 'B', 'R', 'G'].forEach((color) => {
+    ['W', 'U', 'B', 'R', 'G', 'C'].forEach((color) => {
       if(colors.includes(color)){
         sortedColors.push(color);
       }
