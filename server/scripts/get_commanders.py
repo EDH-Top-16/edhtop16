@@ -7,7 +7,6 @@ client = MongoClient("mongodb://localhost:27017")
 
 db = client['cedhtop16']
 
-# TODO: get collections from metadata
 collections = [i for i in db.list_collection_names() if (i != 'metadata' and i != 'commanders')]
 
 def wubrgify(color_string):
@@ -27,13 +26,13 @@ for c in collections:
         try:
             decklist_url = i['decklist']
         except KeyError:
-            print("Warning: no decklist url") # TODO: provide more useful logging data here
+            print(f"Warning: no decklist url. Object ID: {i['_id']}")
             continue
 
         try:
             commanders = mtg_api.get_deck(decklist_url).get_commander()
         except (KeyError, AttributeError):
-            print("Warning: error while fetching decklist.") # TODO: provide more useful logging data here
+            print(f"Warning: error while fetching decklist. Entry marked with 'Unknown Commander.' Object ID: {i['_id']}")
             commander_string = "Unknown Commander"
             col.update_one(i, {'$set': {'commander': commander_string, 'colorID': 'N/A'}})
             commander_col.find_one_and_update({'commander': commander_string}, {'$inc': {'count': 1}, '$set': {'colorID':'N/A'}}, upsert=True)
@@ -45,7 +44,7 @@ for c in collections:
         elif len(commanders) == 2: # Partners, Friends Forever, Background, whatever Wizards plans to do next
             commander_string = commanders[0] + ' / ' + commanders[1] if commanders[1] > commanders[0] else commanders[1] + ' / ' + commanders[0]
         else:
-            print("Warning: Number of commanders is not 1 or 2. Skipped.") # TODO: provide more useful logging data here
+            print(f"Warning: Number of commanders is not 1 or 2. Entry marked with 'Unknown Commander.' Object ID: {i['_id']}")
             commander_string = "Unknown Commander"
             col.update_one(i, {'$set': {'commander': commander_string, 'colorID': 'N/A'}})
             commander_col.find_one_and_update({'commander': commander_string}, {'$inc': {'count': 1}, '$set': {'colorID':'N/A'}}, upsert=True)
