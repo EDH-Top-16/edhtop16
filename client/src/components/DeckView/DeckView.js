@@ -11,9 +11,22 @@ import { getCommanders, getDeckRankings } from "../../data/Commanders";
 export default function DeckView() {
   const [decks, setDecks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [colors, setColors] = useState([]);
+  const [filters, setFilters] = useState([]);
+  const [allFilters, setAllFilters] = useState([]);
 
   let params = useParams();
   const commander = params["*"].replaceAll("+", "/");
+
+  /**
+   * These two functionsg get data from colorSelection and filters child components
+   */
+  function getColors(data) {
+    setColors(data);
+  }
+  function getFilters(data) {
+    setFilters(data);
+  }
 
   useEffect(() => {
     getCommanders({
@@ -29,7 +42,12 @@ export default function DeckView() {
   return (
     <div className="flex flex-col w-11/12 ml-auto mr-0">
       {/* Banner */}
-      <Banner title={commander} enableFilters={true} />
+      <Banner
+        title={commander}
+        enableFilters={true}
+        getFilters={getFilters}
+        getColors={getColors}
+      />
 
       {/* Table of decks */}
       <table className="block mx-24 my-12 table-fixed">

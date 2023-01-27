@@ -2,6 +2,11 @@ import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { getCommanderNames, filterNames } from "../../data/Commanders";
 
+/**
+ * @TODO finish searchbar; also we need to make sure that suggestions dont pop up
+ * unless input is focused; also also make sure click outside event only mounts
+ * when focused
+ */
 export default function Searchbar() {
   const inputRef = useRef(null);
 
