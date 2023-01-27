@@ -2,9 +2,6 @@ import { useEffect, useState } from "react";
 
 import { validColors, colorImages } from "../../images/index";
 
-/*
- * TODO: implement communication with filter
- */
 export default function ColorSelection({ getColors }) {
   // We store colors into an array which will impact the filter
   const [colors, setColors] = useState([]);
@@ -16,12 +13,13 @@ export default function ColorSelection({ getColors }) {
     if (validColors.indexOf(color) === -1) {
       return;
     }
-    /*
-    * @TODO: remove colorless when another color is selected
-    */
+
     if (color === "C" && !colors.includes(color)) {
       setColors(["C"]);
-    } else if (!colors.includes(color) && !colors.includes("C")) {
+    } else if (!colors.includes(color)) {
+      if (colors.includes("C")) {
+        setColors((prev) => [...prev.filter((x) => x !== "C"), color]);
+      }
       setColors((prev) => [...prev, color]);
     } else {
       setColors(colors.filter((x) => x !== color));
@@ -30,8 +28,8 @@ export default function ColorSelection({ getColors }) {
 
   useEffect(() => {
     let sortedColors = [];
-    ['W', 'U', 'B', 'R', 'G', 'C'].forEach((color) => {
-      if(colors.includes(color)){
+    ["W", "U", "B", "R", "G", "C"].forEach((color) => {
+      if (colors.includes(color)) {
         sortedColors.push(color);
       }
     });
