@@ -94,6 +94,10 @@ export function getCommanderNames() {
     );
 }
 
+/**
+ * @returns commander names with respect to the input
+ * @TODO make a semi-fuzzy search algo
+ */
 export function filterNames(data, input) {
   const names = data.map((obj) => {
     return obj.commander;

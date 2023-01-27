@@ -1,24 +1,26 @@
 import React, { useState, useRef, useEffect } from "react";
-import axios from "axios";
+import { Link } from "react-router-dom";
+
 import { getCommanderNames, filterNames } from "../../data/Commanders";
 
 /**
- * @TODO finish searchbar; also we need to make sure that suggestions dont pop up
- * unless input is focused; also also make sure click outside event only mounts
- * when focused
+ * @TODO finish searchbar design
  */
 export default function Searchbar() {
   const inputRef = useRef(null);
+  const suggestionsRef = useRef(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
-    getCommanderNames().then((data) => {
-      var filtered = filterNames(data, searchTerm);
-      setSuggestions(filtered);
-      // setIsLoading(false);
-    });
+    if (searchTerm !== "") {
+      getCommanderNames().then((data) => {
+        var filtered = filterNames(data, searchTerm);
+        setSuggestions(filtered);
+        // setIsLoading(false);
+      });
+    }
   }, [searchTerm]);
 
   const handleChange = (event) => {
@@ -26,7 +28,10 @@ export default function Searchbar() {
   };
 
   const handleClickOutside = (event) => {
-    if (inputRef.current && !inputRef.current.contains(event.target)) {
+    if (
+      !suggestionsRef.current.contains(event.target) &&
+      !inputRef.current.contains(event.target)
+    ) {
       setSuggestions([]);
     }
   };
@@ -48,12 +53,23 @@ export default function Searchbar() {
         value={searchTerm}
         onChange={handleChange}
       />
-      {suggestions.length > 0 && (
-        <ul className="absolute bg-white">
-          {suggestions.map((suggestion) => (
-            <li key={suggestion}>{suggestion}</li>
-          ))}
-        </ul>
+      {document.activeElement === inputRef.current ? (
+        suggestions.length > 0 && (
+          <ul ref={suggestionsRef} className="absolute bg-suggestions">
+            {suggestions.slice(0, 20).map((suggestion) => (
+              <Link to={`/commander/${suggestion}`}>
+                <li
+                  className="px-2 py-1 hover:bg-text text-white"
+                  key={suggestion}
+                >
+                  {suggestion}
+                </li>
+              </Link>
+            ))}
+          </ul>
+        )
+      ) : (
+        <></>
       )}
     </div>
   );

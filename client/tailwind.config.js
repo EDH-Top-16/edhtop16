@@ -10,6 +10,7 @@ module.exports = {
         text: "#B7B5FF",
         subtext: "#514F86",
         searchbar: "#DEDFFF",
+        suggestions: "#7D7BB0",
         highlight: "#F87171",
       },
       dropShadow: {
