@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { getCommanderNames, filterNames } from "../../data/Commanders";
 
 /**
- * @TODO finish searchbar design
+ * @TODO make fuzzy search mechanism
  */
 export default function Searchbar() {
   const inputRef = useRef(null);
@@ -57,7 +57,7 @@ export default function Searchbar() {
         suggestions.length > 0 && (
           <ul ref={suggestionsRef} className="absolute bg-suggestions">
             {suggestions.slice(0, 20).map((suggestion) => (
-              <Link to={`/commander/${suggestion}`}>
+              <Link to={`/commander/${suggestion.replaceAll("/", "+")}`}>
                 <li
                   className="px-2 py-1 hover:bg-text text-white"
                   key={suggestion}
