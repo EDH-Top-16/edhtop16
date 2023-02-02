@@ -64,7 +64,7 @@ export default function Filter({ getFilters }) {
         <button onClick={() => select("standing", { $lte: 4 })}>Top 4</button>
         <button onClick={() => select("standing", { $lte: 1 })}>Top 1</button>
         <button onClick={() => select("size", {$gte: 64}, true)}>Size {'>'}= 64</button>
-        <button onClick={() => select("date", {$gte: 1670054400}, true)}>Date {'>'}= 1670054400</button>
+        <button onClick={() => select("dateCreated", {$gte: 1670054400}, true)}>Date {'>'}= 1670054400</button>
         <button onClick={() => setFilters({})}>Clear</button>
       </div>
     </div>
