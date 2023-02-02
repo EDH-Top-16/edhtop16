@@ -30,7 +30,15 @@ export default function CommanderView() {
    * @TODO Build filterString from colors and filters
    */
   useEffect(() => {
-    setAllFilters(colors.join("") == "" ? {} : {colorID: (colors.join(""))}); // Assume: colorless is never included with other colors
+    console.log(filters, colors);
+    if (colors !== [] && colors.join("") !== "") {
+      setAllFilters({
+        ...filters,
+        colorID: colors.join(""),
+      });
+    } else {
+      setAllFilters(filters);
+    }
   }, [colors, filters]);
 
   /**
@@ -38,7 +46,7 @@ export default function CommanderView() {
    */
   useEffect(() => {
     getCommanders(allFilters).then((data) => {
-      // console.log("Data:", data);
+      console.log("Data:", data);
       const commanderRankings = getCommanderRankings(data, topX);
       setCommanders(commanderRankings);
       setIsLoading(false);
