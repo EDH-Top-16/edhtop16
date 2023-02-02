@@ -20,16 +20,33 @@ export default function Filter({ getFilters }) {
    *  }
    * }
    */
-  function select(filterBy, value) {
-    if (!Object.keys(filters).includes(filterBy)) {
-      setFilters({ ...filters, [filterBy]: value });
-    } else {
-      if (JSON.stringify(filters[filterBy]) === JSON.stringify(value)) {
+
+  function select(filterBy, value, isTourrneyFilter) {
+    if ( isTourrneyFilter ){
+      if (Object.keys(filters).includes("tourney_filter")){
         let temp = { ...filters };
-        delete temp[filterBy];
+        if(!Object.keys(temp.tourney_filter).includes(filterBy)){
+          temp.tourney_filter = { ...temp.tourney_filter, [filterBy]: value}
+        } else if (JSON.stringify(temp.tourney_filter[filterBy]) === JSON.stringify(value)){
+          delete temp.tourney_filter[filterBy];
+        } else {
+          temp.tourney_filter = {...temp.tourney_filter, [filterBy]: value};
+        }
         setFilters(temp);
       } else {
+        setFilters({ ...filters, tourney_filter: {[filterBy]: value}});
+      }
+    } else {
+      if (!Object.keys(filters).includes(filterBy)) {
         setFilters({ ...filters, [filterBy]: value });
+      } else {
+        if (JSON.stringify(filters[filterBy]) === JSON.stringify(value)) {
+          let temp = { ...filters };
+          delete temp[filterBy];
+          setFilters(temp);
+        } else {
+          setFilters({ ...filters, [filterBy]: value });
+        }
       }
     }
   }
@@ -46,7 +63,8 @@ export default function Filter({ getFilters }) {
         <button onClick={() => select("standing", { $lte: 16 })}>Top 16</button>
         <button onClick={() => select("standing", { $lte: 4 })}>Top 4</button>
         <button onClick={() => select("standing", { $lte: 1 })}>Top 1</button>
-        <button onClick={() => select("tourneyFilters", {  })}></button>
+        <button onClick={() => select("size", {$gte: 64}, true)}>Size {'>'}= 64</button>
+        <button onClick={() => select("date", {$gte: 1670054400}, true)}>Date {'>'}= 1670054400</button>
         <button onClick={() => setFilters({})}>Clear</button>
       </div>
     </div>
