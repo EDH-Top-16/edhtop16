@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { enhanceManualRouteObjects } from "react-router/dist/lib/components";
 
 export default function Filter({ getFilters }) {
   const [filters, setFilters] = useState({});
@@ -25,10 +24,13 @@ export default function Filter({ getFilters }) {
     if (!Object.keys(filters).includes(filterBy)) {
       setFilters({ ...filters, [filterBy]: value });
     } else {
-      // if (Object.values().includes(value)) {
-      //   delete filters[filterBy];
-      // }
-      // filters[filterBy] = value;
+      if (JSON.stringify(filters[filterBy]) === JSON.stringify(value)) {
+        let temp = { ...filters };
+        delete temp[filterBy];
+        setFilters(temp);
+      } else {
+        setFilters({ ...filters, [filterBy]: value });
+      }
     }
   }
 
@@ -44,6 +46,7 @@ export default function Filter({ getFilters }) {
         <button onClick={() => select("standing", { $lte: 16 })}>Top 16</button>
         <button onClick={() => select("standing", { $lte: 4 })}>Top 4</button>
         <button onClick={() => select("standing", { $lte: 1 })}>Top 1</button>
+        <button onClick={() => select("tourneyFilters", {  })}></button>
         <button onClick={() => setFilters({})}>Clear</button>
       </div>
     </div>
