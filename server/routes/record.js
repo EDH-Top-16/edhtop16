@@ -26,7 +26,7 @@ async function parseTourneyFilters(filters){
     let dateValue = (dateName == "date") ? filters.date : filters.dateCreated;
     query = {
       [dateName]: (dateValue != undefined) ? dateValue: {$gt: 0},
-      size: filters.size
+      size: ("size" in filters) ? filters.size: {$gt: 0}
     };
   }
   let db_connect = dbo.getDb();
