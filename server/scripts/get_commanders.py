@@ -60,11 +60,9 @@ for c in collections:
                 print(f"Error while fetching '{commander}' from mtg_api (likely ampersand/other character). ID: {i['_id']}")
                 break
         else:
-            continue
-        
-        color_id = wubrgify(color_id)
+            color_id = wubrgify(color_id)
     
-        # print(commander_string, '')
-        # print(color_id)
-        col.update_one(i, {'$set': {'commander': commander_string, 'colorID': color_id}})
-        commander_col.find_one_and_update({'commander': commander_string}, {'$inc': {'count': 1}, '$set': {'colorID':color_id}}, upsert=True)
+            # print(commander_string, '')
+            # print(color_id)
+            col.update_one(i, {'$set': {'commander': commander_string, 'colorID': color_id}})
+            commander_col.find_one_and_update({'commander': commander_string}, {'$inc': {'count': 1}, '$set': {'colorID':color_id}}, upsert=True)
