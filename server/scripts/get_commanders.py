@@ -56,7 +56,7 @@ for c in collections:
             try:
                 colors = mtg_api.get_card(commander)['color_identity']
                 color_id = color_id + reduce(lambda x, y: x + y, colors) if colors else ""
-            except KeyError:
+            except:
                 print(f"Error while fetching '{commander}' from mtg_api (likely ampersand/other character). ID: {i['_id']}")
                 break
         else:
