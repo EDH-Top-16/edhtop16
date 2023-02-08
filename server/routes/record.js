@@ -1,6 +1,6 @@
 const { application } = require("express");
 const express = require("express");
-const { CURSOR_FLAGS, ReturnDocument } = require("mongodb");
+const { CURSOR_FLAGS, ReturnDocument} = require("mongodb");
  
 // recordRoutes is an instance of the express router.
 // We use it to define our routes.
@@ -22,12 +22,15 @@ async function parseTourneyFilters(filters){
     if("date" in filters && "dateCreated" in filters){
       throw new Error("Error: Request cannot have both date and datecreated fields");
     }
-    let dateName = ("date" in filters) ? "date" : "dateCreated";
+    let dateName = Object.keys(filters).includes("date") ? "date" : "dateCreated";
     let dateValue = (dateName == "date") ? filters.date : filters.dateCreated;
     query = {
       [dateName]: (dateValue != undefined) ? dateValue: {$gt: 0},
-      size: ("size" in filters) ? filters.size: {$gt: 0}
+      size: Object.keys(filters).includes("size") ? filters.size: {$gt: 0}
     };
+    if (Object.keys(filters).includes("_id")){
+      query = {...query, _id: ObjectId(filters._id)};
+    }
   }
   let db_connect = dbo.getDb();
 
@@ -93,7 +96,7 @@ recordRoutes.route("/api/list_tourneys").post(async function (req, res) {
     var tourney_ids = await parseTourneyFilters(req.body);
   } catch (err) {
     res.status(400);
-    res.send(err.message);
+    res.send("Error: invalid filters.");
     return;
   }
   res.json(tourney_ids);
