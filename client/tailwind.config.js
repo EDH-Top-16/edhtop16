@@ -12,6 +12,7 @@ module.exports = {
         searchbar: "#DEDFFF",
         suggestions: "#7D7BB0",
         highlight: "#F87171",
+        select: "#434273",
       },
       dropShadow: {
         nav: "4px 0px 4px rgba(0, 0, 0, 0.5)",

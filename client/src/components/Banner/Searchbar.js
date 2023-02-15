@@ -55,11 +55,11 @@ export default function Searchbar() {
       />
       {document.activeElement === inputRef.current ? (
         suggestions.length > 0 && (
-          <ul ref={suggestionsRef} className="absolute bg-suggestions">
+          <ul ref={suggestionsRef} className="absolute bg-nav">
             {suggestions.slice(0, 20).map((suggestion) => (
               <Link to={`/commander/${suggestion.replaceAll("/", "+")}`}>
                 <li
-                  className="px-2 py-1 hover:bg-text text-white"
+                  className="px-2 py-1 hover:bg-select text-white"
                   key={suggestion}
                 >
                   {suggestion}
