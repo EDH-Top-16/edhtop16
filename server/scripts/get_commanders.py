@@ -52,9 +52,10 @@ for c in collections:
         
         # Get color identity for commander(s)
         color_id = ''
+        colors = []
         for commander in commanders:
             try:
-                colors = mtg_api.get_card(commander)['color_identity']
+                colors += mtg_api.get_card(commander)['color_identity']
             except:
                 print(f"Error while fetching '{commander}' from mtg_api (likely ampersand/other character). ID: {i['_id']}")
                 break
