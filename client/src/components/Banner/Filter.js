@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
 export default function Filter({ getFilters }) {
   const [filters, setFilters] = useState({});
@@ -77,60 +77,25 @@ export default function Filter({ getFilters }) {
       <Modal
         select={select}
         terms={[
-          {
-            name: "Ranking",
-            cond: [
-              { $gte: `is greater than (\u2265)` },
-              { $eq: `is equal to (=)` },
-              { $lte: `is less than (\u2264)` },
-            ],
-          },
-          {
-            name: "Tournament Size",
-            cond: [
-              { $gte: `is greater than (\u2265)` },
-              { $eq: `is equal to (=)` },
-              { $lte: `is less than (\u2264)` },
-            ],
-          },
-          {
-            name: "Date",
-            cond: [
-              { $gte: `is greater than (\u2265)` },
-              { $eq: `is equal to (=)` },
-              { $lte: `is less than (\u2264)` },
-            ],
-          },
+          { name: "Ranking", display: "" },
+          { name: "Tournament Size", display: "" },
+          { name: "Date", display: "" },
+        ]}
+        cond={[
+          { gte: `is greater than (\u2265)` },
+          { eq: `is equal to (=)` },
+          { lte: `is less than (\u2264)` },
         ]}
       />
     </div>
   );
 }
 
-const Modal = ({ select, terms }) => {
-  const inputRef = useRef(null);
+const Modal = ({ select, terms, cond }) => {
+  const [checked, setChecked] = useState(Object.keys(cond[0])[0]);
+  const [filterSelection, setFilterSelection] = useState();
 
-  const [filterSelection, setFilterSelection] = useState(terms[0]);
-  const [checked, setChecked] = useState(
-    Object.keys(filterSelection.cond[0])[0]
-  );
-  console.log(checked);
-
-  let conds = filterSelection.cond;
-  console.log(filterSelection.cond[0]);
-
-  function handleFilterSelection(x) {
-    if (x !== filterSelection) {
-      setFilterSelection(
-        terms.filter((obj) => {
-          if (obj.name === x) {
-            console.log(obj);
-            return obj;
-          }
-        })
-      );
-    }
-  }
+  function handleFilterSelection() {}
 
   function handleCheckbox(e) {
     if (checked !== e.target.value) {
@@ -138,12 +103,6 @@ const Modal = ({ select, terms }) => {
     } else {
       setChecked("");
     }
-  }
-
-  function handleSubmit() {
-    let filterObj = {};
-    filterObj[checked] = Number(inputRef.current.value);
-    select("standing", filterObj);
   }
 
   return (
@@ -154,7 +113,7 @@ const Modal = ({ select, terms }) => {
           terms.map((obj) => (
             <button
               className="flex flex-wrap w-full px-4 py-2 text-lg text-white hover:bg-select"
-              onClick={() => handleFilterSelection(obj.name)}
+              onClick={() => handleFilterSelection()}
             >
               {obj.name}
             </button>
@@ -165,8 +124,8 @@ const Modal = ({ select, terms }) => {
       </div>
       {/* Filter Values */}
       <div className="drop-shadow-xl flex flex-col items-start bg-nav border-0 rounded-lg h-min">
-        {conds ? (
-          conds.map((obj) => (
+        {cond ? (
+          cond.map((obj) => (
             <>
               <div className="px-4 py-2 space-x-2">
                 <input
@@ -182,7 +141,7 @@ const Modal = ({ select, terms }) => {
                 </label>
               </div>
               {checked === Object.keys(obj)[0] ? (
-                <input className="mx-4 my-2" type="number" ref={inputRef} />
+                <input className="mx-4 my-2" type="text" />
               ) : (
                 <></>
               )}
@@ -193,7 +152,7 @@ const Modal = ({ select, terms }) => {
         )}
         {/* Confirmations */}
         <div className="flex space-x-4 mx-4 my-2">
-          <button onClick={handleSubmit}>Apply</button>
+          <button>Apply</button>
           <button>Cancel</button>
         </div>
       </div>
