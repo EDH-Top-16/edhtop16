@@ -60,6 +60,14 @@ export default function Filter({ getFilters }) {
 
   return (
     <div className="flex">
+      <Modal
+        selections={[
+          { name: "Ranking", display: "" },
+          { name: "Tournament Size", display: "" },
+          { name: "Date", display: "" },
+        ]}
+      />
+
       <div>
         <button onClick={() => select("standing", { $lte: 16 })}>Top 16</button>
         <button onClick={() => select("standing", { $lte: 4 })}>Top 4</button>
@@ -74,87 +82,18 @@ export default function Filter({ getFilters }) {
         </button>
         <button onClick={() => setFilters({})}>Clear</button>
       </div>
-      <Modal
-        select={select}
-        terms={[
-          { name: "Ranking", display: "" },
-          { name: "Tournament Size", display: "" },
-          { name: "Date", display: "" },
-        ]}
-        cond={[
-          { gte: `is greater than (\u2265)` },
-          { eq: `is equal to (=)` },
-          { lte: `is less than (\u2264)` },
-        ]}
-      />
     </div>
   );
 }
 
-const Modal = ({ select, terms, cond }) => {
-  const [checked, setChecked] = useState(Object.keys(cond[0])[0]);
-  const [filterSelection, setFilterSelection] = useState();
-
-  function handleFilterSelection() {}
-
-  function handleCheckbox(e) {
-    if (checked !== e.target.value) {
-      setChecked(e.target.value);
-    } else {
-      setChecked("");
-    }
-  }
-
+const Modal = ({ selections }) => {
   return (
-    <span className="absolute flex space-x-4">
+    <span className="absolute">
       {/* Filter selection */}
-      <div className="max-w-max drop-shadow-xl flex flex-col overflow-clip items-start bg-nav border-0 rounded-lg h-min">
-        {terms ? (
-          terms.map((obj) => (
-            <button
-              className="flex flex-wrap w-full px-4 py-2 text-lg text-white hover:bg-select"
-              onClick={() => handleFilterSelection()}
-            >
-              {obj.name}
-            </button>
-          ))
-        ) : (
-          <></>
-        )}
-      </div>
-      {/* Filter Values */}
-      <div className="drop-shadow-xl flex flex-col items-start bg-nav border-0 rounded-lg h-min">
-        {cond ? (
-          cond.map((obj) => (
-            <>
-              <div className="px-4 py-2 space-x-2">
-                <input
-                  value={Object.keys(obj)[0]}
-                  className="border-0 rounded-lg"
-                  type="checkbox"
-                  checked={checked === Object.keys(obj)[0]}
-                  onChange={handleCheckbox}
-                />
-
-                <label className="text-lg text-white">
-                  {Object.values(obj)[0]}
-                </label>
-              </div>
-              {checked === Object.keys(obj)[0] ? (
-                <input className="mx-4 my-2" type="text" />
-              ) : (
-                <></>
-              )}
-            </>
-          ))
-        ) : (
-          <></>
-        )}
-        {/* Confirmations */}
-        <div className="flex space-x-4 mx-4 my-2">
-          <button>Apply</button>
-          <button>Cancel</button>
-        </div>
+      <div className="flex flex-col items-start p-4 bg-nav border-0 rounded-lg">
+        {selections.map((obj) => (
+          <button className="text-lg text-white hover:bg-">{obj.name}</button>
+        ))}
       </div>
     </span>
   );
