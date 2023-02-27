@@ -65,5 +65,5 @@ for c in collections:
     
             # print(commander_string, '')
             # print(color_id)
-            col.update_one(i, {'$set': {'commander': commander_string, 'colorID': color_id}})
-            commander_col.find_one_and_update({'commander': commander_string}, {'$inc': {'count': 1}, '$set': {'colorID':color_id}}, upsert=True)
+        col.update_one(i, {'$set': {'commander': commander_string, 'colorID': (color_id if color_id else 'N/A')}})
+        commander_col.find_one_and_update({'commander': commander_string}, {'$inc': {'count': 1}, '$set': {'colorID':(color_id if color_id else 'N/A')}}, upsert=True)
