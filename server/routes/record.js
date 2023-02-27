@@ -36,7 +36,7 @@ async function parseTourneyFilters(filters){
 
   const result = await new Promise((resolve, reject) => {
     db_connect.collection("metadata")
-    .find(query, {projection: {_id: 0}}).toArray((err, result) => {
+    .find(query).toArray((err, result) => {
         if (err) reject(err);
         resolve(result);
       });
@@ -77,7 +77,7 @@ recordRoutes.route("/api/req").post(async function (req, res) {
     const result = await new Promise((resolve, reject) => {
       db_connect
         .collection(tourney_ids[i].TID)
-        .find(query, {projection: {_id: 0}})
+        .find(query)
         .toArray((err, result) => {
           if (err) reject(err);
           resolve(result);
@@ -109,7 +109,7 @@ recordRoutes.route("/api/get_commanders").get(function (req, res) {
   let db_connect = dbo.getDb();
   db_connect
     .collection("commanders")
-    .find({}, {projection: {_id: 0}})
+    .find({})
     .toArray(function (err, result) {
       if (err) throw err;
       res.json(result);
