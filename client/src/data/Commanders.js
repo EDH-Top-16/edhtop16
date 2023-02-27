@@ -1,9 +1,11 @@
 import axios from "axios";
 
+import { CheckValidFields } from "./ErrorChecking";
+
 /**
  * @returns all valid commanders from our api
  */
-export function getCommanders(filters) {
+export async function getCommanders(filters) {
   const config = {
     headers: {
       "Content-Type": "application/json",
@@ -11,11 +13,12 @@ export function getCommanders(filters) {
     },
   };
   // console.log(filters);
-  return axios
-    .post(process.env.REACT_APP_uri + "/api/req", filters, config)
-    .then((res) =>
-      res.data.filter((el) => el.commander !== "Unknown Commander")
-    );
+  const res = await axios.post(
+    process.env.REACT_APP_uri + "/api/req",
+    filters,
+    config
+  );
+  return res.data.filter((el) => el.commander !== "Unknown Commander");
 }
 
 /**
@@ -39,9 +42,11 @@ export function getCommanderRankings(data, x) {
       data[i].tiebreaker = 0;
       data[i].count = 1;
 
-      // Creates the slug out of its name
-      let slug = data[i].commander.replaceAll("/", "+");
-
+      let slug;
+      if (data[i].commander) {
+        // Creates the slug out of its name
+        slug = data[i].commander.replaceAll("/", "+");
+      }
       data[i].slug = slug;
 
       uniqueCommanders.push(data[i]);
@@ -76,6 +81,7 @@ export function getCommanderRankings(data, x) {
     }
   });
 
+  console.log(rankedCommanders);
   return rankedCommanders;
 }
 

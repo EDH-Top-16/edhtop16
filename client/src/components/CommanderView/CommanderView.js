@@ -48,6 +48,7 @@ export default function CommanderView() {
     getCommanders(allFilters).then((data) => {
       console.log("Data:", data);
       const commanderRankings = getCommanderRankings(data, topX);
+      console.log(commanderRankings);
       setCommanders(commanderRankings);
       setIsLoading(false);
     });
@@ -89,7 +90,6 @@ export default function CommanderView() {
           {isLoading ? (
             <tr>Loading...</tr>
           ) : (
-            commanders &&
             commanders.map((v, i) => (
               <Entry
                 enableLink={true}
