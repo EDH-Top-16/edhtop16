@@ -13,18 +13,12 @@ export default function CommanderView() {
   const [isLoading, setIsLoading] = useState(true);
   const [topX, setTopX] = useState(16);
   const [colors, setColors] = useState([]);
-  const [filters, setFilters] = useState([]);
-  const [allFilters, setAllFilters] = useState([]);
-
-  /**
-   * These two functionsg get data from colorSelection and filters child components
-   */
-  function getColors(data) {
-    setColors(data);
-  }
-  function getFilters(data) {
-    setFilters(data);
-  }
+  const [filters, setFilters] = useState({
+    tourney_filter: { size: { $gte: 64 } },
+  });
+  const [allFilters, setAllFilters] = useState({
+    tourney_filter: { size: { $gte: 64 } },
+  });
 
   /**
    * @TODO Build filterString from colors and filters
@@ -46,13 +40,23 @@ export default function CommanderView() {
    */
   useEffect(() => {
     getCommanders(allFilters).then((data) => {
-      console.log("Data:", data);
+      // console.log("Data:", data);
       const commanderRankings = getCommanderRankings(data, topX);
       console.log(commanderRankings);
       setCommanders(commanderRankings);
       setIsLoading(false);
     });
   }, [topX, allFilters]);
+
+  /**
+   * These two functions get data from colorSelection and filters child components
+   */
+  function getColors(data) {
+    setColors(data);
+  }
+  function getFilters(data) {
+    setFilters(data);
+  }
 
   /**
    * Changes the topX filter

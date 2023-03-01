@@ -1,7 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 
 export default function Filter({ getFilters }) {
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState({
+    tourney_filter: { size: { $gte: 64 } },
+  });
   const [openModal, setOpenModal] = useState(false);
 
   /**
@@ -70,12 +72,20 @@ export default function Filter({ getFilters }) {
 
   useEffect(() => {
     getFilters(filters);
+    // console.log(filters);
   }, [filters]);
 
   return (
     <div className="mt-4">
       <div className="relative">
-        <button onClick={() => select("standing", { $lte: 16 })}>Top 16</button>
+        {filters ? (
+          Object.keys(filters).map((filter) => (
+            <AppliedFilter filter={filter} />
+          ))
+        ) : (
+          <></>
+        )}
+        {/* <button onClick={() => select("standing", { $lte: 16 })}>Top 16</button>
         <button onClick={() => select("standing", { $lte: 4 })}>Top 4</button>
         <button onClick={() => select("standing", { $lte: 1 })}>Top 1</button>
         <button onClick={() => select("size", { $gte: 64 }, true)}>
@@ -85,9 +95,9 @@ export default function Filter({ getFilters }) {
           onClick={() => select("dateCreated", { $gte: 1670054400 }, true)}
         >
           Date {">"}= 1670054400
-        </button>
+        </button> */}
         <button onClick={toggleModal}>+</button>
-        <button onClick={handleClear}>Clear</button>
+        <button onClick={() => handleClear()}>Clear</button>
       </div>
 
       {openModal ? (
@@ -96,6 +106,7 @@ export default function Filter({ getFilters }) {
           terms={[
             {
               name: "Ranking",
+              tag: "standing",
               cond: [
                 { $gte: `is greater than (\u2265)` },
                 { $eq: `is equal to (=)` },
@@ -104,6 +115,8 @@ export default function Filter({ getFilters }) {
             },
             {
               name: "Tournament Size",
+              tag: "size",
+              isTourneyFilter: true,
               cond: [
                 { $gte: `is greater than (\u2265)` },
                 { $eq: `is equal to (=)` },
@@ -112,6 +125,7 @@ export default function Filter({ getFilters }) {
             },
             {
               name: "Date",
+              tag: "date",
               cond: [
                 { $gte: `is greater than (\u2265)` },
                 { $eq: `is equal to (=)` },
@@ -127,7 +141,9 @@ export default function Filter({ getFilters }) {
   );
 }
 
-const AppliedFilter = ({ filter }) => {};
+const AppliedFilter = ({ filter }) => {
+  return <button>{filter}</button>;
+};
 
 const Modal = ({ select, terms }) => {
   const inputRef = useRef(null);
@@ -137,10 +153,8 @@ const Modal = ({ select, terms }) => {
   const [checked, setChecked] = useState(
     Object.keys(filterSelection.cond[0])[0]
   );
-  console.log(checked);
 
   let conds = filterSelection.cond;
-  console.log(filterSelection.cond[0]);
 
   function handleFilterSelection(x) {
     if (x !== filterSelection) {
@@ -165,7 +179,8 @@ const Modal = ({ select, terms }) => {
   function handleSubmit() {
     let filterObj = {};
     filterObj[checked] = Number(inputRef.current.value);
-    select("standing", filterObj);
+    console.log(filterSelection.tag);
+    select(filterSelection.tag, filterObj, filterSelection.isTourneyFilter);
   }
 
   return (
