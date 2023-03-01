@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 
 export default function Filter({ getFilters }) {
   const [filters, setFilters] = useState({});
+  const [openModal, setOpenModal] = useState(false);
 
   /**
    * Select function that keeps track of what filters you've selected
@@ -54,13 +55,26 @@ export default function Filter({ getFilters }) {
     }
   }
 
+  function toggleModal() {
+    if (openModal) {
+      setOpenModal(false);
+    } else {
+      setOpenModal(true);
+    }
+  }
+
+  function handleClear() {
+    setFilters({});
+    setOpenModal(false);
+  }
+
   useEffect(() => {
     getFilters(filters);
   }, [filters]);
 
   return (
-    <div className="flex">
-      <div>
+    <div className="mt-4">
+      <div className="relative">
         <button onClick={() => select("standing", { $lte: 16 })}>Top 16</button>
         <button onClick={() => select("standing", { $lte: 4 })}>Top 4</button>
         <button onClick={() => select("standing", { $lte: 1 })}>Top 1</button>
@@ -72,45 +86,54 @@ export default function Filter({ getFilters }) {
         >
           Date {">"}= 1670054400
         </button>
-        <button onClick={() => setFilters({})}>Clear</button>
+        <button onClick={toggleModal}>+</button>
+        <button onClick={handleClear}>Clear</button>
       </div>
-      <Modal
-        select={select}
-        terms={[
-          {
-            name: "Ranking",
-            cond: [
-              { $gte: `is greater than (\u2265)` },
-              { $eq: `is equal to (=)` },
-              { $lte: `is less than (\u2264)` },
-            ],
-          },
-          {
-            name: "Tournament Size",
-            cond: [
-              { $gte: `is greater than (\u2265)` },
-              { $eq: `is equal to (=)` },
-              { $lte: `is less than (\u2264)` },
-            ],
-          },
-          {
-            name: "Date",
-            cond: [
-              { $gte: `is greater than (\u2265)` },
-              { $eq: `is equal to (=)` },
-              { $lte: `is less than (\u2264)` },
-            ],
-          },
-        ]}
-      />
+
+      {openModal ? (
+        <Modal
+          select={select}
+          terms={[
+            {
+              name: "Ranking",
+              cond: [
+                { $gte: `is greater than (\u2265)` },
+                { $eq: `is equal to (=)` },
+                { $lte: `is less than (\u2264)` },
+              ],
+            },
+            {
+              name: "Tournament Size",
+              cond: [
+                { $gte: `is greater than (\u2265)` },
+                { $eq: `is equal to (=)` },
+                { $lte: `is less than (\u2264)` },
+              ],
+            },
+            {
+              name: "Date",
+              cond: [
+                { $gte: `is greater than (\u2265)` },
+                { $eq: `is equal to (=)` },
+                { $lte: `is less than (\u2264)` },
+              ],
+            },
+          ]}
+        />
+      ) : (
+        <></>
+      )}
     </div>
   );
 }
+
+const AppliedFilter = ({ filter }) => {};
 
 const Modal = ({ select, terms }) => {
   const inputRef = useRef(null);
 
   const [filterSelection, setFilterSelection] = useState(terms[0]);
+  // console.log("f", filterSelection);
   const [checked, setChecked] = useState(
     Object.keys(filterSelection.cond[0])[0]
   );
@@ -121,14 +144,13 @@ const Modal = ({ select, terms }) => {
 
   function handleFilterSelection(x) {
     if (x !== filterSelection) {
-      setFilterSelection(
-        terms.filter((obj) => {
-          if (obj.name === x) {
-            console.log(obj);
-            return obj;
-          }
-        })
-      );
+      let [selected] = terms.filter((obj) => {
+        if (obj.name === x) {
+          return obj;
+        }
+      });
+
+      setFilterSelection(selected);
     }
   }
 
@@ -147,13 +169,15 @@ const Modal = ({ select, terms }) => {
   }
 
   return (
-    <span className="absolute flex space-x-4">
+    <span className="absolute flex space-x-4 mt-4">
       {/* Filter selection */}
       <div className="max-w-max drop-shadow-xl flex flex-col overflow-clip items-start bg-nav border-0 rounded-lg h-min">
         {terms ? (
           terms.map((obj) => (
             <button
-              className="flex flex-wrap w-full px-4 py-2 text-lg text-white hover:bg-select"
+              className={`flex flex-wrap w-full px-4 py-2 text-lg text-white hover:bg-select ${
+                obj.name === filterSelection.name ? "bg-select" : ""
+              }`}
               onClick={() => handleFilterSelection(obj.name)}
             >
               {obj.name}
