@@ -141,17 +141,14 @@ print(commanders)
 gives
 
 ```python
-[{'commander': 'Unknown Commander', 'colorID': 'N/A', 'count': 53},
- {'commander': 'Minsc & Boo, Timeless Heroes', 'colorID': 'N/A', 'count': 1},
- {'commander': 'Malcolm, Keen-Eyed Navigator / Tymna the Weaver',
-  'colorID': 'U',
-  'count': 16},
- {'commander': 'Malcolm, Keen-Eyed Navigator / Tana, the Bloodsower',
-  'colorID': 'RG',
-  'count': 22},
- {'commander': 'Rograkh, Son of Rohgahh / Tevesh Szat, Doom of Fools',
-  'colorID': 'R',
-  'count': 9},
+[
+  {'commander': 'Malcolm, Keen-Eyed Navigator / Tymna the Weaver', 'colorID': 'WUB', 'count': 23},
+  {'commander': 'Malcolm, Keen-Eyed Navigator / Tana, the Bloodsower', 'colorID': 'URG', 'count': 28},
+  {'commander': 'Rograkh, Son of Rohgahh / Tevesh Szat, Doom of Fools', 'colorID': 'BR', 'count': 10},
+  {'commander': 'Kenrith, the Returned King', 'colorID': 'WUBRG', 'count': 24},
+  {'commander': 'Teferi, Temporal Archmage', 'colorID': 'U', 'count': 2},
+  {'commander': 'Krark, the Thumbless / Sakashima of a Thousand Faces', 'colorID': 'UR', 'count': 31},
+  {'commander': 'Inalla, Archmage Ritualist', 'colorID': 'UBR', 'count': 17}
 # And so on
 ]
 ```
