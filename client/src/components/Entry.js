@@ -45,9 +45,11 @@ export default function Entry({
 
       {colors ? (
         <td className="flex space-x-4 !m-0 align-middle [&>img]:w-6">
-          {colors.split("").map((color) => (
-            <img key={color} src={colorImages[color]} alt={color} />
-          ))}
+          {colors.split("").map((color) => {
+            if (["W", "U", "B", "R", "G", "C"].includes(color)) {
+              return <img key={color} src={colorImages[color]} alt={color} />;
+            }
+          })}
         </td>
       ) : (
         <></>
