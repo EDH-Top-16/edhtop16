@@ -79,6 +79,7 @@ export default function Filter({ getFilters }) {
     <div className="mt-4">
       <div className="relative">
         {filters ? (
+          console.log(filters) &&
           Object.keys(filters).map((filter) => (
             <AppliedFilter filter={filter} />
           ))
@@ -141,10 +142,18 @@ export default function Filter({ getFilters }) {
   );
 }
 
+/**
+ * @appliedfilter
+ */
 const AppliedFilter = ({ filter }) => {
+  console.log(filter);
   return <button>{filter}</button>;
 };
 
+/**
+ *
+ * @modal
+ */
 const Modal = ({ select, terms }) => {
   const inputRef = useRef(null);
 
