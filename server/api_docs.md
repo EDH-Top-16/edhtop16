@@ -100,7 +100,7 @@ Gives:
 
 ## Example - Get all Mox Masters tournaments (2)
 
-We can also create a regex using the tournamentName field:
+We can also create a regex using the `tournamentName` field:
 
 ```python
 data = {'tournamentName': {'$regex': r'Mox Masters (January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}'}}
