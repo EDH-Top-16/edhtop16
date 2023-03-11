@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { AiOutlineClose } from "react-icons/ai";
 
 export default function Filter({ getFilters }) {
   const [filters, setFilters] = useState({
@@ -8,51 +9,62 @@ export default function Filter({ getFilters }) {
 
   /**
    * Select function that keeps track of what filters you've selected
-   * @TODO need to make string for the filters
-   * {
-   *  standing: {
-   *    le/eq/ge: x
-   *  },
-   *  tourney_filter: {
-   *    entries: {
-   *      le/eq/ge: x
-   *    },
-   *    date: {
-   *      le/eq/ge: week/month(s)/year/alltime
-   *    }
-   *  }
-   * }
+   * @TODO need to make string for the filters]
    */
-
-  function select(filterBy, value, isTourrneyFilter) {
-    if (isTourrneyFilter) {
+  function select(filterBy, value, isTourneyFilter) {
+    if (isTourneyFilter) {
       if (Object.keys(filters).includes("tourney_filter")) {
+        // If tourney_filter exists
         let temp = { ...filters };
         if (!Object.keys(temp.tourney_filter).includes(filterBy)) {
+          // If tourney_filter does not contain filterBy, append
           temp.tourney_filter = { ...temp.tourney_filter, [filterBy]: value };
         } else if (
-          JSON.stringify(temp.tourney_filter[filterBy]) ===
+          JSON.stringify(temp.tourney_filter[filterBy]) !==
           JSON.stringify(value)
         ) {
-          delete temp.tourney_filter[filterBy];
-        } else {
+          // If tourney_filter contains filterBy and value is differemt, update
           temp.tourney_filter = { ...temp.tourney_filter, [filterBy]: value };
+        } else {
+          // If tourney_filter contains filterBy and value is the same, do nothing
+          return;
         }
         setFilters(temp);
       } else {
+        // If tourney_filter does not exist, create it
         setFilters({ ...filters, tourney_filter: { [filterBy]: value } });
       }
     } else {
       if (!Object.keys(filters).includes(filterBy)) {
+        // If filters does not contain filterBy, append value
         setFilters({ ...filters, [filterBy]: value });
       } else {
-        if (JSON.stringify(filters[filterBy]) === JSON.stringify(value)) {
-          let temp = { ...filters };
-          delete temp[filterBy];
-          setFilters(temp);
-        } else {
+        if (JSON.stringify(filters[filterBy]) !== JSON.stringify(value)) {
+          // If filters contains filterBy and value is not the same, set filterBy
           setFilters({ ...filters, [filterBy]: value });
+        } else {
+          // If filters contsins filterBy and value is the same, do nothing
+          return;
         }
+      }
+    }
+  }
+
+  function removeFilters(filterBy, isTourneyFilter) {
+    if (isTourneyFilter) {
+      if (Object.keys(filters).includes("tourney_filter")) {
+        let temp = { ...filters };
+        if (Object.keys(temp.tourney_filter).includes(filterBy)) {
+          delete temp.tourney_filter[filterBy];
+          setFilters(temp);
+        }
+      }
+    } else {
+      if (Object.keys(filters).includes(filterBy)) {
+        // If filters does not contain filterBy, append value
+        let temp = { ...filters };
+        delete temp[filterBy];
+        setFilters(temp);
       }
     }
   }
@@ -77,12 +89,29 @@ export default function Filter({ getFilters }) {
 
   return (
     <div className="mt-4">
-      <div className="relative">
+      <div className="flex space-x-2 relative text-lg">
         {filters ? (
-          console.log(filters) &&
-          Object.keys(filters).map((filter) => (
-            <AppliedFilter filter={filter} />
-          ))
+          Object.entries(filters).map((filter) => {
+            if (filter[0] === "tourney_filter") {
+              return Object.entries(filter[1]).map((_filter) => {
+                return (
+                  <AppliedFilter
+                    filter={{ key: _filter[0], value: _filter[1] }}
+                    isTourneyFilter={true}
+                    removeFilters={removeFilters}
+                  />
+                );
+              });
+            } else {
+              return (
+                <AppliedFilter
+                  filter={{ key: filter[0], value: filter[1] }}
+                  isTourneyFilter={false}
+                  removeFilters={removeFilters}
+                />
+              );
+            }
+          })
         ) : (
           <></>
         )}
@@ -96,7 +125,8 @@ export default function Filter({ getFilters }) {
           onClick={() => select("dateCreated", { $gte: 1670054400 }, true)}
         >
           Date {">"}= 1670054400
-        </button> */}
+        </button>
+         */}
         <button onClick={toggleModal}>+</button>
         <button onClick={() => handleClear()}>Clear</button>
       </div>
@@ -104,9 +134,10 @@ export default function Filter({ getFilters }) {
       {openModal ? (
         <Modal
           select={select}
+          setOpenModal={setOpenModal}
           terms={[
             {
-              name: "Ranking",
+              name: "Standing",
               tag: "standing",
               cond: [
                 { $gte: `is greater than (\u2265)` },
@@ -145,16 +176,43 @@ export default function Filter({ getFilters }) {
 /**
  * @appliedfilter
  */
-const AppliedFilter = ({ filter }) => {
-  console.log(filter);
-  return <button>{filter}</button>;
+const AppliedFilter = ({ filter, isTourneyFilter, removeFilters }) => {
+  let name = filter.key;
+  let [val] = Object.entries(filter.value);
+  let cond = val[0];
+  if (cond === "$gte") {
+    cond = "\u2265";
+  } else if (cond === "$eq") {
+    cond = "=";
+  } else {
+    cond = "\u2264";
+  }
+  let num = val[1];
+  let parsed = `${name} ${cond} ${num}`;
+
+  // switch (filter.key) {
+  //   case ""
+  // }
+
+  // console.log(filter);
+
+  return (
+    <button className="flex items-center px-2 bg-nav text-white border-0 rounded-md">
+      {isTourneyFilter ? "Tournament" : ""} {parsed}{" "}
+      <button
+        className="ml-4"
+        onClick={() => removeFilters(filter.key, isTourneyFilter)}
+      >
+        <AiOutlineClose />
+      </button>
+    </button>
+  );
 };
 
 /**
- *
  * @modal
  */
-const Modal = ({ select, terms }) => {
+const Modal = ({ select, setOpenModal, terms }) => {
   const inputRef = useRef(null);
 
   const [filterSelection, setFilterSelection] = useState(terms[0]);
@@ -190,6 +248,7 @@ const Modal = ({ select, terms }) => {
     filterObj[checked] = Number(inputRef.current.value);
     console.log(filterSelection.tag);
     select(filterSelection.tag, filterObj, filterSelection.isTourneyFilter);
+    setOpenModal(false);
   }
 
   return (
@@ -240,9 +299,9 @@ const Modal = ({ select, terms }) => {
           <></>
         )}
         {/* Confirmations */}
-        <div className="flex space-x-4 mx-4 my-2">
+        <div className="flex space-x-4 mx-4 my-2 text-white">
           <button onClick={handleSubmit}>Apply</button>
-          <button>Cancel</button>
+          <button onClick={() => setOpenModal(false)}>Cancel</button>
         </div>
       </div>
     </span>
