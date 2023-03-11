@@ -27,7 +27,7 @@ dateCreated: <int: Unix timestamp>}
 
 ## Example - Get tournaments of at least 50 entries played since 2023-01-14
 
-Notably, while the `date` field is easier to read, it is much easier to convert dates to Unix timestamp and use integer filtering.
+While the `date` field is easier to read, it is much easier to convert dates to Unix timestamp and use integer filtering. You cannot filter using both `date` and `dateCreated` fields; you need to pick one.
 
 ```python
 data = {
@@ -62,6 +62,53 @@ Gives:
   'date': '2023-01-29T03:55:20.000Z',
   'dateCreated': 1674982520}]
 ```
+
+## Example - Get all Mox Masters tournaments (1)
+
+You might notice that Eminence-run tournaments generally have a special, human-readable tournament ID instead of a hash-like string. We can take advanatage of the fact that all Mox Masters tournaments are simply `MM` followed by 3 or four digits (1-2 digit month, 2 digit year). Let's create a regex for that and pass it with the mongoDB filter `$regex` for `TID`.
+
+```python
+data = {'TID': {'$regex': r'MM\d{3,4}'}}
+tourneys = json.loads(requests.post(base_url + 'list_tourneys', json=data, headers=headers).text)
+print(tourneys)
+```
+
+Gives:
+
+```python
+[{'TID': 'MM1022',
+  'tournamentName': 'Mox Masters October 22',
+  'size': 127,
+  'date': '2022-10-01T03:00:01.000Z',
+  'dateCreated': 1664607601},
+ {'TID': 'MM1222',
+  'tournamentName': 'Mox Masters December 22',
+  'size': 127,
+  'date': '2022-12-03T03:00:00.000Z',
+  'dateCreated': 1670054400},
+ {'TID': 'MM123',
+  'tournamentName': 'Mox Masters January 23',
+  'size': 127,
+  'date': '2023-01-28T10:00:00.000Z',
+  'dateCreated': 1674918000},
+ {'TID': 'MM223',
+  'tournamentName': 'Mox Masters February 23',
+  'size': 127,
+  'date': '2023-02-25T09:00:00.000Z',
+  'dateCreated': 1677333600}]
+```
+
+## Example - Get all Mox Masters tournaments (2)
+
+We can also create a regex using the `tournamentName` field:
+
+```python
+data = {'tournamentName': {'$regex': r'Mox Masters (January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}'}}
+tourneys = json.loads(requests.post(base_url + 'list_tourneys', json=data, headers=headers).text)
+print(tourneys)
+```
+
+Gives the same as the previous example.
 
 ## Getting Players/Entries
 

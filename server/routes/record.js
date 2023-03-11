@@ -16,22 +16,40 @@ const ObjectId = require("mongodb").ObjectId;
 async function parseTourneyFilters(filters){
   // This generates a list of tournament IDs based on filters.
   // We only want one time-related filter, so we check for the existence of both 'dateCreated' and 'date' in filters (and error if there is).
-  // IF we're passed a none-like object (i.e. the query didn't have tourney filters) we set filter to {} to return all tournament IDs.
+  // IF we're passed a none-like object or otherwise malformed object (i.e. the query didn't have tourney filters) we set filter to {} to return all tournament IDs.
   let query = {};
-  if(!(filters == undefined || filters == null)){
+  // Error checking
+  if((!!filters) && (filters.constructor === Object)){// If filter is a non-null, non-array object
+
+    // Parse date filter
+
+    // Cannot have both date and dateCreated
     if("date" in filters && "dateCreated" in filters){
       throw new Error("Error: Request cannot have both date and datecreated fields");
     }
+
+    // dateName is which key we use; dateValue is its value
     let dateName = Object.keys(filters).includes("date") ? "date" : "dateCreated";
     let dateValue = (dateName == "date") ? filters.date : filters.dateCreated;
+
+    // Form query and add date and size filter.
     query = {
-      [dateName]: (dateValue != undefined) ? dateValue: {$gt: 0},
-      size: Object.keys(filters).includes("size") ? filters.size: {$gt: 0}
+      [dateName]: (dateValue !== undefined) ? dateValue: {$gt: 0}, // If date not included, set filter to since 0
+      size: Object.keys(filters).includes("size") ? filters.size: {$gt: 0} // If size not included, set filter to more than 0 entries
     };
-    if (Object.keys(filters).includes("_id")){
-      query = {...query, _id: ObjectId(filters._id)};
+
+    // Process TID filter
+    if (Object.keys(filters).includes("TID")){
+      query = {...query, TID: filters.TID};
+    }
+
+    // Process tournamentName filter
+    if (Object.keys(filters).includes("tournamentName")){
+      query = {...query, tournamentName: filters.tournamentName};
     }
   }
+
+  // Perform query on DB
   let db_connect = dbo.getDb();
 
   const result = await new Promise((resolve, reject) => {
@@ -49,13 +67,16 @@ async function parseTourneyFilters(filters){
 // Alongside filtering these datapoints, you can also filter based on the tournament based on size, recency, etc.
 recordRoutes.route("/api/req").post(async function (req, res) {
   let db_connect = dbo.getDb();
+
+  // Parse tournament filters
   try{
     var tourney_ids = await parseTourneyFilters(req.body.tourney_filter);
   } catch (err) {
     res.status(400);
-    res.send(err.message);
+    res.send("Error: invalid tournament filters.");
     return;
   }
+
   var query = {};
   try{
     // Generate query
@@ -73,6 +94,7 @@ recordRoutes.route("/api/req").post(async function (req, res) {
   }
   var results = [];
   
+  // Get entry for each tournament we got from parseTourneyFilters
   for (let i = 0; i < tourney_ids.length; i++) {
     const result = await new Promise((resolve, reject) => {
       db_connect
@@ -83,6 +105,8 @@ recordRoutes.route("/api/req").post(async function (req, res) {
           resolve(result);
         });
     });
+
+    // Append tournamentName onto entries
     result.map((x) => (x.tournamentName = tourney_ids[i].tournamentName));
     results = results.concat(result);
   }
@@ -92,6 +116,8 @@ recordRoutes.route("/api/req").post(async function (req, res) {
 
 // Get a list of all tournaments as well as tournament IDs and metadata
 recordRoutes.route("/api/list_tourneys").post(async function (req, res) {
+
+  // Parse tournament filters and just return it
   try{
     var tourney_ids = await parseTourneyFilters(req.body);
   } catch (err) {
