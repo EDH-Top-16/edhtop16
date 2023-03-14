@@ -1,9 +1,13 @@
 import { useEffect, useState, useRef } from "react";
-import { AiOutlineClose } from "react-icons/ai";
+import moment from "moment";
+import { AiOutlineClose, AiOutlinePlus } from "react-icons/ai";
 
 export default function Filter({ getFilters }) {
   const [filters, setFilters] = useState({
-    tourney_filter: { size: { $gte: 64 } },
+    tourney_filter: {
+      size: { $gte: 64 },
+      dateCreated: { $gte: moment().subtract(1, "year").unix() },
+    },
   });
   const [openModal, setOpenModal] = useState(false);
 
@@ -115,20 +119,19 @@ export default function Filter({ getFilters }) {
         ) : (
           <></>
         )}
-        {/* <button onClick={() => select("standing", { $lte: 16 })}>Top 16</button>
-        <button onClick={() => select("standing", { $lte: 4 })}>Top 4</button>
-        <button onClick={() => select("standing", { $lte: 1 })}>Top 1</button>
-        <button onClick={() => select("size", { $gte: 64 }, true)}>
-          Size {">"}= 64
+
+        <button
+          className="flex items-center px-1 bg-nav text-white border-0 rounded-md"
+          onClick={toggleModal}
+        >
+          <AiOutlinePlus />
         </button>
         <button
-          onClick={() => select("dateCreated", { $gte: 1670054400 }, true)}
+          className="flex items-center px-2 bg-nav text-white border-0 rounded-md"
+          onClick={() => handleClear()}
         >
-          Date {">"}= 1670054400
+          Clear
         </button>
-         */}
-        <button onClick={toggleModal}>+</button>
-        <button onClick={() => handleClear()}>Clear</button>
       </div>
 
       {openModal ? (
@@ -140,9 +143,9 @@ export default function Filter({ getFilters }) {
               name: "Standing",
               tag: "standing",
               cond: [
-                { $gte: `is greater than (\u2265)` },
-                { $eq: `is equal to (=)` },
-                { $lte: `is less than (\u2264)` },
+                { $gte: `is greater than (\u2265)`, type: "number" },
+                { $eq: `is equal to (=)`, type: "number" },
+                { $lte: `is less than (\u2264)`, type: "number" },
               ],
             },
             {
@@ -150,18 +153,19 @@ export default function Filter({ getFilters }) {
               tag: "size",
               isTourneyFilter: true,
               cond: [
-                { $gte: `is greater than (\u2265)` },
-                { $eq: `is equal to (=)` },
-                { $lte: `is less than (\u2264)` },
+                { $gte: `is greater than (\u2265)`, type: "number" },
+                { $eq: `is equal to (=)`, type: "number" },
+                { $lte: `is less than (\u2264)`, type: "number" },
               ],
             },
             {
               name: "Date",
-              tag: "date",
+              tag: "dateCreated",
+              isTourneyFilter: true,
               cond: [
-                { $gte: `is greater than (\u2265)` },
-                { $eq: `is equal to (=)` },
-                { $lte: `is less than (\u2264)` },
+                { $gte: `is after (\u2265)`, type: "date" },
+                { $eq: `is (=)`, type: "date" },
+                { $lte: `is before (\u2264)`, type: "date" },
               ],
             },
           ]}
@@ -188,17 +192,16 @@ const AppliedFilter = ({ filter, isTourneyFilter, removeFilters }) => {
     cond = "\u2264";
   }
   let num = val[1];
-  let parsed = `${name} ${cond} ${num}`;
-
-  // switch (filter.key) {
-  //   case ""
-  // }
+  let parsed = `${name} ${cond} ${
+    name === "dateCreated" ? moment.unix(num).format("MM/DD/YYYY") : num
+  }`;
 
   // console.log(filter);
 
   return (
     <button className="flex items-center px-2 bg-nav text-white border-0 rounded-md">
-      {isTourneyFilter ? "Tournament" : ""} {parsed}{" "}
+      {isTourneyFilter ? "Tournament" : ""}{" "}
+      {parsed.charAt(0).toUpperCase() + parsed.slice(1)}
       <button
         className="ml-4"
         onClick={() => removeFilters(filter.key, isTourneyFilter)}
@@ -216,7 +219,6 @@ const Modal = ({ select, setOpenModal, terms }) => {
   const inputRef = useRef(null);
 
   const [filterSelection, setFilterSelection] = useState(terms[0]);
-  // console.log("f", filterSelection);
   const [checked, setChecked] = useState(
     Object.keys(filterSelection.cond[0])[0]
   );
@@ -245,9 +247,26 @@ const Modal = ({ select, setOpenModal, terms }) => {
 
   function handleSubmit() {
     let filterObj = {};
-    filterObj[checked] = Number(inputRef.current.value);
-    console.log(filterSelection.tag);
-    select(filterSelection.tag, filterObj, filterSelection.isTourneyFilter);
+
+    // Check if input type is number
+    if (inputRef.current.type === "number") {
+      // Check if input is a number
+      if (
+        !isNaN(Number(inputRef.current.value)) &&
+        Number(inputRef.current.value) > 0
+      ) {
+        filterObj[checked] = Number(inputRef.current.value);
+        select(filterSelection.tag, filterObj, filterSelection.isTourneyFilter);
+      }
+    }
+
+    // Check if input type is date
+    if (inputRef.current.type === "date") {
+      if (moment(inputRef.current.value).isValid()) {
+        filterObj[checked] = Number(moment(inputRef.current.value).unix());
+        select(filterSelection.tag, filterObj, filterSelection.isTourneyFilter);
+      }
+    }
     setOpenModal(false);
   }
 
@@ -289,7 +308,11 @@ const Modal = ({ select, setOpenModal, terms }) => {
                 </label>
               </div>
               {checked === Object.keys(obj)[0] ? (
-                <input className="mx-4 my-2" type="number" ref={inputRef} />
+                <input
+                  className="mx-4 my-2 p-1 appearance-none border-2 rounded-md border-text bg-transparent text-white focus:outline-none"
+                  type={obj.type}
+                  ref={inputRef}
+                />
               ) : (
                 <></>
               )}

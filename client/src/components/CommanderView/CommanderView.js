@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import moment from "moment";
 
 import Banner from "../Banner/Banner";
 import Entry from "../Entry";
@@ -14,10 +15,16 @@ export default function CommanderView() {
   const [topX, setTopX] = useState(16);
   const [colors, setColors] = useState([]);
   const [filters, setFilters] = useState({
-    tourney_filter: { size: { $gte: 64 } },
+    tourney_filter: {
+      size: { $gte: 64 },
+      dateCreated: { $gte: moment().subtract(1, "year").unix() },
+    },
   });
   const [allFilters, setAllFilters] = useState({
-    tourney_filter: { size: { $gte: 64 } },
+    tourney_filter: {
+      size: { $gte: 64 },
+      dateCreated: { $gte: moment().subtract(1, "year").unix() },
+    },
   });
 
   /**
