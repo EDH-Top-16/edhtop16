@@ -52,6 +52,35 @@ export default function DeckView() {
         allFilters={allFilters}
         terms={[
           {
+            name: "Standing",
+            tag: "standing",
+            cond: [
+              { $gte: `is greater than (\u2265)`, type: "number" },
+              { $eq: `is equal to (=)`, type: "number" },
+              { $lte: `is less than (\u2264)`, type: "number" },
+            ],
+          },
+          {
+            name: "Tournament Size",
+            tag: "size",
+            isTourneyFilter: true,
+            cond: [
+              { $gte: `is greater than (\u2265)`, type: "number" },
+              { $eq: `is equal to (=)`, type: "number" },
+              { $lte: `is less than (\u2264)`, type: "number" },
+            ],
+          },
+          {
+            name: "Date",
+            tag: "dateCreated",
+            isTourneyFilter: true,
+            cond: [
+              { $gte: `is after (\u2265)`, type: "date" },
+              { $eq: `is (=)`, type: "date" },
+              { $lte: `is before (\u2264)`, type: "date" },
+            ],
+          },
+          {
             name: "Wins",
             tag: "wins",
             cond: [
