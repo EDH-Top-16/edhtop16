@@ -8,6 +8,8 @@ export default function Banner({
   enableColors,
   enableFilters,
   getFilters,
+  allFilters,
+  terms,
   getColors,
 }) {
   return (
@@ -17,7 +19,11 @@ export default function Banner({
         {enableSearchbar ? <Searchbar /> : <></>}
         {enableColors ? <ColorSelection getColors={getColors} /> : <></>}
       </div>
-      {enableFilters ? <Filter getFilters={getFilters} /> : <></>}
+      {enableFilters ? (
+        <Filter getFilters={getFilters} allFilters={allFilters} terms={terms} />
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

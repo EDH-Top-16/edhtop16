@@ -18,6 +18,10 @@ export default function DeckView() {
   let params = useParams();
   const commander = params["*"].replaceAll("+", "/");
 
+  useEffect(() => {
+    setAllFilters(filters);
+  }, [filters]);
+
   /**
    * These two functionsg get data from colorSelection and filters child components
    */
@@ -29,15 +33,14 @@ export default function DeckView() {
   }
 
   useEffect(() => {
-    getCommanders({
-      commander: commander,
-    }).then((data) => {
+    console.log("Filters:", allFilters);
+    getCommanders({ ...allFilters, commander }).then((data) => {
       console.log("Data:", data);
       const deckRankings = getDeckRankings(data);
       setDecks(deckRankings);
       setIsLoading(false);
     });
-  }, []);
+  }, [allFilters]);
 
   return (
     <div className="flex flex-col w-11/12 ml-auto mr-0">
@@ -46,6 +49,45 @@ export default function DeckView() {
         title={commander}
         enableFilters={true}
         getFilters={getFilters}
+        allFilters={allFilters}
+        terms={[
+          {
+            name: "Wins",
+            tag: "wins",
+            cond: [
+              { $gte: `is greater than (\u2265)`, type: "number" },
+              { $eq: `is equal to (=)`, type: "number" },
+              { $lte: `is less than (\u2264)`, type: "number" },
+            ],
+          },
+          {
+            name: "Losses",
+            tag: "losses",
+            cond: [
+              { $gte: `is greater than (\u2265)`, type: "number" },
+              { $eq: `is equal to (=)`, type: "number" },
+              { $lte: `is less than (\u2264)`, type: "number" },
+            ],
+          },
+          {
+            name: "Draws",
+            tag: "draws",
+            cond: [
+              { $gte: `is greater than (\u2265)`, type: "number" },
+              { $eq: `is equal to (=)`, type: "number" },
+              { $lte: `is less than (\u2264)`, type: "number" },
+            ],
+          },
+          {
+            name: "Win Rate",
+            tag: "winRate",
+            cond: [
+              { $gte: `is greater than (\u2265)`, type: "number" },
+              { $eq: `is equal to (=)`, type: "number" },
+              { $lte: `is less than (\u2264)`, type: "number" },
+            ],
+          },
+        ]}
         getColors={getColors}
       />
 
@@ -58,6 +100,7 @@ export default function DeckView() {
             <td>Wins</td>
             <td>Losses</td>
             <td>Draws</td>
+            <td>Winrate</td>
             <td>Tournament</td>
           </tr>
           {isLoading ? (
@@ -69,7 +112,12 @@ export default function DeckView() {
                 rank={i + 1}
                 name={decks[i].name}
                 mox={decks[i].decklist}
-                metadata={[decks[i].wins, decks[i].losses, decks[i].draws]}
+                metadata={[
+                  decks[i].wins,
+                  decks[i].losses,
+                  decks[i].draws,
+                  Number(decks[i].winRate).toFixed(2),
+                ]}
                 tournament={decks[i].tournamentName}
               />
             ))

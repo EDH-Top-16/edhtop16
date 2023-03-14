@@ -2,13 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import moment from "moment";
 import { AiOutlineClose, AiOutlinePlus } from "react-icons/ai";
 
-export default function Filter({ getFilters }) {
-  const [filters, setFilters] = useState({
-    tourney_filter: {
-      size: { $gte: 64 },
-      dateCreated: { $gte: moment().subtract(1, "year").unix() },
-    },
-  });
+export default function Filter({ getFilters, allFilters, terms }) {
+  const [filters, setFilters] = useState(allFilters);
   const [openModal, setOpenModal] = useState(false);
 
   /**
@@ -120,56 +115,28 @@ export default function Filter({ getFilters }) {
           <></>
         )}
 
-        <button
-          className="flex items-center px-1 bg-nav text-white border-0 rounded-md"
-          onClick={toggleModal}
-        >
-          <AiOutlinePlus />
-        </button>
-        <button
-          className="flex items-center px-2 bg-nav text-white border-0 rounded-md"
-          onClick={() => handleClear()}
-        >
-          Clear
-        </button>
+        {terms ? (
+          <>
+            <button
+              className="flex items-center px-1 bg-nav text-white border-0 rounded-md"
+              onClick={toggleModal}
+            >
+              <AiOutlinePlus />
+            </button>
+            <button
+              className="flex items-center px-2 bg-nav text-white border-0 rounded-md"
+              onClick={() => handleClear()}
+            >
+              Clear
+            </button>
+          </>
+        ) : (
+          <></>
+        )}
       </div>
 
       {openModal ? (
-        <Modal
-          select={select}
-          setOpenModal={setOpenModal}
-          terms={[
-            {
-              name: "Standing",
-              tag: "standing",
-              cond: [
-                { $gte: `is greater than (\u2265)`, type: "number" },
-                { $eq: `is equal to (=)`, type: "number" },
-                { $lte: `is less than (\u2264)`, type: "number" },
-              ],
-            },
-            {
-              name: "Tournament Size",
-              tag: "size",
-              isTourneyFilter: true,
-              cond: [
-                { $gte: `is greater than (\u2265)`, type: "number" },
-                { $eq: `is equal to (=)`, type: "number" },
-                { $lte: `is less than (\u2264)`, type: "number" },
-              ],
-            },
-            {
-              name: "Date",
-              tag: "dateCreated",
-              isTourneyFilter: true,
-              cond: [
-                { $gte: `is after (\u2265)`, type: "date" },
-                { $eq: `is (=)`, type: "date" },
-                { $lte: `is before (\u2264)`, type: "date" },
-              ],
-            },
-          ]}
-        />
+        <Modal select={select} setOpenModal={setOpenModal} terms={terms} />
       ) : (
         <></>
       )}
