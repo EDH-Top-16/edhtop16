@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 
 import Banner from "../Banner/Banner";
 import Entry from "../Entry";
-import { getCommanders, getDeckRankings } from "../../data/Commanders";
+import { getCommanders, sortCommanders } from "../../data/Commanders";
 
 /**
  * Takes commander name and @returns the corresponding decks
@@ -14,6 +14,8 @@ export default function DeckView() {
   const [colors, setColors] = useState([]);
   const [filters, setFilters] = useState([]);
   const [allFilters, setAllFilters] = useState([]);
+  const [sort, setSort] = useState("winrate");
+  const [toggled, setToggled] = useState(false);
 
   let params = useParams();
   const commander = params["*"].replaceAll("+", "/");
@@ -32,15 +34,24 @@ export default function DeckView() {
     setFilters(data);
   }
 
+  /**
+   * Changes the sort order
+   */
+  function handleSort(x) {
+    setSort(x);
+    if (x === sort) {
+      setToggled(!toggled);
+    }
+  }
+
   useEffect(() => {
-    console.log("Filters:", allFilters);
+    // console.log("Filters:", allFilters);
     getCommanders({ ...allFilters, commander }).then((data) => {
-      console.log("Data:", data);
-      const deckRankings = getDeckRankings(data);
-      setDecks(deckRankings);
+      const sortedCommanders = sortCommanders(data, sort, toggled);
+      setDecks(sortedCommanders);
       setIsLoading(false);
     });
-  }, [allFilters]);
+  }, [sort, toggled, allFilters]);
 
   return (
     <div className="flex flex-col w-11/12 ml-auto mr-0">
@@ -122,15 +133,27 @@ export default function DeckView() {
 
       {/* Table of decks */}
       <table className="block mx-24 my-12 table-fixed">
-        <tbody className="[&>tr]:space-y-6 [&>tr>td]:w-max [&>tr>td]:px-2 [&>tr>td]:py-4">
+        <tbody className="[&>tr]:space-y-6 [&>tr>td]:w-max [&>tr>td]:px-2 [&>tr>td]:py-4 [&>tr>td>p]:cursor-pointer [&>tr>td>p]:w-fit">
           <tr className="text-subtext text-lg underline">
             <td>#</td>
-            <td>Player Name</td>
-            <td>Wins</td>
-            <td>Losses</td>
-            <td>Draws</td>
-            <td>Winrate</td>
-            <td>Tournament</td>
+            <td>
+              <p onClick={() => handleSort("name")}>Player Name</p>
+            </td>
+            <td>
+              <p onClick={() => handleSort("wins")}>Wins</p>
+            </td>
+            <td>
+              <p onClick={() => handleSort("losses")}>Losses</p>
+            </td>
+            <td>
+              <p onClick={() => handleSort("draws")}>Draws</p>
+            </td>
+            <td>
+              <p onClick={() => handleSort("winrate")}>Winrate</p>
+            </td>
+            <td>
+              <p onClick={() => handleSort("tournament")}>Tournament</p>
+            </td>
           </tr>
           {isLoading ? (
             <tr>Loading...</tr>

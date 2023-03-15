@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import moment from "moment";
+import { HiSwitchHorizontal } from "react-icons/hi";
 
 import Banner from "../Banner/Banner";
 import Entry from "../Entry";
-import { getCommanders, getCommanderRankings } from "../../data/Commanders";
+import {
+  getCommanders,
+  getCommanderRankings,
+  sortCommanders,
+} from "../../data/Commanders";
 
 /**
  * @TODO create sorting for each heading
@@ -26,12 +31,14 @@ export default function CommanderView() {
       dateCreated: { $gte: moment().subtract(1, "year").unix() },
     },
   });
+  const [sort, setSort] = useState("topX");
+  const [toggled, setToggled] = useState(false);
 
   /**
    * @TODO Build filterString from colors and filters
    */
   useEffect(() => {
-    console.log(filters, colors);
+    // console.log(filters, colors);
     if (colors !== [] && colors.join("") !== "") {
       setAllFilters({
         ...filters,
@@ -49,11 +56,12 @@ export default function CommanderView() {
     getCommanders(allFilters).then((data) => {
       // console.log("Data:", data);
       const commanderRankings = getCommanderRankings(data, topX);
-      console.log(commanderRankings);
-      setCommanders(commanderRankings);
+      // console.log("Commander Rankings:", commanderRankings);
+      const sortedCommanders = sortCommanders(commanderRankings, sort, toggled);
+      setCommanders(sortedCommanders);
       setIsLoading(false);
     });
-  }, [topX, allFilters]);
+  }, [sort, toggled, topX, allFilters]);
 
   /**
    * These two functions get data from colorSelection and filters child components
@@ -63,6 +71,16 @@ export default function CommanderView() {
   }
   function getFilters(data) {
     setFilters(data);
+  }
+
+  /**
+   * Changes the sort order
+   */
+  function handleSort(x) {
+    setSort(x);
+    if (x === sort) {
+      setToggled(!toggled);
+    }
   }
 
   /**
@@ -119,16 +137,33 @@ export default function CommanderView() {
 
       {/* Table of commanders */}
       <table className="block mx-24 my-12 table-fixed">
-        <tbody className="[&>tr]:space-y-6 [&>tr>td]:w-max [&>tr>td]:px-2 [&>tr>td]:py-4">
+        <tbody className="[&>tr]:space-y-6 [&>tr>td]:w-max [&>tr>td]:px-2 [&>tr>td]:py-4 [&>tr>td>p]:cursor-pointer [&>tr>td>p]:w-fit">
           <tr className="text-subtext text-lg underline">
-            <td>#</td>
-            <td>Name</td>
-            <td className="cursor-pointer" onClick={() => changeTopX()}>
-              Top {topX}s
+            <td>
+              <p className="cursor-normal">#</p>
             </td>
-            <td>Entries</td>
-            <td>Conversion</td>
-            <td>Colors</td>
+            <td>
+              <p onClick={() => handleSort("commander")}>Name</p>
+            </td>
+            <td className="space-x-2">
+              <p className="inline-block" onClick={() => handleSort("topX")}>
+                Top {topX}s
+              </p>
+              <HiSwitchHorizontal
+                onClick={() => changeTopX()}
+                size={24}
+                className="cursor-pointer inline-block"
+              />
+            </td>
+            <td>
+              <p onClick={() => handleSort("count")}>Entries</p>
+            </td>
+            <td>
+              <p onClick={() => handleSort("conversion")}>Conversion</p>
+            </td>
+            <td>
+              <p>Colors</p>
+            </td>
           </tr>
           {isLoading ? (
             <tr>Loading...</tr>

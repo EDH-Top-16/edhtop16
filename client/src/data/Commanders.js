@@ -81,7 +81,7 @@ export function getCommanderRankings(data, x) {
     }
   });
 
-  console.log(rankedCommanders);
+  // console.log(rankedCommanders);
   return rankedCommanders;
 }
 
@@ -100,6 +100,49 @@ export function getCommanderNames() {
     );
 }
 
+export function sortCommanders(commanders, sort, toggled) {
+  let sortedCommanders = commanders.sort((a, b) => {
+    if (sort === "name") {
+      return !toggled
+        ? a.name.localeCompare(b.name)
+        : b.name.localeCompare(a.name);
+    } else if (sort === "commander") {
+      return !toggled
+        ? a.commander.localeCompare(b.commander)
+        : b.commander.localeCompare(a.commander);
+    } else if (sort === "wins") {
+      return !toggled ? b.wins - a.wins : a.wins - b.wins;
+    } else if (sort === "losses") {
+      return !toggled ? b.losses - a.losses : a.losses - b.losses;
+    } else if (sort === "draws") {
+      return !toggled ? b.draws - a.draws : a.draws - b.draws;
+    } else if (sort === "winrate") {
+      return !toggled ? b.winRate - a.winRate : a.winRate - b.winRate;
+    } else if (sort === "tournament") {
+      return !toggled
+        ? a.tournamentName.localeCompare(b.tournamentName)
+        : b.tournamentName.localeCompare(a.tournamentName);
+    } else if (sort === "topX") {
+      if (b.topX - a.topX === 0) {
+        return !toggled
+          ? b.tiebreaker - a.tiebreaker
+          : a.tiebreaker - b.tiebreaker;
+      } else {
+        return !toggled ? b.topX - a.topX : a.topX - b.topX;
+      }
+    } else if (sort === "count") {
+      return !toggled ? b.count - a.count : a.count - b.count;
+    } else if (sort === "conversion") {
+      let conversionA = (a.topX / a.count) * 100;
+      let conversionB = (b.topX / b.count) * 100;
+
+      return !toggled ? conversionB - conversionA : conversionA - conversionB;
+    }
+  });
+
+  return sortedCommanders;
+}
+
 /**
  * @returns commander names with respect to the input
  * @TODO make a semi-fuzzy search algo
@@ -114,15 +157,4 @@ export function filterNames(data, input) {
   });
 
   return filtered;
-}
-
-/**
- * @returns decks ranked by
- */
-export function getDeckRankings(data) {
-  let rankedDecks = data.sort((a, b) => {
-    return b.winRate - a.winRate;
-  });
-
-  return rankedDecks;
 }
