@@ -44,7 +44,7 @@ export default function Searchbar() {
   });
 
   return (
-    <div className="text-lg w-3/6">
+    <div className="text-lg w-3/6 z-10">
       <input
         className="bg-searchbar min-w-full border-0 rounded-xl px-2 w-3/12 outline-none"
         ref={inputRef}
