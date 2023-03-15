@@ -9,7 +9,7 @@ Examples provided are using the Python requests library, but any HTTP request sh
 ```python
 import json
 import requests
-base_url = "https://www.cedhtop16.com/api/"
+base_url = "https://www.edhtop16.com/api/"
 headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 ```
 
