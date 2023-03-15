@@ -166,7 +166,7 @@ export default function CommanderView() {
             </td>
           </tr>
           {isLoading ? (
-            <tr>Loading...</tr>
+            <tr className="text-text text-lg">Loading...</tr>
           ) : (
             commanders.map((v, i) => (
               <Entry

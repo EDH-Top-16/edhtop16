@@ -13,7 +13,7 @@ export default function Nav() {
           </Link>
         </span>
         <span>
-          <Link to="/">
+          <Link to="/tournament">
             <img src={bracketIcon} alt="" />
           </Link>
         </span>

@@ -156,7 +156,7 @@ export default function DeckView() {
             </td>
           </tr>
           {isLoading ? (
-            <tr>Loading...</tr>
+            <tr className="text-text text-lg">Loading...</tr>
           ) : (
             decks &&
             decks.map((x, i) => (
