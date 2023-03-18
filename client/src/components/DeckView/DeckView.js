@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import Banner from "../Banner/Banner";
 import Entry from "../Entry";
 import { getCommanders, sortCommanders } from "../../data/Commanders";
+import { defaultFormat } from "moment";
 
 /**
  * Takes commander name and @returns the corresponding decks
@@ -12,8 +13,9 @@ export default function DeckView({ setCommander }) {
   const [decks, setDecks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [colors, setColors] = useState([]);
-  const [filters, setFilters] = useState([]);
-  const [allFilters, setAllFilters] = useState([]);
+  const defaultFilters = {};
+  const [filters, setFilters] = useState(defaultFilters);
+  const [allFilters, setAllFilters] = useState(defaultFilters);
   const [sort, setSort] = useState("winrate");
   const [toggled, setToggled] = useState(false);
 
@@ -65,6 +67,7 @@ export default function DeckView({ setCommander }) {
         enableFilters={true}
         getFilters={getFilters}
         allFilters={allFilters}
+        defaultFilters={defaultFilters}
         terms={[
           {
             name: "Standing",
