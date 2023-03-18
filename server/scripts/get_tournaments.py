@@ -47,20 +47,26 @@ if __name__ == '__main__':
         except KeyError:
             continue
 
-    tournaments = fetch_tournaments()
+    try:
+        tournaments = fetch_tournaments()
+    except:
+        print(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while fetching tournaments from Eminence.")
     
     for tourney in tournaments:
-        # Is this check needed??
-        if tourney['TID'] not in existing_tourneys:
-            for i, j in enumerate(tourney['standings']):
-                j.update({'standing': i+1})
-            standings = [i for i in tourney['standings'] if i['decklist']]
-            if standings:
-                db['metadata'].insert_one({
-                    'TID': tourney['TID'],
-                    'tournamentName': tourney['tournamentName'] if tourney['tournamentName'] else 'Unnamed Tournament',
-                    'size': len(tourney['standings']),
-                    'date': datetime.datetime.fromtimestamp(tourney['dateCreated']),
-                    'dateCreated': tourney['dateCreated']
-                })
-                db[tourney['TID']].insert_many(standings)
+        try:
+            # Is this check needed??
+            if tourney['TID'] not in existing_tourneys:
+                for i, j in enumerate(tourney['standings']):
+                    j.update({'standing': i+1})
+                standings = [i for i in tourney['standings'] if i['decklist']]
+                if standings:
+                    db['metadata'].insert_one({
+                        'TID': tourney['TID'],
+                        'tournamentName': tourney['tournamentName'] if tourney['tournamentName'] else 'Unnamed Tournament',
+                        'size': len(tourney['standings']),
+                        'date': datetime.datetime.fromtimestamp(tourney['dateCreated']),
+                        'dateCreated': tourney['dateCreated']
+                    })
+                    db[tourney['TID']].insert_many(standings)
+        except:
+            print(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data to collection '{tourney}.'")
