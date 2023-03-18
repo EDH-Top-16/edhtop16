@@ -19,18 +19,14 @@ export default function CommanderView() {
   const [isLoading, setIsLoading] = useState(true);
   const [topX, setTopX] = useState(16);
   const [colors, setColors] = useState([]);
-  const [filters, setFilters] = useState({
+  const defaultFilters = {
     tourney_filter: {
       size: { $gte: 64 },
       dateCreated: { $gte: moment().subtract(1, "year").unix() },
     },
-  });
-  const [allFilters, setAllFilters] = useState({
-    tourney_filter: {
-      size: { $gte: 64 },
-      dateCreated: { $gte: moment().subtract(1, "year").unix() },
-    },
-  });
+  }
+  const [filters, setFilters] = useState(defaultFilters);
+  const [allFilters, setAllFilters] = useState(defaultFilters);
   const [sort, setSort] = useState("topX");
   const [toggled, setToggled] = useState(false);
 
@@ -99,6 +95,7 @@ export default function CommanderView() {
         enableSearchbar={true}
         enableColors={true}
         enableFilters={true}
+        defaultFilters={defaultFilters}
         getFilters={getFilters}
         allFilters={allFilters}
         terms={[
