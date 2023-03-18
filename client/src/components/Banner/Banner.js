@@ -11,6 +11,7 @@ export default function Banner({
   allFilters,
   terms,
   getColors,
+  defaultFilters
 }) {
   return (
     <div className="relative w-full h-full bg-banner mt-16 px-24 py-12">
@@ -20,7 +21,7 @@ export default function Banner({
         {enableColors ? <ColorSelection getColors={getColors} /> : <></>}
       </div>
       {enableFilters ? (
-        <Filter getFilters={getFilters} allFilters={allFilters} terms={terms} />
+        <Filter getFilters={getFilters} allFilters={allFilters} terms={terms} defaultFilters={defaultFilters} />
       ) : (
         <></>
       )}

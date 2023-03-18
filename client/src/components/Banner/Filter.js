@@ -2,7 +2,12 @@ import { useEffect, useState, useRef } from "react";
 import moment from "moment";
 import { AiOutlineClose, AiOutlinePlus } from "react-icons/ai";
 
-export default function Filter({ getFilters, allFilters, terms }) {
+export default function Filter({
+  getFilters,
+  allFilters,
+  terms,
+  defaultFilters,
+}) {
   const [filters, setFilters] = useState(allFilters);
   const [openModal, setOpenModal] = useState(false);
 
@@ -81,6 +86,14 @@ export default function Filter({ getFilters, allFilters, terms }) {
     setOpenModal(false);
   }
 
+  function handleReset() {
+    setFilters(defaultFilters);
+    // console.log(defaultFilters);
+    // console.log(allFilters);
+    // console.log(filters);
+    setOpenModal(false);
+  }
+
   useEffect(() => {
     getFilters(filters);
     // console.log(filters);
@@ -128,6 +141,12 @@ export default function Filter({ getFilters, allFilters, terms }) {
               onClick={() => handleClear()}
             >
               Clear
+            </button>
+            <button
+              className="flex items-center px-2 bg-nav text-white border-0 rounded-md"
+              onClick={() => handleReset()}
+            >
+              Reset
             </button>
           </>
         ) : (
