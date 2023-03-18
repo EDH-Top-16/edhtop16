@@ -1,7 +1,6 @@
 from pymongo import MongoClient
 import mtg_api # Import from file
 from functools import reduce
-from tqdm import tqdm
 
 client = MongoClient("mongodb://localhost:27017")
 
@@ -20,7 +19,7 @@ for c in collections:
     print(f"Updating Collection '{c}' with commander/color identity metadata")
     commander_col = db['commanders']
     col = db[c]
-    for i in tqdm(col.find()):
+    for i in col.find():
         if 'commander' in i.keys() and 'colorID' in i.keys(): # Metadata already exists
             continue
         try:
