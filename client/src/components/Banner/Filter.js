@@ -2,7 +2,12 @@ import { useEffect, useState, useRef } from "react";
 import moment from "moment";
 import { AiOutlineClose, AiOutlinePlus } from "react-icons/ai";
 
-export default function Filter({ getFilters, allFilters, terms, defaultFilters }) {
+export default function Filter({
+  getFilters,
+  allFilters,
+  terms,
+  defaultFilters,
+}) {
   const [filters, setFilters] = useState(allFilters);
   const [openModal, setOpenModal] = useState(false);
 
@@ -81,11 +86,11 @@ export default function Filter({ getFilters, allFilters, terms, defaultFilters }
     setOpenModal(false);
   }
 
-  function handleReset(){
+  function handleReset() {
     setFilters(defaultFilters);
-    console.log(defaultFilters);
-    console.log(allFilters);
-    console.log(filters);
+    // console.log(defaultFilters);
+    // console.log(allFilters);
+    // console.log(filters);
     setOpenModal(false);
   }
 
