@@ -8,7 +8,7 @@ import { getCommanders, sortCommanders } from "../../data/Commanders";
 /**
  * Takes commander name and @returns the corresponding decks
  */
-export default function DeckView() {
+export default function DeckView({ setCommander }) {
   const [decks, setDecks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [colors, setColors] = useState([]);
@@ -19,6 +19,10 @@ export default function DeckView() {
 
   let params = useParams();
   const commander = params["*"].replaceAll("+", "/");
+
+  useEffect(() => {
+    setCommander(commander);
+  }, [commander]);
 
   useEffect(() => {
     setAllFilters(filters);
