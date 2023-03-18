@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 
 import Banner from "../Banner/Banner";
 import Entry from "../Entry";
@@ -9,7 +10,7 @@ import { defaultFormat } from "moment";
 /**
  * Takes commander name and @returns the corresponding decks
  */
-export default function DeckView({ setCommander }) {
+export default function DeckView({ setCommanderExist }) {
   const [decks, setDecks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [colors, setColors] = useState([]);
@@ -22,8 +23,18 @@ export default function DeckView({ setCommander }) {
   let params = useParams();
   const commander = params["*"].replaceAll("+", "/");
 
+  // useEffect to get commanders
   useEffect(() => {
-    setCommander(commander);
+    axios
+      .post(process.env.REACT_APP_uri + "/api/req", { commander: commander })
+      .then((res) => {
+        console.log(commander, res.data, res.data.length > 0);
+        if (res.data.length > 0) {
+          setCommanderExist(true);
+        } else {
+          setCommanderExist(false);
+        }
+      });
   }, [commander]);
 
   useEffect(() => {
