@@ -8,6 +8,7 @@ import DeckView from "./components/DeckView/DeckView";
 import TournamentView from "./components/TournamentView/TournamentView";
 import APIDocs from "./components/APIDocs/APIDocs";
 import NotFound from "./components/404";
+import LoadingPage from "./components/LoadingPage";
 
 /**
  * @TODO make a list of valid URLs so commander/asdf isn't an actual page lol
@@ -16,20 +17,6 @@ import NotFound from "./components/404";
 function App() {
   const [commander, setCommander] = useState("");
   const [commanderExist, setCommanderExist] = useState(true);
-
-  // useEffect to get commanders
-  useEffect(() => {
-    axios
-      .post(process.env.REACT_APP_uri + "/api/req", { commander: commander })
-      .then((res) => {
-        // console.log(commander, res.data);
-        if (res.data.length > 0) {
-          setCommanderExist(true);
-        } else {
-          setCommanderExist(false);
-        }
-      });
-  }, [commander]);
 
   return (
     <div className="bg-bg_primary min-w-screen min-h-screen">
@@ -40,15 +27,19 @@ function App() {
           <Route
             path="commander/*"
             element={
-              commanderExist ? (
-                <DeckView setCommander={setCommander} />
-              ) : (
+              !commanderExist ? (
                 <NotFound />
+              ) : (
+                <DeckView
+                  setCommander={setCommander}
+                  setCommanderExist={setCommanderExist}
+                />
               )
             }
           />
           <Route path="api" element={<APIDocs />} />
           <Route path="tournament" element={<TournamentView />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </div>
