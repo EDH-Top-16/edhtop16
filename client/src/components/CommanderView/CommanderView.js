@@ -119,7 +119,7 @@ export default function CommanderView() {
             ],
           },
           {
-            name: "Date",
+            name: "Tournament Date",
             tag: "dateCreated",
             isTourneyFilter: true,
             cond: [

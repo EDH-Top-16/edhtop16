@@ -1,12 +1,17 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import moment from "moment";
-import { AiOutlineClose, AiOutlinePlus } from "react-icons/ai";
+import {
+  AiOutlineClose,
+  AiOutlinePlus,
+  AiOutlinePlusCircle,
+} from "react-icons/ai";
 
 export default function Filter({
   getFilters,
   allFilters,
   terms,
   defaultFilters,
+  ColorPicker = <></>,
 }) {
   const [filters, setFilters] = useState(allFilters);
   const [openModal, setOpenModal] = useState(false);
@@ -100,50 +105,28 @@ export default function Filter({
   }, [filters]);
 
   return (
-    <div className="mt-4">
-      <div className="flex space-x-2 relative text-lg">
-        {filters ? (
-          Object.entries(filters).map((filter) => {
-            if (filter[0] === "tourney_filter") {
-              return Object.entries(filter[1]).map((_filter) => {
-                return (
-                  <AppliedFilter
-                    filter={{ key: _filter[0], value: _filter[1] }}
-                    isTourneyFilter={true}
-                    removeFilters={removeFilters}
-                  />
-                );
-              });
-            } else {
-              return (
-                <AppliedFilter
-                  filter={{ key: filter[0], value: filter[1] }}
-                  isTourneyFilter={false}
-                  removeFilters={removeFilters}
-                />
-              );
+    <div className="">
+      <div className="flex gap-2 relative text-lg items-center flex-wrap">
+        {ColorPicker}
+        {terms?.map((term) => (
+          <Term
+            isTourneyFilter={true}
+            removeFilters={removeFilters}
+            term={term}
+            key={term.tag}
+            filter={
+              term.isTourneyFilter
+                ? (filters["tourney_filter"] || {})[term.tag]
+                : filters[term.tag]
             }
-          })
-        ) : (
-          <></>
-        )}
+            select={select}
+          />
+        ))}
 
         {terms ? (
           <>
             <button
-              className="flex items-center px-1 bg-nav text-white border-0 rounded-md"
-              onClick={toggleModal}
-            >
-              <AiOutlinePlus />
-            </button>
-            <button
-              className="flex items-center px-2 bg-nav text-white border-0 rounded-md"
-              onClick={() => handleClear()}
-            >
-              Clear
-            </button>
-            <button
-              className="flex items-center px-2 bg-nav text-white border-0 rounded-md"
+              className="flex items-center px-2 bg-highlight text-white border-0 rounded-full text-sm py-1 px-2"
               onClick={() => handleReset()}
             >
               Reset
@@ -153,166 +136,183 @@ export default function Filter({
           <></>
         )}
       </div>
-
-      {openModal ? (
-        <Modal select={select} setOpenModal={setOpenModal} terms={terms} />
-      ) : (
-        <></>
-      )}
     </div>
   );
 }
 
-/**
- * @appliedfilter
- */
-const AppliedFilter = ({ filter, isTourneyFilter, removeFilters }) => {
-  let name = filter.key;
-  let [val] = Object.entries(filter.value);
-  let cond = val[0];
-  if (cond === "$gte") {
-    cond = "\u2265";
-  } else if (cond === "$eq") {
-    cond = "=";
-  } else {
-    cond = "\u2264";
-  }
-  let num = val[1];
-  let parsed = `${name} ${cond} ${
-    name === "dateCreated" ? moment.unix(num).format("MM/DD/YYYY") : num
-  }`;
-
-  // console.log(filter);
-
-  return (
-    <button className="flex items-center px-2 bg-nav text-white border-0 rounded-md">
-      {isTourneyFilter ? "Tournament" : ""}{" "}
-      {parsed.charAt(0).toUpperCase() + parsed.slice(1)}
-      <button
-        className="ml-4"
-        onClick={() => removeFilters(filter.key, isTourneyFilter)}
-      >
-        <AiOutlineClose />
-      </button>
-    </button>
-  );
-};
-
-/**
- * @modal
- */
-const Modal = ({ select, setOpenModal, terms }) => {
-  const inputRef = useRef(null);
-
-  const [filterSelection, setFilterSelection] = useState(terms[0]);
-  const [checked, setChecked] = useState(
-    Object.keys(filterSelection.cond[0])[0]
-  );
-
-  let conds = filterSelection.cond;
-
-  function handleFilterSelection(x) {
-    if (x !== filterSelection) {
-      let [selected] = terms.filter((obj) => {
-        if (obj.name === x) {
-          return obj;
-        }
-      });
-
-      setFilterSelection(selected);
-    }
-  }
-
-  function handleCheckbox(e) {
-    if (checked !== e.target.value) {
-      setChecked(e.target.value);
+const Term = ({ term, filter, isTourneyFilter, removeFilters, select }) => {
+  const parsedName = useMemo(() => {
+    if (!filter) return "";
+    let name = term.name;
+    let [val] = Object.entries(filter);
+    let cond = val[0];
+    if (cond === "$gte") {
+      cond = "\u2265";
+    } else if (cond === "$eq") {
+      cond = "=";
     } else {
-      setChecked("");
+      cond = "\u2264";
     }
+    let num = val[1];
+    let parsed = `${name} ${cond} ${
+      term.cond.find((item) => !!item[val[0]]).type === "date"
+        ? moment.unix(num).format("MM/DD/YYYY")
+        : num
+    }`;
+    return parsed;
+  }, [filter]);
+
+  const btnRef = useRef(null);
+  const modalRef = useRef(null);
+
+  const btnBox = btnRef.current?.getBoundingClientRect();
+
+  const [open, setOpen] = useState(false);
+
+  const toggleOpen = () => {
+    setOpen((o) => !o);
+  };
+
+  const [selectedCond, setSelectedCond] = useState(
+    filter ? 
+    term.cond.find((item) => !!item[Object.keys(filter)[0]]) :
+    term.cond[0]
+  );
+
+  const [newValue, setNewValue] = useState()
+
+
+  useEffect(() => {
+    if(filter) {
+      const cond = term.cond.find((item) => !!item[Object.keys(filter)[0]])
+      setSelectedCond(cond)
+      setNewValue(cond.type === 'date' ? moment.unix(Number(Object.values(filter)[0])).format("yyyy-MM-DD") : Object.values(filter)[0])
+    } else {
+      resetDialog()
+    }
+  }, [filter, term])
+
+  console.log(term.name, term.cond, filter, selectedCond)
+
+  const resetDialog = () => {
+    setNewValue()
+    setSelectedCond(term.cond[0])
   }
 
-  function handleSubmit() {
+  const removeFilter = () => {
+    removeFilters(term.tag, term.isTourneyFilter)
+    resetDialog()
+    setOpen(false)
+  }
+
+  const submit = (e) => {
+    e.stopPropagation()
     let filterObj = {};
 
+    const op = Object.keys(selectedCond).filter(val => val !== 'type')[0]
+
     // Check if input type is number
-    if (inputRef.current.type === "number") {
+    if (selectedCond.type === "number") {
       // Check if input is a number
+      console.log("num")
       if (
-        !isNaN(Number(inputRef.current.value)) &&
-        Number(inputRef.current.value) > 0
+        !isNaN(Number(newValue)) &&
+        Number(newValue) > 0
       ) {
-        filterObj[checked] = Number(inputRef.current.value);
-        select(filterSelection.tag, filterObj, filterSelection.isTourneyFilter);
+        console.log(newValue, op);
+        filterObj[op] = Number(newValue);
+        select(term.tag, filterObj, term.isTourneyFilter);
       }
     }
 
     // Check if input type is date
-    if (inputRef.current.type === "date") {
-      if (moment(inputRef.current.value).isValid()) {
-        filterObj[checked] = Number(moment(inputRef.current.value).unix());
-        select(filterSelection.tag, filterObj, filterSelection.isTourneyFilter);
+    if (selectedCond.type === "date") {
+      if (moment(newValue).isValid()) {
+        filterObj[op] = Number(moment(newValue).unix());
+        select(term.tag, filterObj, term.isTourneyFilter);
       }
     }
-    setOpenModal(false);
+    setOpen(false)
   }
 
   return (
-    <span className="absolute flex space-x-4 mt-4">
-      {/* Filter selection */}
-      <div className="max-w-max drop-shadow-xl flex flex-col overflow-clip items-start bg-nav border-0 rounded-lg h-min">
-        {terms ? (
-          terms.map((obj) => (
-            <button
-              className={`flex flex-wrap w-full px-4 py-2 text-lg text-white hover:bg-select ${
-                obj.name === filterSelection.name ? "bg-select" : ""
-              }`}
-              onClick={() => handleFilterSelection(obj.name)}
-            >
-              {obj.name}
-            </button>
-          ))
-        ) : (
-          <></>
+    <>
+      <button
+        className={`${
+          !!filter ? "border-solid border-voilet text-cadet dark:border-gray" : "border-dashed border-text text-text"
+        } border rounded-full text-sm px-3 p-1 dark:border-gray dark:text-white flex items-center`}
+        ref={btnRef}
+        onClick={() => toggleOpen()}
+      >
+        {/* {isTourneyFilter ? "Tournament " : ""} */}
+        {!filter && (
+          <div
+            className="mr-1"
+          >
+            <AiOutlinePlusCircle />
+          </div>
         )}
-      </div>
-      {/* Filter Values */}
-      <div className="drop-shadow-xl flex flex-col items-start bg-nav border-0 rounded-lg h-min">
-        {conds ? (
-          conds.map((obj) => (
-            <>
-              <div className="px-4 py-2 space-x-2">
-                <input
-                  value={Object.keys(obj)[0]}
-                  className="border-0 rounded-lg"
-                  type="checkbox"
-                  checked={checked === Object.keys(obj)[0]}
-                  onChange={handleCheckbox}
-                />
+        {filter ? parsedName : term.name}
+        {filter && (
+          <button
+            className="ml-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              removeFilter()
+            }}
+          >
+            <AiOutlineClose />
+          </button>
+        )}
+      </button>
 
-                <label className="text-lg text-white">
-                  {Object.values(obj)[0]}
-                </label>
-              </div>
-              {checked === Object.keys(obj)[0] ? (
-                <input
-                  className="mx-4 my-2 p-1 appearance-none border-2 rounded-md border-text bg-transparent text-white focus:outline-none"
-                  type={obj.type}
-                  ref={inputRef}
-                />
-              ) : (
-                <></>
-              )}
-            </>
-          ))
-        ) : (
-          <></>
-        )}
-        {/* Confirmations */}
-        <div className="flex space-x-4 mx-4 my-2 text-white">
-          <button onClick={handleSubmit}>Apply</button>
-          <button onClick={() => setOpenModal(false)}>Cancel</button>
+      {open && (
+        <div
+          className="fixed inset-0 bg-transparent z-40"
+          role="alert"
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen(false);
+            setNewValue(filter ? Object.values(filter)[0] : "")
+          }}
+        >
+          <div
+            className="fixed z-50 rounded-xl dark:bg-cadet bg-white p-4 flex flex-col gap-2 shadow-modal"
+            ref={modalRef}
+            style={{
+              top: btnBox?.bottom,
+              left:
+                btnBox?.left + 200 < window.screen.width
+                  ? btnBox?.left
+                  : undefined,
+              right:
+                btnBox?.left + 200 < window.screen.width
+                  ? undefined
+                  : 0,
+              width: "200px",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <select value={Object.keys(selectedCond)[0]} onChange={(e) => setSelectedCond(term.cond.find((item) => !!item[e.target.value]))} className="rounded-lg px-2 py-2 text-sm focus-visible:outline-none border-2 border-solid border-transparent focus:border-accent">
+              {term.cond.map((cond) => {
+                const op_name = Object.keys(cond).filter(val => val !== 'type')[0]
+                return (
+                  <option key={op_name} value={op_name}>
+                    {cond[op_name]}
+                  </option>
+                )
+              })}
+            </select>
+
+            <input className="rounded-lg text-sm px-2 py-1 focus-visible:outline-none border-2 border-solid border-transparent focus:border-accent" type={selectedCond.type} value={newValue} onChange={(e) => setNewValue(e.target.value)}/>
+
+            <div className="flex flex-row md:gap-2 flex-wrap">
+              <button className="flex-grow rounded-lg p-2 text-white bg-accent text-sm" onClick={submit}>Apply</button>
+              <button className="flex-grow rounded-lg p-2 dark:text-white bg-highlight text-sm" onClick={removeFilter}>Clear</button>
+            </div>
+          </div>
         </div>
-      </div>
-    </span>
+      )}
+    </>
   );
 };

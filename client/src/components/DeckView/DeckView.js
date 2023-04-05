@@ -100,7 +100,7 @@ export default function DeckView({ setCommanderExist }) {
             ],
           },
           {
-            name: "Date",
+            name: "Tournament Date",
             tag: "dateCreated",
             isTourneyFilter: true,
             cond: [
