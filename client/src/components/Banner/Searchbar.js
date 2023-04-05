@@ -29,8 +29,8 @@ export default function Searchbar() {
 
   const handleClickOutside = (event) => {
     if (
-      !suggestionsRef.current.contains(event.target) &&
-      !inputRef.current.contains(event.target)
+      !suggestionsRef.current?.contains(event.target) &&
+      !inputRef.current?.contains(event.target)
     ) {
       setSuggestions([]);
     }
@@ -44,9 +44,9 @@ export default function Searchbar() {
   });
 
   return (
-    <div className="text-lg w-3/6 z-10">
+    <div className="text-lg w-full md:w-1/3 z-10 relative grow">
       <input
-        className="bg-searchbar min-w-full border-0 rounded-xl px-2 w-3/12 outline-none"
+        className={`bg-searchbar border-0 rounded-xl ${document.activeElement === inputRef.current && suggestions.length > 0 ? "rounded-b-none" : ""} py-2 px-4 w-full outline-none transition-all duration-200`}
         ref={inputRef}
         type="text"
         placeholder="Search..."
@@ -55,11 +55,11 @@ export default function Searchbar() {
       />
       {document.activeElement === inputRef.current ? (
         suggestions.length > 0 && (
-          <ul ref={suggestionsRef} className="absolute bg-nav">
+          <ul ref={suggestionsRef} className="absolute dark:bg-searchbar bg-nav rounded-b-xl w-full">
             {suggestions.slice(0, 20).map((suggestion) => (
               <Link to={`/commander/${suggestion.replaceAll("/", "+")}`}>
                 <li
-                  className="px-2 py-1 hover:bg-select text-white"
+                  className="px-2 py-1 hover:bg-select dark:text-gray text-white"
                   key={suggestion}
                 >
                   {suggestion}
