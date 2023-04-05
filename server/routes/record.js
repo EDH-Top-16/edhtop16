@@ -30,7 +30,14 @@ async function parseTourneyFilters(filters){
 
     // dateName is which key we use; dateValue is its value
     let dateName = Object.keys(filters).includes("date") ? "date" : "dateCreated";
-    let dateValue = (dateName == "date") ? filters.date : filters.dateCreated;
+    if(dateName === "date"){
+      Object.keys(filters.date).forEach(
+        key => {
+          filters.date[key] = new Date(filters.date[key]);
+        }
+      )
+    }
+    let dateValue = (dateName === "date") ?  filters.date : filters.dateCreated;
 
     // Form query and add date and size filter.
     query = {
