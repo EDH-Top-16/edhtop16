@@ -9,39 +9,71 @@ import TournamentView from "./components/TournamentView/TournamentView";
 import APIDocs from "./components/APIDocs/APIDocs";
 import NotFound from "./components/404";
 import LoadingPage from "./components/LoadingPage";
+import { NavContextProvider } from "./contexts/NavContext";
+import { ThemeContextProvider } from "./contexts/ThemeContext";
 
 /**
  * @TODO make a list of valid URLs so commander/asdf isn't an actual page lol
  */
 
+const THEMES = ["dark", "light"];
+
 function App() {
   const [commander, setCommander] = useState("");
   const [commanderExist, setCommanderExist] = useState(true);
 
+  const [theme, setTheme] = useState("dark");
+
+  const updateTheme = (newVal = null) => {
+    setTheme((currentVal) => {
+      const calculatedTheme = newVal || THEMES[Number(currentVal === "dark")];
+
+      localStorage.setItem("theme", calculatedTheme);
+
+      if (calculatedTheme === "dark")
+        document.documentElement.classList.add("dark");
+      else document.documentElement.classList.remove("dark");
+
+      return calculatedTheme;
+    });
+  };
+
+  useEffect(() => {
+    updateTheme(localStorage.theme || "dark");
+  }, []);
+
+  const [navOpen, setNavOpen] = useState(false);
+
   return (
-    <div className="bg-bg_primary min-w-screen min-h-screen">
-      <BrowserRouter>
-        <Nav />
-        <Routes>
-          <Route index element={<CommanderView />} />
-          <Route
-            path="commander/*"
-            element={
-              !commanderExist ? (
-                <NotFound />
-              ) : (
-                <DeckView
-                  setCommander={setCommander}
-                  setCommanderExist={setCommanderExist}
-                />
-              )
-            }
-          />
-          <Route path="api" element={<APIDocs />} />
-          <Route path="tournament" element={<TournamentView />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+    <div
+      className={`${theme} bg-white dark:bg-voilet min-w-screen min-h-screen flex flex-row`}
+    >
+      <NavContextProvider value={{open: navOpen, toggle: () => setNavOpen(o => !o), setOpen: setNavOpen}}>
+      <ThemeContextProvider value={{theme: theme, toggle: () => updateTheme(), setTheme: updateTheme}}>
+        <BrowserRouter>
+          <Nav />
+          <Routes>
+            <Route index element={<CommanderView />} />
+            <Route
+              path="commander/*"
+              element={
+                !commanderExist ? (
+                  <NotFound />
+                ) : (
+                  <DeckView
+                    setCommander={setCommander}
+                    setCommanderExist={setCommanderExist}
+                  />
+                )
+              }
+            />
+            <Route path="api" element={<APIDocs />} />
+            <Route path="tournament" element={<TournamentView />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </ThemeContextProvider>
+      </NavContextProvider>
     </div>
   );
 }

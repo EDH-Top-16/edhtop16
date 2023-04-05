@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import moment from "moment";
 import { HiSwitchHorizontal } from "react-icons/hi";
 
@@ -9,24 +9,79 @@ import {
   getCommanderRankings,
   sortCommanders,
 } from "../../data/Commanders";
+import { createSearchParams, useNavigate } from "react-router-dom";
+import { compressObject, insertIntoObject } from "../../utils";
+import { RxCaretSort, RxChevronDown } from "react-icons/rx";
+
+const TERMS = [
+  {
+    name: "Standing",
+    tag: "standing",
+    cond: [
+      { $gte: `is greater than (\u2265)`, type: "number" },
+      { $eq: `is equal to (=)`, type: "number" },
+      { $lte: `is less than (\u2264)`, type: "number" },
+    ],
+  },
+  {
+    name: "Tournament Size",
+    tag: "size",
+    isTourneyFilter: true,
+    cond: [
+      { $gte: `is greater than (\u2265)`, type: "number" },
+      { $eq: `is equal to (=)`, type: "number" },
+      { $lte: `is less than (\u2264)`, type: "number" },
+    ],
+  },
+  {
+    name: "Tournament Date",
+    tag: "dateCreated",
+    isTourneyFilter: true,
+    cond: [
+      { $gte: `is after (\u2265)`, type: "date" },
+      { $eq: `is (=)`, type: "date" },
+      { $lte: `is before (\u2264)`, type: "date" },
+    ],
+  },
+];
 
 /**
  * @TODO create sorting for each heading
  */
 
 export default function CommanderView() {
-  const [commanders, setCommanders] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [topX, setTopX] = useState(16);
-  const [colors, setColors] = useState([]);
   const defaultFilters = {
     tourney_filter: {
       size: { $gte: 64 },
       dateCreated: { $gte: moment().subtract(1, "year").unix() },
     },
-  }
-  const [filters, setFilters] = useState(defaultFilters);
-  const [allFilters, setAllFilters] = useState(defaultFilters);
+  };
+
+  const loadFilters = useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    let generated_filters = {};
+    params.forEach((val, key) => {
+      generated_filters = insertIntoObject(
+        generated_filters,
+        key.split("__"),
+        val
+      );
+    });
+
+    return Object.entries(generated_filters).length > 0
+      ? generated_filters
+      : defaultFilters;
+  }, []);
+
+  const navigate = useNavigate();
+
+  const [commanders, setCommanders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [topX, setTopX] = useState(16);
+  const [filters, setFilters] = useState(loadFilters);
+  const [allFilters, setAllFilters] = useState(loadFilters);
+  const [colors, setColors] = useState((loadFilters.colorID ?? "").split(""));
   const [sort, setSort] = useState("topX");
   const [toggled, setToggled] = useState(false);
 
@@ -35,13 +90,23 @@ export default function CommanderView() {
    */
   useEffect(() => {
     // console.log(filters, colors);
+    let newFilters = { ...filters, colorID: null };
     if (colors !== [] && colors.join("") !== "") {
-      setAllFilters({
+      newFilters = {
         ...filters,
         colorID: colors.join(""),
-      });
-    } else {
-      setAllFilters(filters);
+      };
+    }
+
+    if (newFilters != allFilters) {
+      setAllFilters(newFilters);
+
+      navigate(
+        {
+          search: `${createSearchParams(compressObject(newFilters))}`,
+        },
+        { replace: true }
+      );
     }
   }, [colors, filters]);
 
@@ -49,7 +114,7 @@ export default function CommanderView() {
    * Main getCommanders() API call
    */
   useEffect(() => {
-    getCommanders(allFilters).then((data) => {
+    getCommanders({...allFilters, colorID: allFilters.colorID ?? undefined}).then((data) => {
       // console.log("Data:", data);
       const commanderRankings = getCommanderRankings(data, topX);
       // console.log("Commander Rankings:", commanderRankings);
@@ -88,7 +153,7 @@ export default function CommanderView() {
   }
 
   return (
-    <div className="flex flex-col w-11/12 ml-auto mr-0">
+    <div className="flex flex-col flex-grow overflow-auto">
       {/* Banner */}
       <Banner
         title={"View Decks"}
@@ -96,89 +161,124 @@ export default function CommanderView() {
         enableColors={true}
         enableFilters={true}
         defaultFilters={defaultFilters}
+        defaultColors={colors}
         getFilters={getFilters}
         allFilters={allFilters}
-        terms={[
-          {
-            name: "Standing",
-            tag: "standing",
-            cond: [
-              { $gte: `is greater than (\u2265)`, type: "number" },
-              { $eq: `is equal to (=)`, type: "number" },
-              { $lte: `is less than (\u2264)`, type: "number" },
-            ],
-          },
-          {
-            name: "Tournament Size",
-            tag: "size",
-            isTourneyFilter: true,
-            cond: [
-              { $gte: `is greater than (\u2265)`, type: "number" },
-              { $eq: `is equal to (=)`, type: "number" },
-              { $lte: `is less than (\u2264)`, type: "number" },
-            ],
-          },
-          {
-            name: "Tournament Date",
-            tag: "dateCreated",
-            isTourneyFilter: true,
-            cond: [
-              { $gte: `is after (\u2265)`, type: "date" },
-              { $eq: `is (=)`, type: "date" },
-              { $lte: `is before (\u2264)`, type: "date" },
-            ],
-          },
-        ]}
+        terms={TERMS}
         getColors={getColors}
       />
 
       {/* Table of commanders */}
-      <table className="block mx-24 my-12 table-fixed">
-        <tbody className="[&>tr]:space-y-6 [&>tr>td]:w-max [&>tr>td]:px-2 [&>tr>td]:py-4 [&>tr>td>p]:cursor-pointer [&>tr>td>p]:w-fit">
-          <tr className="text-subtext text-lg underline">
+      <table className="mx-2 md:mx-6 my-2 border-spacing-y-3 border-separate">
+        <thead className="hidden md:table-row-group [&>tr>td>p]:cursor-pointer [&>tr>td]:px-4">
+          <tr className="text-subtext dark:text-white text-lg ">
             <td>
               <p className="cursor-normal">#</p>
             </td>
             <td>
-              <p onClick={() => handleSort("commander")}>Name</p>
+              <p
+                onClick={() => handleSort("commander")}
+                className="flex flex-row items-center gap-1"
+              >
+                Name
+                {sort === "commander" ? (
+                  <RxChevronDown
+                    className={`${
+                      toggled ? "" : "rotate-180"
+                    } transition-all duration-200k`}
+                  />
+                ) : (
+                  <RxCaretSort
+                    className={`text-text transition-all duration-200k`}
+                  />
+                )}
+              </p>
             </td>
             <td className="space-x-2">
-              <p className="inline-block" onClick={() => handleSort("topX")}>
-                Top {topX}s
-              </p>
               <HiSwitchHorizontal
                 onClick={() => changeTopX()}
-                size={24}
-                className="cursor-pointer inline-block"
+                className="cursor-pointer inline-block text-lg md:text-sm"
               />
+              <p onClick={() => handleSort("topX")}
+
+                className="inline-flex flex-row items-center gap-1 "
+               >
+                Top {topX}s
+
+                {sort === "topX" ? (
+                  <RxChevronDown
+                    className={`${
+                      toggled ? "" : "rotate-180"
+                    } transition-all duration-200k`}
+                  />
+                ) : (
+                  <RxCaretSort
+                    className={`text-text transition-all duration-200k`}
+                  />
+                )}
+              </p>
             </td>
             <td>
-              <p onClick={() => handleSort("count")}>Entries</p>
+              <p onClick={() => handleSort("count")}
+                className="flex flex-row items-center gap-1"
+              >
+                Entries
+                {sort === "count" ? (
+                  <RxChevronDown
+                    className={`${
+                      toggled ? "" : "rotate-180"
+                    } transition-all duration-200k`}
+                  />
+                ) : (
+                  <RxCaretSort
+                    className={`text-text transition-all duration-200k`}
+                  />
+                )}
+                </p>
             </td>
             <td>
-              <p onClick={() => handleSort("conversion")}>Conversion</p>
+              <p onClick={() => handleSort("conversion")}
+                className="flex flex-row items-center gap-1"
+              >
+                Conversion
+                {sort === "conversion" ? (
+                  <RxChevronDown
+                    className={`${
+                      toggled ? "" : "rotate-180"
+                    } transition-all duration-200k`}
+                  />
+                ) : (
+                  <RxCaretSort
+                    className={`text-text transition-all duration-200k`}
+                  />
+                )}
+                </p>
             </td>
             <td>
               <p>Colors</p>
             </td>
           </tr>
+        </thead>
+        <tbody className="[&>tr>td>p]:cursor-pointer [&>tr>td]:px-4 md:[&>tr>td]:px-4 [&>tr]:my-3 ">
           {isLoading ? (
             <tr className="text-text text-lg">Loading...</tr>
           ) : (
+            commanders && commanders.length === 0 ? <div className="w-full flex justify-center items-center text-accent dark:text-text font-bold text-2xl">No data available</div> : 
             commanders.map((v, i) => (
               <Entry
                 enableLink={true}
-                slug={commanders[i].slug}
+                slug={v.slug}
                 rank={i + 1}
-                name={commanders[i].commander}
+                name={v.commander}
                 metadata={[
-                  commanders[i].topX,
-                  commanders[i].count,
-                  ((commanders[i].topX / commanders[i].count) * 100).toFixed(
+                  v.topX,
+                  v.count,
+                  ((v.topX / v.count) * 100).toFixed(
                     2
                   ) + "%",
                 ]}
-                colors={commanders[i].colorID}
+                metadata_fields={['TopX', 'Entries', 'Conversion:']}
+                colors={v.colorID}
               />
             ))
           )}

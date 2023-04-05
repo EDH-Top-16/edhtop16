@@ -1,85 +1,15 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { createSearchParams, useNavigate, useParams } from "react-router-dom";
+import { RxCaretSort, RxChevronDown } from "react-icons/rx";
 import axios from "axios";
 
 import Banner from "../Banner/Banner";
 import Entry from "../Entry";
 import { getCommanders, sortCommanders } from "../../data/Commanders";
 import { defaultFormat } from "moment";
+import { compressObject, insertIntoObject } from "../../utils";
 
-/**
- * Takes commander name and @returns the corresponding decks
- */
-export default function DeckView({ setCommanderExist }) {
-  const [decks, setDecks] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [colors, setColors] = useState([]);
-  const defaultFilters = {};
-  const [filters, setFilters] = useState(defaultFilters);
-  const [allFilters, setAllFilters] = useState(defaultFilters);
-  const [sort, setSort] = useState("winrate");
-  const [toggled, setToggled] = useState(false);
-
-  let params = useParams();
-  const commander = params["*"].replaceAll("+", "/");
-
-  // useEffect to get commanders
-  useEffect(() => {
-    axios
-      .post(process.env.REACT_APP_uri + "/api/req", { commander: commander })
-      .then((res) => {
-        console.log(commander, res.data, res.data.length > 0);
-        if (res.data.length > 0) {
-          setCommanderExist(true);
-        } else {
-          setCommanderExist(false);
-        }
-      });
-  }, [commander]);
-
-  useEffect(() => {
-    setAllFilters(filters);
-  }, [filters]);
-
-  /**
-   * These two functionsg get data from colorSelection and filters child components
-   */
-  function getColors(data) {
-    setColors(data);
-  }
-  function getFilters(data) {
-    setFilters(data);
-  }
-
-  /**
-   * Changes the sort order
-   */
-  function handleSort(x) {
-    setSort(x);
-    if (x === sort) {
-      setToggled(!toggled);
-    }
-  }
-
-  useEffect(() => {
-    // console.log("Filters:", allFilters);
-    getCommanders({ ...allFilters, commander }).then((data) => {
-      const sortedCommanders = sortCommanders(data, sort, toggled);
-      setDecks(sortedCommanders);
-      setIsLoading(false);
-    });
-  }, [sort, toggled, allFilters]);
-
-  return (
-    <div className="flex flex-col w-11/12 ml-auto mr-0">
-      {/* Banner */}
-      <Banner
-        title={commander}
-        enableFilters={true}
-        getFilters={getFilters}
-        allFilters={allFilters}
-        defaultFilters={defaultFilters}
-        terms={[
+const TERMS = [
           {
             name: "Standing",
             tag: "standing",
@@ -145,50 +75,259 @@ export default function DeckView({ setCommanderExist }) {
               { $lte: `is less than (\u2264)`, type: "number" },
             ],
           },
-        ]}
+        ]
+
+/**
+ * Takes commander name and @returns the corresponding decks
+ */
+export default function DeckView({ setCommanderExist }) {
+  const defaultFilters = {};
+
+  const loadFilters = useMemo(() => {
+    const params = new URLSearchParams(window.location.search)
+
+    let generated_filters = {
+    }
+    params.forEach((val, key) => {
+      generated_filters = insertIntoObject(generated_filters, key.split('__'), val)
+    })
+
+    return Object.entries(generated_filters).length > 0 ? generated_filters : defaultFilters;
+  }, [])
+
+  const navigate = useNavigate();
+
+  const [decks, setDecks] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [colors, setColors] = useState((loadFilters.colorID ?? "").split(''));
+  const [filters, setFilters] = useState(loadFilters);
+  const [allFilters, setAllFilters] = useState(loadFilters);
+  const [sort, setSort] = useState("winrate");
+  const [toggled, setToggled] = useState(false);
+
+  let params = useParams();
+  const commander = params["*"].replaceAll("+", "/");
+
+  // useEffect to get commanders
+  useEffect(() => {
+    axios
+      .post(process.env.REACT_APP_uri + "/api/req", { commander: commander })
+      .then((res) => {
+        console.log(commander, res.data, res.data.length > 0);
+        if (res.data.length > 0) {
+          setCommanderExist(true);
+        } else {
+          setCommanderExist(false);
+        }
+      });
+  }, [commander]);
+
+  useEffect(() => {
+    // console.log(filters, colors);
+    let newFilters = {...filters}
+
+    if (newFilters != allFilters) {
+      setAllFilters(newFilters);
+
+
+      navigate({
+        search: `${createSearchParams(compressObject(newFilters))}`
+      }, {replace: true})
+    }
+  }, [filters]);
+
+  /**
+   * These two functionsg get data from colorSelection and filters child components
+   */
+  function getColors(data) {
+    setColors(data);
+  }
+  function getFilters(data) {
+    setFilters(data);
+  }
+
+  /**
+   * Changes the sort order
+   */
+  function handleSort(x) {
+    setSort(x);
+    if (x === sort) {
+      setToggled(!toggled);
+    }
+  }
+
+  useEffect(() => {
+    // console.log("Filters:", allFilters);
+    getCommanders({ ...allFilters, commander }).then((data) => {
+      const sortedCommanders = sortCommanders(data, sort, toggled);
+      setDecks(sortedCommanders);
+      setIsLoading(false);
+    });
+  }, [sort, toggled, allFilters]);
+
+  return (
+    <div className="flex flex-col flex-grow overflow-auto">
+      {/* Banner */}
+      <Banner
+        title={commander}
+        enableFilters={true}
+        getFilters={getFilters}
+        allFilters={allFilters}
+        defaultFilters={defaultFilters}
+        terms={TERMS}
         getColors={getColors}
+        backEnabled
       />
 
       {/* Table of decks */}
-      <table className="block mx-24 my-12 table-fixed">
-        <tbody className="[&>tr]:space-y-6 [&>tr>td]:w-max [&>tr>td]:px-2 [&>tr>td]:py-4 [&>tr>td>p]:cursor-pointer [&>tr>td>p]:w-fit">
-          <tr className="text-subtext text-lg underline">
+      <table className="mx-2 md:mx-6 my-2 border-spacing-y-3 border-separate">
+        <thead className="hidden md:table-row-group [&>tr>td>p]:cursor-pointer [&>tr>td]:px-4">
+          <tr className="text-subtext dark:text-white text-lg ">
             <td>#</td>
             <td>
-              <p onClick={() => handleSort("name")}>Player Name</p>
+              <p 
+                onClick={() => handleSort("name")}
+                
+                className="flex flex-row items-center gap-1"
+                >
+                  Player Name
+                  
+                {sort === "name" ? (
+                  <RxChevronDown
+                    className={`${
+                      toggled ? "" : "rotate-180"
+                    } transition-all duration-200k`}
+                  />
+                ) : (
+                  <RxCaretSort
+                    className={`text-text transition-all duration-200k`}
+                  />
+                )}
+                  </p>
             </td>
             <td>
-              <p onClick={() => handleSort("wins")}>Wins</p>
+              <p 
+                onClick={() => handleSort("wins")}
+                
+                className="flex flex-row items-center gap-1"
+                >
+                  Wins
+                  
+                {sort === "wins" ? (
+                  <RxChevronDown
+                    className={`${
+                      toggled ? "" : "rotate-180"
+                    } transition-all duration-200k`}
+                  />
+                ) : (
+                  <RxCaretSort
+                    className={`text-text transition-all duration-200k`}
+                  />
+                )}
+                  </p>
             </td>
             <td>
-              <p onClick={() => handleSort("losses")}>Losses</p>
+              <p onClick={() => handleSort("losses")}
+                
+                className="flex flex-row items-center gap-1"
+                >
+                  Losses
+                  
+                {sort ==="losses" ? (
+                  <RxChevronDown
+                    className={`${
+                      toggled ? "" : "rotate-180"
+                    } transition-all duration-200k`}
+                  />
+                ) : (
+                  <RxCaretSort
+                    className={`text-text transition-all duration-200k`}
+                  />
+                )}
+                  </p>
             </td>
             <td>
-              <p onClick={() => handleSort("draws")}>Draws</p>
+              <p onClick={() => handleSort("draws")}
+                
+                className="flex flex-row items-center gap-1"
+                >
+                  Draws
+                  
+                {sort ==="draws" ? (
+                  <RxChevronDown
+                    className={`${
+                      toggled ? "" : "rotate-180"
+                    } transition-all duration-200k`}
+                  />
+                ) : (
+                  <RxCaretSort
+                    className={`text-text transition-all duration-200k`}
+                  />
+                )}
+                  </p>
             </td>
             <td>
-              <p onClick={() => handleSort("winrate")}>Winrate</p>
+              <p onClick={() => handleSort("winrate")}
+                
+                className="flex flex-row items-center gap-1"
+                >
+                  Winrate
+                  
+                {sort ==="winrate" ? (
+                  <RxChevronDown
+                    className={`${
+                      toggled ? "" : "rotate-180"
+                    } transition-all duration-200k`}
+                  />
+                ) : (
+                  <RxCaretSort
+                    className={`text-text transition-all duration-200k`}
+                  />
+                )}
+                  </p>
             </td>
             <td>
-              <p onClick={() => handleSort("tournament")}>Tournament</p>
+              <p 
+                onClick={() => handleSort("tournament")}
+                
+                className="flex flex-row items-center gap-1"
+                >
+                  Tournament
+                  
+                {sort === "tournament" ? (
+                  <RxChevronDown
+                    className={`${
+                      toggled ? "" : "rotate-180"
+                    } transition-all duration-200k`}
+                  />
+                ) : (
+                  <RxCaretSort
+                    className={`text-text transition-all duration-200k`}
+                  />
+                )}
+                  </p>
             </td>
           </tr>
+          </thead>
+        <tbody className="[&>tr>td>p]:cursor-pointer [&>tr>td]:px-4 md:[&>tr>td]:px-4 [&>tr]:my-3 ">
           {isLoading ? (
             <tr className="text-text text-lg">Loading...</tr>
           ) : (
-            decks &&
-            decks.map((x, i) => (
+            decks && decks.length === 0 ? <div className="w-full flex justify-center items-center text-accent dark:text-text font-bold text-2xl">No data available</div> : 
+            decks.map((deck, i) => (
               <Entry
                 rank={i + 1}
-                name={decks[i].name}
-                mox={decks[i].decklist}
+                name={deck.name}
+                mox={deck.decklist}
                 metadata={[
-                  decks[i].wins,
-                  decks[i].losses,
-                  decks[i].draws,
-                  Number(decks[i].winRate).toFixed(2),
+                  deck.wins,
+                  deck.losses,
+                  deck.draws,
+                  Number(deck.winRate).toFixed(2),
                 ]}
-                tournament={decks[i].tournamentName}
+                layout="WLD"
+                metadata_fields={['Wins', 'Losses', 'Draws', 'Win rate']}
+                tournament={deck.tournamentName}
               />
             ))
           )}
