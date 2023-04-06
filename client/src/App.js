@@ -11,14 +11,18 @@ import NotFound from "./components/404";
 import LoadingPage from "./components/LoadingPage";
 import { NavContextProvider } from "./contexts/NavContext";
 import { ThemeContextProvider } from "./contexts/ThemeContext";
+import ReactGA from 'react-ga4';
 
 /**
  * @TODO make a list of valid URLs so commander/asdf isn't an actual page lol
  */
 
 const THEMES = ["dark", "light"];
+const TRACKING_ID = "G-56527VG23P";
 
 function App() {
+  ReactGA.initialize(TRACKING_ID);
+  
   const [commander, setCommander] = useState("");
   const [commanderExist, setCommanderExist] = useState(true);
 
