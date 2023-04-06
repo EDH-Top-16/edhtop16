@@ -6,6 +6,7 @@ import Nav from "./components/Nav";
 import CommanderView from "./components/CommanderView/CommanderView";
 import DeckView from "./components/DeckView/DeckView";
 import TournamentView from "./components/TournamentView/TournamentView";
+import About from "./components/About/About";
 import APIDocs from "./components/APIDocs/APIDocs";
 import NotFound from "./components/404";
 import LoadingPage from "./components/LoadingPage";
@@ -22,7 +23,7 @@ const TRACKING_ID = "G-56527VG23P";
 
 function App() {
   ReactGA.initialize(TRACKING_ID);
-  
+
   const [commander, setCommander] = useState("");
   const [commanderExist, setCommanderExist] = useState(true);
 
@@ -73,6 +74,7 @@ function App() {
             />
             <Route path="api" element={<APIDocs />} />
             <Route path="tournament" element={<TournamentView />} />
+            <Route path="about" element={<About />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

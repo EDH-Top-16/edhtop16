@@ -49,6 +49,12 @@ export default function Nav() {
           </Link>
         </span>
         <span>
+          <Link to="/about" className="flex flex-row items-center gap-2 [&_path]:fill-voilet [&_path]:dark:fill-white">
+            <BracketIcon  />
+            <span className="md:hidden md:group-hover:block">About</span>
+          </Link>
+        </span>
+        <span>
           <a href="https://eminence.events/" target="_blank" className="flex flex-row items-center gap-2 [&_path]:fill-voilet [&_path]:dark:fill-white">
             <EminenceIcon  />
             <span className="md:hidden md:group-hover:block">Eminence</span>
