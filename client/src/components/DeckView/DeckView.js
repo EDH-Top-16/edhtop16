@@ -102,7 +102,7 @@ export default function DeckView({ setCommanderExist }) {
   const [colors, setColors] = useState((loadFilters.colorID ?? "").split(''));
   const [filters, setFilters] = useState(loadFilters);
   const [allFilters, setAllFilters] = useState(loadFilters);
-  const [sort, setSort] = useState("winrate");
+  const [sort, setSort] = useState("standing");
   const [toggled, setToggled] = useState(false);
 
   let params = useParams();
@@ -193,6 +193,27 @@ export default function DeckView({ setCommanderExist }) {
                   Player Name
                   
                 {sort === "name" ? (
+                  <RxChevronDown
+                    className={`${
+                      toggled ? "" : "rotate-180"
+                    } transition-all duration-200k`}
+                  />
+                ) : (
+                  <RxCaretSort
+                    className={`text-text transition-all duration-200k`}
+                  />
+                )}
+                  </p>
+            </td>
+            <td>
+              <p 
+                onClick={() => handleSort("standing")}
+                
+                className="flex flex-row items-center gap-1"
+                >
+                  Standing
+                  
+                {sort === "standing" ? (
                   <RxChevronDown
                     className={`${
                       toggled ? "" : "rotate-180"
@@ -320,13 +341,14 @@ export default function DeckView({ setCommanderExist }) {
                 name={deck.name}
                 mox={deck.decklist}
                 metadata={[
+                  deck.standing,
                   deck.wins,
                   deck.losses,
                   deck.draws,
                   Number(deck.winRate  * 100).toFixed(2) + "%",
                 ]}
                 layout="WLD"
-                metadata_fields={['Wins', 'Losses', 'Draws', 'Win rate']}
+                metadata_fields={['Standing', 'Wins', 'Losses', 'Draws', 'Win rate']}
                 tournament={deck.tournamentName}
               />
             ))

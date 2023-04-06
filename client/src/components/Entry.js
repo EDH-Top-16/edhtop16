@@ -61,7 +61,7 @@ export default function Entry({
 
       {metadata ? metadata.map((data, i, a) => <td className="hidden md:table-cell">{data}</td>) : <></>}
       {metadata && layout === 'default' ? metadata.map((data, i, a) => i < a.length - 1 && <td className="flex md:hidden col-start-3 text-sm justify-end">{metadata_fields[i]}: {data}</td>) : <></>}
-      {metadata && layout === 'WLD' ? <td className="flex md:hidden col-start-3 text-sm justify-end">W / L / D</td> : <></>}
+      {metadata && layout === 'WLD' ? <td className="flex md:hidden col-start-3 text-sm justify-end">St / W / L / D</td> : <></>}
       {metadata && layout === 'WLD' ? <td className="flex md:hidden col-start-3 row-start-2 text-sm justify-end">{metadata.filter((data, i, a) => i < a.length - 1).join(' / ')}</td> : <></>}
 
       {colors ? (
