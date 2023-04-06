@@ -173,12 +173,12 @@ export default function CommanderView() {
         <thead className="hidden md:table-row-group [&>tr>td>p]:cursor-pointer [&>tr>td]:px-4">
           <tr className="text-subtext dark:text-white text-lg ">
             <td>
-              <p className="cursor-normal">#</p>
+              <p className="cursor-normal font-bold">#</p>
             </td>
             <td>
               <p
                 onClick={() => handleSort("commander")}
-                className="flex flex-row items-center gap-1"
+                className="flex flex-row items-center gap-1 font-bold"
               >
                 Name
                 {sort === "commander" ? (
@@ -201,7 +201,7 @@ export default function CommanderView() {
               />
               <p onClick={() => handleSort("topX")}
 
-                className="inline-flex flex-row items-center gap-1 "
+                className="inline-flex flex-row items-center gap-1 font-bold"
                >
                 Top {topX}s
 
@@ -220,7 +220,7 @@ export default function CommanderView() {
             </td>
             <td>
               <p onClick={() => handleSort("count")}
-                className="flex flex-row items-center gap-1"
+                className="flex flex-row items-center gap-1 font-bold"
               >
                 Entries
                 {sort === "count" ? (
@@ -238,7 +238,7 @@ export default function CommanderView() {
             </td>
             <td>
               <p onClick={() => handleSort("conversion")}
-                className="flex flex-row items-center gap-1"
+                className="flex flex-row items-center gap-1 font-bold"
               >
                 Conversion
                 {sort === "conversion" ? (
@@ -255,7 +255,7 @@ export default function CommanderView() {
                 </p>
             </td>
             <td>
-              <p>Colors</p>
+              <p className="font-bold">Colors</p>
             </td>
           </tr>
         </thead>

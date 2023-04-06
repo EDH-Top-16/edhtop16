@@ -183,12 +183,12 @@ export default function DeckView({ setCommanderExist }) {
       <table className="mx-2 md:mx-6 my-2 border-spacing-y-3 border-separate">
         <thead className="hidden md:table-row-group [&>tr>td>p]:cursor-pointer [&>tr>td]:px-4">
           <tr className="text-subtext dark:text-white text-lg ">
-            <td>#</td>
+            <td className="font-bold">#</td>
             <td>
               <p 
                 onClick={() => handleSort("name")}
                 
-                className="flex flex-row items-center gap-1"
+                className="flex flex-row items-center gap-1 font-bold"
                 >
                   Player Name
                   
@@ -209,7 +209,7 @@ export default function DeckView({ setCommanderExist }) {
               <p 
                 onClick={() => handleSort("standing")}
                 
-                className="flex flex-row items-center gap-1"
+                className="flex flex-row items-center gap-1 font-bold"
                 >
                   Standing
                   
@@ -230,7 +230,7 @@ export default function DeckView({ setCommanderExist }) {
               <p 
                 onClick={() => handleSort("wins")}
                 
-                className="flex flex-row items-center gap-1"
+                className="flex flex-row items-center gap-1 font-bold"
                 >
                   Wins
                   
@@ -250,7 +250,7 @@ export default function DeckView({ setCommanderExist }) {
             <td>
               <p onClick={() => handleSort("losses")}
                 
-                className="flex flex-row items-center gap-1"
+                className="flex flex-row items-center gap-1 font-bold"
                 >
                   Losses
                   
@@ -270,7 +270,7 @@ export default function DeckView({ setCommanderExist }) {
             <td>
               <p onClick={() => handleSort("draws")}
                 
-                className="flex flex-row items-center gap-1"
+                className="flex flex-row items-center gap-1 font-bold"
                 >
                   Draws
                   
@@ -290,7 +290,7 @@ export default function DeckView({ setCommanderExist }) {
             <td>
               <p onClick={() => handleSort("winrate")}
                 
-                className="flex flex-row items-center gap-1"
+                className="flex flex-row items-center gap-1 font-bold"
                 >
                   Winrate
                   
@@ -311,7 +311,7 @@ export default function DeckView({ setCommanderExist }) {
               <p 
                 onClick={() => handleSort("tournament")}
                 
-                className="flex flex-row items-center gap-1"
+                className="flex flex-row items-center gap-1 font-bold"
                 >
                   Tournament
                   

@@ -21,7 +21,7 @@ export default function Entry({
       {rank ? <td className="hidden md:table-cell text-text ">{rank}</td> : <></>}
 
       {name ? (
-        <td className="col-start-1 col-span-2">
+        <td className="col-start-1 col-span-2 font-semibold">
           {enableLink ? (
             <Link to={`/commander/${slug}${tourney_filters ? "?" + createSearchParams(compressObject({tourney_filter: tourney_filters})) : ""}`}>
               <span className="cursor-pointer" href="">
@@ -35,7 +35,7 @@ export default function Entry({
               </span>
             </Link>
           ) : (
-            <span className="flex items-center gap-1 text-lg">
+            <span className="flex items-center gap-1 text-lg font-semibold">
               {rank && <span className="text-sm text-text md:hidden">
                 #{rank}{' '}
               </span>}
