@@ -137,6 +137,11 @@ export function sortCommanders(commanders, sort, toggled) {
       let conversionB = (b.topX / b.count) * 100;
 
       return !toggled ? conversionB - conversionA : conversionA - conversionB;
+    } else if (sort === "standing"){
+     return !toggled ? a.standing - b.standing : b.standing - a.standing;
+    }
+    else {
+      return !toggled ? b[sort] - a[sort] : a[sort] - b[sort];
     }
   });
 
