@@ -7,6 +7,7 @@ import Banner from "../Banner/Banner";
 import Entry from "../Entry";
 import { getCommanders, sortCommanders } from "../../data/Commanders";
 import { defaultFormat } from "moment";
+import moment from "moment";
 import { compressObject, insertIntoObject } from "../../utils";
 
 const TERMS = [
@@ -81,7 +82,11 @@ const TERMS = [
  * Takes commander name and @returns the corresponding decks
  */
 export default function DeckView({ setCommanderExist }) {
-  const defaultFilters = {};
+  const defaultFilters = {tourney_filter: {
+    size: { $gte: 64 },
+    dateCreated: { $gte: moment().subtract(1, "year").unix() },
+  },
+};
 
   const loadFilters = useMemo(() => {
     const params = new URLSearchParams(window.location.search)
