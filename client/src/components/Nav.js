@@ -5,6 +5,7 @@ import NavContext from "../contexts/NavContext";
 import { logo, deckIcon, bracketIcon } from "../images/";
 import BracketIcon from "../images/BracketIcon";
 import DeckIcon from "../images/DeckIcon";
+import AboutIcon from "../images/AboutIcon";
 import EminenceIcon from "../images/EminenceIcon";
 import ThemeSwitcher from "./ThemeSwitcher/ThemeSwitcher";
 
@@ -50,7 +51,7 @@ export default function Nav() {
         </span>
         <span>
           <Link to="/about" className="flex flex-row items-center gap-2 [&_path]:fill-voilet [&_path]:dark:fill-white">
-            <BracketIcon  />
+            <AboutIcon  />
             <span className="md:hidden md:group-hover:block">About</span>
           </Link>
         </span>
