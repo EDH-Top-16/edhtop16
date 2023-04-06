@@ -1,6 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, createSearchParams } from "react-router-dom";
 
 import { colorImages, moxIcon } from "../images/index";
+import { compressObject } from "../utils";
 
 export default function Entry({
   enableLink,
@@ -13,6 +14,7 @@ export default function Entry({
   tournament,
   metadata_fields,
   layout = 'default',
+  tourney_filters
 }) {
   return (
     <tr className={`grid ${layout === 'default' ? "" : ""} grid-cols-3 grid-rows-2 md:table-row text-cadet dark:text-white text-lg rounded-lg shadow-modal py-2 sm:py-0 md:[&>td]:py-3 `}>
@@ -21,7 +23,7 @@ export default function Entry({
       {name ? (
         <td className="col-start-1 col-span-2">
           {enableLink ? (
-            <Link to={`/commander/${slug}`}>
+            <Link to={`/commander/${slug}${tourney_filters ? "?" + createSearchParams(compressObject({tourney_filter: tourney_filters})) : ""}`}>
               <span className="cursor-pointer" href="">
                 {rank && <span className="text-sm text-text md:hidden">
                   #{rank}{' '}

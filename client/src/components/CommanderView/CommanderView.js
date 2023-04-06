@@ -279,6 +279,7 @@ export default function CommanderView() {
                 ]}
                 metadata_fields={['TopX', 'Entries', 'Conversion:']}
                 colors={v.colorID}
+                tourney_filters={filters.tourney_filter}
               />
             ))
           )}
