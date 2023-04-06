@@ -5,6 +5,7 @@ import NavContext from "../contexts/NavContext";
 import { logo, deckIcon, bracketIcon } from "../images/";
 import BracketIcon from "../images/BracketIcon";
 import DeckIcon from "../images/DeckIcon";
+import EminenceIcon from "../images/EminenceIcon";
 import ThemeSwitcher from "./ThemeSwitcher/ThemeSwitcher";
 
 export default function Nav() {
@@ -46,6 +47,12 @@ export default function Nav() {
             <BracketIcon  />
             <span className="md:hidden md:group-hover:block">Tournaments</span>
           </Link>
+        </span>
+        <span>
+          <a href="https://eminence.events/" target="_blank" className="flex flex-row items-center gap-2 [&_path]:fill-voilet [&_path]:dark:fill-white">
+            <EminenceIcon  />
+            <span className="md:hidden md:group-hover:block">Eminence</span>
+          </a>
         </span>
       </div>
     </div>
