@@ -1,6 +1,6 @@
 import { Link, createSearchParams } from "react-router-dom";
 
-import { colorImages, moxIcon } from "../images/index";
+import { colorImages, cardIcon } from "../images/index";
 import { compressObject } from "../utils";
 
 export default function Entry({
@@ -39,10 +39,12 @@ export default function Entry({
               {rank && <span className="text-sm text-text md:hidden">
                 #{rank}{' '}
               </span>}
-              {name}
+              <a href={mox} target="_blank">
+                {name}
+              </a>
               {mox && mox !== "" ? (
-                <a href={mox}>
-                  <img className="w-6" src={moxIcon} alt="mox" />
+                <a href={mox} target="_blank">
+                  <img className=" ms-2 w-6" src={cardIcon} alt="mox" />
                 </a>
               ) : (
                 <></>

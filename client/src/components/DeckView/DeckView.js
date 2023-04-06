@@ -323,7 +323,7 @@ export default function DeckView({ setCommanderExist }) {
                   deck.wins,
                   deck.losses,
                   deck.draws,
-                  Number(deck.winRate).toFixed(2),
+                  Number(deck.winRate  * 100).toFixed(2) + "%",
                 ]}
                 layout="WLD"
                 metadata_fields={['Wins', 'Losses', 'Draws', 'Win rate']}

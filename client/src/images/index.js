@@ -17,3 +17,4 @@ export const colorImages = { W, U, B, R, G, C };
 export const deckIcon = require("./deckIcon.svg").default;
 export const bracketIcon = require("./bracketIcon.svg").default;
 export const moxIcon = require("./moxIcon.svg").default;
+export const cardIcon = require("./cardIcon.svg").default;
