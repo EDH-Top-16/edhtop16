@@ -12,13 +12,13 @@ export async function getCommanders(filters) {
       Accept: "application/json",
     },
   };
-  // console.log(filters);
+  // console.log("asdf", filters);
   const res = await axios.post(
     process.env.REACT_APP_uri + "/api/req",
     filters,
     config
   );
-  return res.data.filter((el) => el.commander !== "Unknown Commander");
+  return res.data.filter((el) => "commander" in el && el.commander !== "Unknown Commander");
 }
 
 /**
