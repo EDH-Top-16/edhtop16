@@ -1,3 +1,4 @@
+import APIDocs from "../APIDocs/APIDocs";
 import Banner from "../Banner/BannerPage";
 
 export default function About() {
@@ -18,8 +19,14 @@ export default function About() {
         a product of <a class="font-bold text-banner dark:text-text" href="https://eminence.events/" target="_blank">Eminence Gaming</a>, 
         and presents a comprehensive overview of the decks being played, meta breakdowns, pilot profiles, event standings, and decklists from top-performing players. In addition, we provide conversion rates, helping users optimize their decks for improved performance.
       </p>
+      <p className="text-2xl">
+        We also offerf a robust <a class="font-bold text-bantextner dark:text-text" href="https://github.com/JasonQiu21/cedhtop16/blob/main/server/api_docs.md" target="_blank">API</a>, allowing developers and data enthusiasts to access and utilize our extensive database for various applications and customizations. Our mission is to foster a thriving EDH community by presenting accurate, up-to-date, and relevant information to enhance players' understanding and enjoyment of the game.
+      </p>
+      <p className="text-2xl">
+        Our site is currently in open beta! Feel free to <a class="font-bold text-bantextner dark:text-text" href="https://github.com/JasonQiu21/cedhtop16/issues" target="_blank">submit an issue</a> if you see a bug or think of a feature you'd like to see. We'll be working hard to put together ways to view tournaments and individual players soon; thanks in advance for your patience.
+      </p>
       <p className="text-2xl pb-24">
-        EDHTop16.com also offers a robust API (coming soon), allowing developers and data enthusiasts to access and utilize our extensive database for various applications and customizations. Our mission is to foster a thriving EDH community by presenting accurate, up-to-date, and relevant information to enhance players' understanding and enjoyment of the game.
+        If you're a tournament organizer and would like to see your tournaments added to our dataset, contact us! A Discord server will probably be coming soon, but feel free to message jqiu21#1280 in the meantime.
       </p>
     </div>
   </div>
