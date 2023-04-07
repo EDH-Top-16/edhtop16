@@ -15,7 +15,7 @@ Coming soon...
 ## ⌨️ Developers and Mentors:
 
 ```
-Frontend, UI/UX, Functionality: @g00gol
+Frontend, UI/UX, Functionality: @g00gol, @znayer
 
 Backend, custom APIs, Python Scripting: @JasonQiu21
 

@@ -91,7 +91,9 @@ recordRoutes.route("/api/req").post(async function (req, res) {
     const keys = ['name', 'profile', 'decklist', 'wins', 'winsSwiss', 'winsBracket', 'winRate', 'winRateSwiss', 'winRateBracket', 'draws', 'losses', 'lossesSwiss', 'lossesBracket', 'standing', 'colorID', 'commander'];
     keys.forEach(element => {
       if(element in req.body){
-        query[element] = req.body[element];
+        if(!!req.body[element]){
+          query[element] = req.body[element];
+        } else {console.log("caught", element);}
       }
     });
   } catch (err){

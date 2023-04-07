@@ -12,13 +12,13 @@ export async function getCommanders(filters) {
       Accept: "application/json",
     },
   };
-  // console.log(filters);
+  // console.log("asdf", filters);
   const res = await axios.post(
     process.env.REACT_APP_uri + "/api/req",
     filters,
     config
   );
-  return res.data.filter((el) => el.commander !== "Unknown Commander");
+  return res.data.filter((el) => "commander" in el && el.commander !== "Unknown Commander");
 }
 
 /**
@@ -137,6 +137,11 @@ export function sortCommanders(commanders, sort, toggled) {
       let conversionB = (b.topX / b.count) * 100;
 
       return !toggled ? conversionB - conversionA : conversionA - conversionB;
+    } else if (sort === "standing"){
+     return !toggled ? a.standing - b.standing : b.standing - a.standing;
+    }
+    else {
+      return !toggled ? b[sort] - a[sort] : a[sort] - b[sort];
     }
   });
 
