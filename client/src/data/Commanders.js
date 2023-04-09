@@ -18,13 +18,15 @@ export async function getCommanders(filters) {
     filters,
     config
   );
-  return res.data.filter((el) => "commander" in el && el.commander !== "Unknown Commander");
+  return res.data.filter(
+    (el) => "commander" in el && el.commander !== "Unknown Commander"
+  );
 }
 
 /**
  * @returns each unique commander(s) rankings given some data
  */
-export function getCommanderRankings(data, x) {
+export function getCommanderRankings(data, entries, x) {
   var uniqueCommanders = [];
 
   // Iterating through the entirety of the array to find unique comanders
@@ -81,8 +83,21 @@ export function getCommanderRankings(data, x) {
     }
   });
 
-  // console.log(rankedCommanders);
-  return rankedCommanders;
+  let filteredCommanders = rankedCommanders;
+  if (entries) {
+    filteredCommanders = filteredCommanders.filter((el) => {
+      if (Object.keys(entries)[0] === "$gte") {
+        return el.count >= entries["$gte"];
+      } else if (Object.keys(entries)[0] === "$lte") {
+        return el.count <= entries["$lte"];
+      } else {
+        return el.count === entries;
+      }
+    });
+  }
+
+  // console.log("fc", filteredCommanders);
+  return filteredCommanders;
 }
 
 export function getCommanderNames() {
@@ -137,10 +152,9 @@ export function sortCommanders(commanders, sort, toggled) {
       let conversionB = (b.topX / b.count) * 100;
 
       return !toggled ? conversionB - conversionA : conversionA - conversionB;
-    } else if (sort === "standing"){
-     return !toggled ? a.standing - b.standing : b.standing - a.standing;
-    }
-    else {
+    } else if (sort === "standing") {
+      return !toggled ? a.standing - b.standing : b.standing - a.standing;
+    } else {
       return !toggled ? b[sort] - a[sort] : a[sort] - b[sort];
     }
   });
