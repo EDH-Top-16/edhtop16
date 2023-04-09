@@ -174,51 +174,51 @@ const Term = ({ term, filter, isTourneyFilter, removeFilters, select }) => {
   };
 
   const [selectedCond, setSelectedCond] = useState(
-    filter ? 
-    term.cond.find((item) => !!item[Object.keys(filter)[0]]) :
-    term.cond[0]
+    filter
+      ? term.cond.find((item) => !!item[Object.keys(filter)[0]])
+      : term.cond[0]
   );
 
-  const [newValue, setNewValue] = useState()
-
+  const [newValue, setNewValue] = useState();
 
   useEffect(() => {
-    if(filter) {
-      const cond = term.cond.find((item) => !!item[Object.keys(filter)[0]])
-      setSelectedCond(cond)
-      setNewValue(cond.type === 'date' ? moment.unix(Number(Object.values(filter)[0])).format("yyyy-MM-DD") : Object.values(filter)[0])
+    if (filter) {
+      const cond = term.cond.find((item) => !!item[Object.keys(filter)[0]]);
+      setSelectedCond(cond);
+      setNewValue(
+        cond.type === "date"
+          ? moment.unix(Number(Object.values(filter)[0])).format("yyyy-MM-DD")
+          : Object.values(filter)[0]
+      );
     } else {
-      resetDialog()
+      resetDialog();
     }
-  }, [filter, term])
+  }, [filter, term]);
 
-  console.log(term.name, term.cond, filter, selectedCond)
+  // console.log(term.name, term.cond, filter, selectedCond);
 
   const resetDialog = () => {
-    setNewValue()
-    setSelectedCond(term.cond[0])
-  }
+    setNewValue();
+    setSelectedCond(term.cond[0]);
+  };
 
   const removeFilter = () => {
-    removeFilters(term.tag, term.isTourneyFilter)
-    resetDialog()
-    setOpen(false)
-  }
+    removeFilters(term.tag, term.isTourneyFilter);
+    resetDialog();
+    setOpen(false);
+  };
 
   const submit = (e) => {
-    e.stopPropagation()
+    e.stopPropagation();
     let filterObj = {};
 
-    const op = Object.keys(selectedCond).filter(val => val !== 'type')[0]
+    const op = Object.keys(selectedCond).filter((val) => val !== "type")[0];
 
     // Check if input type is number
     if (selectedCond.type === "number") {
       // Check if input is a number
-      console.log("num")
-      if (
-        !isNaN(Number(newValue)) &&
-        Number(newValue) > 0
-      ) {
+      console.log("num");
+      if (!isNaN(Number(newValue)) && Number(newValue) > 0) {
         console.log(newValue, op);
         filterObj[op] = Number(newValue);
         select(term.tag, filterObj, term.isTourneyFilter);
@@ -232,23 +232,23 @@ const Term = ({ term, filter, isTourneyFilter, removeFilters, select }) => {
         select(term.tag, filterObj, term.isTourneyFilter);
       }
     }
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
   return (
     <>
       <button
         className={`${
-          !!filter ? "border-solid border-voilet text-cadet dark:border-gray" : "border-dashed border-text text-text"
+          !!filter
+            ? "border-solid border-voilet text-cadet dark:border-gray"
+            : "border-dashed border-text text-text"
         } border rounded-full text-sm px-3 p-1 dark:border-gray dark:text-white flex items-center`}
         ref={btnRef}
         onClick={() => toggleOpen()}
       >
         {/* {isTourneyFilter ? "Tournament " : ""} */}
         {!filter && (
-          <div
-            className="mr-1"
-          >
+          <div className="mr-1">
             <AiOutlinePlusCircle />
           </div>
         )}
@@ -258,7 +258,7 @@ const Term = ({ term, filter, isTourneyFilter, removeFilters, select }) => {
             className="ml-1"
             onClick={(e) => {
               e.stopPropagation();
-              removeFilter()
+              removeFilter();
             }}
           >
             <AiOutlineClose />
@@ -273,7 +273,7 @@ const Term = ({ term, filter, isTourneyFilter, removeFilters, select }) => {
           onClick={(e) => {
             e.stopPropagation();
             setOpen(false);
-            setNewValue(filter ? Object.values(filter)[0] : "")
+            setNewValue(filter ? Object.values(filter)[0] : "");
           }}
         >
           <div
@@ -285,30 +285,52 @@ const Term = ({ term, filter, isTourneyFilter, removeFilters, select }) => {
                 btnBox?.left + 200 < window.screen.width
                   ? btnBox?.left
                   : undefined,
-              right:
-                btnBox?.left + 200 < window.screen.width
-                  ? undefined
-                  : 0,
+              right: btnBox?.left + 200 < window.screen.width ? undefined : 0,
               width: "200px",
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <select value={Object.keys(selectedCond)[0]} onChange={(e) => setSelectedCond(term.cond.find((item) => !!item[e.target.value]))} className="rounded-lg px-2 py-2 text-sm focus-visible:outline-none border-2 border-solid border-transparent focus:border-accent">
+            <select
+              value={Object.keys(selectedCond)[0]}
+              onChange={(e) =>
+                setSelectedCond(
+                  term.cond.find((item) => !!item[e.target.value])
+                )
+              }
+              className="rounded-lg px-2 py-2 text-sm focus-visible:outline-none border-2 border-solid border-transparent focus:border-accent"
+            >
               {term.cond.map((cond) => {
-                const op_name = Object.keys(cond).filter(val => val !== 'type')[0]
+                const op_name = Object.keys(cond).filter(
+                  (val) => val !== "type"
+                )[0];
                 return (
                   <option key={op_name} value={op_name}>
                     {cond[op_name]}
                   </option>
-                )
+                );
               })}
             </select>
 
-            <input className="rounded-lg text-sm px-2 py-1 focus-visible:outline-none border-2 border-solid border-transparent focus:border-accent" type={selectedCond.type} value={newValue} onChange={(e) => setNewValue(e.target.value)}/>
+            <input
+              className="rounded-lg text-sm px-2 py-1 focus-visible:outline-none border-2 border-solid border-transparent focus:border-accent"
+              type={selectedCond.type}
+              value={newValue}
+              onChange={(e) => setNewValue(e.target.value)}
+            />
 
             <div className="flex flex-row md:gap-2 flex-wrap">
-              <button className="flex-grow rounded-lg p-2 text-white bg-accent text-sm" onClick={submit}>Apply</button>
-              <button className="flex-grow rounded-lg p-2 dark:text-white bg-highlight text-sm" onClick={removeFilter}>Clear</button>
+              <button
+                className="flex-grow rounded-lg p-2 text-white bg-accent text-sm"
+                onClick={submit}
+              >
+                Apply
+              </button>
+              <button
+                className="flex-grow rounded-lg p-2 dark:text-white bg-highlight text-sm"
+                onClick={removeFilter}
+              >
+                Clear
+              </button>
             </div>
           </div>
         </div>

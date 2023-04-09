@@ -31,7 +31,7 @@ export default function ColorSelection({ defaultColors = [], getColors }) {
         sortedColors.push(color);
       }
     });
-    console.log("Updating colors", colors);
+    // console.log("Updating colors", colors);
     getColors(sortedColors);
   }, [colors]);
 
@@ -55,7 +55,9 @@ export default function ColorSelection({ defaultColors = [], getColors }) {
     <>
       <button
         className={`${
-          colors.length > 0 ? "border-solid border-voilet text-cadet dark:border-gray" : "border-dashed border-text text-text"
+          colors.length > 0
+            ? "border-solid border-voilet text-cadet dark:border-gray"
+            : "border-dashed border-text text-text"
         } border rounded-full text-sm px-3 p-1 dark:border-gray dark:text-white flex items-center`}
         ref={btnRef}
         onClick={() => toggleOpen()}
@@ -67,17 +69,16 @@ export default function ColorSelection({ defaultColors = [], getColors }) {
           </div>
         )}
         <div className="flex flex-row gap-2">
-
-        {colors.length > 0
-          ? colors.map((color) => (
-              <img
-                key={color}
-                className={`rounded-full transition-all duration-200 aspect-square w-6`}
-                src={colorImages[color]}
-                alt={color}
-              />
-            ))
-          : "Colors"}
+          {colors.length > 0
+            ? colors.map((color) => (
+                <img
+                  key={color}
+                  className={`rounded-full transition-all duration-200 aspect-square w-6`}
+                  src={colorImages[color]}
+                  alt={color}
+                />
+              ))
+            : "Colors"}
         </div>
         {colors.length > 0 && (
           <button
@@ -110,30 +111,27 @@ export default function ColorSelection({ defaultColors = [], getColors }) {
                 btnBox?.left + 200 < window.screen.width
                   ? btnBox?.left
                   : undefined,
-              right:
-                btnBox?.left + 200 < window.screen.width
-                  ? undefined
-                  : 0, 
+              right: btnBox?.left + 200 < window.screen.width ? undefined : 0,
               width: "200px",
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-row gap-3 flex-wrap">
-            {validColors.map((color) => (
-              <img
-                key={color}
-                className={`${
-                  !colors.includes(color)
-                    ? "border-transparent"
-                    : "border-highlight"
-                } border-2 rounded-full transition-all duration-200 aspect-square w-12`}
-                onClick={() => select(color)}
-                src={colorImages[color]}
-                alt={color}
-                role="button"
-              />
-            ))}
-</div>
+              {validColors.map((color) => (
+                <img
+                  key={color}
+                  className={`${
+                    !colors.includes(color)
+                      ? "border-transparent"
+                      : "border-highlight"
+                  } border-2 rounded-full transition-all duration-200 aspect-square w-12`}
+                  onClick={() => select(color)}
+                  src={colorImages[color]}
+                  alt={color}
+                  role="button"
+                />
+              ))}
+            </div>
             <div className="flex flex-row md:gap-2 flex-wrap">
               {/* <button className="flex-grow rounded-lg p-2 text-white bg-accent text-sm" onClick={select()}>Apply</button> */}
               <button

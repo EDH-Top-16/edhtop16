@@ -15,7 +15,7 @@ export default function Nav() {
 
   useEffect(() => {
     const handleClick = (e) => {
-      console.log(navRef.current, "click")
+      // console.log(navRef.current, "click")
       if(navRef.current && !navRef.current.contains(e.target))
         setOpen(false)
     }

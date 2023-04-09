@@ -24,6 +24,15 @@ const TERMS = [
     ],
   },
   {
+    name: "Entries",
+    tag: "entries",
+    cond: [
+      { $gte: `is greater than (\u2265)`, type: "number" },
+      { $eq: `is equal to (=)`, type: "number" },
+      { $lte: `is less than (\u2264)`, type: "number" },
+    ],
+  },
+  {
     name: "Tournament Size",
     tag: "size",
     isTourneyFilter: true,
@@ -114,9 +123,15 @@ export default function CommanderView() {
    * Main getCommanders() API call
    */
   useEffect(() => {
-    getCommanders({...allFilters, colorID: allFilters.colorID ?? undefined}).then((data) => {
+    let { entries } = allFilters;
+    // console.log(entries);
+
+    getCommanders({
+      ...allFilters,
+      colorID: allFilters.colorID ?? undefined,
+    }).then((data) => {
       // console.log("Data:", data);
-      const commanderRankings = getCommanderRankings(data, topX);
+      const commanderRankings = getCommanderRankings(data, entries, topX);
       // console.log("Commander Rankings:", commanderRankings);
       const sortedCommanders = sortCommanders(commanderRankings, sort, toggled);
       setCommanders(sortedCommanders);
@@ -199,12 +214,11 @@ export default function CommanderView() {
                 onClick={() => changeTopX()}
                 className="cursor-pointer inline-block text-lg md:text-sm"
               />
-              <p onClick={() => handleSort("topX")}
-
+              <p
+                onClick={() => handleSort("topX")}
                 className="inline-flex flex-row items-center gap-1 font-bold"
-               >
+              >
                 Top {topX}s
-
                 {sort === "topX" ? (
                   <RxChevronDown
                     className={`${
@@ -219,7 +233,8 @@ export default function CommanderView() {
               </p>
             </td>
             <td>
-              <p onClick={() => handleSort("count")}
+              <p
+                onClick={() => handleSort("count")}
                 className="flex flex-row items-center gap-1 font-bold"
               >
                 Entries
@@ -234,10 +249,11 @@ export default function CommanderView() {
                     className={`text-text transition-all duration-200k`}
                   />
                 )}
-                </p>
+              </p>
             </td>
             <td>
-              <p onClick={() => handleSort("conversion")}
+              <p
+                onClick={() => handleSort("conversion")}
                 className="flex flex-row items-center gap-1 font-bold"
               >
                 Conversion
@@ -252,7 +268,7 @@ export default function CommanderView() {
                     className={`text-text transition-all duration-200k`}
                   />
                 )}
-                </p>
+              </p>
             </td>
             <td>
               <p className="font-bold">Colors</p>
@@ -262,8 +278,11 @@ export default function CommanderView() {
         <tbody className="[&>tr>td>p]:cursor-pointer [&>tr>td]:px-4 md:[&>tr>td]:px-4 [&>tr]:my-3 ">
           {isLoading ? (
             <tr className="text-text text-lg">Loading...</tr>
+          ) : commanders && commanders.length === 0 ? (
+            <div className="w-full flex justify-center items-center text-accent dark:text-text font-bold text-2xl">
+              No data available
+            </div>
           ) : (
-            commanders && commanders.length === 0 ? <div className="w-full flex justify-center items-center text-accent dark:text-text font-bold text-2xl">No data available</div> : 
             commanders.map((v, i) => (
               <Entry
                 enableLink={true}
@@ -273,11 +292,9 @@ export default function CommanderView() {
                 metadata={[
                   v.topX,
                   v.count,
-                  ((v.topX / v.count) * 100).toFixed(
-                    2
-                  ) + "%",
+                  ((v.topX / v.count) * 100).toFixed(2) + "%",
                 ]}
-                metadata_fields={['Top X', 'Entries', 'Conversion:']}
+                metadata_fields={["Top X", "Entries", "Conversion:"]}
                 colors={v.colorID}
                 tourney_filters={filters.tourney_filter}
               />
