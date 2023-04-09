@@ -5,6 +5,7 @@ from functools import reduce
 client = MongoClient("mongodb://localhost:27017")
 
 db = client['cedhtop16']
+ignore_unknown = True # Set this to false to override skipping unknown commanders
 
 collections = [i for i in db.list_collection_names() if (i != 'metadata' and i != 'commanders')]
 
