@@ -83,8 +83,9 @@ export function getCommanderRankings(data, entries, x) {
     }
   });
 
+  let filteredCommanders = rankedCommanders;
   if (entries) {
-    var filteredCommanders = rankedCommanders.filter((el) => {
+    filteredCommanders = filteredCommanders.filter((el) => {
       if (Object.keys(entries)[0] === "$gte") {
         return el.count >= entries["$gte"];
       } else if (Object.keys(entries)[0] === "$lte") {
@@ -95,7 +96,7 @@ export function getCommanderRankings(data, entries, x) {
     });
   }
 
-  console.log(rankedCommanders);
+  // console.log("fc", filteredCommanders);
   return filteredCommanders;
 }
 
