@@ -22,7 +22,10 @@ for c in collections:
     col = db[c]
     for i in col.find():
         if 'commander' in i.keys() and 'colorID' in i.keys(): # Metadata already exists
-            continue
+            if i['commander'] == 'Unknown Commander' or i['colorID'] == 'N/A' and not ignore_unknown:
+                pass
+            else:
+                continue
         try:
             decklist_url = i['decklist']
         except KeyError:
