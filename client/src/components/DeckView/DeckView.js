@@ -205,7 +205,7 @@ export default function DeckView({ setCommanderExist }) {
                   />
                 ) : (
                   <RxCaretSort
-                    className={`text-text transition-all duration-200k`}
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
                   </p>
@@ -226,7 +226,7 @@ export default function DeckView({ setCommanderExist }) {
                   />
                 ) : (
                   <RxCaretSort
-                    className={`text-text transition-all duration-200k`}
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
                   </p>
@@ -247,7 +247,7 @@ export default function DeckView({ setCommanderExist }) {
                   />
                 ) : (
                   <RxCaretSort
-                    className={`text-text transition-all duration-200k`}
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
                   </p>
@@ -267,7 +267,7 @@ export default function DeckView({ setCommanderExist }) {
                   />
                 ) : (
                   <RxCaretSort
-                    className={`text-text transition-all duration-200k`}
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
                   </p>
@@ -287,7 +287,7 @@ export default function DeckView({ setCommanderExist }) {
                   />
                 ) : (
                   <RxCaretSort
-                    className={`text-text transition-all duration-200k`}
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
                   </p>
@@ -307,7 +307,7 @@ export default function DeckView({ setCommanderExist }) {
                   />
                 ) : (
                   <RxCaretSort
-                    className={`text-text transition-all duration-200k`}
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
                   </p>
@@ -328,7 +328,7 @@ export default function DeckView({ setCommanderExist }) {
                   />
                 ) : (
                   <RxCaretSort
-                    className={`text-text transition-all duration-200k`}
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
                   </p>

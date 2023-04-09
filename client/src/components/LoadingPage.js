@@ -11,7 +11,7 @@ export default function LoadingPage({ setCommander, commanderExist }) {
   }, [commander]);
 
   return (
-    <div className="w-11/12 ml-auto mr-0 h-screen flex flex-col justify-center items-center text-text">
+    <div className="w-11/12 ml-auto mr-0 h-screen flex flex-col justify-center items-center text-lightText dark:text-text">
       <h1 className="text-4xl font-bold text-center">Loading...</h1>
     </div>
   );

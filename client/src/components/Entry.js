@@ -18,14 +18,14 @@ export default function Entry({
 }) {
   return (
     <tr className={`grid ${layout === 'default' ? "" : ""} grid-cols-3 grid-rows-2 md:table-row text-cadet dark:text-white text-lg rounded-lg shadow-modal py-2 sm:py-0 md:[&>td]:py-3 `}>
-      {rank ? <td className="hidden md:table-cell text-text ">{rank}</td> : <></>}
+      {rank ? <td className="hidden md:table-cell text-lightText dark:text-text">{rank}</td> : <></>}
 
       {name ? (
         <td className="col-start-1 col-span-2 font-semibold">
           {enableLink ? (
             <Link to={`/commander/${slug}${tourney_filters ? "?" + createSearchParams(compressObject({tourney_filter: tourney_filters})) : ""}`}>
               <span className="cursor-pointer" href="">
-                {rank && <span className="text-sm text-text md:hidden">
+                {rank && <span className="text-sm text-lightText dark:text-text md:hidden">
                   #{rank}{' '}
                 </span>}
                 {name}{' '}
@@ -36,20 +36,20 @@ export default function Entry({
             </Link>
           ) : (
             <span className="flex items-center gap-1 text-lg font-semibold">
-              {rank && <span className="text-sm text-text md:hidden">
+              {rank && <span className="text-sm text-lightText dark:text-text md:hidden">
                 #{rank}{' '}
               </span>}
-              <a href={mox} target="_blank">
+              <a href={mox} target="_blank" rel="noreferrer">
                 {name}
               </a>
               {mox && mox !== "" ? (
-                <a href={mox} target="_blank">
+                <a href={mox} target="_blank" rel="noreferrer">
                   <img className=" ms-2 w-6" src={cardIcon} alt="mox" />
                 </a>
               ) : (
                 <></>
               )}
-              <span className="text-sm text-text md:hidden">
+              <span className="text-sm text-lightText dark:text-text md:hidden">
                 ({metadata[metadata.length - 1]})
               </span>
             </span>

@@ -204,7 +204,7 @@ export default function CommanderView() {
                   />
                 ) : (
                   <RxCaretSort
-                    className={`text-text transition-all duration-200k`}
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
               </p>
@@ -227,7 +227,7 @@ export default function CommanderView() {
                   />
                 ) : (
                   <RxCaretSort
-                    className={`text-text transition-all duration-200k`}
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
               </p>
@@ -246,7 +246,7 @@ export default function CommanderView() {
                   />
                 ) : (
                   <RxCaretSort
-                    className={`text-text transition-all duration-200k`}
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
               </p>
@@ -265,7 +265,7 @@ export default function CommanderView() {
                   />
                 ) : (
                   <RxCaretSort
-                    className={`text-text transition-all duration-200k`}
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
               </p>
@@ -277,7 +277,7 @@ export default function CommanderView() {
         </thead>
         <tbody className="[&>tr>td>p]:cursor-pointer [&>tr>td]:px-4 md:[&>tr>td]:px-4 [&>tr]:my-3 ">
           {isLoading ? (
-            <tr className="text-text text-lg">Loading...</tr>
+            <tr className="text-lightText dark:text-text text-lg">Loading...</tr>
           ) : commanders && commanders.length === 0 ? (
             <div className="w-full flex justify-center items-center text-accent dark:text-text font-bold text-2xl">
               No data available
