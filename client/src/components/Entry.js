@@ -44,14 +44,8 @@ export default function Entry({
               </span>}
               <a href={mox} target="_blank" rel="noreferrer">
                 {name}
+                <img className="ml-2 w-6 inline" src={cardIcon} alt="mox" />
               </a>
-              {mox && mox !== "" ? (
-                <a href={mox} target="_blank" rel="noreferrer">
-                  <img className=" ms-2 w-6" src={cardIcon} alt="mox" />
-                </a>
-              ) : (
-                <></>
-              )}
               <span className="text-sm text-lightText dark:text-text md:hidden">
                 ({metadata[metadata.length - 1]})
               </span>
