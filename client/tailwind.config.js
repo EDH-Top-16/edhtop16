@@ -8,6 +8,7 @@ module.exports = {
         nav: "#514F86",
         banner: "#312D5A",
         text: "#B7B5FF",
+        lightText: "#8380ff",
         subtext: "#514F86",
         searchbar: "#DEDFFF",
         suggestions: "#7D7BB0",

@@ -18,9 +18,41 @@ const TERMS = [
     name: "Standing",
     tag: "standing",
     cond: [
-      { $gte: `is greater than (\u2265)`, type: "number" },
-      { $eq: `is equal to (=)`, type: "number" },
-      { $lte: `is less than (\u2264)`, type: "number" },
+      {
+        $lte: `Top X:`, 
+        component: "select",
+        type: 'number',
+        values: [
+          {
+            value: null,
+            name: 'Filter By Top X',
+            disabled: true,
+            selected: true
+          },
+          {
+            value: 1,
+            name: 'Top 1'
+          },
+          {
+            value: 4,
+            name: 'Top 4'
+          },
+          {
+            value: 16,
+            name: 'Top 16'
+          },
+          {
+            value: 32,
+            name: 'Top 32'
+          },
+          {
+            value: 64,
+            name: 'Top 64'
+          },
+        ]
+      },
+      // { $eq: `is equal to (=)`, type: "number" },
+      // { $lte: `is less than (\u2264)`, type: "number" },
     ],
   },
   {
@@ -204,7 +236,7 @@ export default function CommanderView() {
                   />
                 ) : (
                   <RxCaretSort
-                    className={`text-text transition-all duration-200k`}
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
               </p>
@@ -227,7 +259,7 @@ export default function CommanderView() {
                   />
                 ) : (
                   <RxCaretSort
-                    className={`text-text transition-all duration-200k`}
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
               </p>
@@ -246,7 +278,7 @@ export default function CommanderView() {
                   />
                 ) : (
                   <RxCaretSort
-                    className={`text-text transition-all duration-200k`}
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
               </p>
@@ -265,7 +297,7 @@ export default function CommanderView() {
                   />
                 ) : (
                   <RxCaretSort
-                    className={`text-text transition-all duration-200k`}
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
               </p>
@@ -277,7 +309,7 @@ export default function CommanderView() {
         </thead>
         <tbody className="[&>tr>td>p]:cursor-pointer [&>tr>td]:px-4 md:[&>tr>td]:px-4 [&>tr]:my-3 ">
           {isLoading ? (
-            <tr className="text-text text-lg">Loading...</tr>
+            <tr className="text-lightText dark:text-text text-lg">Loading...</tr>
           ) : commanders && commanders.length === 0 ? (
             <div className="w-full flex justify-center items-center text-accent dark:text-text font-bold text-2xl">
               No data available
@@ -296,7 +328,7 @@ export default function CommanderView() {
                 ]}
                 metadata_fields={["Top X", "Entries", "Conversion:"]}
                 colors={v.colorID}
-                tourney_filters={filters.tourney_filter}
+                filters={allFilters}
               />
             ))
           )}

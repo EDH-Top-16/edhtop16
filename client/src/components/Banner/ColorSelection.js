@@ -57,7 +57,7 @@ export default function ColorSelection({ defaultColors = [], getColors }) {
         className={`${
           colors.length > 0
             ? "border-solid border-voilet text-cadet dark:border-gray"
-            : "border-dashed border-text text-text"
+            : "border-dashed border-text text-lightText dark:text-text"
         } border rounded-full text-sm px-3 p-1 dark:border-gray dark:text-white flex items-center`}
         ref={btnRef}
         onClick={() => toggleOpen()}
