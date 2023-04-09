@@ -25,7 +25,7 @@ const TERMS = [
         values: [
           {
             value: 1,
-            name: 'Top 1'
+            name: 'Winner'
           },
           {
             value: 4,
