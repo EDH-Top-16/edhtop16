@@ -18,9 +18,37 @@ const TERMS = [
     name: "Standing",
     tag: "standing",
     cond: [
-      { $gte: `is greater than (\u2265)`, type: "number" },
-      { $eq: `is equal to (=)`, type: "number" },
-      { $lte: `is less than (\u2264)`, type: "number" },
+      {
+        $lte: `Top X:`, 
+        component: "select",
+        type: 'number',
+        values: [
+          {
+            value: 1,
+            name: 'Top 1'
+          },
+          {
+            value: 4,
+            name: 'Top 4'
+          },
+          {
+            value: 16,
+            name: 'Top 16'
+          },
+          {
+            value: 32,
+            name: 'Top 32'
+          },
+          {
+            value: 64,
+            name: 'Top 64'
+          },
+        ]
+        
+
+      },
+      // { $eq: `is equal to (=)`, type: "number" },
+      // { $lte: `is less than (\u2264)`, type: "number" },
     ],
   },
   {
@@ -296,7 +324,7 @@ export default function CommanderView() {
                 ]}
                 metadata_fields={["Top X", "Entries", "Conversion:"]}
                 colors={v.colorID}
-                tourney_filters={filters.tourney_filter}
+                filters={allFilters}
               />
             ))
           )}

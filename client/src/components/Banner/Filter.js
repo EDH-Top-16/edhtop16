@@ -146,6 +146,11 @@ const Term = ({ term, filter, isTourneyFilter, removeFilters, select }) => {
     let name = term.name;
     let [val] = Object.entries(filter);
     let cond = val[0];
+
+    if (term.cond.find(c => !!c[cond])?.component === 'select') {
+      return term.cond.find(c => !!c[cond]).values.find(v => v.value == val[1])?.name
+    }
+
     if (cond === "$gte") {
       cond = "\u2265";
     } else if (cond === "$eq") {
@@ -160,7 +165,7 @@ const Term = ({ term, filter, isTourneyFilter, removeFilters, select }) => {
         : num
     }`;
     return parsed;
-  }, [filter]);
+  }, [filter, term]);
 
   const btnRef = useRef(null);
   const modalRef = useRef(null);
@@ -212,7 +217,7 @@ const Term = ({ term, filter, isTourneyFilter, removeFilters, select }) => {
     e.stopPropagation();
     let filterObj = {};
 
-    const op = Object.keys(selectedCond).filter((val) => val !== "type")[0];
+    const op = Object.keys(selectedCond).filter(val => val !== 'type' && val !== 'values')[0]
 
     // Check if input type is number
     if (selectedCond.type === "number") {
@@ -290,33 +295,18 @@ const Term = ({ term, filter, isTourneyFilter, removeFilters, select }) => {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <select
-              value={Object.keys(selectedCond)[0]}
-              onChange={(e) =>
-                setSelectedCond(
-                  term.cond.find((item) => !!item[e.target.value])
-                )
-              }
-              className="rounded-lg px-2 py-2 text-sm focus-visible:outline-none border-2 border-solid border-transparent focus:border-accent"
-            >
-              {term.cond.map((cond) => {
-                const op_name = Object.keys(cond).filter(
-                  (val) => val !== "type"
-                )[0];
-                return (
-                  <option key={op_name} value={op_name}>
-                    {cond[op_name]}
-                  </option>
-                );
-              })}
-            </select>
+          {term.cond.length > 1 && <select value={Object.keys(selectedCond)[0]} onChange={(e) => setSelectedCond(term.cond.find((item) => !!item[e.target.value]))} className="rounded-lg px-2 py-2 text-sm focus-visible:outline-none border-2 border-solid border-transparent focus:border-accent">
+            {term.cond.map((cond) => {
+              const op_name = Object.keys(cond).filter(val => val !== 'type')[0]
+              return (
+                <option key={op_name} value={op_name}>
+                  {cond[op_name]}
+                </option>
+              )
+            })}
+          </select>}
 
-            <input
-              className="rounded-lg text-sm px-2 py-1 focus-visible:outline-none border-2 border-solid border-transparent focus:border-accent"
-              type={selectedCond.type}
-              value={newValue}
-              onChange={(e) => setNewValue(e.target.value)}
-            />
+          <FilterInput  condition={selectedCond} value={newValue} setValue={setNewValue}/>
 
             <div className="flex flex-row md:gap-2 flex-wrap">
               <button
@@ -338,3 +328,24 @@ const Term = ({ term, filter, isTourneyFilter, removeFilters, select }) => {
     </>
   );
 };
+
+const FilterInput = ({ condition, value, setValue }) => {
+
+  if (condition.component === 'select') {
+    return (
+      <select value={value} onChange={(e) => setValue(e.target.value)} className="rounded-lg px-2 py-2 text-sm focus-visible:outline-none border-2 border-solid border-transparent focus:border-accent">
+        {condition.values.map((val) => {
+          return (
+            <option key={val.value} value={val.value}>
+              {val.name}
+            </option>
+          )
+        })}
+      </select>
+    )
+  }
+
+  return (
+    <input className="rounded-lg text-sm px-2 py-1 focus-visible:outline-none border-2 border-solid border-transparent focus:border-accent" type={condition.type} value={value} onChange={(e) => setValue(e.target.value)}/>
+  )
+}
