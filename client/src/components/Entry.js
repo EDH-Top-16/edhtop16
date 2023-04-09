@@ -14,18 +14,21 @@ export default function Entry({
   tournament,
   metadata_fields,
   layout = 'default',
-  tourney_filters
+  filters
 }) {
   return (
     <tr className={`grid ${layout === 'default' ? "" : ""} grid-cols-3 grid-rows-2 md:table-row text-cadet dark:text-white text-lg rounded-lg shadow-modal py-2 sm:py-0 md:[&>td]:py-3 `}>
-      {rank ? <td className="hidden md:table-cell text-text ">{rank}</td> : <></>}
+      {rank ? <td className="hidden md:table-cell text-lightText dark:text-text">{rank}</td> : <></>}
 
       {name ? (
         <td className="col-start-1 col-span-2 font-semibold">
           {enableLink ? (
-            <Link to={`/commander/${slug}${tourney_filters ? "?" + createSearchParams(compressObject({tourney_filter: tourney_filters})) : ""}`}>
+            <Link to={`/commander/${slug}${filters.standing || filters.tourney_filter ? "?" + createSearchParams(compressObject({
+                ...(filters.tourney_filter && {tourney_filter: filters.tourney_filter}), 
+                ...(filters.standing && {standing: filters.standing}),
+              })) : ""}`}>
               <span className="cursor-pointer" href="">
-                {rank && <span className="text-sm text-text md:hidden">
+                {rank && <span className="text-sm text-lightText dark:text-text md:hidden">
                   #{rank}{' '}
                 </span>}
                 {name}{' '}
@@ -36,20 +39,14 @@ export default function Entry({
             </Link>
           ) : (
             <span className="flex items-center gap-1 text-lg font-semibold">
-              {rank && <span className="text-sm text-text md:hidden">
+              {rank && <span className="text-sm text-lightText dark:text-text md:hidden">
                 #{rank}{' '}
               </span>}
-              <a href={mox} target="_blank">
+              <a href={mox} target="_blank" rel="noreferrer">
                 {name}
+                <img className="ml-2 w-6 inline" src={cardIcon} alt="mox" />
               </a>
-              {mox && mox !== "" ? (
-                <a href={mox} target="_blank">
-                  <img className=" ms-2 w-6" src={cardIcon} alt="mox" />
-                </a>
-              ) : (
-                <></>
-              )}
-              <span className="text-sm text-text md:hidden">
+              <span className="text-sm text-lightText dark:text-text md:hidden">
                 ({metadata[metadata.length - 1]})
               </span>
             </span>
