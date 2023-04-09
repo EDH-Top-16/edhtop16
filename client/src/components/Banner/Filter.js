@@ -308,7 +308,7 @@ const Term = ({ term, filter, isTourneyFilter, removeFilters, select }) => {
 
           <FilterInput  condition={selectedCond} value={newValue} setValue={setNewValue}/>
 
-            <div className="flex flex-row md:gap-2 flex-wrap">
+            <div className="flex flex-row gap-2 flex-wrap">
               <button
                 className="flex-grow rounded-lg p-2 text-white bg-accent text-sm"
                 onClick={submit}
