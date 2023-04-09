@@ -336,7 +336,7 @@ const FilterInput = ({ condition, value, setValue }) => {
       <select value={value} onChange={(e) => setValue(e.target.value)} className="rounded-lg px-2 py-2 text-sm focus-visible:outline-none border-2 border-solid border-transparent focus:border-accent">
         {condition.values.map((val) => {
           return (
-            <option key={val.value} value={val.value}>
+            <option key={val.value} value={val.value} disabled={val.disabled ?? false} selected={val.selected ?? false}>
               {val.name}
             </option>
           )

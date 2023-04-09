@@ -24,6 +24,12 @@ const TERMS = [
         type: 'number',
         values: [
           {
+            value: null,
+            name: 'Filter By Top X',
+            disabled: true,
+            selected: true
+          },
+          {
             value: 1,
             name: 'Top 1'
           },
@@ -44,8 +50,6 @@ const TERMS = [
             name: 'Top 64'
           },
         ]
-        
-
       },
       // { $eq: `is equal to (=)`, type: "number" },
       // { $lte: `is less than (\u2264)`, type: "number" },
