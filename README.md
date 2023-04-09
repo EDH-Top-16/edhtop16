@@ -1,6 +1,6 @@
-# 🚀 Coming soon 🚀
+# 🚀 Our Site is Live! https://www.edhtop16.com 🚀
 
-> ⚡ Our team of developers are working hard...
+> ⚡ Our team of developers are still working hard to push out new features!
 
 # 🌸 cEDH Top 16 🌸
 

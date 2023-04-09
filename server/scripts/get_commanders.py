@@ -5,6 +5,7 @@ from functools import reduce
 client = MongoClient("mongodb://localhost:27017")
 
 db = client['cedhtop16']
+ignore_unknown = True # Set this to false to override skipping unknown commanders
 
 collections = [i for i in db.list_collection_names() if (i != 'metadata' and i != 'commanders')]
 
@@ -21,7 +22,10 @@ for c in collections:
     col = db[c]
     for i in col.find():
         if 'commander' in i.keys() and 'colorID' in i.keys(): # Metadata already exists
-            continue
+            if (i['commander'] == 'Unknown Commander' or i['colorID'] == 'N/A') and not ignore_unknown:
+                pass
+            else:
+                continue
         try:
             decklist_url = i['decklist']
         except KeyError:
