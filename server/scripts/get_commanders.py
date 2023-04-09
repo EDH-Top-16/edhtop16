@@ -30,7 +30,7 @@ for c in collections:
 
         try:
             commanders = mtg_api.get_deck(decklist_url).get_commander()
-        except (KeyError, AttributeError):
+        except:
             print(f"Warning: error while fetching decklist. Entry marked with 'Unknown Commander.' Object ID: {i['_id']}")
             commander_string = "Unknown Commander"
             col.update_one(i, {'$set': {'commander': commander_string, 'colorID': 'N/A'}})
