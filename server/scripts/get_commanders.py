@@ -1,8 +1,9 @@
 from pymongo import MongoClient
 import mtg_api # Import from file
 from functools import reduce
+from dotenv import dotenv_values
 
-client = MongoClient("mongodb://localhost:27017")
+client = MongoClient(dotenv_values("../config.env")['ATLAS_URI'])
 
 db = client['cedhtop16']
 ignore_unknown = True # Set this to false to override skipping unknown commanders
