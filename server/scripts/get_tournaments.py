@@ -74,8 +74,6 @@ if __name__ == '__main__':
                 for i, j in enumerate(tourney['standings']):
                     if 'decklist' in j.keys():
                         if j['decklist']:
-                            if tourney['TID'] == 'F3tTixdc2jvUe9Q7R0FT':
-                                print(j['decklist'])
                             db[tourney['TID']].update_one({'standing': i+1}, {'$set': {'decklist': j['decklist']}})
         except:
             if 'TID' in tourney.keys():
