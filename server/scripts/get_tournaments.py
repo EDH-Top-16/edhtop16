@@ -5,7 +5,7 @@ import requests
 import datetime
 import json
 
-overwrite_tourneys = True
+overwrite_tourneys = False
 
 # Paste your api key into a text file called 'eminence_api_key.txt'
 with open("./eminence_api_key.txt", 'r') as f:
