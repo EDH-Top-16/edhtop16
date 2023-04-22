@@ -5,6 +5,8 @@ import requests
 import datetime
 import json
 
+overwrite_tourneys = True
+
 # Paste your api key into a text file called 'eminence_api_key.txt'
 with open("./eminence_api_key.txt", 'r') as f:
     apiKey = f.readline().replace('\n', '')
@@ -68,5 +70,16 @@ if __name__ == '__main__':
                         'dateCreated': tourney['dateCreated']
                     })
                     db[tourney['TID']].insert_many(standings)
+            elif overwrite_tourneys:
+                for i, j in enumerate(tourney['standings']):
+                    if 'decklist' in j.keys():
+                        if j['decklist']:
+                            if tourney['TID'] == 'F3tTixdc2jvUe9Q7R0FT':
+                                print(j['decklist'])
+                            db[tourney['TID']].update_one({'standing': i+1}, {'$set': {'decklist': j['decklist']}})
         except:
-            print(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data to collection '{tourney}.'")
+            if 'TID' in tourney.keys():
+                print(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data to collection '{tourney['TID']}.'")
+            else:
+                print(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data. TID missing. received:\
+                {tourney}")
