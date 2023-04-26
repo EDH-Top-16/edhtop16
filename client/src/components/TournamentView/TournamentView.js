@@ -5,7 +5,7 @@ import axios from "axios";
 
 import Banner from "../Banner/Banner";
 import Entry from "../Entry";
-import { getCommanders, sortCommanders } from "../../data/Commanders";
+import { getTournaments, getCommanders, sortCommanders } from "../../data/Commanders";
 import { defaultFormat } from "moment";
 import moment from "moment";
 import { compressObject, insertIntoObject } from "../../utils";
@@ -53,18 +53,14 @@ export default function TournamentView() {
   }, [])
 
   const navigate = useNavigate();
-
+  const [tournaments, setTournaments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState(loadFilters);
   const [allFilters, setAllFilters] = useState(loadFilters);
-  const [sort, setSort] = useState("standing");
+  const [sort, setSort] = useState("dateCreated");
   const [toggled, setToggled] = useState(false);
 
   let params = useParams();
-  useEffect(() => {
-    axios
-      .post(process.env.REACT_APP_uri + "/api/list_tourneys", allFilters.tourney_filter)
-  }, [allFilters]);
 
   function getFilters(data) {
     setFilters(data);
@@ -83,6 +79,26 @@ export default function TournamentView() {
       }, {replace: true})
     }
   }, [filters]);
+
+  function getFilters(data) {
+    setFilters(data);
+  }
+
+  useEffect(() => {
+    getTournaments(allFilters.tourney_filter).then((data) =>{
+      const sortedTournaments = sortCommanders(data, sort, toggled);
+      setTournaments(sortedTournaments);
+      setIsLoading(false);
+      console.log("asdf", tournaments);
+    });
+  }, [allFilters]);
+
+  useEffect(() => {
+    const sortedTournaments = sortCommanders(tournaments, sort, toggled);
+    setTournaments(sortedTournaments);
+    setIsLoading(false);
+    console.log("asdf", tournaments);
+  }, [sort, toggled]);
 
   return (
     <div className="flex flex-col flex-grow overflow-auto">

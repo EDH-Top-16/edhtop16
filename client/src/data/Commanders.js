@@ -23,7 +23,23 @@ export async function getCommanders(filters) {
   );
 }
 
-/**
+export async function getTournaments(filters){
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+  };
+    console.log("asdf", filters);
+  const res = await axios.post(
+    process.env.REACT_APP_uri + "/api/list_tourneys",
+    filters,
+    config
+  );
+  return res.data;
+}
+
+/** 
  * @returns each unique commander(s) rankings given some data
  */
 export function getCommanderRankings(data, entries, x) {
