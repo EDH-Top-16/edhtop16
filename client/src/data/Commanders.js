@@ -175,6 +175,7 @@ export function sortCommanders(commanders, sort, toggled) {
     }
   });
 
+  console.log(sortedCommanders);
   return sortedCommanders;
 }
 
