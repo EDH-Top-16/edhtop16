@@ -56,7 +56,6 @@ if __name__ == '__main__':
     
     for tourney in tournaments:
         try:
-            # Is this check needed??
             if tourney['TID'] not in existing_tourneys:
                 for i, j in enumerate(tourney['standings']):
                     j.update({'standing': i+1})
@@ -67,14 +66,26 @@ if __name__ == '__main__':
                         'tournamentName': tourney['tournamentName'] if tourney['tournamentName'] else 'Unnamed Tournament',
                         'size': len(tourney['standings']),
                         'date': datetime.datetime.fromtimestamp(tourney['dateCreated']),
-                        'dateCreated': tourney['dateCreated']
+                        'dateCreated': tourney['dateCreated'],
+                        'swissNum': tourney['swissNum'],
+                        'topCut': tourney['topCut']
                     })
                     db[tourney['TID']].insert_many(standings)
             elif overwrite_tourneys:
+                db[tourney['TID']].drop()
                 for i, j in enumerate(tourney['standings']):
-                    if 'decklist' in j.keys():
-                        if j['decklist']:
-                            db[tourney['TID']].update_one({'standing': i+1}, {'$set': {'decklist': j['decklist']}})
+                    j.update({'standing': i+1})
+                standings = [i for i in tourney['standings'] if i['decklist']]
+                if standings:
+                    db['metadata'].update_one({'TID': tourney['TID']}, {'$set': {
+                        'tournamentName': tourney['tournamentName'] if tourney['tournamentName'] else 'Unnamed Tournament',
+                        'size': len(tourney['standings']),
+                        'date': datetime.datetime.fromtimestamp(tourney['dateCreated']),
+                        'dateCreated': tourney['dateCreated'],
+                        'swissNum': tourney['swissNum'],
+                        'topCut': tourney['topCut']
+                    }})
+                    db[tourney['TID']].insert_many(standings)
         except:
             if 'TID' in tourney.keys():
                 print(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data to collection '{tourney['TID']}.'")
