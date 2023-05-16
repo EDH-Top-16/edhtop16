@@ -5,7 +5,7 @@ import axios from "axios";
 
 import Banner from "../Banner/Banner";
 import Entry from "../Entry";
-import { getCommanders, sortCommanders } from "../../data/Commanders";
+import { getCommanders, sortEntries } from "../../data/Commanders";
 import { defaultFormat } from "moment";
 import moment from "moment";
 import { compressObject, insertIntoObject } from "../../utils";
@@ -196,7 +196,7 @@ export default function DeckView({ setCommanderExist }) {
   useEffect(() => {
     // console.log("Filters:", allFilters);
     getCommanders({ ...allFilters, commander }).then((data) => {
-      const sortedCommanders = sortCommanders(data, sort, toggled);
+      const sortedCommanders = sortEntries(data, sort, toggled);
       setDecks(sortedCommanders);
       setIsLoading(false);
     });

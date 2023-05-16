@@ -153,6 +153,7 @@ export default function CommanderView() {
 
   /**
    * Main getCommanders() API call
+   * TODO: split this up to only send a request if allFilters is changed (rest should just be handles client-side)
    */
   useEffect(() => {
     let { entries } = allFilters;

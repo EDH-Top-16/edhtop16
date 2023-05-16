@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { createSearchParams, useNavigate, useParams } from "react-router-dom";
+import { createSearchParams, useNavigate} from "react-router-dom";
 import { RxCaretSort, RxChevronDown } from "react-icons/rx";
-import axios from "axios";
 
 import Banner from "../Banner/Banner";
 import Entry from "../Entry";
-import { getTournaments, getCommanders, sortCommanders } from "../../data/Commanders";
-import { defaultFormat } from "moment";
+import { getTournaments, sortEntries } from "../../data/Commanders";
 import moment from "moment";
 import { compressObject, insertIntoObject } from "../../utils";
 
@@ -31,6 +29,16 @@ const TERMS = [
       { $lte: `is before (\u2264)`, type: "date" },
     ],
   },
+  {
+  name: "Swiss Rounds",
+  tag: "swissNum",
+  isTourneyFilter: true,
+  cond: [
+    { $gte: `is greater than (\u2265)`, type: "number" },
+    { $eq: `is equal to (=)`, type: "number" },
+    { $lte: `is less than (\u2264)`, type: "number" },
+  ],
+  }
 ]
 /**
  * Takes no params, @returns tournaments
@@ -72,7 +80,7 @@ export default function TournamentView() {
     // console.log(filters, colors);
     let newFilters = { ...filters }
 
-    if (newFilters != allFilters) {
+    if (newFilters !== allFilters) {
       setAllFilters(newFilters);
 
 
@@ -98,22 +106,25 @@ export default function TournamentView() {
   }
 
   useEffect(() => {
-    getTournaments(allFilters.tourney_filter).then((data) => {
-      // const sortedTournaments = sortCommanders(data, sort, toggled);
-      setRawData(data);
+    // Deep copy b/c useState needs a new object
+    const tournaments_copy = JSON.parse(JSON.stringify(tournaments));
+    const sortedTournaments = sortEntries(tournaments_copy, sort, toggled);
+    setTournaments(sortedTournaments);
+    setIsLoading(false);
+  }
+  , [sort, toggled]);
+
+  useEffect(() => {
+    getTournaments(allFilters.tourney_filter).then((data) =>{
+      const sortedTournaments = sortEntries(data, sort, toggled);
+      setTournaments(sortedTournaments);
+      setIsLoading(false);
     });
   }, [allFilters]);
 
   useEffect(() => {
-    console.log("sort clicked", sort);
-    const sortedTournaments = sortCommanders(rawData, sort, toggled);
-    setTournaments(sortedTournaments);
-    console.log("tourns set");
-    setIsLoading(false);
-    // console.log("asdf", tournaments);
-  }, [sort, toggled, rawData]);
-
-  useEffect(() => { console.log(tournaments); }, [tournaments]);
+    console.log("Tournaments Updated", tournaments);
+  }, [tournaments]);
 
   return (
     <div className="flex flex-col flex-grow overflow-auto">
