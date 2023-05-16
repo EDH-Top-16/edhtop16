@@ -7,7 +7,7 @@ import Entry from "../Entry";
 import {
   getCommanders,
   getCommanderRankings,
-  sortCommanders,
+  sortEntries,
 } from "../../data/Commanders";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import { compressObject, insertIntoObject } from "../../utils";
@@ -165,7 +165,7 @@ export default function CommanderView() {
       // console.log("Data:", data);
       const commanderRankings = getCommanderRankings(data, entries, topX);
       // console.log("Commander Rankings:", commanderRankings);
-      const sortedCommanders = sortCommanders(commanderRankings, sort, toggled);
+      const sortedCommanders = sortEntries(commanderRankings, sort, toggled);
       setCommanders(sortedCommanders);
       setIsLoading(false);
     });
