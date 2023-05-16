@@ -30,7 +30,6 @@ export async function getTournaments(filters){
       Accept: "application/json",
     },
   };
-    console.log("asdf", filters);
   const res = await axios.post(
     process.env.REACT_APP_uri + "/api/list_tourneys",
     filters,
@@ -131,8 +130,8 @@ export function getCommanderNames() {
     );
 }
 
-export function sortCommanders(commanders, sort, toggled) {
-  let sortedCommanders = commanders.sort((a, b) => {
+export function sortEntries(entries, sort, toggled) {
+  let sortedCommanders = entries.sort((a, b) => {
     if (sort === "name") {
       return !toggled
         ? a.name.localeCompare(b.name)
@@ -149,7 +148,7 @@ export function sortCommanders(commanders, sort, toggled) {
       return !toggled ? b.draws - a.draws : a.draws - b.draws;
     } else if (sort === "winrate") {
       return !toggled ? b.winRate - a.winRate : a.winRate - b.winRate;
-    } else if (sort === "tournament") {
+    } else if (sort === "tournament" || sort === "tournamentName") {
       return !toggled
         ? a.tournamentName.localeCompare(b.tournamentName)
         : b.tournamentName.localeCompare(a.tournamentName);
