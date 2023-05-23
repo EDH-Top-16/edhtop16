@@ -1,11 +1,17 @@
 from pymongo import MongoClient
 import mtg_api # Import from file
 from functools import reduce
+import sys
+from tqdm import tqdm
 
 client = MongoClient("mongodb://localhost:27017")
 
+memo = {}
+
 db = client['cedhtop16']
-ignore_unknown = True # Set this to false to override skipping unknown commanders
+
+# -u to try to re-fill unknown commanders (to not ignore them)
+ignore_unknown = False if '-u' in sys.argv else True
 
 collections = [i for i in db.list_collection_names() if (i != 'metadata' and i != 'commanders')]
 
@@ -20,7 +26,7 @@ for c in collections:
     print(f"Updating Collection '{c}' with commander/color identity metadata")
     commander_col = db['commanders']
     col = db[c]
-    for i in col.find():
+    for i in tqdm(col.find()):
         if 'commander' in i.keys() and 'colorID' in i.keys(): # Metadata already exists
             if (i['commander'] == 'Unknown Commander' or i['colorID'] == 'N/A') and not ignore_unknown:
                 pass
@@ -58,8 +64,11 @@ for c in collections:
         colors = []
         for commander in commanders:
             try:
-                colors += mtg_api.get_card(commander)['color_identity']
-            except:
+                if commander not in memo:
+                    memo[commander] = mtg_api.get_card(commander)['color_identity']
+                colors += memo[commander]
+            except Exception as e:
+                print(e)
                 print(f"Error while fetching '{commander}' from mtg_api (likely ampersand/other character). ID: {i['_id']}")
                 break
         else:

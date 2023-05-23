@@ -4,8 +4,10 @@ from functools import reduce
 import requests
 import datetime
 import json
+import sys
 
-overwrite_tourneys = False
+# -o overwrite tournaments, even if the db already contains them.
+overwrite_tourneys = True if '-o' in sys.argv else False
 
 # Paste your api key into a text file called 'eminence_api_key.txt'
 with open("./eminence_api_key.txt", 'r') as f:
