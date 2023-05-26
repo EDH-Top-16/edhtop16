@@ -6,6 +6,7 @@ import Nav from "./components/Nav";
 import CommanderView from "./components/CommanderView/CommanderView";
 import DeckView from "./components/DeckView/DeckView";
 import TournamentView from "./components/TournamentView/TournamentView";
+import SingleTournamentView from "./components/TournamentView/SingleTournamentView";
 import About from "./components/About/About";
 import APIDocs from "./components/APIDocs/APIDocs";
 import NotFound from "./components/404";
@@ -73,7 +74,8 @@ function App() {
               }
             />
             <Route path="api" element={<APIDocs />} />
-            <Route path="tournament" element={<TournamentView />} />
+            <Route path="tournaments" element={<TournamentView />} />
+            <Route path="tournament/:TID" element={<SingleTournamentView/>}/>
             <Route path="about" element={<About />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

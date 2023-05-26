@@ -77,7 +77,6 @@ export default function TournamentView() {
   }
 
   useEffect(() => {
-    // console.log(filters, colors);
     let newFilters = { ...filters }
 
     if (newFilters !== allFilters) {
@@ -98,7 +97,7 @@ export default function TournamentView() {
  * Changes the sort order
  */
   function handleSort(x) {
-    console.log("sort", x);
+    // console.log("sort", x);
     setSort(x);
     if (x === sort) {
       setToggled(!toggled);
@@ -123,7 +122,7 @@ export default function TournamentView() {
   }, [allFilters]);
 
   useEffect(() => {
-    console.log("Tournaments Updated", tournaments);
+    // console.log("Tournaments Updated", tournaments);
   }, [tournaments]);
 
   return (
