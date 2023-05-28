@@ -90,7 +90,7 @@ const TERMS = [
 ]
 
 
-export default function SingleTournamentView(){
+export default function SingleTournamentView({ setCommanderExist }){
   const {TID} = useParams();
 
   const defaultFilters = {
@@ -99,43 +99,43 @@ export default function SingleTournamentView(){
     }
   };
 
-  const loadFilters = useMemo(() => {
-    const params = new URLSearchParams(window.location.search)
-
-    let generated_filters = {
-    }
-    params.forEach((val, key) => {
-      generated_filters = insertIntoObject(generated_filters, key.split('__'), val)
-    })
-
-    return Object.entries(generated_filters).length > 0 ? generated_filters : defaultFilters;
-  }, [])
-
   const navigate = useNavigate();
   const [entries, setEntries] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filters, setFilters] = useState(loadFilters);
-  const [allFilters, setAllFilters] = useState(loadFilters);
+  const [filters, setFilters] = useState(defaultFilters);
+  const [allFilters, setAllFilters] = useState(defaultFilters);
   const [sort, setSort] = useState("standing");
   const [toggled, setToggled] = useState(false);
-  const [rawData, setRawData] = useState([]);
 
   useEffect(() => {
     axios
       .post(process.env.REACT_APP_uri + "/api/req", defaultFilters)
       .then((res) => {
-        console.log(defaultFilters, res.data, res.data.length > 0);
-        // if (res.data.length > 0) {
-        //   setCommanderExist(true);
-        // } else {
-        //   setCommanderExist(false);
-        // }
+        // console.log(defaultFilters, res.data, res.data.length > 0);
+        if (res.data.length > 0) {
+          setCommanderExist(true);
+        } else {
+          setCommanderExist(false);
+        }
       });
   }, [defaultFilters]);
 
   function getFilters(data) {
     setFilters(data);
   }
+
+  useEffect(() => {
+    let newFilters = { ...filters }
+
+    if (newFilters !== allFilters) {
+      setAllFilters(newFilters);
+
+
+      navigate({
+        search: `${createSearchParams(compressObject(newFilters))}`
+      }, { replace: true })
+    }
+  }, [filters]);
 
   /**
  * Changes the sort order

@@ -70,7 +70,6 @@ export default function TournamentView() {
   const [allFilters, setAllFilters] = useState(loadFilters);
   const [sort, setSort] = useState("dateCreated");
   const [toggled, setToggled] = useState(false);
-  const [rawData, setRawData] = useState([]);
 
   function getFilters(data) {
     setFilters(data);

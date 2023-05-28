@@ -75,7 +75,11 @@ function App() {
             />
             <Route path="api" element={<APIDocs />} />
             <Route path="tournaments" element={<TournamentView />} />
-            <Route path="tournament/:TID" element={<SingleTournamentView/>}/>
+            <Route
+              path="tournament/:TID"
+              element={
+              !commanderExist ? (<NotFound/>
+              ) : (<SingleTournamentView setCommanderExist  ={setCommanderExist}/>)}/>
             <Route path="about" element={<About />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
