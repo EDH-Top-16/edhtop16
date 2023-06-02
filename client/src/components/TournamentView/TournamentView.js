@@ -6,7 +6,8 @@ import Banner from "../Banner/Banner";
 import Entry from "../Entry";
 import { getTournaments, sortEntries } from "../../data/Commanders";
 import moment from "moment";
-import { compressObject, insertIntoObject } from "../../utils";
+import { compressObject, insertIntoObject, toDate } from "../../utils";
+
 
 const TERMS = [
   {
@@ -219,7 +220,7 @@ export default function TournamentView() {
                   name={tournament.tournamentName}
                   metadata={[
                     tournament.size,
-                    tournament.dateCreated,
+                    toDate(tournament.dateCreated).toLocaleDateString("en-US"),
                   ]}
                   metadata_fields={['size', 'dateCreated']}
                   filters={allFilters}

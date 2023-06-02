@@ -6,7 +6,6 @@ import axios from "axios";
 import Banner from "../Banner/Banner";
 import Entry from "../Entry";
 import { getCommanders, sortEntries } from "../../data/Commanders";
-import moment from "moment";
 import { compressObject, insertIntoObject } from "../../utils";
 
 const TERMS = [
