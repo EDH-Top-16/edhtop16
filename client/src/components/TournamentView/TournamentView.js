@@ -220,7 +220,7 @@ export default function TournamentView() {
                   name={tournament.tournamentName}
                   metadata={[
                     tournament.size,
-                    toDate(tournament.dateCreated).toLocaleDateString("en-US"),
+                    moment(toDate(tournament.dateCreated)).format("MMM D YYYY"),
                   ]}
                   metadata_fields={['size', 'dateCreated']}
                   filters={allFilters}
