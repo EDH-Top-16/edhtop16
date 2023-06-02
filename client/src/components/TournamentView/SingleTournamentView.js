@@ -182,7 +182,27 @@ export default function SingleTournamentView({ setCommanderExist }){
       <table className="mx-2 md:mx-6 my-2 border-spacing-y-3 border-separate">
         <thead className="hidden md:table-row-group [&>tr>td>p]:cursor-pointer [&>tr>td]:px-4">
           <tr className="text-subtext dark:text-white text-lg ">
-            <td className="font-bold">#</td>
+            <td>
+              <p
+                onClick={() => handleSort("standing")}
+
+                className="flex flex-row items-center gap-1 font-bold"
+              >
+
+              #
+
+              {sort === "name" ? (
+                  <RxChevronDown
+                    className={`${toggled ? "" : "rotate-180"
+                      } transition-all duration-200k`}
+                  />
+                ) : (
+                  <RxCaretSort
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
+                  />
+                )}
+                </p>
+              </td>
             <td>
               <p
                 onClick={() => handleSort("name")}
