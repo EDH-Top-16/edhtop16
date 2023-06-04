@@ -55,6 +55,7 @@ if __name__ == '__main__':
         tournaments = fetch_tournaments()
     except:
         print(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while fetching tournaments from Eminence.")
+        exit()
     
     for tourney in tournaments:
         try:
@@ -74,7 +75,7 @@ if __name__ == '__main__':
                     })
                     db[tourney['TID']].insert_many(standings)
             elif overwrite_tourneys:
-                db[tourney['TID']].drop()
+                # db[tourney['TID']].drop() 
                 for i, j in enumerate(tourney['standings']):
                     j.update({'standing': i+1})
                 standings = [i for i in tourney['standings'] if i['decklist']]
@@ -87,7 +88,9 @@ if __name__ == '__main__':
                         'swissNum': tourney['swissNum'],
                         'topCut': tourney['topCut']
                     }})
-                    db[tourney['TID']].insert_many(standings)
+                    for i in standings:
+                        db[tourney['TID']].find_one_and_update({'standing': i['standing'], 'name': i['name']}, {'$set': i}, upsert=True)
+
         except:
             if 'TID' in tourney.keys():
                 print(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data to collection '{tourney['TID']}.'")
