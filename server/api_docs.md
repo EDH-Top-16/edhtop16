@@ -1,6 +1,6 @@
 # cEDH Top 16 API
 
-Our endpoint is available at `https://www.cedhtop16.com/api/`. Data is returned in json format, and are generally arrays of objects. Please include content type and accept headers for `application/json` in all requests.
+Our endpoint is available at `https://cedhtop16.com/api/`. Data is returned in json format, and are generally arrays of objects. Please include content type and accept headers for `application/json` in all requests.
 
 Please limit requests to 120/min (around 2 per second). Any more will result in `429: Too Many Requests`.
 
@@ -9,7 +9,7 @@ Examples provided are using the Python requests library, but any HTTP request sh
 ```python
 import json
 import requests
-base_url = "https://www.edhtop16.com/api/"
+base_url = "https://edhtop16.com/api/"
 headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 ```
 

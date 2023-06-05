@@ -41,19 +41,17 @@ async function parseTourneyFilters(filters){
 
     // Form query and add date and size filter.
     query = {
-      [dateName]: (dateValue !== undefined) ? dateValue: {$gt: 0}, // If date not included, set filter to since 0
-      size: Object.keys(filters).includes("size") ? filters.size: {$gt: 0} // If size not included, set filter to more than 0 entries
+      // If date, size, not included, set filter to more than 0 (get everything)
+      [dateName]: (dateValue !== undefined) ? dateValue: {$gt: 0},
+      size: Object.keys(filters).includes("size") ? filters.size: {$gt: 0}, 
     };
 
-    // Process TID filter
-    if (Object.keys(filters).includes("TID")){
-      query = {...query, TID: filters.TID};
-    }
-
-    // Process tournamentName filter
-    if (Object.keys(filters).includes("tournamentName")){
-      query = {...query, tournamentName: filters.tournamentName};
-    }
+    // Process additional filters
+    ["TID", "tournamentName", "swissNum", "topCut"].forEach(element => {
+      if(Object.keys(filters).includes(element)){
+        query[element] = filters[element];
+      }
+    });
   }
 
   // Perform query on DB

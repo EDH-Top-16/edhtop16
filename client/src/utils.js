@@ -32,3 +32,7 @@ export const compressObject = (obj, prefix = '') => {
     ...(!isObject(cur[1]) ? {[`${prefix}${prefix && '__'}${cur[0]}`]: cur[1]} : compressObject(cur[1], `${prefix}${prefix && '__'}${cur[0]}`)) 
   }), {})
 }
+
+export const toDate = (unixTimestamp) => {
+  return new Date(unixTimestamp * 1000)
+}
