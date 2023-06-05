@@ -3,6 +3,7 @@ import mtg_api # Import from file
 from functools import reduce
 from tqdm import tqdm
 from dotenv import dotenv_values
+import sys
 
 client = MongoClient(dotenv_values("../config.env")['ATLAS_URI'])
 
