@@ -44,7 +44,7 @@ export default function Nav() {
           </Link>
         </span>
         <span>
-          <Link to="/tournament" className="flex flex-row items-center gap-2 [&_path]:fill-voilet [&_path]:dark:fill-white">
+          <Link to="/tournaments" className="flex flex-row items-center gap-2 [&_path]:fill-voilet [&_path]:dark:fill-white">
             <BracketIcon  />
             <span className="md:hidden md:group-hover:block">Tournaments</span>
           </Link>

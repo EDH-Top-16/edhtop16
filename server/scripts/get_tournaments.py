@@ -4,8 +4,10 @@ from functools import reduce
 import requests
 import datetime
 import json
+import sys
 
-overwrite_tourneys = False
+# -o overwrite tournaments, even if the db already contains them.
+overwrite_tourneys = True if '-o' in sys.argv else False
 
 # Paste your api key into a text file called 'eminence_api_key.txt'
 with open("./eminence_api_key.txt", 'r') as f:
@@ -53,10 +55,10 @@ if __name__ == '__main__':
         tournaments = fetch_tournaments()
     except:
         print(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while fetching tournaments from Eminence.")
+        exit()
     
     for tourney in tournaments:
         try:
-            # Is this check needed??
             if tourney['TID'] not in existing_tourneys:
                 for i, j in enumerate(tourney['standings']):
                     j.update({'standing': i+1})
@@ -67,14 +69,28 @@ if __name__ == '__main__':
                         'tournamentName': tourney['tournamentName'] if tourney['tournamentName'] else 'Unnamed Tournament',
                         'size': len(tourney['standings']),
                         'date': datetime.datetime.fromtimestamp(tourney['dateCreated']),
-                        'dateCreated': tourney['dateCreated']
+                        'dateCreated': tourney['dateCreated'],
+                        'swissNum': tourney['swissNum'],
+                        'topCut': tourney['topCut']
                     })
                     db[tourney['TID']].insert_many(standings)
             elif overwrite_tourneys:
+                # db[tourney['TID']].drop() 
                 for i, j in enumerate(tourney['standings']):
-                    if 'decklist' in j.keys():
-                        if j['decklist']:
-                            db[tourney['TID']].update_one({'standing': i+1}, {'$set': {'decklist': j['decklist']}})
+                    j.update({'standing': i+1})
+                standings = [i for i in tourney['standings'] if i['decklist']]
+                if standings:
+                    db['metadata'].update_one({'TID': tourney['TID']}, {'$set': {
+                        'tournamentName': tourney['tournamentName'] if tourney['tournamentName'] else 'Unnamed Tournament',
+                        'size': len(tourney['standings']),
+                        'date': datetime.datetime.fromtimestamp(tourney['dateCreated']),
+                        'dateCreated': tourney['dateCreated'],
+                        'swissNum': tourney['swissNum'],
+                        'topCut': tourney['topCut']
+                    }})
+                    for i in standings:
+                        db[tourney['TID']].find_one_and_update({'standing': i['standing'], 'name': i['name']}, {'$set': i}, upsert=True)
+
         except:
             if 'TID' in tourney.keys():
                 print(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data to collection '{tourney['TID']}.'")

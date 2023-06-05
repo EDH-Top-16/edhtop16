@@ -7,7 +7,7 @@ import Entry from "../Entry";
 import {
   getCommanders,
   getCommanderRankings,
-  sortCommanders,
+  sortEntries,
 } from "../../data/Commanders";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import { compressObject, insertIntoObject } from "../../utils";
@@ -153,6 +153,7 @@ export default function CommanderView() {
 
   /**
    * Main getCommanders() API call
+   * TODO: split this up to only send a request if allFilters is changed (rest should just be handles client-side)
    */
   useEffect(() => {
     let { entries } = allFilters;
@@ -165,7 +166,7 @@ export default function CommanderView() {
       // console.log("Data:", data);
       const commanderRankings = getCommanderRankings(data, entries, topX);
       // console.log("Commander Rankings:", commanderRankings);
-      const sortedCommanders = sortCommanders(commanderRankings, sort, toggled);
+      const sortedCommanders = sortEntries(commanderRankings, sort, toggled);
       setCommanders(sortedCommanders);
       setIsLoading(false);
     });
@@ -318,7 +319,7 @@ export default function CommanderView() {
             commanders.map((v, i) => (
               <Entry
                 enableLink={true}
-                slug={v.slug}
+                slug={"/commander/" + v.slug}
                 rank={i + 1}
                 name={v.commander}
                 metadata={[

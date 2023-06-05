@@ -23,7 +23,7 @@ export default function Entry({
       {name ? (
         <td className="col-start-1 col-span-2 font-semibold">
           {enableLink ? (
-            <Link to={`/commander/${slug}${filters.standing || filters.tourney_filter ? "?" + createSearchParams(compressObject({
+            <Link to={`${slug}${filters.standing || filters.tourney_filter ? "?" + createSearchParams(compressObject({
                 ...(filters.tourney_filter && {tourney_filter: filters.tourney_filter}), 
                 ...(filters.standing && {standing: filters.standing}),
               })) : ""}`}>
