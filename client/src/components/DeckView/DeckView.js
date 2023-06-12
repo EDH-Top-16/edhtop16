@@ -150,7 +150,7 @@ export default function DeckView({ setCommanderExist }) {
     axios
       .post(process.env.REACT_APP_uri + "/api/req", { commander: commander })
       .then((res) => {
-        console.log(commander, res.data, res.data.length > 0);
+        // console.log(commander, res.data, res.data.length > 0);
         if (res.data.length > 0) {
           setCommanderExist(true);
         } else {
