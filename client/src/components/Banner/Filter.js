@@ -222,9 +222,9 @@ const Term = ({ term, filter, isTourneyFilter, removeFilters, select }) => {
     // Check if input type is number
     if (selectedCond.type === "number") {
       // Check if input is a number
-      console.log("num");
+      // console.log("num");
       if (!isNaN(Number(newValue)) && Number(newValue) > 0) {
-        console.log(newValue, op);
+        // console.log(newValue, op);
         filterObj[op] = Number(newValue);
         select(term.tag, filterObj, term.isTourneyFilter);
       }

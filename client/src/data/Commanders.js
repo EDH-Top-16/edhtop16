@@ -174,7 +174,7 @@ export function sortEntries(entries, sort, toggled) {
     }
   });
 
-  console.log(sortedCommanders);
+  // console.log(sortedCommanders);
   return sortedCommanders;
 }
 

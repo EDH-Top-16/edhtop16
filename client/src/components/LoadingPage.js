@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 export default function LoadingPage({ setCommander, commanderExist }) {
   let params = useParams();
   const commander = params["*"].replaceAll("+", "/");
-  console.log(commander, commanderExist);
+  // console.log(commander, commanderExist);
 
   useEffect(() => {
     setCommander(commander);
