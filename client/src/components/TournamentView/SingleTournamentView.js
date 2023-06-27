@@ -157,7 +157,7 @@ export default function SingleTournamentView({ setCommanderExist }){
   , [sort, toggled]);
 
   useEffect(() => {
-    console.log("getCommanders useEffect allFilters:", allFilters);
+    // console.log("getCommanders useEffect allFilters:", allFilters);
     getCommanders(allFilters).then((data) =>{
       const sortedEntries = sortEntries(data, sort, toggled);
       setEntries(sortedEntries);
