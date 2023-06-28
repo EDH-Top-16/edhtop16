@@ -4,6 +4,9 @@ from functools import reduce
 from tqdm import tqdm
 from dotenv import dotenv_values
 import sys
+import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 
 client = MongoClient(dotenv_values("../config.env")['ATLAS_URI'])
 
@@ -40,9 +43,19 @@ for c in collections:
             continue
 
         try:
-            commanders = mtg_api.get_deck(decklist_url).get_commander()
-        except:
-            print(f"Warning: error while fetching decklist. Entry marked with 'Unknown Commander.' Object ID: {i['_id']}")
+            if "melee.gg" in decklist_url:
+                ff_options = webdriver.FirefoxOptions()
+                ff_options.add_argument('-headless')
+                browser = webdriver.Firefox(options=ff_options)
+                browser.get(decklist_url)
+                time.sleep(0.5)
+                els = browser.find_elements(By.XPATH, r'//td[text()="Commander" or text()="Partner"]/../../..//td/a')
+                commanders = list(map(lambda x: x.text, els))
+                browser.close()
+            else:
+                commanders = mtg_api.get_deck(decklist_url).get_commander()
+        except Exception as e:
+            print(f"Warning: error while fetching decklist. Entry marked with 'Unknown Commander.' Object ID: {i['_id']} Error: {e}")
             commander_string = "Unknown Commander"
             col.update_one(i, {'$set': {'commander': commander_string, 'colorID': 'N/A'}})
             commander_col.find_one_and_update({'commander': commander_string}, {'$inc': {'count': 1}, '$set': {'colorID':'N/A'}}, upsert=True)
