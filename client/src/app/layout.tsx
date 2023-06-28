@@ -1,5 +1,9 @@
 import "./globals.css";
 
+/**
+ * This file is the root layout for the entire application.
+ */
+
 // TODO: add proper metadata
 export const metadata = {
   title: "CEDH Top 16",
