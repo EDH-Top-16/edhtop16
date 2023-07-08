@@ -1,3 +1,14 @@
 export default function CommandersPage(): {} {
-  return <div>TODO: CommandersPage</div>;
+  return (
+    <table className="">
+      <thead>
+        <tr></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Commander</td>
+        </tr>
+      </tbody>
+    </table>
+  );
 }

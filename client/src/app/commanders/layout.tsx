@@ -12,8 +12,10 @@ export default function CommandersLayout({
   return (
     <>
       <Navigation />
-      <Banner />
-      <main>{children}</main>
+      <div className="flex flex-col w-full h-full">
+        <Banner />
+        <main className="h-full p-6">{children}</main>
+      </div>
     </>
   );
 }

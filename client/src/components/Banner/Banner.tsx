@@ -1,3 +1,3 @@
 export default function Bannner() {
-  return <div>TODO: Banner</div>;
+  return <div className="h-fit w-full bg-primary p-6">TODO: Banner</div>;
 }
