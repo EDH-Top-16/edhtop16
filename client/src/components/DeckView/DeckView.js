@@ -346,13 +346,13 @@ export default function DeckView({ setCommanderExist }) {
             </td>
             <td>
               <p 
-                onClick={() => handleSort("tournament")}
+                onClick={() => handleSort("dateCreated")}
                 
                 className="flex flex-row items-center gap-1 font-bold"
                 >
                   Tournament
                   
-                {sort === "tournament" ? (
+                {sort === "dateCreated" ? (
                   <RxChevronDown
                     className={`${
                       toggled ? "" : "rotate-180"
