@@ -1,6 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 
-import { EminenceIcon } from "@/app/assets/icons";
+import { EGLogo } from "@/assets/images";
 import NavLinks from "@/constants/NavLinks";
 
 // navitem typing
@@ -9,11 +10,18 @@ type NavItem = {
   icon: JSX.Element;
 };
 
-export default function Navigation() {
+export default function Navigation(): JSX.Element {
   return (
-    <nav className="h-screen w-nav bg-secondary flex flex-col space-x-4">
-      <Link href="/">
-        <EminenceIcon></EminenceIcon>
+    <nav className="h-screen w-nav drop-shadow-lg bg-secondary flex flex-col items-center space-y-16">
+      <Link className="mt-24" href="/">
+        <div className="relative w-24 h-24">
+          <Image
+            objectFit="cover"
+            layout="fill"
+            src={EGLogo}
+            alt={"eminence gaming logo"}
+          />
+        </div>
       </Link>
 
       {NavLinks.map(({ href, icon }) => (
@@ -24,5 +32,9 @@ export default function Navigation() {
 }
 
 const NavItem: React.FC<NavItem> = ({ href, icon }) => {
-  return <Link href={href}>{icon}</Link>;
+  return (
+    <Link className="w-fit [&>svg]:text-white [&>svg]:w-10" href={href}>
+      {icon}
+    </Link>
+  );
 };

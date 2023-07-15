@@ -1,4 +1,4 @@
-import { AboutIcon, BracketIcon, DeckIcon } from "@/app/assets/icons";
+import { AboutIcon, BracketIcon, DeckIcon } from "@/assets/icons";
 
 // navlink typing
 type NavLink = {
