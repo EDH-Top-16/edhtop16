@@ -7,14 +7,15 @@ import NavLinks from "@/constants/NavLinks";
 // navitem typing
 type NavItem = {
   href: string;
+  label: string;
   icon: JSX.Element;
 };
 
 export default function Navigation(): JSX.Element {
   return (
-    <nav className="h-screen w-nav drop-shadow-lg bg-secondary flex flex-col items-center space-y-16">
+    <nav className="flex h-screen w-nav flex-col items-center space-y-16 bg-secondary drop-shadow-lg">
       <Link className="mt-24" href="/">
-        <div className="relative w-24 h-24">
+        <div className="relative h-24 w-24">
           <Image
             objectFit="cover"
             layout="fill"
@@ -24,17 +25,19 @@ export default function Navigation(): JSX.Element {
         </div>
       </Link>
 
-      {NavLinks.map(({ href, icon }) => (
-        <NavItem href={href} icon={icon} />
+      {NavLinks.map((props) => (
+        <NavItem {...props} />
       ))}
     </nav>
   );
 }
 
-const NavItem: React.FC<NavItem> = ({ href, icon }) => {
+const NavItem: React.FC<NavItem> = ({ href, label, icon }) => {
   return (
-    <Link className="w-fit [&>svg]:text-white [&>svg]:w-10" href={href}>
-      {icon}
+    <Link href={href} legacyBehavior passHref={true}>
+      <a className="w-fit [&>svg]:w-10 [&>svg]:text-white" aria-label={label}>
+        {icon}
+      </a>
     </Link>
   );
 };
