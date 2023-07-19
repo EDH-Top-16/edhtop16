@@ -13,7 +13,7 @@ export default function CommandersLayout({
     <>
       <Navigation />
       <div className="flex h-full w-full flex-col">
-        <Banner />
+        <Banner title={"Commanders View"} />
         <main className="h-full p-6">{children}</main>
       </div>
     </>
