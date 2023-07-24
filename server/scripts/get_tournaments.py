@@ -58,6 +58,8 @@ if __name__ == '__main__':
         exit()
     
     for tourney in tournaments:
+        if not tourney:
+            continue
         try:
             if tourney['TID'] not in existing_tourneys:
                 for i, j in enumerate(tourney['standings']):
