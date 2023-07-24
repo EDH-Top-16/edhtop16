@@ -59,6 +59,9 @@ if __name__ == '__main__':
     
     for tourney in tournaments:
         try:
+            if not tourney['standings'][0]:
+                print(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Warning - empty standings for '{tourney['TID']}'.")
+                continue
             if tourney['TID'] not in existing_tourneys:
                 for i, j in enumerate(tourney['standings']):
                     j.update({'standing': i+1})
@@ -93,7 +96,7 @@ if __name__ == '__main__':
 
         except:
             if 'TID' in tourney.keys():
-                print(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data to collection '{tourney['TID']}.'")
+                print(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data to collection '{tourney['TID']}'.")
             else:
                 print(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data. TID missing. received:\
                 {tourney}")
