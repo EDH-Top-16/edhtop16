@@ -51,6 +51,11 @@ const TERMS = [
     ],
   },
   {
+    name: "Commander",
+    tag: "commander",
+    cond: [],
+  },
+  {
     name: "Wins",
     tag: "wins",
     cond: [
@@ -165,6 +170,8 @@ export default function SingleTournamentView({ setCommanderExist }){
     });
   }, [allFilters]);
 
+  console.log(entries);
+
   return (
     <div className="flex flex-col flex-grow overflow-auto">
       <Banner
@@ -211,6 +218,26 @@ export default function SingleTournamentView({ setCommanderExist }){
                 Player Name
 
                 {sort === "name" ? (
+                  <RxChevronDown
+                    className={`${toggled ? "" : "rotate-180"
+                      } transition-all duration-200k`}
+                  />
+                ) : (
+                  <RxCaretSort
+                    className={`text-lightText dark:text-text transition-all duration-200k`}
+                  />
+                )}
+              </p>
+            </td>
+            <td>
+              <p
+                onClick={() => handleSort("commander")}
+
+                className="flex flex-row items-center gap-1 font-bold"
+              >
+                Commander
+
+                {sort === "commander" ? (
                   <RxChevronDown
                     className={`${toggled ? "" : "rotate-180"
                       } transition-all duration-200k`}
@@ -316,13 +343,14 @@ export default function SingleTournamentView({ setCommanderExist }){
                   name={entry.name}
                   mox={entry.decklist}
                   metadata={[
+                    entry.commander,
                     entry.wins,
                     entry.losses,
                     entry.draws,
                     Number(entry.winRate  * 100).toFixed(2) + "%",
                   ]}
                   layout="WLD"
-                  metadata_fields={['Wins', 'Losses', 'Draws', 'Win rate']} 
+                  metadata_fields={['Commander', 'Wins', 'Losses', 'Draws', 'Win rate']} 
                   filters={allFilters}
                 />
               ))
