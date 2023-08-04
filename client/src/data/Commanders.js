@@ -105,8 +105,10 @@ export function getCommanderRankings(data, entries, x) {
         return el.count >= entries["$gte"];
       } else if (Object.keys(entries)[0] === "$lte") {
         return el.count <= entries["$lte"];
+      } else if (Object.keys(entries)[0] === "$eq"){
+        return el.count === entries["$eq"];
       } else {
-        return el.count === entries;
+        return true;
       }
     });
   }
