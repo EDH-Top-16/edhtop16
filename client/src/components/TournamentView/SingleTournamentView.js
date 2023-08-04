@@ -119,7 +119,7 @@ export default function SingleTournamentView({ setCommanderExist }) {
       defaultFilters.tourney_filter
     )
     .then((res) => {
-      console.log(res);
+      // console.log(res);
       if ("tournamentName" in res.data[0]) {
         setTournamentName(res.data[0].tournamentName);
       }
