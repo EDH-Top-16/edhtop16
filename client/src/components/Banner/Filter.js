@@ -105,7 +105,7 @@ export default function Filter({
   }, [filters]);
 
   return (
-    <div className="">
+    <div className="inline-block">
       <div className="flex gap-2 relative text-lg items-center flex-wrap">
         {ColorPicker}
         {terms?.map((term) => (

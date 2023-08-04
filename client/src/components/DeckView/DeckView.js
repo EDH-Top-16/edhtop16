@@ -110,6 +110,86 @@ const TERMS = [
           },
         ]
 
+const TERMS_NO_TOURNEY_FILTER = [
+          {
+            name: "Standing",
+            tag: "standing",
+            cond: [
+              {
+                $lte: `Top X:`, 
+                component: "select",
+                type: 'number',
+                values: [
+                  {
+                    value: null,
+                    name: 'Filter By Top X',
+                    disabled: true,
+                    selected: true
+                  },
+                  {
+                    value: 1,
+                    name: 'Top 1'
+                  },
+                  {
+                    value: 4,
+                    name: 'Top 4'
+                  },
+                  {
+                    value: 16,
+                    name: 'Top 16'
+                  },
+                  {
+                    value: 32,
+                    name: 'Top 32'
+                  },
+                  {
+                    value: 64,
+                    name: 'Top 64'
+                  },
+                ]
+              },
+              // { $eq: `is equal to (=)`, type: "number" },
+              // { $lte: `is less than (\u2264)`, type: "number" },
+            ],
+          },
+          {
+            name: "Wins",
+            tag: "wins",
+            cond: [
+              { $gte: `is greater than (\u2265)`, type: "number" },
+              { $eq: `is equal to (=)`, type: "number" },
+              { $lte: `is less than (\u2264)`, type: "number" },
+            ],
+          },
+          {
+            name: "Losses",
+            tag: "losses",
+            cond: [
+              { $gte: `is greater than (\u2265)`, type: "number" },
+              { $eq: `is equal to (=)`, type: "number" },
+              { $lte: `is less than (\u2264)`, type: "number" },
+            ],
+          },
+          {
+            name: "Draws",
+            tag: "draws",
+            cond: [
+              { $gte: `is greater than (\u2265)`, type: "number" },
+              { $eq: `is equal to (=)`, type: "number" },
+              { $lte: `is less than (\u2264)`, type: "number" },
+            ],
+          },
+          {
+            name: "Win Rate",
+            tag: "winRate",
+            cond: [
+              { $gte: `is greater than (\u2265)`, type: "number" },
+              { $eq: `is equal to (=)`, type: "number" },
+              { $lte: `is less than (\u2264)`, type: "number" },
+            ],
+          },
+        ]
+
 /**
  * Takes commander name and @returns the corresponding decks
  */
@@ -141,6 +221,24 @@ export default function DeckView({ setCommanderExist }) {
   const [allFilters, setAllFilters] = useState(loadFilters);
   const [sort, setSort] = useState("standing");
   const [toggled, setToggled] = useState(false);
+  const [tournamentName, setTournamentName] = useState("");
+
+  useEffect(() => {
+    if (!!filters.tourney_filter && "TID" in filters.tourney_filter) {
+      axios
+        .post(
+          process.env.REACT_APP_uri + "/api/list_tourneys",
+          filters.tourney_filter
+        )
+        .then((res) => {
+          if ("tournamentName" in res.data[0]) {
+            setTournamentName(res.data[0].tournamentName);
+          }
+        });
+    } else {
+      setTournamentName("");
+    }
+  }, [filters, allFilters]);
 
   let params = useParams();
   const commander = params["*"].replaceAll("+", "/");
@@ -206,12 +304,14 @@ export default function DeckView({ setCommanderExist }) {
     <div className="flex flex-col flex-grow overflow-auto">
       {/* Banner */}
       <Banner
-        title={commander}
+        title={
+          !tournamentName ? commander : commander + " - " + tournamentName
+        }
         enableFilters={true}
         getFilters={getFilters}
         allFilters={allFilters}
         defaultFilters={defaultFilters}
-        terms={TERMS}
+        terms={!tournamentName ? TERMS : TERMS_NO_TOURNEY_FILTER}
         getColors={getColors}
         backEnabled
       />
@@ -344,7 +444,7 @@ export default function DeckView({ setCommanderExist }) {
                 )}
                   </p>
             </td>
-            <td>
+            {!tournamentName && <td>
               <p 
                 onClick={() => handleSort("dateCreated")}
                 
@@ -364,7 +464,7 @@ export default function DeckView({ setCommanderExist }) {
                   />
                 )}
                   </p>
-            </td>
+            </td>}
           </tr>
           </thead>
         <tbody className="[&>tr>td>p]:cursor-pointer [&>tr>td]:px-4 md:[&>tr>td]:px-4 [&>tr]:my-3 ">
@@ -386,7 +486,7 @@ export default function DeckView({ setCommanderExist }) {
                 ]}
                 layout="WLD"
                 metadata_fields={['Standing', 'Wins', 'Losses', 'Draws', 'Win rate']}
-                tournament={deck.tournamentName}
+                tournament={!tournamentName ? deck.tournamentName : null}
               />
             ))
           )}

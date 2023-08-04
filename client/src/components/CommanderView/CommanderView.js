@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import moment from "moment";
 import { HiSwitchHorizontal } from "react-icons/hi";
+import axios from "axios";
 
 import Banner from "../Banner/Banner";
 import Entry from "../Entry";
@@ -12,6 +13,7 @@ import {
 import { createSearchParams, useNavigate } from "react-router-dom";
 import { compressObject, insertIntoObject } from "../../utils";
 import { RxCaretSort, RxChevronDown } from "react-icons/rx";
+import SingleTournamentView from "../TournamentView/SingleTournamentView";
 
 const TERMS = [
   {
@@ -19,37 +21,37 @@ const TERMS = [
     tag: "standing",
     cond: [
       {
-        $lte: `Top X:`, 
+        $lte: `Top X:`,
         component: "select",
-        type: 'number',
+        type: "number",
         values: [
           {
             value: null,
-            name: 'Filter By Top X',
+            name: "Filter By Top X",
             disabled: true,
-            selected: true
+            selected: true,
           },
           {
             value: 1,
-            name: 'Top 1'
+            name: "Top 1",
           },
           {
             value: 4,
-            name: 'Top 4'
+            name: "Top 4",
           },
           {
             value: 16,
-            name: 'Top 16'
+            name: "Top 16",
           },
           {
             value: 32,
-            name: 'Top 32'
+            name: "Top 32",
           },
           {
             value: 64,
-            name: 'Top 64'
+            name: "Top 64",
           },
-        ]
+        ],
       },
       // { $eq: `is equal to (=)`, type: "number" },
       // { $lte: `is less than (\u2264)`, type: "number" },
@@ -86,17 +88,74 @@ const TERMS = [
   },
 ];
 
+const TERMS_NO_TOURNEY_FILTER = [
+  {
+    name: "Standing",
+    tag: "standing",
+    cond: [
+      {
+        $lte: `Top X:`,
+        component: "select",
+        type: "number",
+        values: [
+          {
+            value: null,
+            name: "Filter By Top X",
+            disabled: true,
+            selected: true,
+          },
+          {
+            value: 1,
+            name: "Top 1",
+          },
+          {
+            value: 4,
+            name: "Top 4",
+          },
+          {
+            value: 16,
+            name: "Top 16",
+          },
+          {
+            value: 32,
+            name: "Top 32",
+          },
+          {
+            value: 64,
+            name: "Top 64",
+          },
+        ],
+      },
+      // { $eq: `is equal to (=)`, type: "number" },
+      // { $lte: `is less than (\u2264)`, type: "number" },
+    ],
+  },
+  {
+    name: "Entries",
+    tag: "entries",
+    cond: [
+      { $gte: `is greater than (\u2265)`, type: "number" },
+      { $eq: `is equal to (=)`, type: "number" },
+      { $lte: `is less than (\u2264)`, type: "number" },
+    ],
+  },
+];
+
 /**
  * @TODO create sorting for each heading
  */
 
-export default function CommanderView() {
-  const defaultFilters = {
-    tourney_filter: {
-      size: { $gte: 64 },
-      dateCreated: { $gte: moment().subtract(1, "year").unix() },
-    },
-  };
+export default function CommanderView({setCommanderExist}, _filters) {
+  console.log(_filters);
+  const defaultFilters =
+    Object.values(_filters).length > 0
+      ? _filters
+      : {
+          tourney_filter: {
+            size: { $gte: 64 },
+            dateCreated: { $gte: moment().subtract(1, "year").unix() },
+          },
+        };
 
   const loadFilters = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
@@ -125,6 +184,8 @@ export default function CommanderView() {
   const [colors, setColors] = useState((loadFilters.colorID ?? "").split(""));
   const [sort, setSort] = useState("topX");
   const [toggled, setToggled] = useState(false);
+  const [tournamentName, setTournamentName] = useState("");
+  const [metabreakdown, setMetabreakdown] = useState(true);
 
   /**
    * @TODO Build filterString from colors and filters
@@ -150,6 +211,23 @@ export default function CommanderView() {
       );
     }
   }, [colors, filters]);
+
+  useEffect(() => {
+    if (!!filters.tourney_filter && "TID" in filters.tourney_filter) {
+      axios
+        .post(
+          process.env.REACT_APP_uri + "/api/list_tourneys",
+          filters.tourney_filter
+        )
+        .then((res) => {
+          if ("tournamentName" in res.data[0]) {
+            setTournamentName(res.data[0].tournamentName);
+          }
+        });
+    } else {
+      setTournamentName("");
+    }
+  }, [filters, allFilters]);
 
   /**
    * Main getCommanders() API call
@@ -181,6 +259,9 @@ export default function CommanderView() {
   function getFilters(data) {
     setFilters(data);
   }
+  function toggleMetabreakdown(){
+    setMetabreakdown(!metabreakdown);
+  }
 
   /**
    * Changes the sort order
@@ -200,11 +281,17 @@ export default function CommanderView() {
     setTopX(topX === 16 ? 4 : topX === 4 ? 1 : 16);
   }
 
-  return (
+  useEffect(() => {
+    console.log(metabreakdown);
+  }, [metabreakdown]);
+
+  return (metabreakdown ? (
     <div className="flex flex-col flex-grow overflow-auto">
       {/* Banner */}
       <Banner
-        title={"View Decks"}
+        title={
+          !tournamentName ? "View Decks" : "Meta Breakdown - " + tournamentName
+        }
         enableSearchbar={true}
         enableColors={true}
         enableFilters={true}
@@ -212,8 +299,11 @@ export default function CommanderView() {
         defaultColors={colors}
         getFilters={getFilters}
         allFilters={allFilters}
-        terms={TERMS}
+        terms={!tournamentName ? TERMS : TERMS_NO_TOURNEY_FILTER}
         getColors={getColors}
+        enableMetaBreakdownButton={!!tournamentName}
+        metabreakdownMessage="Back to Tournament"
+        toggleMetabreakdown={toggleMetabreakdown}
       />
 
       {/* Table of commanders */}
@@ -310,7 +400,9 @@ export default function CommanderView() {
         </thead>
         <tbody className="[&>tr>td>p]:cursor-pointer [&>tr>td]:px-4 md:[&>tr>td]:px-4 [&>tr]:my-3 ">
           {isLoading ? (
-            <tr className="text-lightText dark:text-text text-lg">Loading...</tr>
+            <tr className="text-lightText dark:text-text text-lg">
+              Loading...
+            </tr>
           ) : commanders && commanders.length === 0 ? (
             <div className="w-full flex justify-center items-center text-accent dark:text-text font-bold text-2xl">
               No data available
@@ -335,6 +427,6 @@ export default function CommanderView() {
           )}
         </tbody>
       </table>
-    </div>
+    </div>) : (<SingleTournamentView setCommanderExist={setCommanderExist}/>)
   );
 }
