@@ -146,7 +146,6 @@ const TERMS_NO_TOURNEY_FILTER = [
  */
 
 export default function CommanderView({setCommanderExist}, _filters) {
-  console.log(_filters);
   const defaultFilters =
     Object.values(_filters).length > 0
       ? _filters
@@ -280,10 +279,6 @@ export default function CommanderView({setCommanderExist}, _filters) {
   function changeTopX() {
     setTopX(topX === 16 ? 4 : topX === 4 ? 1 : 16);
   }
-
-  useEffect(() => {
-    console.log(metabreakdown);
-  }, [metabreakdown]);
 
   return (metabreakdown ? (
     <div className="flex flex-col flex-grow overflow-auto">
