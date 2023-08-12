@@ -59,7 +59,7 @@ function App() {
         <BrowserRouter>
           <Nav />
           <Routes>
-            <Route index element={<CommanderView />} />
+            <Route index element={<CommanderView setCommanderExist={setCommanderExist}/>} />
             <Route
               path="commander/*"
               element={

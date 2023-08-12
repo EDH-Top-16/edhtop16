@@ -19,6 +19,9 @@ export default function Banner({
   defaultColors,
   defaultFilters,
   backEnabled = false,
+  enableMetaBreakdownButton = false,
+  metabreakdownMessage = "",
+  toggleMetabreakdown = null
 }) {
   const {toggle: toggleNav} = useContext(NavContext);
   const navigate = useNavigate();
@@ -40,9 +43,17 @@ export default function Banner({
       <div className="flex flex-wrap items-center gap-4 md:max-w-[600px]">
         {enableSearchbar ? <Searchbar /> : <></>}
       </div>
+
       {enableFilters ? (
+        <div class="flex gap-2 flex-wrap">
         <Filter getFilters={getFilters} allFilters={allFilters} terms={terms} defaultFilters={defaultFilters} ColorPicker={enableColors ? <ColorSelection defaultColors={defaultColors} getColors={getColors} /> : <></>} />
-        
+        {enableMetaBreakdownButton && (
+        <div class="inline-block">
+          <button class="flex items-center px-2 bg-blue-500 hover:bg-blue-700 text-white border-0 rounded-full text-sm py-1 px-3" onClick={() => toggleMetabreakdown()}>
+            {metabreakdownMessage}
+          </button>
+        </div>)}
+        </div>
       ) : (
         <></>
       )}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createSearchParams, useNavigate, useParams} from "react-router-dom";
+import { createSearchParams, useNavigate, useParams } from "react-router-dom";
 import { RxCaretSort, RxChevronDown } from "react-icons/rx";
 import axios from "axios";
 
@@ -7,6 +7,7 @@ import Banner from "../Banner/Banner";
 import Entry from "../Entry";
 import { getCommanders, sortEntries } from "../../data/Commanders";
 import { compressObject, insertIntoObject } from "../../utils";
+import CommanderView from "../CommanderView/CommanderView";
 
 const TERMS = [
   {
@@ -14,37 +15,37 @@ const TERMS = [
     tag: "standing",
     cond: [
       {
-        $lte: `Top X:`, 
+        $lte: `Top X:`,
         component: "select",
-        type: 'number',
+        type: "number",
         values: [
           {
             value: null,
-            name: 'Filter By Top X',
+            name: "Filter By Top X",
             disabled: true,
-            selected: true
+            selected: true,
           },
           {
             value: 1,
-            name: 'Top 1'
+            name: "Top 1",
           },
           {
             value: 4,
-            name: 'Top 4'
+            name: "Top 4",
           },
           {
             value: 16,
-            name: 'Top 16'
+            name: "Top 16",
           },
           {
             value: 32,
-            name: 'Top 32'
+            name: "Top 32",
           },
           {
             value: 64,
-            name: 'Top 64'
+            name: "Top 64",
           },
-        ]
+        ],
       },
       // { $eq: `is equal to (=)`, type: "number" },
       // { $lte: `is less than (\u2264)`, type: "number" },
@@ -96,16 +97,15 @@ const TERMS = [
       { $lte: `is less than (\u2264)`, type: "number" },
     ],
   },
-]
+];
 
-
-export default function SingleTournamentView({ setCommanderExist }){
-  const {TID} = useParams();
+export default function SingleTournamentView({ setCommanderExist }) {
+  const { TID } = useParams();
 
   const defaultFilters = {
     tourney_filter: {
-      TID: TID
-    }
+      TID: TID,
+    },
   };
 
   const navigate = useNavigate();
@@ -115,6 +115,20 @@ export default function SingleTournamentView({ setCommanderExist }){
   const [allFilters, setAllFilters] = useState(defaultFilters);
   const [sort, setSort] = useState("standing");
   const [toggled, setToggled] = useState(false);
+  const [metabreakdown, setMetabreakdown] = useState(false); // Whether or not insigt view is displayed
+  const [tournamentName, setTournamentName] = useState("");
+
+  axios
+    .post(
+      process.env.REACT_APP_uri + "/api/list_tourneys",
+      defaultFilters.tourney_filter
+    )
+    .then((res) => {
+      console.log(res);
+      if ("tournamentName" in res.data[0]) {
+        setTournamentName(res.data[0].tournamentName);
+      }
+    });
 
   useEffect(() => {
     axios
@@ -132,23 +146,29 @@ export default function SingleTournamentView({ setCommanderExist }){
   function getFilters(data) {
     setFilters(data);
   }
+  
+  function toggleMetabreakdown(){
+    setMetabreakdown(!metabreakdown);
+  }
 
   useEffect(() => {
-    let newFilters = { ...filters }
+    let newFilters = { ...filters };
 
     if (newFilters !== allFilters) {
       setAllFilters(newFilters);
 
-
-      navigate({
-        search: `${createSearchParams(compressObject(newFilters))}`
-      }, { replace: true })
+      navigate(
+        {
+          search: `${createSearchParams(compressObject(newFilters))}`,
+        },
+        { replace: true }
+      );
     }
   }, [filters]);
 
   /**
- * Changes the sort order
- */
+   * Changes the sort order
+   */
   function handleSort(x) {
     // console.log("sort", x);
     setSort(x);
@@ -163,24 +183,24 @@ export default function SingleTournamentView({ setCommanderExist }){
     const sortedEntries = sortEntries(entries_copy, sort, toggled);
     setEntries(sortedEntries);
     setIsLoading(false);
-  }
-  , [sort, toggled]);
+  }, [sort, toggled]);
 
   useEffect(() => {
     // console.log("getCommanders useEffect allFilters:", allFilters);
-    getCommanders(allFilters).then((data) =>{
+    getCommanders(allFilters).then((data) => {
       const sortedEntries = sortEntries(data, sort, toggled);
       setEntries(sortedEntries);
       setIsLoading(false);
     });
   }, [allFilters]);
+  // console.log(entries);
 
-  console.log(entries);
-
-  return (
+  return !metabreakdown ? (
     <div className="flex flex-col flex-grow overflow-auto">
       <Banner
-        title={'View Tournaments'}
+        title={
+          !tournamentName ? "View Tournaments" : tournamentName
+        }
         enableFilters={true}
         getFilters={getFilters}
         allFilters={allFilters}
@@ -188,6 +208,9 @@ export default function SingleTournamentView({ setCommanderExist }){
         terms={TERMS}
         enablecolors={false}
         backEnabled
+        enableMetaBreakdownButton = {true}
+        metabreakdownMessage="Meta Breakdown"
+        toggleMetabreakdown={toggleMetabreakdown}
       />
 
       <table className="mx-2 md:mx-6 my-2 border-spacing-y-3 border-separate">
@@ -196,36 +219,33 @@ export default function SingleTournamentView({ setCommanderExist }){
             <td>
               <p
                 onClick={() => handleSort("standing")}
-
                 className="flex flex-row items-center gap-1 font-bold"
               >
-
-              #
-
-              {sort === "name" ? (
+                #
+                {sort === "name" ? (
                   <RxChevronDown
-                    className={`${toggled ? "" : "rotate-180"
-                      } transition-all duration-200k`}
+                    className={`${
+                      toggled ? "" : "rotate-180"
+                    } transition-all duration-200k`}
                   />
                 ) : (
                   <RxCaretSort
                     className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
-                </p>
-              </td>
+              </p>
+            </td>
             <td>
               <p
                 onClick={() => handleSort("name")}
-
                 className="flex flex-row items-center gap-1 font-bold"
               >
                 Player Name
-
                 {sort === "name" ? (
                   <RxChevronDown
-                    className={`${toggled ? "" : "rotate-180"
-                      } transition-all duration-200k`}
+                    className={`${
+                      toggled ? "" : "rotate-180"
+                    } transition-all duration-200k`}
                   />
                 ) : (
                   <RxCaretSort
@@ -237,15 +257,14 @@ export default function SingleTournamentView({ setCommanderExist }){
             <td>
               <p
                 onClick={() => handleSort("commander")}
-
                 className="flex flex-row items-center gap-1 font-bold"
               >
                 Commander
-
                 {sort === "commander" ? (
                   <RxChevronDown
-                    className={`${toggled ? "" : "rotate-180"
-                      } transition-all duration-200k`}
+                    className={`${
+                      toggled ? "" : "rotate-180"
+                    } transition-all duration-200k`}
                   />
                 ) : (
                   <RxCaretSort
@@ -255,13 +274,11 @@ export default function SingleTournamentView({ setCommanderExist }){
               </p>
             </td>
             <td>
-              <p 
+              <p
                 onClick={() => handleSort("wins")}
-                
                 className="flex flex-row items-center gap-1 font-bold"
-                >
-                  Wins
-                  
+              >
+                Wins
                 {sort === "wins" ? (
                   <RxChevronDown
                     className={`${
@@ -273,16 +290,15 @@ export default function SingleTournamentView({ setCommanderExist }){
                     className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
-                  </p>
+              </p>
             </td>
             <td>
-              <p onClick={() => handleSort("losses")}
-                
+              <p
+                onClick={() => handleSort("losses")}
                 className="flex flex-row items-center gap-1 font-bold"
-                >
-                  Losses
-                  
-                {sort ==="losses" ? (
+              >
+                Losses
+                {sort === "losses" ? (
                   <RxChevronDown
                     className={`${
                       toggled ? "" : "rotate-180"
@@ -293,16 +309,15 @@ export default function SingleTournamentView({ setCommanderExist }){
                     className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
-                  </p>
+              </p>
             </td>
             <td>
-              <p onClick={() => handleSort("draws")}
-                
+              <p
+                onClick={() => handleSort("draws")}
                 className="flex flex-row items-center gap-1 font-bold"
-                >
-                  Draws
-                  
-                {sort ==="draws" ? (
+              >
+                Draws
+                {sort === "draws" ? (
                   <RxChevronDown
                     className={`${
                       toggled ? "" : "rotate-180"
@@ -313,16 +328,15 @@ export default function SingleTournamentView({ setCommanderExist }){
                     className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
-                  </p>
+              </p>
             </td>
             <td>
-              <p onClick={() => handleSort("winrate")}
-                
+              <p
+                onClick={() => handleSort("winrate")}
                 className="flex flex-row items-center gap-1 font-bold"
-                >
-                  Winrate
-                  
-                {sort ==="winrate" ? (
+              >
+                Winrate
+                {sort === "winrate" ? (
                   <RxChevronDown
                     className={`${
                       toggled ? "" : "rotate-180"
@@ -333,7 +347,7 @@ export default function SingleTournamentView({ setCommanderExist }){
                     className={`text-lightText dark:text-text transition-all duration-200k`}
                   />
                 )}
-                  </p>
+              </p>
             </td>
             <td>
               <p onClick={() => handleSort("colors")}
@@ -360,7 +374,12 @@ export default function SingleTournamentView({ setCommanderExist }){
         <tbody className="[&>tr>td>p]:cursor-pointer [&>tr>td]:px-4 md:[&>tr>td]:px-4 [&>tr]:my-3 ">
           {isLoading ? (
             <tr className="text-text text-lg">Loading...</tr>
+          ) : entries && entries.length === 0 ? (
+            <div className="w-full flex justify-center items-center text-accent dark:text-text font-bold text-2xl">
+              No data available
+            </div>
           ) : (
+
             entries && entries.length === 0 ? <div className="w-full flex justify-center items-center text-accent dark:text-text font-bold text-2xl">No data available</div> :
               entries.map((entry, i) => (
                 <Entry
@@ -384,5 +403,7 @@ export default function SingleTournamentView({ setCommanderExist }){
         </tbody>
       </table>
     </div>
+  ) : (
+    <CommanderView setCommanderExist={setCommanderExist} _filters={defaultFilters}></CommanderView>
   );
 }
