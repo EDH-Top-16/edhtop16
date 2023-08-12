@@ -146,8 +146,8 @@ export default function SingleTournamentView({ setCommanderExist }) {
   function getFilters(data) {
     setFilters(data);
   }
-  
-  function toggleMetabreakdown(){
+
+  function toggleMetabreakdown() {
     setMetabreakdown(!metabreakdown);
   }
 
@@ -198,9 +198,7 @@ export default function SingleTournamentView({ setCommanderExist }) {
   return !metabreakdown ? (
     <div className="flex flex-col flex-grow overflow-auto">
       <Banner
-        title={
-          !tournamentName ? "View Tournaments" : tournamentName
-        }
+        title={!tournamentName ? "View Tournaments" : tournamentName}
         enableFilters={true}
         getFilters={getFilters}
         allFilters={allFilters}
@@ -208,7 +206,7 @@ export default function SingleTournamentView({ setCommanderExist }) {
         terms={TERMS}
         enablecolors={false}
         backEnabled
-        enableMetaBreakdownButton = {true}
+        enableMetaBreakdownButton={true}
         metabreakdownMessage="Meta Breakdown"
         toggleMetabreakdown={toggleMetabreakdown}
       />
@@ -350,24 +348,9 @@ export default function SingleTournamentView({ setCommanderExist }) {
               </p>
             </td>
             <td>
-              <p onClick={() => handleSort("colors")}
-                
-                className="flex flex-row items-center gap-1 font-bold"
-                >
-                  Colors
-                  
-                {sort ==="colors" ? (
-                  <RxChevronDown
-                    className={`${
-                      toggled ? "" : "rotate-180"
-                    } transition-all duration-200k`}
-                  />
-                ) : (
-                  <RxCaretSort
-                    className={`text-lightText dark:text-text transition-all duration-200k`}
-                  />
-                )}
-                  </p>
+              <p className="flex flex-row items-center gap-1 font-bold">
+                Colors
+              </p>
             </td>
           </tr>
         </thead>
@@ -378,32 +361,43 @@ export default function SingleTournamentView({ setCommanderExist }) {
             <div className="w-full flex justify-center items-center text-accent dark:text-text font-bold text-2xl">
               No data available
             </div>
+          ) : entries && entries.length === 0 ? (
+            <div className="w-full flex justify-center items-center text-accent dark:text-text font-bold text-2xl">
+              No data available
+            </div>
           ) : (
-
-            entries && entries.length === 0 ? <div className="w-full flex justify-center items-center text-accent dark:text-text font-bold text-2xl">No data available</div> :
-              entries.map((entry, i) => (
-                <Entry
-                  rank={entry.standing}
-                  name={entry.name}
-                  mox={entry.decklist}
-                  metadata={[
-                    entry.commander,
-                    entry.wins,
-                    entry.losses,
-                    entry.draws,
-                    Number(entry.winRate  * 100).toFixed(2) + "%",
-                  ]}
-                  colors={entry.colorID}
-                  layout="WLD"
-                  metadata_fields={['Commander', 'Wins', 'Losses', 'Draws', 'Win rate']} 
-                  filters={allFilters}
-                />
-              ))
+            entries.map((entry, i) => (
+              <Entry
+                rank={entry.standing}
+                name={entry.name}
+                mox={entry.decklist}
+                metadata={[
+                  entry.commander,
+                  entry.wins,
+                  entry.losses,
+                  entry.draws,
+                  Number(entry.winRate * 100).toFixed(2) + "%",
+                ]}
+                colors={entry.colorID}
+                layout="WLD"
+                metadata_fields={[
+                  "Commander",
+                  "Wins",
+                  "Losses",
+                  "Draws",
+                  "Win rate",
+                ]}
+                filters={allFilters}
+              />
+            ))
           )}
         </tbody>
       </table>
     </div>
   ) : (
-    <CommanderView setCommanderExist={setCommanderExist} _filters={defaultFilters}></CommanderView>
+    <CommanderView
+      setCommanderExist={setCommanderExist}
+      _filters={defaultFilters}
+    ></CommanderView>
   );
 }
