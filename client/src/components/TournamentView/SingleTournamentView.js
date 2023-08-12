@@ -366,6 +366,7 @@ export default function SingleTournamentView({ setCommanderExist }) {
               No data available
             </div>
           ) : (
+
             entries.map((entry, i) => (
               <Entry
                 rank={entry.standing}
