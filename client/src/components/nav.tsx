@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { EGLogo } from "@/assets/images";
-import NavLinks from "@/constants/NavLinks";
+import NavLinks from "@/constants/navLinks";
 
 // navitem typing
 type NavItem = {
@@ -13,20 +13,20 @@ type NavItem = {
 
 export default function Navigation(): JSX.Element {
   return (
-    <nav className="flex h-screen w-nav flex-col items-center space-y-16 bg-secondary drop-shadow-lg">
+    <nav className="fixed left-[-400px] flex h-screen w-nav flex-col items-center space-y-16 bg-secondary drop-shadow-lg md:relative md:left-0">
       <Link className="mt-24" href="/">
         <div className="relative h-24 w-24">
           <Image
-            objectFit="cover"
-            layout="fill"
+            fill
+            style={{ objectFit: "cover" }}
             src={EGLogo}
             alt={"eminence gaming logo"}
           />
         </div>
       </Link>
 
-      {NavLinks.map((props) => (
-        <NavItem {...props} />
+      {NavLinks.map((props: NavItem, i: number) => (
+        <NavItem key={i} {...props} />
       ))}
     </nav>
   );

@@ -13,6 +13,7 @@ module.exports = {
         tertiary: "#B7B5FF",
         white: "#F4F4F2",
         black: "#19191A",
+        gray: "#606883",
       },
       spacing: {
         nav: "12rem",

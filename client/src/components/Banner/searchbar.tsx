@@ -6,8 +6,14 @@ export default function Searchbar({
   placeholder,
 }: SearchbarProps): JSX.Element {
   return (
-    <label>
-      <input className="w-fit" type="text" placeholder={placeholder} />
-    </label>
+    <>
+      <label htmlFor="searchbar" className="hidden"></label>
+      <input
+        id="searchbar"
+        className="w-full md:w-2/6"
+        type="text"
+        placeholder={placeholder}
+      />
+    </>
   );
 }

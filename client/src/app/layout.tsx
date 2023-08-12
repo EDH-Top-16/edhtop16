@@ -1,4 +1,5 @@
 import "./globals.css";
+import ContextProvider from "@/context/context";
 
 /**
  * This file is the root layout for the entire application.
@@ -6,7 +7,7 @@ import "./globals.css";
 
 // TODO: add proper metadata
 export const metadata = {
-  title: "CEDH Top 16",
+  title: "EDH Top 16",
   description: "Description",
 };
 
@@ -17,7 +18,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="flex h-screen w-screen bg-secondary">{children}</body>
+      <body className="flex h-screen w-screen bg-secondary">
+        <ContextProvider>{children}</ContextProvider>
+      </body>
     </html>
   );
 }
