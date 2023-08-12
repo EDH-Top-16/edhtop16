@@ -3,7 +3,7 @@
 export const insertIntoObject = (obj, keys, val) => {
   // console.log("fdsa", val, keys);
   if (val === "null") val = undefined;
-  else if (!Number.isNaN(parseInt(val, 10))) val = parseInt(val, 10);
+  else if (!Number.isNaN(Number(val, 10))) val = Number(val, 10);
   if(!Array.isArray(keys))
     return {
       ...obj,
