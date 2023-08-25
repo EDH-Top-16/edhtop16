@@ -37,6 +37,8 @@
   }
 
   .popup {
-    @apply px-2 py-1 bg-tertiary mt-2;
+    @apply -mx-2 mt-2 rounded-lg bg-tertiary p-2 md:mx-0 md:mt-0 md:bg-transparent md:p-0;
   }
 }
+
+/* Typed on my Mode Envoy */

@@ -1,4 +1,5 @@
-export const AllFilters = {
+export const FiltersSchema = {
   colors: [],
-  standing: [],
+  standing: {},
+  entries: {},
 };
