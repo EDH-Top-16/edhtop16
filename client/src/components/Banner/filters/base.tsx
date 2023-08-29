@@ -13,13 +13,13 @@ export default function BaseFilter({
   children,
   tag,
 }: BaseFilterProps): JSX.Element {
-  const { filterValues } = useContext(FilterContext);
+  const { filters } = useContext(FilterContext);
 
   const [popup, setPopup] = useState(false);
 
   return (
     <span>
-      {Object.keys(filterValues).includes(tag) ? (
+      {Object.keys(filters).includes(tag) ? (
         <button className="filter-btn-active">
           <p>{children}</p>
           <AiOutlineClose />
