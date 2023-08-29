@@ -1,3 +1,5 @@
+import moment from "moment";
+
 import { FiltersType } from "./allFilters";
 
 type DefaultFiltersType = {
@@ -15,5 +17,11 @@ export const enabledFilters = {
 };
 
 export const defaultFilters: DefaultFiltersType = {
-  commanders: {},
+  commanders: {
+    colorID: "",
+    tourney_filter: {
+      size: { $gte: 64 },
+      dateCreated: { $gte: moment().subtract(1, "year").unix() },
+    },
+  },
 };
