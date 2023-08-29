@@ -10,7 +10,7 @@ export default function CommandersPage(): {} {
   // Get the filters from the context
   const { filters, setFilters, setEnabled } = useContext(FilterContext);
 
-  // const [commanders, setCommanders] = useState<string[]>([]);
+  const [commanders, setCommanders] = useState<any[]>([]);
 
   // Set the default filters for the commanders view
   useEffect(() => {
@@ -24,20 +24,27 @@ export default function CommandersPage(): {} {
 
     (async () => {
       const res = await getCommanders(filters);
-      console.log(filters, res?.data ?? {});
-      return res?.data ?? {};
+      console.log(res?.data);
+      setCommanders(res?.data ?? {});
     })();
   }, [filters]);
 
   return (
-    <table className="">
+    <table className="w-full">
       <thead>
-        <tr></tr>
+        <tr>
+          <td>#</td>
+          <td>Name</td>
+          <td>Top 16s</td>
+          <td>Entries</td>
+          <td>Conversion</td>
+          <td>Colors</td>
+        </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>Commander</td>
-        </tr>
+        {commanders.map((commander) => (
+          <></>
+        ))}
       </tbody>
     </table>
   );
