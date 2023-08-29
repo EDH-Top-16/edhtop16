@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-export function onClickOutside(
+export function useClickOutside(
   ref: React.RefObject<HTMLElement>,
   callback: () => void,
 ) {
@@ -14,5 +14,5 @@ export function onClickOutside(
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [ref, callback]); 
+  }, [ref, callback]);
 }

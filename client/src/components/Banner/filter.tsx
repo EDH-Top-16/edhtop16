@@ -3,11 +3,9 @@ import { AiOutlineDown } from "react-icons/ai";
 
 import { FilterContext } from "@/context/filter";
 import { componentMap } from "./filters";
-import { onClickOutside } from "@/utils/onClickOutside";
+import { useClickOutside } from "@/utils/useClickOutside";
 
 export default function Filter(): JSX.Element {
-  const { enabled } = useContext(FilterContext);
-
   const [openFilters, setOpenFilters] = useState(false);
 
   return (
@@ -45,10 +43,10 @@ function FilterDropdown({ setOpenFilters }: FilterDropdownProps) {
   const { enabled } = useContext(FilterContext);
   const dropdownRef = useRef(null);
 
-  onClickOutside(dropdownRef, () => setOpenFilters(false));
+  useClickOutside(dropdownRef, () => setOpenFilters(false));
 
   return enabled.map((filter, i) => {
     const Filter = componentMap[filter];
-  return Filter ? <Filter key={i} /> : null;
+    return Filter ? <Filter key={i} /> : null;
   });
 }

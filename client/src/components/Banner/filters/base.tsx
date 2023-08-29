@@ -2,7 +2,7 @@ import { useContext, useRef, useState } from "react";
 
 import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
 import { FilterContext } from "@/context/filter";
-import { onClickOutside } from "@/utils/onClickOutside";
+import { useClickOutside } from "@/utils/useClickOutside";
 
 type BaseFilterProps = {
   children: JSX.Element | string;
@@ -43,7 +43,7 @@ type PopupProps = {
 function Popup({ tag, setPopup }: PopupProps): JSX.Element {
   const popupRef = useRef(null);
 
-  onClickOutside(popupRef, () => setPopup(false));
+  useClickOutside(popupRef, () => setPopup(false));
 
   if (tag === "colors")
     return (
