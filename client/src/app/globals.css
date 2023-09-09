@@ -37,7 +37,7 @@
   }
 
   .popup {
-    @apply -mx-2 mt-2 rounded-lg bg-tertiary p-2 md:mx-0 md:mt-0 md:bg-transparent md:p-0;
+    @apply mt-2 rounded-lg bg-tertiary px-2 py-1;
   }
 }
 

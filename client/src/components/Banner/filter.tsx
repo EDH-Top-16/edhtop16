@@ -22,7 +22,7 @@ export default function Filter(): JSX.Element {
 
           <div
             className={
-              "popup absolute flex-col space-y-4 md:relative md:flex md:flex-row md:space-x-4 md:space-y-0 " +
+              "absolute flex-col space-y-4 md:relative md:flex md:flex-row md:space-x-4 md:space-y-0 " +
               (openFilters ? "flex" : "hidden")
             }
           >

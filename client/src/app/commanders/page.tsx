@@ -25,7 +25,7 @@ export default function CommandersPage(): {} {
     (async () => {
       const res = await getCommanders(filters);
       console.log(res?.data);
-      setCommanders(res?.data ?? {});
+      setCommanders(res?.data ?? []);
     })();
   }, [filters]);
 
@@ -42,8 +42,10 @@ export default function CommandersPage(): {} {
         </tr>
       </thead>
       <tbody>
-        {commanders.map((commander) => (
-          <></>
+        {commanders.map((commander, i) => (
+          <tr key={i}>
+            <td></td>
+          </tr>
         ))}
       </tbody>
     </table>
