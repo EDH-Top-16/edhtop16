@@ -64,6 +64,6 @@ class TournamentFilters(BaseModel):
 
 class AllFilters(BaseFilters):
     tournament_filters: Optional[TournamentFilters] = None
-    
+
     class Config:
         extra = "forbid"

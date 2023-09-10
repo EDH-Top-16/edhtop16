@@ -3,7 +3,7 @@ import logging
 
 from .base_db import get_db_async
 from utils import oIdToString
-from utils.types import AllFilters, TournamentFilters, Tournament
+from utils.types import AllFilters, TournamentFilters, Tournament, Commander
 
 
 async def get_tournaments(tournament_filters: TournamentFilters) -> List[Tournament]:
@@ -17,14 +17,15 @@ async def get_tournaments(tournament_filters: TournamentFilters) -> List[Tournam
     return result
 
 
-async def get_commanders(filters: AllFilters) -> List[dict]:
+async def get_commanders(filters: AllFilters) -> dict[str, Commander]:
     """
     Aggregates and returns a list of commanders that match the filters.
     """
     players = await get_players(filters)
 
-    commanders: dict = {}
+    commanders: dict[str, Commander] = {}
     for player in players:
+        # For each player, check if the commander is in the dictionary.
         commander = player.get("commander", "")
         if not commander or commander == "Unknown Commander":
             logging.warning(f"Empty commander for player: {player}")

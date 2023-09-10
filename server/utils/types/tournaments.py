@@ -12,3 +12,6 @@ class Tournament(BaseModel):
     dateCreated: Optional[int] = None
     swissNum: Optional[int] = None
     topCut: Optional[int] = None
+
+    class Config:
+        extra = "forbid"
