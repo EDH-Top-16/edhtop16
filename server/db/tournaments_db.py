@@ -66,7 +66,6 @@ async def get_commanders(filters: AllFilters) -> dict[str, Commander]:
     # Calculate the winRate, winRateSwiss, and winRateBracket
     for commander in commanders:
         c = commanders[commander]
-        print(commander, c)
         c["winRate"] = c["wins"] / (c["wins"] + c["losses"] + c["draws"]) \
             if (c["wins"] + c["losses"] + c["draws"]) > 0 else None
         c["winRateSwiss"] = c["winsSwiss"] / \
