@@ -1,6 +1,12 @@
 from fastapi import FastAPI
 from routers import commanders_router, tournaments_router
 from db import base_db
+import logging
+
+# Logger setup
+logging.basicConfig(
+    level=logging.WARNING,
+)
 
 app = FastAPI()
 

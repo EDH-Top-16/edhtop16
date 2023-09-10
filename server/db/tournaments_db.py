@@ -27,8 +27,12 @@ async def get_commanders(filters: AllFilters) -> dict[str, Commander]:
     for player in players:
         # For each player, check if the commander is in the dictionary.
         commander = player.get("commander", "")
-        if not commander or commander == "Unknown Commander":
-            logging.warning(f"Empty commander for player: {player}")
+        if not commander:
+            logging.warning(f"Can't get commander for player: {player}")
+            continue
+
+        if commander == "Unknown Commander":
+            logging.debug(f"Unknown commander for player: {player}")
             continue
 
         if commander not in commanders:
