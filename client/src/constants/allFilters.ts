@@ -66,5 +66,5 @@ export interface TournamentFiltersType {
 }
 
 export interface FiltersType extends BaseFiltersType {
-  tourney_filter?: TournamentFiltersType;
+  tournament_filter?: TournamentFiltersType;
 }

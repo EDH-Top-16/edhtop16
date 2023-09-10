@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field
-from typing import TypeVar, Generic, Optional
+from pydantic import BaseModel, Field, validator
+from typing import TypeVar, Generic, Optional, List, Dict, Union
 from datetime import date
 
 
@@ -8,8 +8,23 @@ T = TypeVar("T", int, date)
 
 class OperatorType(BaseModel, Generic[T]):
     lte: Optional[T] = Field(None, alias="$lte")
+    lt: Optional[T] = Field(None, alias="$lt")
     eq: Optional[T] = Field(None, alias="$eq")
     gte: Optional[T] = Field(None, alias="$gte")
+    gt: Optional[T] = Field(None, alias="$gt")
+    ne: Optional[T] = Field(None, alias="$ne")
+    in_: Optional[List[T]] = Field(None, alias="$in")
+    nin: Optional[List[T]] = Field(None, alias="$nin")
+    regex: Optional[str] = Field(None, alias="$regex")
+    exists: Optional[bool] = Field(None, alias="$exists")
+    mod: Optional[List[int]] = Field(None, alias="$mod")
+    all_: Optional[List[T]] = Field(None, alias="$all")
+    elemMatch: Optional[Dict[str, Union[T, 'OperatorType[T]']]] = Field(
+        None, alias="$elemMatch")
+    size: Optional[int] = Field(None, alias="$size")
+
+    class Config:
+        extra = "forbid"
 
 
 class BaseFilters(BaseModel):
@@ -30,6 +45,9 @@ class BaseFilters(BaseModel):
     colorID: Optional[str] = None
     commander: Optional[str] = None
 
+    class Config:
+        extra = "forbid"
+
 
 class TournamentFilters(BaseModel):
     date: Optional[OperatorType[date]] = None
@@ -40,7 +58,12 @@ class TournamentFilters(BaseModel):
     swissNum: Optional[OperatorType[int]] = None
     topCut: Optional[OperatorType[int]] = None
 
+    class Config:
+        extra = "forbid"
 
-class Filters(BaseModel):
-    tourney_filter: Optional[TournamentFilters] = None
-    filters: Optional[BaseFilters] = None
+
+class AllFilters(BaseFilters):
+    tournament_filters: Optional[TournamentFilters] = None
+    
+    class Config:
+        extra = "forbid"
