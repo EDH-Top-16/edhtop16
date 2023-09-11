@@ -5,7 +5,6 @@ from datetime import datetime
 
 class Tournament(BaseModel):
     # Temporarily, everything is optional until we clean our database.
-    _id: Optional[str] = None
     TID: Optional[str] = None
     tournamentName: Optional[str] = None
     size: Optional[int] = None
