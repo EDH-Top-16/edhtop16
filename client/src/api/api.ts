@@ -11,7 +11,7 @@ async function get(url: string, config?: AxiosRequestConfig, timeout?: number) {
     const res = await axios.get(url, config);
     return res;
   } catch (e) {
-    console.log(e);
+    throw e;
   }
 }
 
@@ -27,7 +27,7 @@ async function post<DataType>(
     const res = await axios.post(url, data, config);
     return res;
   } catch (e) {
-    console.log(e);
+    throw e;
   }
 }
 
