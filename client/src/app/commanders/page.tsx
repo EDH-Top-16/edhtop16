@@ -3,14 +3,19 @@ import _ from "lodash";
 import { useEffect, useContext, useState } from "react";
 import { getCommanders } from "@/api/commander";
 
-import { enabledFilters, defaultFilters } from "@/constants/defaultFilters";
+import { enabledFilters, defaultFilters } from "@/constants/filters";
+import {
+  CommanderType,
+  CommandersType,
+  schemas,
+} from "@/utils/types/commanders";
 import { FilterContext } from "@/context/filter";
 
 export default function CommandersPage(): {} {
   // Get the filters from the context
   const { filters, setFilters, setEnabled } = useContext(FilterContext);
 
-  const [commanders, setCommanders] = useState<any[]>([]);
+  const [commanders, setCommanders] = useState<CommandersType>();
 
   // Set the default filters for the commanders view
   useEffect(() => {
@@ -23,9 +28,9 @@ export default function CommandersPage(): {} {
     if (_.isEmpty(filters)) return; // If filters is empty, don't fetch
 
     (async () => {
-      const res = await getCommanders(filters);
-      console.log(res?.data);
-      setCommanders(res?.data ?? []);
+      const { data }: { data: CommandersType } = await getCommanders(filters);
+      if (data) setCommanders(data);
+      else setCommanders(undefined);
     })();
   }, [filters]);
 
@@ -42,11 +47,18 @@ export default function CommandersPage(): {} {
         </tr>
       </thead>
       <tbody>
-        {commanders.map((commander, i) => (
-          <tr key={i}>
-            <td></td>
-          </tr>
-        ))}
+        {/* Commanders is an object with key being commander name */}
+        {commanders &&
+          Object.keys(commanders).map((name: string, i: number) => (
+            <tr key={i}>
+              <td>{i + 1}</td>
+              <td>{name}</td>
+              <td>{commanders[name]?.topCuts}</td>
+              <td>{commanders[name]?.count}</td>
+              <td>{commanders[name]?.conversion}</td>
+              <td>{commanders[name]?.colors}</td>
+            </tr>
+          ))}
       </tbody>
     </table>
   );
