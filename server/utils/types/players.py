@@ -8,7 +8,6 @@ class Player(BaseModel):
     _id: Optional[str] = None
     name: Optional[str] = None
     profile: Optional[str] = None
-    decklist: Optional[str] = None
     wins: Optional[int] = None
     winsSwiss: Optional[int] = None
     winsBracket: Optional[int] = None
