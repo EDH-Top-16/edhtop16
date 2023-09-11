@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Body
-from pydantic import BaseModel
 from typing import List
 
 from db import get_tournaments as get_tournaments_db

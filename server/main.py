@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import commanders_router, tournaments_router
+from routers import commanders_router, tournaments_router, entries_router
 from db import base_db
 import logging
 
@@ -15,6 +15,7 @@ prefix = "/api"
 # All routes
 app.include_router(commanders_router, prefix=prefix)
 app.include_router(tournaments_router, prefix=prefix)
+app.include_router(entries_router, prefix=prefix)
 
 
 @app.on_event("startup")

@@ -21,7 +21,7 @@ async def get_commanders(filters: AllFilters) -> dict[str, Commander]:
     """
     Aggregates and returns a list of commanders that match the filters.
     """
-    players = await get_players(filters)
+    players = await get_entries(filters)
 
     commanders: dict[str, Commander] = {}
     for player in players:
@@ -81,7 +81,7 @@ async def get_commanders(filters: AllFilters) -> dict[str, Commander]:
     return commanders
 
 
-async def get_players(filters: AllFilters) -> List[dict]:
+async def get_entries(filters: AllFilters) -> List[dict]:
     """
     Returns a list of players from the database.
     """
@@ -107,6 +107,9 @@ async def get_players(filters: AllFilters) -> List[dict]:
 
         # Get the tournament data from the database
         result = await t.find(filters).to_list(length=None)
+        for i in result:
+            i['TID'] = tid
+            i['tournamentName'] = tournament.get('tournamentName', "")
         res.extend(result)
 
     return oIdToString(res)
