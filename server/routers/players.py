@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, HTTPException
 from typing import List
 
 from db import get_entries as get_entries_db
@@ -15,6 +15,8 @@ async def player(profile: str) -> Player:
     """
     # Using by_alias to convert the filters to the database format.
     data = await get_entries_db({"profile": profile})
+    if not data:
+        raise HTTPException(status_code=404, detail=f"No player with profile '{profile}'")
     fields = ["wins", "winsSwiss", "winsBracket", "draws", "losses", "lossesSwiss", "lossesBracket"]
     out: Player = {field: 0 for field in fields}
     out['tournaments'] = []
