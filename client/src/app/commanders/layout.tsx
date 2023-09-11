@@ -10,9 +10,9 @@ export default function CommandersLayout({
   return (
     <>
       <Navigation />
-      <div className="flex h-full w-full flex-col">
+      <div className="flex flex-grow flex-col overflow-auto">
         <Banner title={"Commander Decks"} />
-        <main className="h-full p-6">{children}</main>
+        <main className="w-full px-8 py-4">{children}</main>
       </div>
     </>
   );
