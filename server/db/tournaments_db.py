@@ -46,6 +46,7 @@ async def get_commanders(filters: AllFilters) -> dict[str, Commander]:
                 "losses": player.get("losses", 0) or 0,
                 "lossesSwiss": player.get("lossesSwiss", 0) or 0,
                 "lossesBracket": player.get("lossesBracket", 0) or 0,
+                "topCuts": 1 if player.get("standing", float('inf')) <= player.get("topCut", 0) else 0,
                 "count": 1
             }
         else:
@@ -64,6 +65,9 @@ async def get_commanders(filters: AllFilters) -> dict[str, Commander]:
                       "draws", "losses", "lossesSwiss", "lossesBracket"]
             for field in fields:
                 c[field] += player.get(field, 0) or 0
+
+            if player.get("standing", float('inf')) <= player.get("topCut", 0):
+                c["topCuts"] += 1
             # Increment counter
             c["count"] += 1
 
@@ -77,6 +81,7 @@ async def get_commanders(filters: AllFilters) -> dict[str, Commander]:
             if (c["winsSwiss"] + c["lossesSwiss"] + c["draws"]) > 0 else None
         c["winRateBracket"] = c["winsBracket"] / (c["wins"] + c["losses"]) \
             if (c["wins"] + c["losses"]) > 0 else None
+        c["conversionRate"] = c["topCuts"] / c["count"]
 
     return commanders
 
@@ -111,6 +116,7 @@ async def get_entries(filters: AllFilters) -> List[dict]:
         for i in result:
             i['TID'] = tid
             i['tournamentName'] = tournament.get('tournamentName', "")
+            i['topCut'] = tournament.get('topCut', 0)   
         res.extend(result)
 
     return oIdToString(res)
