@@ -5,7 +5,7 @@ import logging
 
 # Logger setup
 logging.basicConfig(
-    level=logging.WARNING,
+    level=logging.ERROR,
 )
 
 app = FastAPI()

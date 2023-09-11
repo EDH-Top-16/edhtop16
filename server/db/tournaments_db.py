@@ -38,14 +38,14 @@ async def get_commanders(filters: AllFilters) -> dict[str, Commander]:
         if commander not in commanders:
             # If the commander is not in the dictionary, add it.
             commanders[commander] = {
-                "colorID": player.get("colorID", ""),
-                "wins": player.get("wins", 0),
-                "winsSwiss": player.get("winsSwiss", 0),
-                "winsBracket": player.get("winsBracket", 0),
-                "draws": player.get("draws", 0),
-                "losses": player.get("losses", 0),
-                "lossesSwiss": player.get("lossesSwiss", 0),
-                "lossesBracket": player.get("lossesBracket", 0),
+                "colorID": player.get("colorID", "") or "",
+                "wins": player.get("wins", 0) or 0,
+                "winsSwiss": player.get("winsSwiss", 0) or 0,
+                "winsBracket": player.get("winsBracket", 0) or 0,
+                "draws": player.get("draws", 0) or 0,
+                "losses": player.get("losses", 0) or 0,
+                "lossesSwiss": player.get("lossesSwiss", 0) or 0,
+                "lossesBracket": player.get("lossesBracket", 0) or 0,
                 "count": 1
             }
         else:
@@ -63,7 +63,7 @@ async def get_commanders(filters: AllFilters) -> dict[str, Commander]:
             fields = ["wins", "winsSwiss", "winsBracket",
                       "draws", "losses", "lossesSwiss", "lossesBracket"]
             for field in fields:
-                c[field] += player.get(field, 0)
+                c[field] += player.get(field, 0) or 0
             # Increment counter
             c["count"] += 1
 
@@ -89,7 +89,8 @@ async def get_entries(filters: AllFilters) -> List[dict]:
 
     tournament_filters = filters.get("tournament_filters", {})
     tournaments = await get_tournaments(tournament_filters)
-    del filters["tournament_filters"]
+    if "tournament_filters" in filters:
+        del filters["tournament_filters"]
 
     res: List[dict] = []
     for tournament in tournaments:
