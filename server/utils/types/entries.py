@@ -1,13 +1,14 @@
 from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime
-from .entries import Entry
 
-class Player(BaseModel):
+
+class Entry(BaseModel):
     # Temporarily, everything is optional until we clean our database.
     _id: Optional[str] = None
     name: Optional[str] = None
     profile: Optional[str] = None
+    decklist: Optional[str] = None
     wins: Optional[int] = None
     winsSwiss: Optional[int] = None
     winsBracket: Optional[int] = None
@@ -18,6 +19,9 @@ class Player(BaseModel):
     losses: Optional[int] = None
     lossesSwiss: Optional[int] = None
     lossesBracket: Optional[int] = None
-    conversionRate: Optional[float] = None
-    topCuts: Optional[int] = None
-    tournaments: Optional[List[Entry]] = None
+    standing: Optional[int] = None
+    colorID: Optional[str] = None
+    commander: Optional[str] = None
+    tournamentName: Optional[str] = None
+    TID: Optional[str] = None
+    topCut: Optional[int] = None

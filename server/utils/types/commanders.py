@@ -15,6 +15,8 @@ class Commander(BaseModel):
     winRate: Optional[float] = None
     winRateSwiss: Optional[float] = None
     winRateBracket: Optional[float] = None
+    topCuts: Optional[int] = None
+    conversionRate: Optional[float] = None
 
     class Config:
         extra = "forbid"

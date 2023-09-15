@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from routers import commanders_router, tournaments_router, entries_router, player_router
+from db import base_db
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 
@@ -13,7 +15,7 @@ app = FastAPI()
 Set up for logger
 """
 logging.basicConfig(
-    level=logging.WARNING,
+    level=logging.ERROR,
 )
 
 
@@ -23,6 +25,8 @@ All routes
 prefix = "/api"
 app.include_router(commanders_router, prefix=prefix)
 app.include_router(tournaments_router, prefix=prefix)
+app.include_router(entries_router, prefix=prefix)
+app.include_router(player_router, prefix=prefix)
 
 
 """

@@ -21,7 +21,7 @@ async def get_commanders(filters: AllFilters) -> dict[str, Commander]:
     """
     Aggregates and returns a list of commanders that match the filters.
     """
-    players = await get_players(filters)
+    players = await get_entries(filters)
 
     commanders: dict[str, Commander] = {}
     for player in players:
@@ -38,14 +38,15 @@ async def get_commanders(filters: AllFilters) -> dict[str, Commander]:
         if commander not in commanders:
             # If the commander is not in the dictionary, add it.
             commanders[commander] = {
-                "colorID": player.get("colorID", ""),
-                "wins": player.get("wins", 0),
-                "winsSwiss": player.get("winsSwiss", 0),
-                "winsBracket": player.get("winsBracket", 0),
-                "draws": player.get("draws", 0),
-                "losses": player.get("losses", 0),
-                "lossesSwiss": player.get("lossesSwiss", 0),
-                "lossesBracket": player.get("lossesBracket", 0),
+                "colorID": player.get("colorID", "") or "",
+                "wins": player.get("wins", 0) or 0,
+                "winsSwiss": player.get("winsSwiss", 0) or 0,
+                "winsBracket": player.get("winsBracket", 0) or 0,
+                "draws": player.get("draws", 0) or 0,
+                "losses": player.get("losses", 0) or 0,
+                "lossesSwiss": player.get("lossesSwiss", 0) or 0,
+                "lossesBracket": player.get("lossesBracket", 0) or 0,
+                "topCuts": 1 if player.get("standing", float('inf')) <= player.get("topCut", 0) else 0,
                 "count": 1
             }
         else:
@@ -63,7 +64,10 @@ async def get_commanders(filters: AllFilters) -> dict[str, Commander]:
             fields = ["wins", "winsSwiss", "winsBracket",
                       "draws", "losses", "lossesSwiss", "lossesBracket"]
             for field in fields:
-                c[field] += player.get(field, 0)
+                c[field] += player.get(field, 0) or 0
+
+            if player.get("standing", float('inf')) <= player.get("topCut", 0):
+                c["topCuts"] += 1
             # Increment counter
             c["count"] += 1
 
@@ -77,11 +81,12 @@ async def get_commanders(filters: AllFilters) -> dict[str, Commander]:
             if (c["winsSwiss"] + c["lossesSwiss"] + c["draws"]) > 0 else None
         c["winRateBracket"] = c["winsBracket"] / (c["wins"] + c["losses"]) \
             if (c["wins"] + c["losses"]) > 0 else None
+        c["conversionRate"] = c["topCuts"] / c["count"]
 
     return commanders
 
 
-async def get_players(filters: AllFilters) -> List[dict]:
+async def get_entries(filters: AllFilters) -> List[dict]:
     """
     Returns a list of players from the database.
     """
@@ -89,7 +94,8 @@ async def get_players(filters: AllFilters) -> List[dict]:
 
     tournament_filters = filters.get("tournament_filters", {})
     tournaments = await get_tournaments(tournament_filters)
-    del filters["tournament_filters"]
+    if "tournament_filters" in filters:
+        del filters["tournament_filters"]
 
     res: List[dict] = []
     for tournament in tournaments:
@@ -107,6 +113,10 @@ async def get_players(filters: AllFilters) -> List[dict]:
 
         # Get the tournament data from the database
         result = await t.find(filters).to_list(length=None)
+        for i in result:
+            i['TID'] = tid
+            i['tournamentName'] = tournament.get('tournamentName', "")
+            i['topCut'] = tournament.get('topCut', 0)   
         res.extend(result)
 
     return oIdToString(res)
