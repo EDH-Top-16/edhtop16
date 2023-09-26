@@ -12,12 +12,15 @@ module.exports = {
         secondary: "#514F86",
         tertiary: "#B7B5FF",
         quaternary: "#F4F4F2",
+        purple: {
+          400: "#2A274D",
+        },
         white: "#F4F4F2",
         black: "#19191A",
         gray: "#606883",
       },
       spacing: {
-        nav: "12rem",
+        nav: "6rem",
       },
     },
   },
