@@ -16,20 +16,6 @@
   }
 }
 
-.hover-gradient::after {
-  content: "";
-  position: absolute;
-  width: 1px;
-  height: 30%;
-  background-color: "#000000" !important;
-  opacity: 0;
-}
-
-.hover-gradient:hover::after {
-  top: 25%;
-  opacity: 1;
-}
-
 @layer base {
   h1 {
     @apply w-fit m-0 text-3xl font-bold;

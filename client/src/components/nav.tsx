@@ -13,7 +13,7 @@ type NavItem = {
 
 export default function Navigation(): JSX.Element {
   return (
-    <nav className="hover-gradient fixed left-[-400px] flex h-screen w-nav flex-col items-center space-y-16 bg-purple-400 md:relative md:left-0">
+    <nav className="fixed left-[-400px] flex h-screen w-nav flex-col items-center space-y-16 bg-purple-400 md:relative md:left-0">
       <Link className="mt-24" href="/">
         <div className="relative h-12 w-12">
           <Image
