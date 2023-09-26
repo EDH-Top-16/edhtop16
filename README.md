@@ -28,5 +28,4 @@ npm run dev
 When submitting pull requests, please inform us if you've added any new packages and update the corresponding package lock files.
 
 ## ⌨️ Special Thanks:
-Made possible by Zain and the Eminence Team
-Mentor, API Keys, and DB Access provided by Zain and the Eminence Team
+Made possible by @znayer and the Eminence Team
