@@ -1,8 +1,8 @@
 import React from "react";
 import Image from "next/image";
 
-import Searchbar from "./searchbar";
-import Filter from "./filter";
+import Searchbar from "@/components/banner/searchbar";
+import Filter from "@/components/banner/filter";
 import { BannerMask } from "@/assets/images";
 
 type BannerProps = {

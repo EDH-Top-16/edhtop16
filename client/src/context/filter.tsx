@@ -1,5 +1,7 @@
 import React, { createContext, useState } from "react";
-import { FiltersType } from "@/constants/allFilters";
+import * as filters from "@/types/filters";
+
+type FiltersType = filters.AllFiltersType;
 
 type TFilterContext = {
   filters: FiltersType;
