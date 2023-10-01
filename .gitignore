@@ -129,9 +129,4 @@ yarn-error.log*
 # Python stuff
 **/__pycache__/
 eminence_api_key.txt
-*.py
-!get_commanders.py
-!get_tournaments.py
-!make_tournament_from_csv.py
-!check_dupes.py
-eminence_api_key.txt
+mtg_api.py
