@@ -4,6 +4,7 @@ import { useContext, useRef, useState } from "react";
 import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
 import { FilterContext } from "@/context/filter";
 import { useClickOutside } from "@/utils/useClickOutside";
+import { WUBRGify } from "@/utils/wubrgify";
 
 type BaseFilterProps = {
   children: any;
@@ -19,8 +20,26 @@ export default function BaseFilter({
   const { filters, setFilters } = useContext(FilterContext);
   const [popup, setPopup] = useState(false);
 
-  const handleFilter = (value: any) => {
-    setFilters({ ...filters, [tag]: value });
+  const handleFilter = (value: any, color: Boolean = false) => {
+    // If filter is color
+    if (color) {
+      let colorID = filters.colorID;
+      // Check if colorID string already has color
+      const colorExists = filters.colorID && filters.colorID.includes(value);
+      if (colorExists) {
+        // If color exists, remove color from string
+        colorID = filters.colorID?.replace(value, "");
+      } else {
+        // Otherwise, add color to string
+        colorID = WUBRGify((filters.colorID || "") + value);
+      }
+
+      setFilters({ ...filters, colorID });
+      return;
+    }
+
+    // Otherwise
+    setFilters({ ...filters, [tag]: value.target.value });
   };
 
   return (
