@@ -13,9 +13,9 @@ type NavItem = {
 
 export default function Navigation(): JSX.Element {
   return (
-    <nav className="fixed left-[-400px] flex h-screen w-nav flex-col items-center space-y-16 bg-secondary drop-shadow-lg md:relative md:left-0">
+    <nav className="fixed left-[-400px] flex h-screen w-nav flex-col items-center space-y-16 bg-purple-400 md:relative md:left-0">
       <Link className="mt-24" href="/">
-        <div className="relative h-24 w-24">
+        <div className="relative h-12 w-12">
           <Image
             fill
             style={{ objectFit: "cover" }}
@@ -35,7 +35,7 @@ export default function Navigation(): JSX.Element {
 const NavItem: React.FC<NavItem> = ({ href, label, icon }) => {
   return (
     <Link href={href} legacyBehavior passHref={true}>
-      <a className="w-fit [&>svg]:w-10 [&>svg]:text-white" aria-label={label}>
+      <a className="w-fit [&>svg]:w-8 [&>svg]:text-white" aria-label={label}>
         {icon}
       </a>
     </Link>
