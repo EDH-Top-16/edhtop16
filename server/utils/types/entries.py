@@ -1,6 +1,7 @@
 from typing import List, Optional, Union
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from datetime import datetime
+from utils import wubrgify
 
 class DBEntry(BaseModel):
     # Fields are no longer Optional, they can be either str or None.
@@ -21,6 +22,11 @@ class DBEntry(BaseModel):
     standing: Union[int, None] = None
     colorID: Union[str, None] = None
     commander: Union[str, None] = None
+
+    @validator("colorID", pre=True)
+    def checkColor(color: str):
+        if color == "N/A": return None
+        return wubrgify(color)
 
 class Entry(DBEntry):
     # Temporarily, everything is optional until we clean our database.
