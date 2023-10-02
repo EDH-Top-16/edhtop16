@@ -2,7 +2,7 @@ import React from "react";
 import { useContext } from "react";
 
 import { FilterContext } from "@/context/filter";
-import BaseFilter from "./base";
+import BaseFilter, { HandleFilter } from "@/components/filters/base";
 import allColors from "@/constants/allColors";
 import { WUBRGify } from "@/utils/wubrgify";
 
@@ -12,10 +12,7 @@ export default function Colors(): React.ReactElement {
   // If filter has colorID, check which colors are enabled
   const enabled = filters.colorID?.split("");
 
-  const handleColorID = (
-    color: string,
-    handleFilter: (value: any, isHTMLElement: boolean) => void,
-  ) => {
+  const handleColorID = (color: string, handleFilter: HandleFilter) => {
     let colorID: string = filters.colorID || "";
 
     // Check if colorID string already has color

@@ -11,6 +11,10 @@ type BaseFilterProps = {
   tag: string;
 };
 
+export type HandleFilter = {
+  (value: any, isHTMLElement?: boolean): void;
+};
+
 export default function BaseFilter({
   children,
   title,
@@ -24,7 +28,7 @@ export default function BaseFilter({
    * @param value
    * @param isHTMLElement
    */
-  const handleFilter = (value: any, isHTMLElement: Boolean = true) => {
+  const handleFilter: HandleFilter = (value, isHTMLElement = true) => {
     // Check if the value being passed in is undefined
     if (value === undefined) {
       // If value is undefined, remove tag from filters

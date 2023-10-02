@@ -10,11 +10,6 @@ export async function getCommanders(filters: TFilters.AllFiltersType) {
   const v = TFilters.schemas.allFilters.safeParse(filters);
   if (!v.success) throw "Invalid filters";
 
-  // Correctly format the colorID filter
-  if (filters.colorID) {
-    
-  }
-
   let res: AxiosResponse<TCommanders.CommandersType>;
   try {
     res = await api.post<TFilters.AllFiltersType>(
