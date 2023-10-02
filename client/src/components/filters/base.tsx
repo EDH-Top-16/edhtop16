@@ -44,7 +44,7 @@ export default function BaseFilter({
       {Object.keys(filters).includes(tag) ? (
         <button onClick={() => setPopup(true)} className="filter-btn-active">
           <p>{title}</p>
-          <AiOutlineClose onClick={() => setFilters({})} />
+          <AiOutlineClose onClick={() => handleFilter(undefined)} />
         </button>
       ) : (
         <button onClick={() => setPopup(true)} className="filter-btn-inactive">
