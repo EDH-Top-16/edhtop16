@@ -129,3 +129,4 @@ yarn-error.log*
 # Python stuff
 **/__pycache__/
 eminence_api_key.txt
+mtg_api.py
