@@ -34,7 +34,7 @@ if __name__ == "__main__":
                 extra = "ignore"
 
     for TID in existing_tournaments:
-        if TID = "metadata": continue
+        if TID == "metadata": continue
         for entry in db[TID].find():
             try:
                 model = DBEntry.model_validate(entry, strict=True).model_dump(by_alias=True, exclude_unset=False, exclude_none=False)
