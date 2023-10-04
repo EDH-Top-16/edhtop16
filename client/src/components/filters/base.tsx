@@ -1,5 +1,6 @@
 import React from "react";
 import { useContext, useRef, useState } from "react";
+import _ from "lodash";
 
 import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
 import { FilterContext } from "@/context/filter";
@@ -29,17 +30,18 @@ export default function BaseFilter({
    * @param isHTMLElement
    */
   const handleFilter: HandleFilter = (value, isHTMLElement = true) => {
+    const _value: any = isHTMLElement ? value?.target?.value : value;
+    const path: string = _.has(filters, `tournament_filters.${tag}`)
+      ? `tournament_filters.${tag}`
+      : tag;
+
     // Check if the value being passed in is undefined
     if (value === undefined) {
       // If value is undefined, remove tag from filters
-      const { [tag]: _, ..._filters } = filters as { [key: string]: any };
-      setFilters(_filters);
+      setFilters(_.omit(filters, [path]));
     } else {
       // Otherwise, add tag to filters
-      setFilters({
-        ...filters,
-        [tag]: isHTMLElement ? value.target.value : value,
-      });
+      setFilters(_.set({ ...filters }, path, _value));
     }
   };
 
