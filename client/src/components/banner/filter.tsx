@@ -4,6 +4,7 @@ import { AiOutlineDown } from "react-icons/ai";
 import { FilterContext } from "@/context/filter";
 import { componentMap } from "./filters";
 import { useClickOutside } from "@/utils/useClickOutside";
+import ExportCSVButton from "../csvExport";
 
 export default function Filter(): JSX.Element {
   const [openFilters, setOpenFilters] = useState(false);
@@ -30,10 +31,14 @@ export default function Filter(): JSX.Element {
           </div>
         </div>
         <button className="filter-btn md:ml-4">Reset</button>
+        <div className="flex-grow"></div>
+        <ExportCSVButton />
       </div>
     </>
   );
 }
+
+
 
 type FilterDropdownProps = {
   setOpenFilters: React.Dispatch<React.SetStateAction<boolean>>;

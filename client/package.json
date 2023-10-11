@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@json2csv/plainjs": "^7.0.3",
     "axios": "^1.4.0",
+    "file-saver": "^2.0.5",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "next": "13.4.7",
@@ -19,6 +21,7 @@
     "zod": "^3.22.2"
   },
   "devDependencies": {
+    "@types/file-saver": "^2.0.5",
     "@types/lodash": "^4.14.197",
     "@types/node": "20.3.1",
     "@types/react": "18.2.14",
