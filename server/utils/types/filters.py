@@ -1,9 +1,9 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 from typing import TypeVar, Generic, Optional, List, Dict, Union
-from datetime import date
+import datetime
 
 
-T = TypeVar("T", int, date)
+T = TypeVar("T", int, datetime.date)
 
 
 class OperatorType(BaseModel, Generic[T]):
@@ -50,7 +50,7 @@ class BaseFilters(BaseModel):
 
 
 class TournamentFilters(BaseModel):
-    date: Optional[OperatorType[date]] = None
+    date: Optional[OperatorType[datetime.date]] = None
     dateCreated: Optional[OperatorType[int]] = None
     size: Optional[OperatorType[int]] = None
     TID: Optional[str] = None
@@ -65,5 +65,3 @@ class TournamentFilters(BaseModel):
 class AllFilters(BaseFilters):
     tournament_filters: Optional[TournamentFilters] = None
 
-    class Config:
-        extra = "forbid"

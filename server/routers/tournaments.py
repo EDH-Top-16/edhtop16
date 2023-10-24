@@ -14,5 +14,5 @@ async def get_tournaments(filters: TournamentFilters = Body(...)) -> List[Tourna
     Returns a list of tournaments from the database given a filter.
     """
     # Using by_alias to convert the filters to the database format.
-    data = await get_tournaments_db(filters.model_dump(by_alias=True, exclude_unset=True, exclude_none=True))
+    data = await get_tournaments_db(filters)
     return data
