@@ -2,7 +2,6 @@ from typing import List, Any
 import logging
 
 from .base_db import get_db_async
-from utils import oIdToString
 from utils.types import AllFilters, TournamentFilters, Tournament, Commander, Entry
 
 
@@ -120,6 +119,6 @@ async def get_entries(filters: AllFilters) -> List[Entry]:
             i['tournamentName'] = tournament.tournamentName
             i['topCut'] = tournament.topCut or 0   
 
-        res.extend([Entry(**e) for e in result])
+        res.extend([Entry(**e, id=str(e['_id'])) for e in result])
 
-    return oIdToString(res)
+    return res

@@ -1,6 +1,5 @@
 from typing import List, Optional
 from pydantic import BaseModel
-from datetime import datetime
 from .entries import Entry
 
 class Player(BaseModel):
