@@ -1,0 +1,44 @@
+name: Lint
+
+on: [push, pull_request]
+
+jobs:
+  lint-server:
+    name: Lint Server
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+      - name: Check Formatting
+        uses: psf/black@stable
+        with:
+          src: "./server"
+      - name: Check Types
+        run: |-
+          pip install pyright
+          pyright
+
+  lint-client:
+    name: Lint Client
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./client
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+      - name: Install Dependencies
+        run: npm ci
+      - name: Check Formatting
+        run: npx prettier --check .
+      - name: Check Lint
+        run: npx next lint
+      # TODO: Enable when client can successfully type check.
+      # - name: Check Types
+      #   run: npx tsc

@@ -21,7 +21,7 @@ export default function CommandersPage(): {} {
   useEffect(() => {
     setEnabled(enabledFilters.commanders);
     setFilters(defaultFilters.commanders);
-  }, []);
+  }, [setEnabled, setFilters]);
 
   // Fetch the commanders
   useEffect(() => {

@@ -18,16 +18,16 @@
 
 @layer base {
   h1 {
-    @apply w-fit m-0 text-3xl font-bold;
+    @apply m-0 w-fit text-3xl font-bold;
   }
   input {
-    @apply px-4 py-2 rounded-xl outline-none;
+    @apply rounded-xl px-4 py-2 outline-none;
   }
 }
 
 @layer components {
   .filter-btn {
-    @apply flex items-center space-x-1 px-2 py-1 rounded-full border text-white outline-none;
+    @apply flex items-center space-x-1 rounded-full border px-2 py-1 text-white outline-none;
   }
   .filter-btn-active {
     @apply filter-btn border-solid border-white;
