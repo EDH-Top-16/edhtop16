@@ -1,15 +1,11 @@
 "use client";
-import _ from "lodash";
-import { useEffect, useContext, useState } from "react";
-import { getCommanders } from "@/api/commander";
 
-import { enabledFilters, defaultFilters } from "@/constants/filters";
-import {
-  CommanderType,
-  CommandersType,
-  schemas,
-} from "@/utils/types/commanders";
-import { FilterContext } from "@/context/filter";
+import _ from "lodash";
+import { useContext, useEffect, useState } from "react";
+import { getCommanders } from "../../api/commander";
+import { defaultFilters, enabledFilters } from "../../constants/filters";
+import { FilterContext } from "../../context/filter";
+import { CommandersType } from "../../utils/types/commanders";
 
 export default function CommandersPage(): {} {
   // Get the filters from the context
@@ -28,9 +24,13 @@ export default function CommandersPage(): {} {
     if (_.isEmpty(filters)) return; // If filters is empty, don't fetch
 
     (async () => {
-      const { data }: { data: CommandersType } = await getCommanders(filters);
-      if (data) setCommanders(data);
-      else setCommanders(undefined);
+      try {
+        const data = await getCommanders(filters);
+        setCommanders(data);
+      } catch (e) {
+        console.error(e);
+        setCommanders(undefined);
+      }
     })();
   }, [filters]);
 
@@ -55,8 +55,10 @@ export default function CommandersPage(): {} {
               <td>{name}</td>
               <td>{commanders[name]?.topCuts}</td>
               <td>{commanders[name]?.count}</td>
-              <td>{commanders[name]?.conversion}</td>
-              <td>{commanders[name]?.colors}</td>
+              <td>
+                {Math.round((commanders[name].conversionRate ?? 0) * 100)}%
+              </td>
+              <td>{commanders[name]?.colors as any}</td>
             </tr>
           ))}
       </tbody>

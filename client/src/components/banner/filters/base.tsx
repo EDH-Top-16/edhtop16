@@ -1,20 +1,15 @@
 import { useContext, useRef, useState } from "react";
-
 import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
-import { FilterContext } from "@/context/filter";
-import { useClickOutside } from "@/utils/useClickOutside";
+import { FilterContext } from "../../../context/filter";
+import { useClickOutside } from "../../../utils/useClickOutside";
 
-type BaseFilterProps = {
+interface BaseFilterProps {
   children: any;
   title: string;
   tag: string;
-};
+}
 
-export default function BaseFilter({
-  children,
-  title,
-  tag,
-}: BaseFilterProps): JSX.Element {
+export function BaseFilter({ children, title, tag }: BaseFilterProps) {
   const { filters } = useContext(FilterContext);
 
   const [popup, setPopup] = useState(false);

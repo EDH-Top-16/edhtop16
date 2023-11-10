@@ -39,6 +39,5 @@ jobs:
         run: npx prettier --check .
       - name: Check Lint
         run: npx next lint
-      # TODO: Enable when client can successfully type check.
-      # - name: Check Types
-      #   run: npx tsc
+      - name: Check Types
+        run: npx tsc

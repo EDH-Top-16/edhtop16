@@ -1,10 +1,8 @@
-type SearchbarProps = {
+interface SearchbarProps {
   placeholder: string;
-};
+}
 
-export default function Searchbar({
-  placeholder,
-}: SearchbarProps): JSX.Element {
+export function Searchbar({ placeholder }: SearchbarProps) {
   return (
     <>
       <label htmlFor="searchbar" className="hidden"></label>

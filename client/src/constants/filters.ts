@@ -1,6 +1,5 @@
 import moment from "moment";
-
-import { FiltersType } from "./allFilters";
+import { AllFiltersType } from "../utils/types/filters";
 
 /**
  * All the filters
@@ -32,7 +31,7 @@ export const allFilters = [
 ];
 
 type DefaultFiltersType = {
-  [key: string]: FiltersType;
+  [key: string]: AllFiltersType;
 };
 
 export const enabledFilters = {
