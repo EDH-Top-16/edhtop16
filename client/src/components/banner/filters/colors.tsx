@@ -1,7 +1,7 @@
-import BaseFilter from "./base";
-import allColors from "@/constants/allColors";
+import { allColors } from "../../../constants/allColors";
+import { BaseFilter } from "./base";
 
-export default function Colors(): JSX.Element {
+export function Colors() {
   return (
     <BaseFilter title={"Colors"} tag={"colors"}>
       <div className="grid grid-cols-3 gap-4">

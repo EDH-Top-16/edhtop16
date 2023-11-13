@@ -1,8 +1,7 @@
-import Link from "next/link";
 import Image from "next/image";
-
-import { EGLogo } from "@/assets/images";
-import NavLinks from "@/constants/navLinks";
+import Link from "next/link";
+import { EGLogo } from "../assets/images";
+import { NavLinks } from "../constants/navLinks";
 
 // navitem typing
 type NavItem = {
@@ -11,7 +10,7 @@ type NavItem = {
   icon: JSX.Element;
 };
 
-export default function Navigation(): JSX.Element {
+export function Navigation(): JSX.Element {
   return (
     <nav className="fixed left-[-400px] flex h-screen w-nav flex-col items-center space-y-16 bg-purple-400 md:relative md:left-0">
       <Link className="mt-24" href="/">

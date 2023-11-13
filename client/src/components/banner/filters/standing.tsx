@@ -1,6 +1,6 @@
-import BaseFilter from "./base";
+import { BaseFilter } from "./base";
 
-export default function Standing(): JSX.Element {
+export function Standing() {
   return (
     <BaseFilter title={"Standing"} tag={"standing"}>
       Standing

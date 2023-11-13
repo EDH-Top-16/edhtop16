@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  python-app:
+    build: 
+      context: server
+      dockerfile: Dockerfile
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+      - PORT=8000
+    ports:
+      - '8000:8000'
+    depends_on:
+      - mongodb
+    networks:
+      - py-network
+
+  mongodb:
+    image: mongo:6-jammy
+    ports:
+      - '27017:27017'
+    volumes:
+      - dbdata:/data/db
+    networks:
+      - py-network
+
+volumes:
+  dbdata:
+
+networks:
+  py-network:
+    driver: bridge

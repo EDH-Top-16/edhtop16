@@ -1,6 +1,6 @@
 "use client";
-import Navigation from "@/components/nav";
-import Banner from "@/components/banner/banner";
+import { Banner } from "../../components/banner/banner";
+import { Navigation } from "../../components/nav";
 
 export default function CommandersLayout({
   children,
