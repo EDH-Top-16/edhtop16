@@ -2,6 +2,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 from .entries import Entry
 
+
 class Player(BaseModel):
     # Temporarily, everything is optional until we clean our database.
     _id: Optional[str] = None

@@ -1,31 +1,24 @@
 import { z } from "zod";
 
-const Commander = z.object({
-  colorID: z.string().optional(),
-  wins: z.number().optional(),
-  winsSwiss: z.number().optional(),
-  winsBracket: z.number().optional(),
-  draws: z.number().optional(),
-  losses: z.number().optional(),
-  lossesSwiss: z.number().optional(),
-  lossesBracket: z.number().optional(),
-  count: z.number().optional(),
-  winRate: z.number().optional(),
-  winRateSwiss: z.number().optional(),
-  winRateBracket: z.number().optional(),
+export const Commander = z.object({
+  colorID: z.string().nullish(),
+  wins: z.number().nullish(),
+  winsSwiss: z.number().nullish(),
+  winsBracket: z.number().nullish(),
+  draws: z.number().nullish(),
+  losses: z.number().nullish(),
+  lossesSwiss: z.number().nullish(),
+  lossesBracket: z.number().nullish(),
+  count: z.number().nullish(),
+  winRate: z.number().nullish(),
+  winRateSwiss: z.number().nullish(),
+  winRateBracket: z.number().nullish(),
+  topCuts: z.number().nullish(),
+  conversionRate: z.number().nullish(),
+  colors: z.unknown().nullish(),
 });
 
-const Commanders = z.object({
-  commanders: z.record(Commander),
-});
+export const Commanders = z.record(Commander);
 
-const schemas = {
-  commander: Commander,
-  commanders: Commanders,
-};
-
-type CommanderType = z.infer<typeof Commander>;
-type CommandersType = z.infer<typeof Commanders>;
-
-export type { CommanderType, CommandersType };
-export { schemas };
+export type CommanderType = z.infer<typeof Commander>;
+export type CommandersType = z.infer<typeof Commanders>;

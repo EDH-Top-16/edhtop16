@@ -1,17 +1,17 @@
 import {
-  WhiteIcon,
-  BlueIcon,
   BlackIcon,
-  RedIcon,
-  GreenIcon,
+  BlueIcon,
   ColorlessIcon,
-} from "@/assets/icons";
+  GreenIcon,
+  RedIcon,
+  WhiteIcon,
+} from "../assets/icons";
 
 type Color = {
   [key: string]: JSX.Element;
 };
 
-const allColors: Color = {
+export const allColors: Color = {
   white: <WhiteIcon />,
   blue: <BlueIcon />,
   black: <BlackIcon />,
@@ -19,5 +19,3 @@ const allColors: Color = {
   green: <GreenIcon />,
   colorless: <ColorlessIcon />,
 };
-
-export default allColors;
