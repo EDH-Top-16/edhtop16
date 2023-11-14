@@ -1,0 +1,38 @@
+{
+  "listeners": {
+    "*:8000": {
+      "pass": "routes"
+    }
+  },
+  "routes": [
+    {
+      "match": {
+        "uri": ["/api/*"]
+      },
+      "action": {
+        "pass": "applications/server"
+      }
+    },
+    {
+      "match": {
+        "uri": ["*"]
+      },
+      "action": {
+        "pass": "applications/client"
+      }
+    }
+  ],
+  "applications": {
+    "server": {
+      "type": "python 3",
+      "path": "/app/server",
+      "module": "main",
+      "callable": "app"
+    },
+    "client": {
+      "type": "external",
+      "working_directory": "client",
+      "executable": "server.js"
+    }
+  }
+}
