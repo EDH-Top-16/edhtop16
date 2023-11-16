@@ -4,6 +4,7 @@ import { AllFiltersType } from '@/utils/types/filters';
 import React, { useContext } from 'react';
 import { StreamParser } from '@json2csv/plainjs';
 import { saveAs } from 'file-saver';
+import moment from 'moment';
 
 const ExportCSVButton = (): JSX.Element => {
     const { filters } = useContext(FilterContext);
@@ -20,7 +21,7 @@ const downloadDecksAsCsv = async (filters: AllFiltersType) => {
     parser.onData = (chunk) => (csv += chunk.toString());
     parser.onEnd = () => {
         const blob = new Blob([csv], { type: 'text/csv' });
-        saveAs(blob, 'edhtop16-export.csv');
+        saveAs(blob, `edhtop16-export-${moment().format('YYYY-MM-DD_HH-mm-ss')}.csv`);
     };
     parser.onError = (err) => console.error(err);
 
