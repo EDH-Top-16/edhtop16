@@ -1,12 +1,12 @@
-import { useState, useContext, useRef } from "react";
+import { useContext, useRef, useState } from "react";
 import { AiOutlineDown } from "react-icons/ai";
-
-import { FilterContext } from "@/context/filter";
-import { componentMap } from "./filters";
-import { useClickOutside } from "@/utils/useClickOutside";
+import { FilterContext } from "../../context/filter";
+import { useClickOutside } from "../../utils/useClickOutside";
+import { Colors } from "./filters/colors";
+import { Standing } from "./filters/standing";
 import ExportCSVButton from "../csvExport";
 
-export default function Filter(): JSX.Element {
+export function Filter() {
   const [openFilters, setOpenFilters] = useState(false);
 
   return (
@@ -38,8 +38,6 @@ export default function Filter(): JSX.Element {
   );
 }
 
-
-
 type FilterDropdownProps = {
   setOpenFilters: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -51,7 +49,13 @@ function FilterDropdown({ setOpenFilters }: FilterDropdownProps) {
   useClickOutside(dropdownRef, () => setOpenFilters(false));
 
   return enabled.map((filter, i) => {
-    const Filter = componentMap[filter];
-    return Filter ? <Filter key={i} /> : null;
+    switch (filter) {
+      case "colors":
+        return <Colors key={i} />;
+      case "standing":
+        return <Standing key={i} />;
+      default:
+        return null;
+    }
   });
 }

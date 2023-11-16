@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from routers import commanders_router, tournaments_router, entries_router, player_router
 from db import base_db
+from services import graphql_app
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 
@@ -43,6 +44,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+app.include_router(graphql_app, prefix="/api/graphql")
 
 """
 App startup and shutdown scripts

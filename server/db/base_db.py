@@ -1,10 +1,9 @@
-from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-from typing import Optional
+from typing import Optional, cast
 import os
 
 client: Optional[AsyncIOMotorClient] = None
-MONGO_URI: str = os.getenv("MONGO_URI")
+MONGO_URI = cast(str, os.getenv("MONGO_URI"))
 
 
 async def startup():
@@ -19,4 +18,7 @@ async def shutdown():
 
 
 async def get_db_async(db_name: str) -> AsyncIOMotorDatabase:
+    if client is None:
+        raise RuntimeError("Must initialize database with startup() before accessing!")
+
     return client[db_name]

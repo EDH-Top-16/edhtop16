@@ -14,5 +14,5 @@ async def get_entries(filters: AllFilters = Body(...)) -> List[Entry]:
     Returns a list of entries from the database given a filter.
     """
     # Using by_alias to convert the filters to the database format.
-    data = await get_entries_db(filters.model_dump(by_alias=True, exclude_unset=True, exclude_none=True))
+    data = await get_entries_db(filters)
     return data

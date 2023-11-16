@@ -1,5 +1,5 @@
+import { ContextProvider } from "../context/context";
 import "./globals.css";
-import ContextProvider from "@/context/context";
 
 /**
  * This file is the root layout for the entire application.

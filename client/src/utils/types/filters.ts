@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-const OperatorType = z.object({
-  lte: z.number().optional(),
-  lt: z.number().optional(),
-  eq: z.number().optional(),
-  gte: z.number().optional(),
-  gt: z.number().optional(),
-  ne: z.number().optional(),
+export const OperatorType = z.object({
+  $lte: z.number().optional(),
+  $lt: z.number().optional(),
+  $eq: z.number().optional(),
+  $gte: z.number().optional(),
+  $gt: z.number().optional(),
+  $ne: z.number().optional(),
   in_: z.array(z.number()).optional(),
   nin: z.array(z.number()).optional(),
   regex: z.string().optional(),
@@ -17,7 +17,7 @@ const OperatorType = z.object({
   size: z.number().optional(),
 });
 
-const BaseFilters = z.object({
+export const BaseFilters = z.object({
   name: z.string().optional(),
   profile: z.string().optional(),
   decklist: z.string().optional(),
@@ -36,7 +36,7 @@ const BaseFilters = z.object({
   commander: z.string().optional(),
 });
 
-const TournamentFilters = z.object({
+export const TournamentFilters = z.object({
   date: OperatorType.optional(),
   dateCreated: OperatorType.optional(),
   size: OperatorType.optional(),
@@ -46,20 +46,11 @@ const TournamentFilters = z.object({
   topCut: OperatorType.optional(),
 });
 
-const AllFilters = z.object({
+export const AllFilters = z.object({
   tournament_filters: TournamentFilters.optional(),
   ...BaseFilters.shape,
 });
 
-const schemas = {
-  baseFilters: BaseFilters,
-  tournamentFilters: TournamentFilters,
-  allFilters: AllFilters,
-};
-
-type AllFiltersType = z.infer<typeof AllFilters>;
-type BaseFiltersType = z.infer<typeof BaseFilters>;
-type TournamentFiltersType = z.infer<typeof TournamentFilters>;
-
-export type { AllFiltersType, BaseFiltersType, TournamentFiltersType };
-export { schemas };
+export type AllFiltersType = z.infer<typeof AllFilters>;
+export type BaseFiltersType = z.infer<typeof BaseFilters>;
+export type TournamentFiltersType = z.infer<typeof TournamentFilters>;
