@@ -1,10 +1,11 @@
-import { getCommanders } from '@/api/commander';
-import { FilterContext } from '@/context/filter';
-import { AllFiltersType } from '@/utils/types/filters';
+
 import React, { useContext } from 'react';
 import { StreamParser } from '@json2csv/plainjs';
 import { saveAs } from 'file-saver';
 import moment from 'moment';
+import { FilterContext } from '../context/filter';
+import { AllFiltersType } from '../utils/types/filters';
+import { getCommanders } from '../api/commander';
 
 const ExportCSVButton = (): JSX.Element => {
     const { filters } = useContext(FilterContext);
@@ -25,7 +26,7 @@ const downloadDecksAsCsv = async (filters: AllFiltersType) => {
     };
     parser.onError = (err) => console.error(err);
 
-    const commanders = getCommanders(filters).then(({data}) => {
+    const commanders = getCommanders(filters).then(data => {
         Object.entries(data).forEach(([key, value]) => {
             parser.pushLine({ name: key, ...value })
         })
