@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 
 from db import get_entries as get_entries_db
-from utils.types import Player, AllFilters
-
+from utils.types import Player, AllFilters, Entry
+from typing import List
 
 router = APIRouter()
 
@@ -58,6 +58,13 @@ async def player(profile: str) -> Player:
         (out.winsBracket or 0) + (out.lossesBracket or 0)
     )
     out.conversionRate = topCuts / len(out.tournaments)
+    out.conversionScore = calculateConversionScore(topCuts, out.tournaments)
     out.topCuts = topCuts
 
     return out
+
+def calculateConversionScore(topCuts: int, tournaments: List[Entry]) -> float:
+    expected = 0
+    for t in tournaments:
+        expected += t.topCut / t.tournamentSize
+    return topCuts / expected * 100 if expected != 0 else 0.0
