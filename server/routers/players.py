@@ -63,6 +63,7 @@ async def player(profile: str) -> Player:
 
     return out
 
+
 def calculateConversionScore(topCuts: int, tournaments: List[Entry]) -> float:
     expected = 0
     for t in tournaments:
