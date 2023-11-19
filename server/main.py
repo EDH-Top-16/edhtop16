@@ -23,7 +23,7 @@ logging.basicConfig(
 """
 All routes
 """
-prefix = "/api"
+prefix = "/api/v2"
 app.include_router(commanders_router, prefix=prefix)
 app.include_router(tournaments_router, prefix=prefix)
 app.include_router(entries_router, prefix=prefix)
@@ -45,7 +45,7 @@ app.add_middleware(
 )
 
 
-app.include_router(graphql_app, prefix="/api/graphql")
+app.include_router(graphql_app, prefix=prefix + "/graphql")
 
 """
 App startup and shutdown scripts
