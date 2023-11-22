@@ -1,5 +1,6 @@
 import csv
 from pymongo import MongoClient
+
 # import mtg_api # Import from file
 from functools import reduce
 import requests
@@ -13,7 +14,24 @@ import math
 
 standings = []
 
-fields = ['name', 'profile', 'decklist', 'wins', 'winsSwiss', 'winsBracket', 'winRate', 'winRateSwiss', 'winRateBracket', 'draws', 'losses', 'lossesSwiss', 'lossesBracket', 'standing', 'colorID', 'commander']
+fields = [
+    "name",
+    "profile",
+    "decklist",
+    "wins",
+    "winsSwiss",
+    "winsBracket",
+    "winRate",
+    "winRateSwiss",
+    "winRateBracket",
+    "draws",
+    "losses",
+    "lossesSwiss",
+    "lossesBracket",
+    "standing",
+    "colorID",
+    "commander",
+]
 
 if len(sys.argv) < 2:
     print(f"Usage: {sys.argv[0]} <entry CSV> [(optional) custom TID]")
@@ -27,7 +45,7 @@ top_cut_included = input("Top cut included? (y/N) >> ").lower().strip() in ["y",
 
 # Populate Standings
 with open(filepath) as f:
-    reader = csv.reader(f, delimiter=',', quotechar='"')
+    reader = csv.reader(f, delimiter=",", quotechar='"')
 
     row_1 = list(map(lambda x: x.lower(), next(reader)))
     name_index = row_1.index("name")
@@ -47,7 +65,11 @@ with open(filepath) as f:
     top_cut = int(input("Enter top cut >> "))
     bracket_rounds = math.ceil(math.log(top_cut, 4)) if top_cut > 0 else 0
     size = int(input("Enter tournament size >> "))
-    date_created = int(dateutil.parser.isoparse(input("Date created ISO timestamp (YYYY-MM-DD minimum) >> ")).timestamp())
+    date_created = int(
+        dateutil.parser.isoparse(
+            input("Date created ISO timestamp (YYYY-MM-DD minimum) >> ")
+        ).timestamp()
+    )
 
     for standing, line in enumerate(reader):
         name = line[name_index]
@@ -62,7 +84,11 @@ with open(filepath) as f:
             draws = int(line[draws_index])
             losses = int(line[losses_index])
 
-        wins_bracket = bracket_rounds - math.ceil(math.log(standing + 1, 4)) if standing +1 <= top_cut else 0
+        wins_bracket = (
+            bracket_rounds - math.ceil(math.log(standing + 1, 4))
+            if standing + 1 <= top_cut
+            else 0
+        )
         losses_bracket = 1 if standing + 1 > 1 and standing + 1 <= top_cut else 0
 
         if top_cut_included:
@@ -75,21 +101,29 @@ with open(filepath) as f:
             losses += losses_bracket
 
         standings.append(
-            {"name": name,
-            "standing": standing + 1,
-            "wins": wins,
-            "draws": draws,
-            "losses": losses,
-            "winsSwiss": wins_swiss,
-            "drawsSwiss": draws,
-            "lossesSwiss": losses_swiss,
-            "winRate": wins / (wins + losses + draws) if wins + losses + draws != 0 else None,
-            "winRateSwiss": wins_swiss / total_rounds if total_rounds != 0 else None,
-            "winRateBracket": wins_bracket / (wins_bracket + losses_bracket) if wins_bracket + losses_bracket != 0 else None,
-            "winsBracket": wins_bracket,
-            "lossesBracket": losses_bracket,
-            "decklist": line[decklist_index]
-            })
+            {
+                "name": name,
+                "standing": standing + 1,
+                "wins": wins,
+                "draws": draws,
+                "losses": losses,
+                "winsSwiss": wins_swiss,
+                "drawsSwiss": draws,
+                "lossesSwiss": losses_swiss,
+                "winRate": wins / (wins + losses + draws)
+                if wins + losses + draws != 0
+                else None,
+                "winRateSwiss": wins_swiss / total_rounds
+                if total_rounds != 0
+                else None,
+                "winRateBracket": wins_bracket / (wins_bracket + losses_bracket)
+                if wins_bracket + losses_bracket != 0
+                else None,
+                "winsBracket": wins_bracket,
+                "lossesBracket": losses_bracket,
+                "decklist": line[decklist_index],
+            }
+        )
 
     metadata = {
         "TID": str(TID),
@@ -98,13 +132,13 @@ with open(filepath) as f:
         "date": datetime.datetime.fromtimestamp(date_created),
         "topCut": top_cut,
         "swissNum": total_rounds,
-        "size": size
+        "size": size,
     }
 
 client = MongoClient("mongodb://localhost:27017")
 
-db = client['cedhtop16']
+db = client["cedhtop16"]
 
-db['metadata'].insert_one(metadata)
+db["metadata"].insert_one(metadata)
 
 db[str(TID)].insert_many(standings)
