@@ -9,6 +9,7 @@ from selenium.webdriver.common.by import By
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import wubrgify
+from html import unescape
 
 if __name__ == '__main__':
     client = MongoClient(dotenv_values("./config.env")['ATLAS_URI'])
@@ -50,7 +51,7 @@ if __name__ == '__main__':
                     browser.close()
                 else:
                     commanders = mtg_api.get_deck(decklist_url).get_commander()
-            except Exception as e:
+            except Exception as e:  
                 print(f"Warning: error while fetching decklist. Entry marked with 'Unknown Commander.' Object ID: {i['_id']} Error: {e}")
                 commander_string = "Unknown Commander"
                 col.update_one(i, {'$set': {'commander': commander_string, 'colorID': 'N/A'}})
@@ -74,13 +75,17 @@ if __name__ == '__main__':
             colors = []
             for commander in commanders:
                 try:
+                    commander = unescape(commander)
                     if commander not in memo:
                         memo[commander] = mtg_api.get_card(commander)['color_identity']
                     colors += memo[commander]
                 except Exception as e:
-                    print(e)
-                    print(f"Error while fetching '{commander}' from mtg_api (likely ampersand/other character). ID: {i['_id']}")
-                    break
+                    if '//' in commander: # Mtggoldfish returns partners as a single string
+                        commanders += list(map(lambda x: x.trim(), commander.split("//")))
+                    else:
+                        print(e)
+                        print(f"Error while fetching '{commander}' from mtg_api (likely ampersand/other character). ID: {i['_id']}")
+                        break
             else:
                 color_id = color_id + reduce(lambda x, y: x + y, colors) if colors else ""
                 color_id = wubrgify(color_id)
