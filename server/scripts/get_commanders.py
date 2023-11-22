@@ -117,7 +117,7 @@ if __name__ == "__main__":
                         "//" in commander
                     ):  # Mtggoldfish returns partners as a single string
                         commanders += list(
-                            map(lambda x: x.trim(), commander.split("//"))
+                            map(lambda x: x.strip(), commander.split("//"))
                         )
                     else:
                         print(e)
