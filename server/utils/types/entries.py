@@ -41,6 +41,7 @@ class DBEntry(BaseModel):
 
 class Entry(DBEntry):
     # Temporarily, everything is optional until we clean our database.
+    # id: Optional[str] = None
     tournamentName: Optional[str] = None
     TID: Optional[str] = None
     topCut: Optional[int] = None
