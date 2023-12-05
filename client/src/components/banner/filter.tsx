@@ -4,6 +4,7 @@ import { FilterContext } from "../../context/filter";
 import { useClickOutside } from "../../utils/useClickOutside";
 import { Colors } from "./filters/colors";
 import { Standing } from "./filters/standing";
+import ExportCSVButton from "../csvExport";
 
 export function Filter() {
   const [openFilters, setOpenFilters] = useState(false);
@@ -30,6 +31,8 @@ export function Filter() {
           </div>
         </div>
         <button className="filter-btn md:ml-4">Reset</button>
+        <div className="flex-grow"></div>
+        <ExportCSVButton />
       </div>
     </>
   );
