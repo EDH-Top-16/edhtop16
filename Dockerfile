@@ -50,7 +50,7 @@ RUN npm i -g unit-http
 
 # Copy build output from client V2 build stage and install dependencies.
 COPY --from=client /app/.next client/.next
-COPY client/package*.json client
+COPY client/package*.json client/
 COPY client/server.js client
 COPY client/next.config.js client
 
