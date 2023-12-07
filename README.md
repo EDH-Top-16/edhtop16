@@ -7,34 +7,60 @@
 > Website for aggregating cEDH tournament data
 
 ## How to Contribute
+
 After cloning this repository, contact Jason for instructions on building the database. Becasue we rely on external APIs, our database update scripts don't work as-is. We're working on a script to pull from the EDHTop16 main database.
 
 ## Running using Docker
-[Docker](https://www.docker.com/) is a simpler way of running and managing the application stack. To get this working:
-- Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) on your system.
-- Run `docker-compose up` to stand up the backend and mongodb instance.
-- Run the frontend using the instructions below.
 
-Alternatively, if you wish to simply run the database, run `docker-compose up -d mongodb`.
+[Docker](https://www.docker.com/) is a simpler way of running and managing the application stack. To get this working, install [Docker Desktop](https://www.docker.com/products/docker-desktop/) on your system. To run the database, we recommend you run locally; contact Jason for a seed file.
 
-Automatic seeding of the database has not yet been implemented - to seed the database from a zip file, you can do the following:
-- Unzip the seed folder
-- Run `docker cp path_to_seed_folder/ mongodb:/root/mongo_seed`
-- Run `docker-compose exec -T mongodb mongorestore -d cedhtop16 /root/mongo_seed/cedhtop16`
+To build:
 
+```sh
+ docker build -f Dockerfile -t unit-app .
+```
+
+To run:
+
+Mac/Windows: 
+
+```sh
+docker run -p 8000:8000 --env MONGO_URI=mongodb://host.docker.internal:27017 --env ATLAS_URI=mongodb://host.docker.internal:27017 --rm unit-app
+```
+
+Linux:
+
+```sh
+docker run -p 8000:8000 --net=host --env MONGO_URI=mongodb://localhost:27017 --env ATLAS_URI=mongodb://localhost:27017 --rm unit-app
+```
+
+The server should run v1 on its current routes. v2 client pages are on `/v2/*`, v2 API routes are on `v2/api/*`, GraphQL is on `v2/api/graphql`.
+
+To test:
+
+```sh
+curl -X GET -H 'Content-Type: application/json' -H 'Accept: application/json' http://localhost:8000/api/get_commanders
+```
+
+or simply visit `localhost:8000` in browser.
 
 ## Running without Docker
-### Start Backend 
+
+### Start Backend
+
 [`server/`](/server/)
-```
+
+```sh
 cd ./server/
 pip install -r ./requirements.txt
 uvicorn main:app --reload
 ```
 
 ### Start Frontend
+
 [`client/`](/client/)
-```
+
+```sh
 cd ./client/
 npm install
 npm run dev
@@ -42,5 +68,6 @@ npm run dev
 
 When submitting pull requests, please inform us if you've added any new packages and update the corresponding package lock files.
 
-## ⌨️ Special Thanks:
+## ⌨️ Special Thanks
+
 Made possible by @znayer and the Eminence Team
