@@ -1,4 +1,13 @@
-# Build client application.
+# Build the V1 client application.
+FROM node:20-bullseye as client_v1
+WORKDIR /app
+COPY client_v1 .
+RUN npm ci
+# Set API URL to empty string so the V1 client will fetch from the current host.
+RUN echo 'REACT_APP_uri=' > .env
+RUN npm run build
+
+# Build the V2 client application.
 FROM node:20-bullseye AS client
 WORKDIR /app
 COPY client .
@@ -33,13 +42,17 @@ COPY server server
 COPY server/requirements.txt server/requirements.txt
 RUN python3 -m pip install -r server/requirements.txt
 
+# Copy build output from client V1 stage and add to static file directory.
+COPY --from=client_v1 /app/build client_v1
+
 # Install global unit-http library
 RUN npm i -g unit-http
 
-# Copy build output from previous stage and install dependencies.
+# Copy build output from client V2 build stage and install dependencies.
 COPY --from=client /app/.next client/.next
 COPY client/package*.json client
 COPY client/server.js client
+COPY client/next.config.js client
 
 # Ensure Node.js is running in production mode and make the server executable.
 RUN cd client && npm ci && npm link unit-http
