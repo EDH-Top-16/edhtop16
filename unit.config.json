@@ -23,10 +23,18 @@
     },
     {
       "match": {
-        "uri": ["*"]
+        "uri": ["/v2*"]
       },
       "action": {
         "pass": "applications/client"
+      }
+    },
+    {
+      "match": {
+        "uri": ["*"]
+      },
+      "action": {
+        "share": "/app/client_v1/$uri"
       }
     }
   ],
