@@ -34,7 +34,7 @@ Linux:
 docker run -p 8000:8000 --net=host --env MONGO_URI=mongodb://localhost:27017 --env ATLAS_URI=mongodb://localhost:27017 --rm unit-app
 ```
 
-The server should run v1 on its current routes. v2 client pages are on `/v2/*`, v2 API routes are on `v2/api/*`, GraphQL is on `v2/api/graphql`.
+The server should run v1 on its current routes. v2 client pages are on `v2/*`, v2 API routes are on `api/v2/*`, GraphQL is on `api/v2/graphql`.
 
 To test:
 
