@@ -1,0 +1,67 @@
+{
+  "listeners": {
+    "*:8000": {
+      "pass": "routes"
+    }
+  },
+  "routes": [
+    {
+      "match": {
+        "uri": ["/api/v2/*"]
+      },
+      "action": {
+        "pass": "applications/server"
+      }
+    },
+    {
+      "match": {
+        "uri": ["/api/*"]
+      },
+      "action": {
+        "pass": "applications/server_v1"
+      }
+    },
+    {
+      "match": {
+        "uri": ["/v2*"]
+      },
+      "action": {
+        "pass": "applications/client"
+      }
+    },
+    {
+      "match": {
+        "uri": ["*"]
+      },
+      "action": {
+        "share": "/app/client_v1/$uri"
+      }
+    }
+  ],
+  "applications": {
+    "server": {
+      "type": "python 3",
+      "path": "/app/server",
+      "module": "main",
+      "callable": "app"
+    },
+    "client": {
+      "type": "external",
+      "working_directory": "client",
+      "executable": "server.js"
+    },
+    "server_v1": {
+      "type": "external",
+      "working_directory": "server_v1",
+      "executable": "/usr/bin/env",
+      "arguments": [
+        "node",
+        "--loader",
+        "unit-http/loader.mjs",
+        "--require",
+        "unit-http/loader",
+        "server.prod.js"
+      ]
+    }
+  }
+}

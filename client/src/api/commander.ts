@@ -10,7 +10,7 @@ export async function getCommanders(
   if (!v.success) throw new Error("Invalid filters");
 
   const res = await axios.post<AllFiltersType>(
-    "http://localhost:8000/api/commanders",
+    "http://localhost:8000/api/v2/commanders",
     filters,
     { timeout: 10000 },
   );
