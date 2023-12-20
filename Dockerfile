@@ -53,6 +53,7 @@ COPY --from=client /app/.next client/.next
 COPY client/package*.json client/
 COPY client/server.js client
 COPY client/next.config.js client
+COPY client/relay.config.js client
 
 # Ensure Node.js is running in production mode and make the server executable.
 RUN cd client && npm ci && npm link unit-http
