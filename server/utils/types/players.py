@@ -19,5 +19,6 @@ class Player(BaseModel):
     lossesSwiss: Optional[int] = None
     lossesBracket: Optional[int] = None
     conversionRate: Optional[float] = None
+    conversionScore: Optional[float] = None
     topCuts: Optional[int] = None
     tournaments: Optional[List[Entry]] = None

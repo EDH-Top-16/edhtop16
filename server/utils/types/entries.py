@@ -25,3 +25,4 @@ class Entry(BaseModel):
     tournamentName: Optional[str] = None
     TID: Optional[str] = None
     topCut: Optional[int] = None
+    tournamentSize: Optional[int] = None
