@@ -68,4 +68,4 @@ def calculateConversionScore(topCuts: int, tournaments: List[Entry]) -> float:
     expected = 0
     for t in tournaments:
         expected += (t.topCut or 0) / (t.tournamentSize or 1)
-    return (topCuts or 0) / expected * 100 if expected != 0 else 0.0
+    return (topCuts or 0) / expected if expected != 0 else 0.0
