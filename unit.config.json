@@ -48,7 +48,15 @@
     "client": {
       "type": "external",
       "working_directory": "client",
-      "executable": "server.js"
+      "executable": "/usr/bin/env",
+      "arguments": [
+        "node",
+        "--loader",
+        "unit-http/loader.mjs",
+        "--require",
+        "unit-http/loader",
+        "server.js"
+      ]
     },
     "server_v1": {
       "type": "external",
@@ -60,7 +68,7 @@
         "unit-http/loader.mjs",
         "--require",
         "unit-http/loader",
-        "server.prod.js"
+        "server.js"
       ]
     }
   }

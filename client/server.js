@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * @fileoverview This is a custom Next.js server only intended for use in
  * production. It overrides Next.js's usage of the http module to integrate
