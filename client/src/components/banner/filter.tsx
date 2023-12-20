@@ -2,6 +2,7 @@ import { useContext, useRef, useState } from "react";
 import { AiOutlineDown } from "react-icons/ai";
 import { FilterContext } from "../../context/filter";
 import { useClickOutside } from "../../utils/useClickOutside";
+import { ExportCSVButton } from "../csvExport";
 import { Colors } from "./filters/colors";
 import { Standing } from "./filters/standing";
 
@@ -30,6 +31,8 @@ export function Filter() {
           </div>
         </div>
         <button className="filter-btn md:ml-4">Reset</button>
+        <div className="flex-grow"></div>
+        <ExportCSVButton />
       </div>
     </>
   );

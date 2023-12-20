@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
+  basePath: "/v2",
   async rewrites() {
     return [
       {
@@ -9,6 +9,7 @@ const nextConfig = {
       },
     ];
   },
+  compiler: { relay: require("./relay.config") },
 };
 
 module.exports = nextConfig;
