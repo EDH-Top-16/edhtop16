@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import moment from "moment";
+import _ from "lodash";
 import {
   AiOutlineClose,
   AiOutlinePlus,
@@ -62,7 +63,7 @@ export default function Filter({
   function removeFilters(filterBy, isTourneyFilter) {
     if (isTourneyFilter) {
       if (Object.keys(filters).includes("tourney_filter")) {
-        let temp = { ...filters };
+        let temp = _.cloneDeep(filters);
         if (Object.keys(temp.tourney_filter).includes(filterBy)) {
           delete temp.tourney_filter[filterBy];
           setFilters(temp);
