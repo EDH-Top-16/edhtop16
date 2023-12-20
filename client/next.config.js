@@ -9,6 +9,7 @@ const nextConfig = {
       },
     ];
   },
+  compiler: { relay: require("./relay.config") },
 };
 
 module.exports = nextConfig;
