@@ -1,6 +1,10 @@
 import { Environment, Network, RecordSource, Store } from "relay-runtime";
 
-const baseUrl = new URL("http://localhost:8000");
+const baseUrl = new URL(
+  process.env.NODE_ENV === "production"
+    ? "https://edhtop16.com"
+    : "http://localhost:8000",
+);
 
 export function createClientNetwork() {
   return Network.create(async (params, variables) => {
