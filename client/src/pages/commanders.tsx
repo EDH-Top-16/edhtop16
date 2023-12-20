@@ -1,38 +1,50 @@
-import _ from "lodash";
-import { useContext, useEffect, useState } from "react";
-import { getCommanders } from "../api/commander";
+import { useContext, useEffect } from "react";
 import { Banner } from "../components/banner/banner";
 import { Navigation } from "../components/nav";
 import { defaultFilters, enabledFilters } from "../constants/filters";
 import { FilterContext } from "../context/filter";
-import { CommandersType } from "../utils/types/commanders";
 
-export default function CommandersPage() {
+import { graphql, usePreloadedQuery } from "react-relay/hooks";
+import { RelayProps, withRelay } from "relay-nextjs";
+import { getClientEnvironment } from "../lib/client/relay_client_environment";
+import { commanders_CommandersQuery } from "../queries/__generated__/commanders_CommandersQuery.graphql";
+
+const CommandersQuery = graphql`
+  query commanders_CommandersQuery {
+    commanders {
+      name
+      colorID
+      wins
+      winsSwiss
+      winsBracket
+      draws
+      losses
+      lossesSwiss
+      lossesBracket
+      count
+      winRate
+      winRateSwiss
+      winRateBracket
+      topCuts
+      conversionRate
+      colorID
+    }
+  }
+`;
+
+function CommandersPage({
+  preloadedQuery,
+}: RelayProps<{}, commanders_CommandersQuery>) {
+  const { commanders } = usePreloadedQuery(CommandersQuery, preloadedQuery);
+
   // Get the filters from the context
   const { filters, setFilters, setEnabled } = useContext(FilterContext);
-
-  const [commanders, setCommanders] = useState<CommandersType>();
 
   // Set the default filters for the commanders view
   useEffect(() => {
     setEnabled(enabledFilters.commanders);
     setFilters(defaultFilters.commanders);
   }, [setEnabled, setFilters]);
-
-  // Fetch the commanders
-  useEffect(() => {
-    if (_.isEmpty(filters)) return; // If filters is empty, don't fetch
-
-    (async () => {
-      try {
-        const data = await getCommanders(filters);
-        setCommanders(data);
-      } catch (e) {
-        console.error(e);
-        setCommanders(undefined);
-      }
-    })();
-  }, [filters]);
 
   return (
     <div className="flex h-screen w-screen bg-secondary">
@@ -53,20 +65,16 @@ export default function CommandersPage() {
             </thead>
             <tbody>
               {/* Commanders is an object with key being commander name */}
-              {commanders &&
-                Object.keys(commanders).map((name: string, i: number) => (
-                  <tr key={i}>
-                    <td>{i + 1}</td>
-                    <td>{name}</td>
-                    <td>{commanders[name]?.topCuts}</td>
-                    <td>{commanders[name]?.count}</td>
-                    <td>
-                      {Math.round((commanders[name].conversionRate ?? 0) * 100)}
-                      %
-                    </td>
-                    <td>{commanders[name]?.colors as any}</td>
-                  </tr>
-                ))}
+              {commanders.map((c, i) => (
+                <tr key={c.name}>
+                  <td>{i + 1}</td>
+                  <td>{c.name}</td>
+                  <td>{c.topCuts}</td>
+                  <td>{c.count}</td>
+                  <td>{Math.round((c.conversionRate ?? 0) * 100)}%</td>
+                  <td>{c.colorID}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </main>
@@ -74,3 +82,14 @@ export default function CommandersPage() {
     </div>
   );
 }
+
+export default withRelay(CommandersPage, CommandersQuery, {
+  createClientEnvironment: () => getClientEnvironment()!,
+  createServerEnvironment: async (ctx) => {
+    const { createServerEnvironment } = await import(
+      "../lib/server/relay_server_environment"
+    );
+
+    return createServerEnvironment();
+  },
+});
