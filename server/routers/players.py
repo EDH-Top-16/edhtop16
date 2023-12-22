@@ -48,16 +48,25 @@ async def player(profile: str) -> Player:
 
         out.tournaments.append(entry)
 
-    out.winRate = (out.wins or 0) / (
-        (out.wins or 0) + (out.draws or 0) + (out.losses or 0)
+    out.winRate = (
+        (out.wins or 0) / ((out.wins or 0) + (out.draws or 0) + (out.losses or 0))
+        if (out.wins or 0) + (out.draws or 0) + (out.losses or 0) != 0
+        else 0.0
     )
-    out.winRateSwiss = (out.winsSwiss or 0) / (
-        (out.winsSwiss or 0) + (out.draws or 0) + (out.lossesSwiss or 0)
+    out.winRateSwiss = (
+        (out.winsSwiss or 0)
+        / ((out.winsSwiss or 0) + (out.draws or 0) + (out.lossesSwiss or 0))
+        if (out.winsSwiss or 0) + (out.draws or 0) + (out.lossesSwiss or 0) != 0
+        else 0.0
     )
-    out.winRateBracket = (out.winsBracket or 0) / (
-        (out.winsBracket or 0) + (out.lossesBracket or 0)
+    out.winRateBracket = (
+        (out.winsBracket or 0) / ((out.winsBracket or 0) + (out.lossesBracket or 0))
+        if (out.winsBracket or 0) + (out.lossesBracket or 0) != 0
+        else 0.0
     )
-    out.conversionRate = topCuts / len(out.tournaments)
+    out.conversionRate = (
+        topCuts / len(out.tournaments) if len(out.tournaments) != 0 else 0
+    )
     out.conversionScore = calculateConversionScore(topCuts, out.tournaments)
     out.topCuts = topCuts
 
