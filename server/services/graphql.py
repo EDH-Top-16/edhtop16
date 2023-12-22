@@ -182,18 +182,25 @@ class Query:
             player.tournaments.append(entry)
 
         player.winRate = (
-            (player.wins or 0) / ((player.wins or 0) + (player.draws or 0) + (player.losses or 0))
+            (player.wins or 0)
+            / ((player.wins or 0) + (player.draws or 0) + (player.losses or 0))
             if (player.wins or 0) + (player.draws or 0) + (player.losses or 0) != 0
             else 0.0
         )
         player.winRateSwiss = (
             (player.winsSwiss or 0)
-            / ((player.winsSwiss or 0) + (player.draws or 0) + (player.lossesSwiss or 0))
-            if (player.winsSwiss or 0) + (player.draws or 0) + (player.lossesSwiss or 0) != 0
+            / (
+                (player.winsSwiss or 0)
+                + (player.draws or 0)
+                + (player.lossesSwiss or 0)
+            )
+            if (player.winsSwiss or 0) + (player.draws or 0) + (player.lossesSwiss or 0)
+            != 0
             else 0.0
         )
         player.winRateBracket = (
-            (player.winsBracket or 0) / ((player.winsBracket or 0) + (player.lossesBracket or 0))
+            (player.winsBracket or 0)
+            / ((player.winsBracket or 0) + (player.lossesBracket or 0))
             if (player.winsBracket or 0) + (player.lossesBracket or 0) != 0
             else 0.0
         )
