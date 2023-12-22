@@ -11,6 +11,7 @@ from utils.types import (
     Player,
 )
 from db.tournaments_db import get_commanders, get_tournaments, get_entries
+from routers.players import calculateConversionScore
 
 
 @strawberry.experimental.pydantic.type(model=Commander, all_fields=True)
@@ -180,16 +181,26 @@ class Query:
 
             player.tournaments.append(entry)
 
-        player.winRate = (player.wins or 0) / (
-            (player.wins or 0) + (player.draws or 0) + (player.losses or 0)
+        player.winRate = (
+            (player.wins or 0) / ((player.wins or 0) + (player.draws or 0) + (player.losses or 0))
+            if (player.wins or 0) + (player.draws or 0) + (player.losses or 0) != 0
+            else 0.0
         )
-        player.winRateSwiss = (player.winsSwiss or 0) / (
-            (player.winsSwiss or 0) + (player.draws or 0) + (player.lossesSwiss or 0)
+        player.winRateSwiss = (
+            (player.winsSwiss or 0)
+            / ((player.winsSwiss or 0) + (player.draws or 0) + (player.lossesSwiss or 0))
+            if (player.winsSwiss or 0) + (player.draws or 0) + (player.lossesSwiss or 0) != 0
+            else 0.0
         )
-        player.winRateBracket = (player.winsBracket or 0) / (
-            (player.winsBracket or 0) + (player.lossesBracket or 0)
+        player.winRateBracket = (
+            (player.winsBracket or 0) / ((player.winsBracket or 0) + (player.lossesBracket or 0))
+            if (player.winsBracket or 0) + (player.lossesBracket or 0) != 0
+            else 0.0
         )
-        player.conversionRate = topCuts / len(player.tournaments)
+        player.conversionRate = (
+            topCuts / len(player.tournaments) if len(player.tournaments) != 0 else 0
+        )
+        player.conversionScore = calculateConversionScore(topCuts, player.tournaments)
         player.topCuts = topCuts
 
         return PlayerType.from_pydantic(player)
