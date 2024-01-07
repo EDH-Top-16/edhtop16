@@ -43,6 +43,7 @@ export async function getTournaments(filters){
  */
 export function getCommanderRankings(data, entries, x) {
   var uniqueCommanders = [];
+  const topCuts = [16, 4, 1];
 
   // Iterating through the entirety of the array to find unique comanders
   for (let i = 0; i < data.length; i++) {
@@ -50,14 +51,19 @@ export function getCommanderRankings(data, entries, x) {
      * If so-far unique, push it to the uniqueCommanders array given the filters
      */
     if (!uniqueCommanders.find((el) => el.commander === data[i].commander)) {
-      if (data[i].standing <= x) {
-        if (!data[i].hasOwnProperty("topX")) data[i].topX = 1;
-      } else {
-        if (!data[i].hasOwnProperty("topX")) data[i].topX = 0;
-      }
+
+      topCuts.forEach(cut => {
+        if(data[i].standing <= cut){
+          if(!data[i].hasOwnProperty(cut)) data[i][cut] = 1;
+        } else {
+          if(!data[i].hasOwnProperty(cut)) data[i][cut] = 0;
+        }
+      });
 
       data[i].tiebreaker = 0;
-      data[i].count = 1;
+      if(!data[i].hasOwnProperty("count"))
+        data[i].count = 1;
+
 
       let slug;
       if (data[i].commander) {
@@ -74,19 +80,21 @@ export function getCommanderRankings(data, entries, x) {
       let match = uniqueCommanders.find(
         (el) => el.commander === data[i].commander
       );
-
-      if (data[i].standing <= x) {
-        match.topX++;
-      }
-
-      // Tiebreaker value is 4/1/16 for x = 16/4/1
-      let tiebreaker = x === 16 ? 4 : x === 4 ? 1 : 16;
-      if (data[i].standing <= tiebreaker) {
-        match.tiebreaker += 1;
-      }
+      
+      topCuts.forEach((cut) => {
+        if (data[i].standing <= cut) {
+          match[cut]++;
+        }
+      });
 
       match.count++;
     }
+
+    uniqueCommanders.forEach(commander => {
+      commander.topX = commander[x];
+      let tiebreaker = x === 16 ? 4 : x === 4 ? 1 : 16;
+      commander.tiebreaker = commander[tiebreaker];
+    })
   }
 
   // Sort the array with respect to topXs and tiebreaker

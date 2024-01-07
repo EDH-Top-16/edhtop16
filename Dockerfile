@@ -53,17 +53,12 @@ COPY --from=client /app/.next client/.next
 COPY client/package*.json client/
 COPY client/server.js client
 COPY client/next.config.js client
-
-# Ensure Node.js is running in production mode and make the server executable.
+COPY client/relay.config.js client
 RUN cd client && npm ci && npm link unit-http
-RUN chmod +x client/server.js
 
-# Create a version of server.js with a hashbang and using unit-http for production.
+# Copy server V1 and install dependencies.
 COPY server_v1 server_v1
 RUN cd server_v1 && npm ci && npm link unit-http
-RUN echo '#!/usr/bin/env node' > server_v1/server.prod.js
-RUN cat server_v1/server.js >> server_v1/server.prod.js
-RUN chmod +x server_v1/server.prod.js
 
 # Copy Nginx unit configuration file to configuration directory.
 COPY unit.config.json /docker-entrypoint.d/

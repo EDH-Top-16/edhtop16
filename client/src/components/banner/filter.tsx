@@ -2,9 +2,9 @@ import { useContext, useRef, useState } from "react";
 import { AiOutlineDown } from "react-icons/ai";
 import { FilterContext } from "../../context/filter";
 import { useClickOutside } from "../../utils/useClickOutside";
+import { ExportCSVButton } from "../csvExport";
 import { Colors } from "./filters/colors";
 import { Standing } from "./filters/standing";
-import ExportCSVButton from "../csvExport";
 
 export function Filter() {
   const [openFilters, setOpenFilters] = useState(false);
