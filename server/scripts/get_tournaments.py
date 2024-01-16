@@ -1,3 +1,7 @@
+# Flags:
+# [-o] overwrite existing data assuming upstream CT api is correct;
+#       Will ignore existing tournaments and only add new tournaments if not provided.
+
 from pymongo import MongoClient
 import mtg_api  # Import from file
 from functools import reduce

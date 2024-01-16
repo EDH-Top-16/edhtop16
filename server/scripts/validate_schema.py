@@ -9,6 +9,7 @@ import sys
 import os
 from pydantic import ValidationError
 
+# Adds current parent directory to PATH in order to import Entry and DBEntry types
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.types import Entry, DBEntry
 

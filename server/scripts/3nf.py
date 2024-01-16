@@ -1,12 +1,14 @@
+# Flags:
+# [-o] overwrite existing data assuming upstream 1nf db is correct;
+#       Will ignore existing tournaments and only add new tournaments if not provided.
+
 from pymongo import MongoClient
 from dotenv import dotenv_values
 import sys
 import datetime
 from tqdm import tqdm
 
-# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-# Converts entries/to9urnamnets schema into 3rd normal form database
+# Converts entries/tournamnets schema into 3rd normal form database
 if __name__ == "__main__":
     client = MongoClient(dotenv_values("./config.env")["ATLAS_URI"])
 

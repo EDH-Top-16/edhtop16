@@ -1,3 +1,7 @@
+# Flags:
+# [-u] attempt to update entries whose commander is marked unknown or missing;
+#       Will ignore unknown commanders and only update entries without commanders
+
 from pymongo import MongoClient
 from functools import reduce
 from tqdm import tqdm
@@ -8,7 +12,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import os
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import wubrgify
 from html import unescape
 
