@@ -48,7 +48,7 @@ def fetch_tournaments(filters=None):
         "Accept": "application/json",
     }
 
-    r = requests.post("https://eminence.events/api", json=data, headers=headers)
+    r = requests.post("https://topdeck.gg/api", json=data, headers=headers)
     return json.loads(r.text)
 
 
