@@ -4,6 +4,7 @@ from datetime import datetime
 from utils import wubrgify
 from bson.objectid import ObjectId
 
+
 class DBEntry(BaseModel):
     id_: Union[str, None] = Field(None, alias="_id")
     name: Union[str, None] = None
@@ -22,21 +23,24 @@ class DBEntry(BaseModel):
     standing: Union[int, None] = None
     colorID: Union[str, None] = None
     commander: Union[str, None] = None
-    
+
     class Config:
         extra = "forbid"
 
     @validator("colorID", pre=True)
     def checkColor(color: str):
-        if type(color) != str: return None
-        if color == "N/A": return None
+        if type(color) != str:
+            return None
+        if color == "N/A":
+            return None
         return wubrgify(color)
-    
+
     @validator("id_", pre=True)
     def checkID(id_):
-        if isinstance(id_, ObjectId): return str(id_)
-        else: return id_
-    
+        if isinstance(id_, ObjectId):
+            return str(id_)
+        else:
+            return id_
 
 
 class Entry(DBEntry):
