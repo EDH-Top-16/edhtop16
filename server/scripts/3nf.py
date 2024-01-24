@@ -79,7 +79,12 @@ if __name__ == "__main__":
                 elif overwrite_data:
                     commander_id = db_3nf["commanders"].find_one_and_update(
                         {"name": entry["commander"]},
-                        {"$set": {"name": entry["commander"], "colorID": entry["colorID"]}},
+                        {
+                            "$set": {
+                                "name": entry["commander"],
+                                "colorID": entry["colorID"],
+                            }
+                        },
                         upsert=True,
                         return_document=collection.ReturnDocument.AFTER,
                     )["_id"]
