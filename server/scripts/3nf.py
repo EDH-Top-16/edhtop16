@@ -2,7 +2,7 @@
 # [-o] overwrite existing data assuming upstream 1nf db is correct;
 #       Will ignore existing tournaments and only add new tournaments if not provided.
 
-from pymongo import MongoClient
+from pymongo import MongoClient, collection
 from dotenv import dotenv_values
 import sys
 import datetime
@@ -43,9 +43,9 @@ if __name__ == "__main__":
                 if overwrite_data:
                     player_id = db_3nf["players"].find_one_and_update(
                         {"name": entry["name"], "profile": entry["profile"]},
-                        {"name": entry["name"], "profile": entry["profile"]},
+                        {"$set": {"name": entry["name"], "profile": entry["profile"]}},
                         upsert=True,
-                        return_document=pymongo.collection.ReturnDocument.AFTER,
+                        return_document=collection.ReturnDocument.AFTER,
                     )["_id"]
                 elif (
                     db_3nf["players"].count_documents(
@@ -79,9 +79,9 @@ if __name__ == "__main__":
                 elif overwrite_data:
                     commander_id = db_3nf["commanders"].find_one_and_update(
                         {"name": entry["commander"]},
-                        {"name": entry["commander"], "colorID": entry["colorID"]},
+                        {"$set": {"name": entry["commander"], "colorID": entry["colorID"]}},
                         upsert=True,
-                        return_document=pymongo.collection.ReturnDocument.AFTER,
+                        return_document=collection.ReturnDocument.AFTER,
                     )["_id"]
                 elif (
                     db_3nf["commanders"].count_documents({"name": entry["commander"]})
