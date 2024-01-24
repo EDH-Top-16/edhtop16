@@ -1,5 +1,5 @@
 from typing import List, Optional, Union
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, field_validator, Field
 from datetime import datetime
 from utils import wubrgify
 from bson.objectid import ObjectId
@@ -27,16 +27,19 @@ class DBEntry(BaseModel):
     class Config:
         extra = "forbid"
 
-    @validator("colorID", pre=True)
-    def checkColor(color: str):
+    @field_validator("colorID", mode="before")
+    @classmethod
+    def checkColor(cls, color: str):
         if type(color) != str:
             return None
         if color == "N/A":
             return None
         return wubrgify(color)
 
-    @validator("id_", pre=True)
-    def checkID(id_):
+    # @validator("id_", pre=True)
+    @field_validator("id_", mode="before")
+    @classmethod
+    def checkID(cls, id_):
         if isinstance(id_, ObjectId):
             return str(id_)
         else:
