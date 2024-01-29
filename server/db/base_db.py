@@ -2,7 +2,8 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from typing import Optional, cast
 import os
 
-client: Optional[AsyncIOMotorClient] = None
+# Ignore typecheck for this line b/c Motor doesn't have typedef
+client: Optional[AsyncIOMotorClient] = None # type: ignore
 MONGO_URI = cast(str, os.getenv("MONGO_URI"))
 
 
@@ -17,7 +18,8 @@ async def shutdown():
         client.close()
 
 
-async def get_db_async(db_name: str) -> AsyncIOMotorDatabase:
+# Ignore typecheck for this line b/c Motor doesn't have typedef
+async def get_db_async(db_name: str) -> AsyncIOMotorDatabase: # type: ignore
     if client is None:
         raise RuntimeError("Must initialize database with startup() before accessing!")
 
