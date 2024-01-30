@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<940c139e1326ed4d365964dade7f3668>>
+ * @generated SignedSource<<dd966cfff4814b0201edf5482d29fe16>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,24 +9,11 @@
 // @ts-nocheck
 
 import { ConcreteRequest, Query } from 'relay-runtime';
+import { FragmentRefs } from "relay-runtime";
 export type commanders_CommandersQuery$variables = Record<PropertyKey, never>;
 export type commanders_CommandersQuery$data = {
   readonly commanders: ReadonlyArray<{
-    readonly colorID: string | null | undefined;
-    readonly conversionRate: number | null | undefined;
-    readonly count: number | null | undefined;
-    readonly draws: number | null | undefined;
-    readonly losses: number | null | undefined;
-    readonly lossesBracket: number | null | undefined;
-    readonly lossesSwiss: number | null | undefined;
-    readonly name: string;
-    readonly topCuts: number | null | undefined;
-    readonly winRate: number | null | undefined;
-    readonly winRateBracket: number | null | undefined;
-    readonly winRateSwiss: number | null | undefined;
-    readonly wins: number | null | undefined;
-    readonly winsBracket: number | null | undefined;
-    readonly winsSwiss: number | null | undefined;
+    readonly " $fragmentSpreads": FragmentRefs<"commanders_CommandersTableData">;
   }>;
 };
 export type commanders_CommandersQuery = {
@@ -34,132 +21,30 @@ export type commanders_CommandersQuery = {
   variables: commanders_CommandersQuery$variables;
 };
 
-const node: ConcreteRequest = (function(){
-var v0 = [
-  {
-    "alias": null,
-    "args": null,
-    "concreteType": "CommanderType",
-    "kind": "LinkedField",
-    "name": "commanders",
-    "plural": true,
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "name",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "colorID",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "wins",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "winsSwiss",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "winsBracket",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "draws",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "losses",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "lossesSwiss",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "lossesBracket",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "count",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "winRate",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "winRateSwiss",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "winRateBracket",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "topCuts",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "conversionRate",
-        "storageKey": null
-      }
-    ],
-    "storageKey": null
-  }
-];
-return {
+const node: ConcreteRequest = {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
     "name": "commanders_CommandersQuery",
-    "selections": (v0/*: any*/),
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "CommanderType",
+        "kind": "LinkedField",
+        "name": "commanders",
+        "plural": true,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "commanders_CommandersTableData"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
     "type": "Query",
     "abstractKey": null
   },
@@ -168,19 +53,135 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "commanders_CommandersQuery",
-    "selections": (v0/*: any*/)
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "CommanderType",
+        "kind": "LinkedField",
+        "name": "commanders",
+        "plural": true,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "colorID",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "wins",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "winsSwiss",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "winsBracket",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "draws",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "losses",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "lossesSwiss",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "lossesBracket",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "count",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "winRate",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "winRateSwiss",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "winRateBracket",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "topCuts",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "conversionRate",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
   },
   "params": {
-    "cacheID": "ed6ddd6195ce9b79df0334f64e13dc40",
+    "cacheID": "476fe80bb06fa974568ac452725d9615",
     "id": null,
     "metadata": {},
     "name": "commanders_CommandersQuery",
     "operationKind": "query",
-    "text": "query commanders_CommandersQuery {\n  commanders {\n    name\n    colorID\n    wins\n    winsSwiss\n    winsBracket\n    draws\n    losses\n    lossesSwiss\n    lossesBracket\n    count\n    winRate\n    winRateSwiss\n    winRateBracket\n    topCuts\n    conversionRate\n  }\n}\n"
+    "text": "query commanders_CommandersQuery {\n  commanders {\n    ...commanders_CommandersTableData\n  }\n}\n\nfragment commanders_CommanderTableRow on CommanderType {\n  name\n  colorID\n  wins\n  winsSwiss\n  winsBracket\n  draws\n  losses\n  lossesSwiss\n  lossesBracket\n  count\n  winRate\n  winRateSwiss\n  winRateBracket\n  topCuts\n  conversionRate\n}\n\nfragment commanders_CommandersTableData on CommanderType {\n  name\n  ...commanders_CommanderTableRow\n}\n"
   }
 };
-})();
 
-(node as any).hash = "0813fedb012e182f2d938e8c1ca4bba8";
+(node as any).hash = "d8e3ca0b585246776158522be9fa821e";
 
 export default node;

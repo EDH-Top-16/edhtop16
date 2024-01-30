@@ -1,10 +1,12 @@
-import { AboutIcon, BracketIcon, DeckIcon } from "../assets/icons";
+import AboutIcon from "../assets/icons/AboutIcon";
+import BracketIcon from "../assets/icons/BracketIcon";
+import DeckIcon from "../assets/icons/DeckIcon";
 
-type NavLink = {
+interface NavLink {
   href: string;
   label: string;
   icon: JSX.Element;
-};
+}
 
 export const NavLinks: NavLink[] = [
   { href: "/commanders", label: "commanders", icon: <DeckIcon /> },

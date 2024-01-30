@@ -4,6 +4,7 @@ module.exports = {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/assets/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -15,14 +16,11 @@ module.exports = {
         purple: {
           400: "#2A274D",
         },
-        white: "#F4F4F2",
-        black: "#19191A",
-        gray: "#606883",
       },
       spacing: {
         nav: "6rem",
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-react-aria-components")],
 };

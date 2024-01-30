@@ -13,16 +13,19 @@
   "dependencies": {
     "@json2csv/plainjs": "^7.0.3",
     "axios": "^1.4.0",
+    "classnames": "^2.5.1",
     "file-saver": "^2.0.5",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "next": "13.4.7",
     "react": "18.2.0",
+    "react-aria-components": "^1.0.1",
     "react-dom": "18.2.0",
     "react-icons": "^4.10.1",
     "react-relay": "^16.1.0",
     "relay-nextjs": "^3.0.1",
     "relay-runtime": "^16.1.0",
+    "tailwindcss-react-aria-components": "^1.0.0",
     "zod": "^3.22.2"
   },
   "devDependencies": {
