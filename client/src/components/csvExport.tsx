@@ -1,9 +1,8 @@
 import { StreamParser } from "@json2csv/plainjs";
 import { saveAs } from "file-saver";
 import moment from "moment";
-import { useCallback, useContext } from "react";
+import { useCallback } from "react";
 import { fetchQuery, graphql, useRelayEnvironment } from "react-relay";
-import { FilterContext } from "../context/filter";
 import { csvExport_CommandersQuery } from "../queries/__generated__/csvExport_CommandersQuery.graphql";
 
 const ExportCommandersQuery = graphql`
@@ -30,7 +29,6 @@ const ExportCommandersQuery = graphql`
 `;
 
 export function ExportCSVButton() {
-  const { filters } = useContext(FilterContext);
   const env = useRelayEnvironment();
   const downloadDecksAsCsv = useCallback(() => {
     const opts = {};
