@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<dd966cfff4814b0201edf5482d29fe16>>
+ * @generated SignedSource<<87e1d1c391ca1f1cf084834416fe1f57>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -173,12 +173,12 @@ const node: ConcreteRequest = {
     ]
   },
   "params": {
-    "cacheID": "476fe80bb06fa974568ac452725d9615",
+    "cacheID": "d07d7358fab9b173cfe6810ccc4a513f",
     "id": null,
     "metadata": {},
     "name": "commanders_CommandersQuery",
     "operationKind": "query",
-    "text": "query commanders_CommandersQuery {\n  commanders {\n    ...commanders_CommandersTableData\n  }\n}\n\nfragment commanders_CommanderTableRow on CommanderType {\n  name\n  colorID\n  wins\n  winsSwiss\n  winsBracket\n  draws\n  losses\n  lossesSwiss\n  lossesBracket\n  count\n  winRate\n  winRateSwiss\n  winRateBracket\n  topCuts\n  conversionRate\n}\n\nfragment commanders_CommandersTableData on CommanderType {\n  name\n  ...commanders_CommanderTableRow\n}\n"
+    "text": "query commanders_CommandersQuery {\n  commanders {\n    ...commanders_CommandersTableData\n  }\n}\n\nfragment commanders_CommanderTableRow on CommanderType {\n  name\n  colorID\n  wins\n  winsSwiss\n  winsBracket\n  draws\n  losses\n  lossesSwiss\n  lossesBracket\n  count\n  winRate\n  winRateSwiss\n  winRateBracket\n  topCuts\n  conversionRate\n  ...commanders_CommanderTableRowMobileView\n}\n\nfragment commanders_CommanderTableRowMobileView on CommanderType {\n  name\n  colorID\n  topCuts\n  conversionRate\n  count\n}\n\nfragment commanders_CommandersTableData on CommanderType {\n  name\n  ...commanders_CommanderTableRow\n}\n"
   }
 };
 

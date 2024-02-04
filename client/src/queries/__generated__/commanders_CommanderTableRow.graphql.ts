@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<2825781134b79eab27d38846d082ecf9>>
+ * @generated SignedSource<<d46dba9e3030e1d9ecb497e2d61be3c3>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -26,6 +26,7 @@ export type commanders_CommanderTableRow$data = {
   readonly wins: number | null | undefined;
   readonly winsBracket: number | null | undefined;
   readonly winsSwiss: number | null | undefined;
+  readonly " $fragmentSpreads": FragmentRefs<"commanders_CommanderTableRowMobileView">;
   readonly " $fragmentType": "commanders_CommanderTableRow";
 };
 export type commanders_CommanderTableRow$key = {
@@ -143,12 +144,17 @@ const node: ReaderFragment = {
       "kind": "ScalarField",
       "name": "conversionRate",
       "storageKey": null
+    },
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "commanders_CommanderTableRowMobileView"
     }
   ],
   "type": "CommanderType",
   "abstractKey": null
 };
 
-(node as any).hash = "134231865248810148072d0350de4926";
+(node as any).hash = "b7e52fa2cc75a21596c41cce6432e4aa";
 
 export default node;

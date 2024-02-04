@@ -48,9 +48,11 @@ async def get_commanders(filters: AllFilters) -> dict[str, Commander]:
                 losses=player.losses or 0,
                 lossesSwiss=player.lossesSwiss or 0,
                 lossesBracket=player.lossesBracket or 0,
-                topCuts=1
-                if (player.standing or float("inf")) <= (player.topCut or 0)
-                else 0,
+                topCuts=(
+                    1
+                    if (player.standing or float("inf")) <= (player.topCut or 0)
+                    else 0
+                ),
                 count=1,
             )
         else:

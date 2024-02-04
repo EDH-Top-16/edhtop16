@@ -19,6 +19,7 @@ import { getClientEnvironment } from "../lib/client/relay_client_environment";
 import { commanders_CommanderTableRow$key } from "../queries/__generated__/commanders_CommanderTableRow.graphql";
 import { commanders_CommandersQuery } from "../queries/__generated__/commanders_CommandersQuery.graphql";
 import { commanders_CommandersTableData$key } from "../queries/__generated__/commanders_CommandersTableData.graphql";
+import { commanders_CommanderTableRowMobileView$key } from "../queries/__generated__/commanders_CommanderTableRowMobileView.graphql";
 
 function CommandersTableColumnHeader({
   hideOnMobile,
@@ -56,6 +57,57 @@ function CommanderTableDataCell({
   );
 }
 
+function CommanderTableRowMobileView({
+  rank,
+  ...props
+}: {
+  rank: number;
+  commander: commanders_CommanderTableRowMobileView$key;
+}) {
+  const commander = useFragment(
+    graphql`
+      fragment commanders_CommanderTableRowMobileView on CommanderType {
+        name
+        colorID
+        topCuts
+        conversionRate
+        count
+      }
+    `,
+    props.commander,
+  );
+
+  return (
+    <div className="mb-4 grid h-16 grid-cols-[1fr_auto] items-baseline gap-x-3 gap-y-2 md:hidden">
+      <div>
+        <span className="mr-2 text-sm font-semibold text-indigo-300">
+          #{rank}
+        </span>
+        <span className="font-semibold">{commander.name}</span>
+      </div>
+
+      <div className="flex flex-col items-end text-sm text-gray-200">
+        <div>Top X: {commander.topCuts}</div>
+        <div>
+          {commander.conversionRate && (
+            <span className="ml-2 text-sm font-semibold text-indigo-300">
+              ({Math.round(commander.conversionRate * 100) / 100}%)
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div>
+        {commander.colorID && <ColorIdentity identity={commander.colorID} />}
+      </div>
+
+      <div className="flex flex-col items-end text-sm text-gray-200">
+        <div>Entries: {commander.count}</div>
+      </div>
+    </div>
+  );
+}
+
 function CommandersTableRow({
   rank,
   ...props
@@ -82,6 +134,8 @@ function CommandersTableRow({
         topCuts
         conversionRate
         colorID
+
+        ...commanders_CommanderTableRowMobileView
       }
     `,
     props.commander,
@@ -92,7 +146,7 @@ function CommandersTableRow({
       <CommanderTableDataCell hideOnMobile>{rank}</CommanderTableDataCell>
       <CommanderTableDataCell>
         <span className="hidden font-semibold md:inline">{commander.name}</span>
-        <div className="grid h-16 md:hidden">{commander.name} mobile view</div>
+        <CommanderTableRowMobileView rank={rank} commander={commander} />
       </CommanderTableDataCell>
       <CommanderTableDataCell hideOnMobile>
         {commander.topCuts}
@@ -131,7 +185,7 @@ function CommandersTable(props: {
           Rank
         </CommandersTableColumnHeader>
         <CommandersTableColumnHeader isRowHeader>
-          Commander
+          <span className="hidden md:inline">Commander</span>
         </CommandersTableColumnHeader>
         <CommandersTableColumnHeader hideOnMobile>
           Top 16s
