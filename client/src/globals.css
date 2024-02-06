@@ -24,21 +24,3 @@
     @apply rounded-xl px-4 py-2 outline-none;
   }
 }
-
-@layer components {
-  .filter-btn {
-    @apply flex items-center space-x-1 rounded-full border px-2 py-1 text-white outline-none;
-  }
-  .filter-btn-active {
-    @apply filter-btn border-solid border-white;
-  }
-  .filter-btn-inactive {
-    @apply filter-btn border-dashed border-gray;
-  }
-
-  .popup {
-    @apply mt-2 rounded-lg bg-tertiary px-2 py-1;
-  }
-}
-
-/* Typed on my Mode Envoy */
