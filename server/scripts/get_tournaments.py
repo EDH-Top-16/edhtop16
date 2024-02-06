@@ -91,9 +91,11 @@ if __name__ == "__main__":
                     db["metadata"].insert_one(
                         {
                             "TID": tourney["TID"],
-                            "tournamentName": tourney["tournamentName"]
-                            if tourney["tournamentName"]
-                            else "Unnamed Tournament",
+                            "tournamentName": (
+                                tourney["tournamentName"]
+                                if tourney["tournamentName"]
+                                else "Unnamed Tournament"
+                            ),
                             "size": len(tourney["standings"]),
                             "date": datetime.datetime.fromtimestamp(
                                 tourney["dateCreated"]
@@ -114,9 +116,11 @@ if __name__ == "__main__":
                         {"TID": tourney["TID"]},
                         {
                             "$set": {
-                                "tournamentName": tourney["tournamentName"]
-                                if tourney["tournamentName"]
-                                else "Unnamed Tournament",
+                                "tournamentName": (
+                                    tourney["tournamentName"]
+                                    if tourney["tournamentName"]
+                                    else "Unnamed Tournament"
+                                ),
                                 "size": len(tourney["standings"]),
                                 "date": datetime.datetime.fromtimestamp(
                                     tourney["dateCreated"]
