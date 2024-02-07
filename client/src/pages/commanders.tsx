@@ -1,10 +1,14 @@
 import cn from "classnames";
+import { useRouter } from "next/router";
+import { useCallback, useMemo } from "react";
 import {
   Cell,
   CellProps,
   Column,
   ColumnProps,
+  Key,
   Row,
+  SortDescriptor,
   Table,
   TableBody,
   TableHeader,
@@ -17,13 +21,14 @@ import { Searchbar } from "../components/banner/searchbar";
 import { Navigation } from "../components/nav";
 import { getClientEnvironment } from "../lib/client/relay_client_environment";
 import { commanders_CommanderTableRow$key } from "../queries/__generated__/commanders_CommanderTableRow.graphql";
+import { commanders_CommanderTableRowMobileView$key } from "../queries/__generated__/commanders_CommanderTableRowMobileView.graphql";
 import { commanders_CommandersQuery } from "../queries/__generated__/commanders_CommandersQuery.graphql";
 import { commanders_CommandersTableData$key } from "../queries/__generated__/commanders_CommandersTableData.graphql";
-import { commanders_CommanderTableRowMobileView$key } from "../queries/__generated__/commanders_CommanderTableRowMobileView.graphql";
 
 function CommandersTableColumnHeader({
   hideOnMobile,
   className,
+  children,
   ...props
 }: { hideOnMobile?: boolean } & ColumnProps) {
   return (
@@ -34,7 +39,18 @@ function CommandersTableColumnHeader({
         "text-left",
       )}
       {...props}
-    />
+    >
+      {({ sortDirection }) => {
+        return (
+          <>
+            {children}
+            <span className={cn("ml-1", { invisible: sortDirection == null })}>
+              {sortDirection === "ascending" ? "⬆️" : "⬇️"}
+            </span>
+          </>
+        );
+      }}
+    </Column>
   );
 }
 
@@ -164,6 +180,54 @@ function CommandersTableRow({
   );
 }
 
+function useTableSort(
+  keys: string[],
+): [SortDescriptor, (next: SortDescriptor) => void] {
+  const router = useRouter();
+
+  const sortDescriptor = useMemo(() => {
+    const descriptor: SortDescriptor = {};
+
+    if (
+      typeof router.query.sort === "string" &&
+      keys.includes(router.query.sort)
+    ) {
+      descriptor.column = router.query.sort as Key;
+    }
+
+    if (router.query.dir === "ascending" || router.query.dir === "descending") {
+      descriptor.direction = router.query.dir;
+    }
+
+    return descriptor;
+  }, [keys, router.query.dir, router.query.sort]);
+
+  const updateSort = useCallback(
+    (e: SortDescriptor) => {
+      const nextUrl = new URL(window.location.href);
+
+      if (e.column) {
+        nextUrl.searchParams.set("sort", `${e.column}`);
+      } else {
+        nextUrl.searchParams.delete("sort");
+      }
+
+      if (e.direction) {
+        nextUrl.searchParams.set("dir", `${e.direction}`);
+      } else {
+        nextUrl.searchParams.delete("dir");
+      }
+
+      router.push(nextUrl.href, undefined, { shallow: true });
+    },
+    [router],
+  );
+
+  return [sortDescriptor, updateSort];
+}
+
+const TABLE_KEYS = ["rank", "count", "entries", "conversion"];
+
 function CommandersTable(props: {
   commanders: commanders_CommandersTableData$key;
 }) {
@@ -172,28 +236,50 @@ function CommandersTable(props: {
       fragment commanders_CommandersTableData on CommanderType
       @relay(plural: true) {
         name
+        topCuts
+        count
+        conversionRate
+
         ...commanders_CommanderTableRow
       }
     `,
     props.commanders,
   );
 
+  const [sort, updateSort] = useTableSort(TABLE_KEYS);
+  const sortedCommanders = useMemo(() => {
+    const op = (a: number, b: number) =>
+      sort.direction === "descending" ? b - a : a - b;
+
+    return Array.from(commanders.entries()).sort(([rankA, a], [rankB, b]) => {
+      if (sort.column === "count") {
+        return op(a.topCuts ?? 0, b.topCuts ?? 0);
+      } else if (sort.column === "entries") {
+        return op(a.count ?? 0, b.count ?? 0);
+      } else if (sort.column === "conversion") {
+        return op(a.conversionRate ?? 0, b.conversionRate ?? 0);
+      } else {
+        return op(rankA, rankB);
+      }
+    });
+  }, [commanders, sort]);
+
   return (
-    <Table className="w-full">
+    <Table className="w-full" sortDescriptor={sort} onSortChange={updateSort}>
       <TableHeader>
-        <CommandersTableColumnHeader hideOnMobile>
+        <CommandersTableColumnHeader hideOnMobile allowsSorting id="rank">
           Rank
         </CommandersTableColumnHeader>
         <CommandersTableColumnHeader isRowHeader>
           <span className="hidden md:inline">Commander</span>
         </CommandersTableColumnHeader>
-        <CommandersTableColumnHeader hideOnMobile>
+        <CommandersTableColumnHeader hideOnMobile allowsSorting id="count">
           Top 16s
         </CommandersTableColumnHeader>
-        <CommandersTableColumnHeader hideOnMobile>
+        <CommandersTableColumnHeader hideOnMobile allowsSorting id="entries">
           Entries
         </CommandersTableColumnHeader>
-        <CommandersTableColumnHeader hideOnMobile>
+        <CommandersTableColumnHeader hideOnMobile allowsSorting id="conversion">
           Conversion
         </CommandersTableColumnHeader>
         <CommandersTableColumnHeader hideOnMobile>
@@ -201,8 +287,8 @@ function CommandersTable(props: {
         </CommandersTableColumnHeader>
       </TableHeader>
       <TableBody>
-        {commanders.map((c, i) => (
-          <CommandersTableRow key={c.name} rank={i + 1} commander={c} />
+        {sortedCommanders.map(([rank, c], i) => (
+          <CommandersTableRow key={c.name} rank={rank + 1} commander={c} />
         ))}
       </TableBody>
     </Table>

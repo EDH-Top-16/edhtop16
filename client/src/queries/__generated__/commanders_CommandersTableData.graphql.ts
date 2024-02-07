@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<a5bd7d8c6b4a1ea93f30c123c101d107>>
+ * @generated SignedSource<<3ac12375c52f2c906cff89a93e733e76>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,7 +11,10 @@
 import { Fragment, ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type commanders_CommandersTableData$data = ReadonlyArray<{
+  readonly conversionRate: number | null | undefined;
+  readonly count: number | null | undefined;
   readonly name: string;
+  readonly topCuts: number | null | undefined;
   readonly " $fragmentSpreads": FragmentRefs<"commanders_CommanderTableRow">;
   readonly " $fragmentType": "commanders_CommandersTableData";
 }>;
@@ -36,6 +39,27 @@ const node: ReaderFragment = {
       "storageKey": null
     },
     {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "topCuts",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "count",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "conversionRate",
+      "storageKey": null
+    },
+    {
       "args": null,
       "kind": "FragmentSpread",
       "name": "commanders_CommanderTableRow"
@@ -45,6 +69,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "47bd43aab1c3a3682b947a0e009c6597";
+(node as any).hash = "c8f4d90c82470f49b91d92ddf6412a72";
 
 export default node;

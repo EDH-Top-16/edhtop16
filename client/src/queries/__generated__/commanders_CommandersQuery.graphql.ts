@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<87e1d1c391ca1f1cf084834416fe1f57>>
+ * @generated SignedSource<<90b48ea11cfc434d0904d2f16f81243a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -73,6 +73,27 @@ const node: ConcreteRequest = {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
+            "name": "topCuts",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "count",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "conversionRate",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "colorID",
             "storageKey": null
           },
@@ -129,13 +150,6 @@ const node: ConcreteRequest = {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "count",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
             "name": "winRate",
             "storageKey": null
           },
@@ -152,20 +166,6 @@ const node: ConcreteRequest = {
             "kind": "ScalarField",
             "name": "winRateBracket",
             "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "topCuts",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "conversionRate",
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -173,12 +173,12 @@ const node: ConcreteRequest = {
     ]
   },
   "params": {
-    "cacheID": "d07d7358fab9b173cfe6810ccc4a513f",
+    "cacheID": "3fa8c2c529cf31fb982b2677990318f5",
     "id": null,
     "metadata": {},
     "name": "commanders_CommandersQuery",
     "operationKind": "query",
-    "text": "query commanders_CommandersQuery {\n  commanders {\n    ...commanders_CommandersTableData\n  }\n}\n\nfragment commanders_CommanderTableRow on CommanderType {\n  name\n  colorID\n  wins\n  winsSwiss\n  winsBracket\n  draws\n  losses\n  lossesSwiss\n  lossesBracket\n  count\n  winRate\n  winRateSwiss\n  winRateBracket\n  topCuts\n  conversionRate\n  ...commanders_CommanderTableRowMobileView\n}\n\nfragment commanders_CommanderTableRowMobileView on CommanderType {\n  name\n  colorID\n  topCuts\n  conversionRate\n  count\n}\n\nfragment commanders_CommandersTableData on CommanderType {\n  name\n  ...commanders_CommanderTableRow\n}\n"
+    "text": "query commanders_CommandersQuery {\n  commanders {\n    ...commanders_CommandersTableData\n  }\n}\n\nfragment commanders_CommanderTableRow on CommanderType {\n  name\n  colorID\n  wins\n  winsSwiss\n  winsBracket\n  draws\n  losses\n  lossesSwiss\n  lossesBracket\n  count\n  winRate\n  winRateSwiss\n  winRateBracket\n  topCuts\n  conversionRate\n  ...commanders_CommanderTableRowMobileView\n}\n\nfragment commanders_CommanderTableRowMobileView on CommanderType {\n  name\n  colorID\n  topCuts\n  conversionRate\n  count\n}\n\nfragment commanders_CommandersTableData on CommanderType {\n  name\n  topCuts\n  count\n  conversionRate\n  ...commanders_CommanderTableRow\n}\n"
   }
 };
 
