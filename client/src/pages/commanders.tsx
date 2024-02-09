@@ -33,11 +33,10 @@ function CommandersTableColumnHeader({
 }: { hideOnMobile?: boolean } & ColumnProps) {
   return (
     <Column
-      className={cn(
-        className,
-        { "hidden md:table-cell": hideOnMobile },
-        "text-left",
-      )}
+      className={cn(className, "text-left", {
+        "hidden md:table-cell": hideOnMobile,
+        "hover:cursor-pointer": props.allowsSorting,
+      })}
       {...props}
     >
       {({ sortDirection }) => {
@@ -287,9 +286,10 @@ function CommandersTable(props: {
         </CommandersTableColumnHeader>
       </TableHeader>
       <TableBody>
-        {sortedCommanders.map(([rank, c], i) => (
-          <CommandersTableRow key={c.name} rank={rank + 1} commander={c} />
-        ))}
+        {sortedCommanders.map(([_originalRank, c], i, { length }) => {
+          const rank = sort.direction === "descending" ? length - i : i + 1;
+          return <CommandersTableRow key={c.name} rank={rank} commander={c} />;
+        })}
       </TableBody>
     </Table>
   );
