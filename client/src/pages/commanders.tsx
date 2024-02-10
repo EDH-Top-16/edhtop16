@@ -14,7 +14,6 @@ import {
   Popover,
   Row,
   SortDescriptor,
-  SortDirection,
   Table,
   TableBody,
   TableHeader,
