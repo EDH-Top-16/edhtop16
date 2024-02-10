@@ -1,14 +1,20 @@
 import cn from "classnames";
 import { useRouter } from "next/router";
-import { useCallback, useMemo } from "react";
+import { PropsWithChildren, useCallback, useMemo, useRef } from "react";
 import {
+  Button,
   Cell,
   CellProps,
   Column,
   ColumnProps,
   Key,
+  Menu,
+  MenuItem,
+  MenuTrigger,
+  Popover,
   Row,
   SortDescriptor,
+  SortDirection,
   Table,
   TableBody,
   TableHeader,
@@ -106,7 +112,7 @@ function CommanderTableRowMobileView({
         <div>
           {commander.conversionRate && (
             <span className="ml-2 text-sm font-semibold text-indigo-300">
-              ({Math.round(commander.conversionRate * 100) / 100}%)
+              ({Math.round(commander.conversionRate * 100)}%)
             </span>
           )}
         </div>
@@ -180,8 +186,9 @@ function CommandersTableRow({
 }
 
 function useTableSort(
-  keys: string[],
+  initialKeys: string[],
 ): [SortDescriptor, (next: SortDescriptor) => void] {
+  const keys = useRef(initialKeys);
   const router = useRouter();
 
   const sortDescriptor = useMemo(() => {
@@ -189,7 +196,7 @@ function useTableSort(
 
     if (
       typeof router.query.sort === "string" &&
-      keys.includes(router.query.sort)
+      keys.current.includes(router.query.sort)
     ) {
       descriptor.column = router.query.sort as Key;
     }
@@ -199,20 +206,20 @@ function useTableSort(
     }
 
     return descriptor;
-  }, [keys, router.query.dir, router.query.sort]);
+  }, [router.query.dir, router.query.sort]);
 
   const updateSort = useCallback(
-    (e: SortDescriptor) => {
+    ({ column, direction }: SortDescriptor) => {
       const nextUrl = new URL(window.location.href);
 
-      if (e.column) {
-        nextUrl.searchParams.set("sort", `${e.column}`);
+      if (column) {
+        nextUrl.searchParams.set("sort", `${column}`);
       } else {
         nextUrl.searchParams.delete("sort");
       }
 
-      if (e.direction) {
-        nextUrl.searchParams.set("dir", `${e.direction}`);
+      if (direction) {
+        nextUrl.searchParams.set("dir", direction);
       } else {
         nextUrl.searchParams.delete("dir");
       }
@@ -248,7 +255,7 @@ function CommandersTable(props: {
   const [sort, updateSort] = useTableSort(TABLE_KEYS);
   const sortedCommanders = useMemo(() => {
     const op = (a: number, b: number) =>
-      sort.direction === "descending" ? b - a : a - b;
+      sort.direction === "descending" ? a - b : b - a;
 
     return Array.from(commanders.entries()).sort(([rankA, a], [rankB, b]) => {
       if (sort.column === "count") {
@@ -258,7 +265,7 @@ function CommandersTable(props: {
       } else if (sort.column === "conversion") {
         return op(a.conversionRate ?? 0, b.conversionRate ?? 0);
       } else {
-        return op(rankA, rankB);
+        return op(rankB, rankA);
       }
     });
   }, [commanders, sort]);
@@ -295,6 +302,92 @@ function CommandersTable(props: {
   );
 }
 
+interface ActionMenuProps<T> {
+  items: Map<T, string>;
+  onAction: (t: T) => void;
+}
+
+function ActionMenu<T extends string>({
+  items,
+  onAction,
+  children,
+}: PropsWithChildren<ActionMenuProps<T>>) {
+  return (
+    <MenuTrigger>
+      <Button className="cursor-pointer rounded bg-gray-50 p-2 !outline-none">
+        {children}
+      </Button>
+      <Popover>
+        <Menu onAction={(e) => onAction(e as T)} className="!outline-none">
+          {Array.from(items.entries()).map(([key, display], i, { length }) => {
+            return (
+              <MenuItem
+                key={key}
+                id={key}
+                className={cn(
+                  "cursor-pointer bg-gray-50 px-2 pb-1 pt-2 !outline-none hover:bg-indigo-500 hover:text-white",
+                  i === 0
+                    ? "rounded-t pb-1 pt-2"
+                    : i === length - 1
+                    ? "rounded-b pb-2 pt-1"
+                    : "py-1",
+                )}
+              >
+                {display}
+              </MenuItem>
+            );
+          })}
+        </Menu>
+      </Popover>
+    </MenuTrigger>
+  );
+}
+
+function MobileSortMenus() {
+  const items = useMemo(() => {
+    return new Map([
+      ["rank", "Rank"],
+      ["count", "Count"],
+      ["entries", "Entries"],
+      ["conversion", "Conversion"],
+    ]);
+  }, []);
+
+  const [sort, setSort] = useTableSort(Array.from(items.keys()));
+
+  return (
+    <div className="flex space-x-2 md:hidden">
+      <ActionMenu
+        items={items}
+        onAction={(nextColumn) => {
+          setSort({
+            direction: sort.direction ?? "ascending",
+            column: nextColumn,
+          });
+        }}
+      >
+        Sort By
+      </ActionMenu>
+
+      {sort.direction != null && (
+        <ActionMenu
+          items={
+            new Map([
+              ["ascending", "Asc"],
+              ["descending", "Desc"],
+            ])
+          }
+          onAction={(nextDirection) => {
+            setSort({ ...sort, direction: nextDirection });
+          }}
+        >
+          Sort Direction
+        </ActionMenu>
+      )}
+    </div>
+  );
+}
+
 const CommandersQuery = graphql`
   query commanders_CommandersQuery {
     commanders {
@@ -314,6 +407,7 @@ function CommandersPage({
       <div className="flex flex-grow flex-col overflow-auto">
         <Banner title="Commander Decks">
           <Searchbar placeholder="Find Commander..." />
+          <MobileSortMenus />
         </Banner>
 
         <main className="w-full bg-secondary px-8 py-4 text-white">
