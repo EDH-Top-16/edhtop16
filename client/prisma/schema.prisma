@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tournament {
+  uuid String @id @db.Uuid
+
+  /// ID of the tournament as tracked by topdeck.
+  TID            String   @unique
+  /// Display name of the tournament.
+  name           String
+  /// Date which the tournament was played.
+  tournamentDate DateTime
+  /// Number of players.
+  size           Int
+  /// Number of swiss rounds.
+  swissRounds    Int
+  /// Number of players making top cut.
+  topCut         Int
+
+  Entry Entry[]
+}
+
+model Player {
+  uuid String @id @db.Uuid
+
+  /// Unique topdeck profile ID.
+  topdeckProfile String?
+  /// Name of this player, as found in their most recent tournament.
+  name           String
+
+  Entry Entry[]
+}
+
+model Commander {
+  uuid String @id @db.Uuid
+
+  /// Name of the commander, or commanders.
+  name    String
+  /// Color identity, e.g RUG.
+  colorId String
+
+  Entry Entry[]
+}
+
+model Entry {
+  uuid String @id @db.Uuid
+
+  tournamentUuid String @db.Uuid
+  playerUuid     String @db.Uuid
+  commanderUuid  String @db.Uuid
+
+  standing      Int
+  decklist      String?
+  winsSwiss     Int
+  winsBracket   Int
+  draws         Int
+  lossesSwiss   Int
+  lossesBracket Int
+
+  tournament Tournament @relation(fields: [tournamentUuid], references: [uuid])
+  player     Player     @relation(fields: [playerUuid], references: [uuid])
+  commander  Commander  @relation(fields: [commanderUuid], references: [uuid])
+}
