@@ -11,6 +11,14 @@ const builder = new SchemaBuilder<{ PrismaTypes: PrismaTypes }>({
   prisma: { client: prisma },
 });
 
+const TopCutEnum = builder.enumType("TopCut", {
+  values: ["TOP_4", "TOP_16"] as const,
+});
+
+const TournamentSizeEnum = builder.enumType("TournamentSize", {
+  values: ["SIZE_0", "SIZE_64", "SIZE_128"] as const,
+});
+
 builder.prismaObject("Player", {
   fields: (t) => ({
     id: t.exposeID("uuid"),
@@ -18,6 +26,28 @@ builder.prismaObject("Player", {
     topdeckProfile: t.exposeString("topdeckProfile", { nullable: true }),
   }),
 });
+
+function topCutKey(topCut: typeof TopCutEnum.$inferType) {
+  if (topCut === "TOP_4") {
+    return "Top04";
+  } else if (topCut === "TOP_16") {
+    return "Top16";
+  } else {
+    throw new Error(`Unknown top cut: ${topCut}`);
+  }
+}
+
+function sizeKey(size: typeof TournamentSizeEnum.$inferType) {
+  if (size === "SIZE_0") {
+    return "size000";
+  } else if (size === "SIZE_64") {
+    return "size064";
+  } else if (size === "SIZE_128") {
+    return "size128";
+  } else {
+    throw new Error(`Unknown tournament size: ${size}`);
+  }
+}
 
 builder.prismaObject("Commander", {
   fields: (t) => ({
@@ -27,6 +57,65 @@ builder.prismaObject("Commander", {
     entries: t.relation("entries", {
       query: {
         orderBy: { standing: "asc" },
+      },
+    }),
+    count: t.int({
+      args: {
+        minSize: t.arg({ type: TournamentSizeEnum }),
+      },
+      select: {
+        size000EntryCount: true,
+        size064EntryCount: true,
+        size128EntryCount: true,
+      },
+      resolve: (parent, { minSize }) => {
+        return parent[`${sizeKey(minSize ?? "SIZE_64")}EntryCount`] ?? 0;
+      },
+    }),
+    topCuts: t.int({
+      args: {
+        topCut: t.arg({ type: TopCutEnum }),
+        minSize: t.arg({ type: TournamentSizeEnum }),
+      },
+      select: {
+        size000Top16Count: true,
+        size064Top16Count: true,
+        size128Top16Count: true,
+        size000Top04Count: true,
+        size064Top04Count: true,
+        size128Top04Count: true,
+      },
+      resolve: (parent, { topCut, minSize }) => {
+        return (
+          parent[
+            `${sizeKey(minSize ?? "SIZE_64")}${topCutKey(
+              topCut ?? "TOP_16",
+            )}Count`
+          ] ?? 0
+        );
+      },
+    }),
+    conversionRate: t.float({
+      args: {
+        topCut: t.arg({ type: TopCutEnum }),
+        minSize: t.arg({ type: TournamentSizeEnum }),
+      },
+      select: {
+        size000Top16ConversionRate: true,
+        size064Top16ConversionRate: true,
+        size128Top16ConversionRate: true,
+        size000Top04ConversionRate: true,
+        size064Top04ConversionRate: true,
+        size128Top04ConversionRate: true,
+      },
+      resolve: (parent, { topCut, minSize }) => {
+        return (
+          parent[
+            `${sizeKey(minSize ?? "SIZE_64")}${topCutKey(
+              topCut ?? "TOP_16",
+            )}ConversionRate`
+          ] ?? 0
+        );
       },
     }),
   }),
@@ -90,10 +179,24 @@ builder.queryType({
 
     commanders: t.prismaField({
       type: ["Commander"],
-      resolve: async (query, _root, _args, _ctx, _info) =>
-        prisma.commander.findMany({
+      args: {
+        sortTopCut: t.arg({ type: TopCutEnum }),
+        sortMinSize: t.arg({ type: TournamentSizeEnum }),
+      },
+      resolve: async (
+        query,
+        _root,
+        { sortMinSize = "SIZE_64", sortTopCut = "TOP_16" },
+      ) => {
+        return prisma.commander.findMany({
           ...query,
-        }),
+          orderBy: {
+            [`${sizeKey(sortMinSize ?? "SIZE_64")}${topCutKey(
+              sortTopCut ?? "TOP_16",
+            )}ConversionRate`]: { sort: "desc", nulls: "last" },
+          },
+        });
+      },
     }),
 
     commander: t.prismaField({
