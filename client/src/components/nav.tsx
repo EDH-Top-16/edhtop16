@@ -1,14 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
+import AboutIcon from "../assets/icons/AboutIcon";
+import BracketIcon from "../assets/icons/BracketIcon";
+import DeckIcon from "../assets/icons/DeckIcon";
 import { EGLogo } from "../assets/images";
-import { NavLinks } from "../constants/navLinks";
 
-// navitem typing
-type NavItem = {
+interface NavLink {
   href: string;
   label: string;
   icon: JSX.Element;
-};
+}
+
+const NAV_LINKS: NavLink[] = [
+  { href: "/commanders", label: "commanders", icon: <DeckIcon /> },
+  { href: "/tournaments", label: "tournaments", icon: <BracketIcon /> },
+  { href: "/about", label: "about", icon: <AboutIcon /> },
+];
 
 export function Navigation(): JSX.Element {
   return (
@@ -24,14 +31,14 @@ export function Navigation(): JSX.Element {
         </div>
       </Link>
 
-      {NavLinks.map((props: NavItem, i: number) => (
+      {NAV_LINKS.map((props: NavLink, i: number) => (
         <NavItem key={i} {...props} />
       ))}
     </nav>
   );
 }
 
-const NavItem: React.FC<NavItem> = ({ href, label, icon }) => {
+const NavItem: React.FC<NavLink> = ({ href, label, icon }) => {
   return (
     <Link href={href} legacyBehavior passHref={true}>
       <a className="w-fit [&>svg]:w-8 [&>svg]:text-white" aria-label={label}>
