@@ -2,6 +2,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator pothos {
+  provider = "prisma-pothos-types"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -23,7 +27,7 @@ model Tournament {
   /// Number of players making top cut.
   topCut         Int
 
-  Entry Entry[]
+  entries Entry[]
 }
 
 model Player {
@@ -34,7 +38,7 @@ model Player {
   /// Name of this player, as found in their most recent tournament.
   name           String
 
-  Entry Entry[]
+  entries Entry[]
 }
 
 model Commander {
@@ -45,7 +49,7 @@ model Commander {
   /// Color identity, e.g RUG.
   colorId String
 
-  Entry Entry[]
+  entries Entry[]
 }
 
 model Entry {

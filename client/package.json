@@ -12,7 +12,10 @@
     "data-import": "npx prisma migrate reset -f && npx ts-node-script scripts/import.ts"
   },
   "dependencies": {
+    "@apollo/server": "^4.10.0",
+    "@as-integrations/next": "^3.0.0",
     "@json2csv/plainjs": "^7.0.3",
+    "@pothos/core": "^3.41.0",
     "@prisma/client": "^5.9.1",
     "axios": "^1.4.0",
     "classnames": "^2.5.1",
@@ -33,6 +36,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@pothos/plugin-prisma": "^3.64.0",
     "@types/file-saver": "^2.0.5",
     "@types/lodash": "^4.14.197",
     "@types/node": "20.3.1",
