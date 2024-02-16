@@ -49,6 +49,14 @@ model Commander {
   /// Color identity, e.g RUG.
   colorId String
 
+  // Denormalized statistics for sorting and filtering.
+  size000Top04ConversionRate Float?
+  size000Top16ConversionRate Float?
+  size064Top04ConversionRate Float?
+  size064Top16ConversionRate Float?
+  size128Top04ConversionRate Float?
+  size128Top16ConversionRate Float?
+
   entries Entry[]
 }
 

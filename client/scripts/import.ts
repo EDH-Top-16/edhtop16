@@ -168,6 +168,45 @@ async function main() {
       });
     }
   }
+
+  async function countEntries(
+    commanderUuid: string,
+    tournamentSize: number,
+    topCut?: number,
+  ) {
+    return await prisma.entry.count({
+      where: {
+        commanderUuid,
+        standing: { gte: topCut },
+        tournament: { size: { gte: tournamentSize } },
+      },
+    });
+  }
+
+  for (const [tournamentName, uuid] of Array.from(commanderUuidByName)) {
+    console.log("Calculating stats for", tournamentName);
+    const size000Count = await countEntries(uuid, 0);
+    const size000Top04 = await countEntries(uuid, 0, 4);
+    const size000Top16 = await countEntries(uuid, 0, 16);
+    const size064Count = await countEntries(uuid, 64);
+    const size064Top04 = await countEntries(uuid, 64, 4);
+    const size064Top16 = await countEntries(uuid, 64, 16);
+    const size128Count = await countEntries(uuid, 128);
+    const size128Top04 = await countEntries(uuid, 128, 4);
+    const size128Top16 = await countEntries(uuid, 128, 16);
+
+    await prisma.commander.update({
+      where: { uuid },
+      data: {
+        size000Top04ConversionRate: size000Top04 / size000Count,
+        size000Top16ConversionRate: size000Top16 / size000Count,
+        size064Top04ConversionRate: size064Top04 / size064Count,
+        size064Top16ConversionRate: size064Top16 / size064Count,
+        size128Top04ConversionRate: size128Top04 / size128Count,
+        size128Top16ConversionRate: size128Top16 / size128Count,
+      },
+    });
+  }
 }
 
 main()
