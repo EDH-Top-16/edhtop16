@@ -1,14 +1,8 @@
 import { Environment, Network, RecordSource, Store } from "relay-runtime";
 
-const baseUrl = new URL(
-  process.env.NODE_ENV === "production"
-    ? "https://edhtop16.com"
-    : "http://localhost:3000",
-);
-
 export function createClientNetwork() {
   return Network.create(async (params, variables) => {
-    const response = await fetch(new URL("/v2/api/graphql", baseUrl), {
+    const response = await fetch("/v2/api/graphql", {
       method: "POST",
       credentials: "include",
       headers: {
