@@ -1,0 +1,58 @@
+type Commander {
+  colorId: String!
+  conversionRate(minSize: TournamentSize, topCut: TopCut): Float!
+  count(minSize: TournamentSize): Int!
+  entries: [Entry!]!
+  id: ID!
+  name: String!
+  topCuts(minSize: TournamentSize, topCut: TopCut): Int!
+}
+
+type Entry {
+  commander: Commander!
+  decklist: String
+  draws: Int!
+  id: ID!
+  lossesBracket: Int!
+  lossesSwiss: Int!
+  player: Player!
+  standing: Int!
+  tournament: Tournament!
+  winsBracket: Int!
+  winsSwiss: Int!
+}
+
+type Player {
+  id: ID!
+  name: String!
+  topdeckProfile: String
+}
+
+type Query {
+  commander(name: String!): Commander!
+  commanders(sortMinSize: TournamentSize, sortTopCut: TopCut): [Commander!]!
+  tournament(TID: String!): Tournament!
+  tournaments: [Tournament!]!
+}
+
+enum TopCut {
+  TOP_4
+  TOP_16
+}
+
+type Tournament {
+  TID: String!
+  entries: [Entry!]!
+  id: ID!
+  name: String!
+  size: Int!
+  swissRounds: Int!
+  topCut: Int!
+  tournamentDate: String!
+}
+
+enum TournamentSize {
+  SIZE_0
+  SIZE_64
+  SIZE_128
+}

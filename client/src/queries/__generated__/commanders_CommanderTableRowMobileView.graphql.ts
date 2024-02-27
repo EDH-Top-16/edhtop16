@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<e50240d50b32520c3b9169901c4c3d91>>
+ * @generated SignedSource<<e2d99367a5142ab036450e853a62c994>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,11 +11,11 @@
 import { Fragment, ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type commanders_CommanderTableRowMobileView$data = {
-  readonly colorID: string | null | undefined;
-  readonly conversionRate: number | null | undefined;
-  readonly count: number | null | undefined;
+  readonly colorId: string;
+  readonly conversionRate: number;
+  readonly count: number;
   readonly name: string;
-  readonly topCuts: number | null | undefined;
+  readonly topCuts: number;
   readonly " $fragmentType": "commanders_CommanderTableRowMobileView";
 };
 export type commanders_CommanderTableRowMobileView$key = {
@@ -40,7 +40,7 @@ const node: ReaderFragment = {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
-      "name": "colorID",
+      "name": "colorId",
       "storageKey": null
     },
     {
@@ -65,10 +65,10 @@ const node: ReaderFragment = {
       "storageKey": null
     }
   ],
-  "type": "CommanderType",
+  "type": "Commander",
   "abstractKey": null
 };
 
-(node as any).hash = "2fa38d0ec6a6189892a284df5ce4b9c4";
+(node as any).hash = "bcaa2f261411640d6dc021922a672869";
 
 export default node;

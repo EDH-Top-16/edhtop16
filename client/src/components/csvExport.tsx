@@ -9,21 +9,10 @@ const ExportCommandersQuery = graphql`
   query csvExport_CommandersQuery {
     commanders {
       name
-      colorID
-      wins
-      winsSwiss
-      winsBracket
-      draws
-      losses
-      lossesSwiss
-      lossesBracket
+      colorId
       count
-      winRate
-      winRateSwiss
-      winRateBracket
       topCuts
       conversionRate
-      colorID
     }
   }
 `;

@@ -86,9 +86,9 @@ function CommanderTableRowMobileView({
 }) {
   const commander = useFragment(
     graphql`
-      fragment commanders_CommanderTableRowMobileView on CommanderType {
+      fragment commanders_CommanderTableRowMobileView on Commander {
         name
-        colorID
+        colorId
         topCuts
         conversionRate
         count
@@ -118,7 +118,7 @@ function CommanderTableRowMobileView({
       </div>
 
       <div>
-        {commander.colorID && <ColorIdentity identity={commander.colorID} />}
+        {commander.colorId && <ColorIdentity identity={commander.colorId} />}
       </div>
 
       <div className="flex flex-col items-end text-sm text-gray-200">
@@ -137,23 +137,12 @@ function CommandersTableRow({
 }) {
   const commander = useFragment(
     graphql`
-      fragment commanders_CommanderTableRow on CommanderType {
+      fragment commanders_CommanderTableRow on Commander {
         name
-        colorID
-        wins
-        winsSwiss
-        winsBracket
-        draws
-        losses
-        lossesSwiss
-        lossesBracket
+        colorId
         count
-        winRate
-        winRateSwiss
-        winRateBracket
         topCuts
         conversionRate
-        colorID
 
         ...commanders_CommanderTableRowMobileView
       }
@@ -178,7 +167,7 @@ function CommandersTableRow({
         {Math.round((commander.conversionRate ?? 0) * 100)}%
       </CommanderTableDataCell>
       <CommanderTableDataCell hideOnMobile>
-        {commander.colorID && <ColorIdentity identity={commander.colorID} />}
+        {commander.colorId && <ColorIdentity identity={commander.colorId} />}
       </CommanderTableDataCell>
     </Row>
   );
@@ -238,7 +227,7 @@ function CommandersTable(props: {
 }) {
   const commanders = useFragment(
     graphql`
-      fragment commanders_CommandersTableData on CommanderType
+      fragment commanders_CommandersTableData on Commander
       @relay(plural: true) {
         name
         topCuts
