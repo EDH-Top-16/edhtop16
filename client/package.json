@@ -7,17 +7,24 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate:schema": "cd ../server && strawberry export-schema services.graphql:schema > schema.graphql",
-    "generate:relay": "relay-compiler"
+    "generate:schema": "DATABASE_URL=postgresql://localhost:5432/dummy npx ts-node-script scripts/print-schema.ts",
+    "generate:relay": "relay-compiler",
+    "data-import": "npx prisma migrate reset -f && npx ts-node-script scripts/import-data.ts"
   },
   "dependencies": {
+    "@apollo/server": "^4.10.0",
+    "@as-integrations/next": "^3.0.0",
     "@json2csv/plainjs": "^7.0.3",
+    "@pothos/core": "^3.41.0",
+    "@prisma/client": "^5.9.1",
     "axios": "^1.4.0",
     "classnames": "^2.5.1",
     "file-saver": "^2.0.5",
+    "graphql": "^16.8.1",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "next": "13.4.7",
+    "prisma": "^5.9.1",
     "react": "18.2.0",
     "react-aria-components": "^1.0.1",
     "react-dom": "18.2.0",
@@ -26,9 +33,11 @@
     "relay-nextjs": "^3.0.1",
     "relay-runtime": "^16.1.0",
     "tailwindcss-react-aria-components": "^1.0.0",
-    "zod": "^3.22.2"
+    "ts-node": "^10.9.2",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@pothos/plugin-prisma": "^3.64.0",
     "@types/file-saver": "^2.0.5",
     "@types/lodash": "^4.14.197",
     "@types/node": "20.3.1",
@@ -40,7 +49,7 @@
     "babel-plugin-relay": "^16.1.0",
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.7",
-    "graphql": "^16.8.1",
+    "mongodb": "^6.3.0",
     "postcss": "8.4.24",
     "prettier": "^3.0.3",
     "prettier-plugin-tailwindcss": "^0.4.1",

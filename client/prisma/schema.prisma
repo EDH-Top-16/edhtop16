@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator pothos {
+  provider = "prisma-pothos-types"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tournament {
+  uuid String @id @db.Uuid
+
+  /// ID of the tournament as tracked by topdeck.
+  TID            String   @unique
+  /// Display name of the tournament.
+  name           String
+  /// Date which the tournament was played.
+  tournamentDate DateTime
+  /// Number of players.
+  size           Int
+  /// Number of swiss rounds.
+  swissRounds    Int
+  /// Number of players making top cut.
+  topCut         Int
+
+  entries Entry[]
+}
+
+model Player {
+  uuid String @id @db.Uuid
+
+  /// Unique topdeck profile ID.
+  topdeckProfile String?
+  /// Name of this player, as found in their most recent tournament.
+  name           String
+
+  entries Entry[]
+}
+
+model Commander {
+  uuid String @id @db.Uuid
+
+  /// Name of the commander, or commanders.
+  name    String
+  /// Color identity, e.g RUG.
+  colorId String
+
+  // Denormalized statistics for sorting and filtering.
+  size000EntryCount          Int?
+  size000Top04Count          Int?
+  size000Top16Count          Int?
+  size000Top04ConversionRate Float?
+  size000Top16ConversionRate Float?
+  size064EntryCount          Int?
+  size064Top04Count          Int?
+  size064Top16Count          Int?
+  size064Top04ConversionRate Float?
+  size064Top16ConversionRate Float?
+  size128EntryCount          Int?
+  size128Top04Count          Int?
+  size128Top16Count          Int?
+  size128Top04ConversionRate Float?
+  size128Top16ConversionRate Float?
+
+  entries Entry[]
+}
+
+model Entry {
+  uuid String @id @db.Uuid
+
+  tournamentUuid String @db.Uuid
+  playerUuid     String @db.Uuid
+  commanderUuid  String @db.Uuid
+
+  standing      Int
+  decklist      String?
+  winsSwiss     Int
+  winsBracket   Int
+  draws         Int
+  lossesSwiss   Int
+  lossesBracket Int
+
+  tournament Tournament @relation(fields: [tournamentUuid], references: [uuid])
+  player     Player     @relation(fields: [playerUuid], references: [uuid])
+  commander  Commander  @relation(fields: [commanderUuid], references: [uuid])
+}

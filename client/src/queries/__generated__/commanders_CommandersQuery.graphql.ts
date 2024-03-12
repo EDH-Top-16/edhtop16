@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<87e1d1c391ca1f1cf084834416fe1f57>>
+ * @generated SignedSource<<f838e5e5cc557d166d33b6517b16b9f4>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -31,7 +31,7 @@ const node: ConcreteRequest = {
       {
         "alias": null,
         "args": null,
-        "concreteType": "CommanderType",
+        "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "commanders",
         "plural": true,
@@ -57,7 +57,7 @@ const node: ConcreteRequest = {
       {
         "alias": null,
         "args": null,
-        "concreteType": "CommanderType",
+        "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "commanders",
         "plural": true,
@@ -73,56 +73,7 @@ const node: ConcreteRequest = {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "colorID",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "wins",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "winsSwiss",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "winsBracket",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "draws",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "losses",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "lossesSwiss",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "lossesBracket",
+            "name": "topCuts",
             "storageKey": null
           },
           {
@@ -136,35 +87,21 @@ const node: ConcreteRequest = {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "winRate",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "winRateSwiss",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "winRateBracket",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "topCuts",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
             "name": "conversionRate",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "colorId",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
             "storageKey": null
           }
         ],
@@ -173,12 +110,12 @@ const node: ConcreteRequest = {
     ]
   },
   "params": {
-    "cacheID": "d07d7358fab9b173cfe6810ccc4a513f",
+    "cacheID": "9b858d8e312f4a54faa8c0443e12f15a",
     "id": null,
     "metadata": {},
     "name": "commanders_CommandersQuery",
     "operationKind": "query",
-    "text": "query commanders_CommandersQuery {\n  commanders {\n    ...commanders_CommandersTableData\n  }\n}\n\nfragment commanders_CommanderTableRow on CommanderType {\n  name\n  colorID\n  wins\n  winsSwiss\n  winsBracket\n  draws\n  losses\n  lossesSwiss\n  lossesBracket\n  count\n  winRate\n  winRateSwiss\n  winRateBracket\n  topCuts\n  conversionRate\n  ...commanders_CommanderTableRowMobileView\n}\n\nfragment commanders_CommanderTableRowMobileView on CommanderType {\n  name\n  colorID\n  topCuts\n  conversionRate\n  count\n}\n\nfragment commanders_CommandersTableData on CommanderType {\n  name\n  ...commanders_CommanderTableRow\n}\n"
+    "text": "query commanders_CommandersQuery {\n  commanders {\n    ...commanders_CommandersTableData\n    id\n  }\n}\n\nfragment commanders_CommanderTableRow on Commander {\n  name\n  colorId\n  count\n  topCuts\n  conversionRate\n  ...commanders_CommanderTableRowMobileView\n}\n\nfragment commanders_CommanderTableRowMobileView on Commander {\n  name\n  colorId\n  topCuts\n  conversionRate\n  count\n}\n\nfragment commanders_CommandersTableData on Commander {\n  name\n  topCuts\n  count\n  conversionRate\n  ...commanders_CommanderTableRow\n}\n"
   }
 };
 

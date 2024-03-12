@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d46dba9e3030e1d9ecb497e2d61be3c3>>
+ * @generated SignedSource<<21aa331fd7a1196faf537b6574aa4bb9>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,21 +11,11 @@
 import { Fragment, ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type commanders_CommanderTableRow$data = {
-  readonly colorID: string | null | undefined;
-  readonly conversionRate: number | null | undefined;
-  readonly count: number | null | undefined;
-  readonly draws: number | null | undefined;
-  readonly losses: number | null | undefined;
-  readonly lossesBracket: number | null | undefined;
-  readonly lossesSwiss: number | null | undefined;
+  readonly colorId: string;
+  readonly conversionRate: number;
+  readonly count: number;
   readonly name: string;
-  readonly topCuts: number | null | undefined;
-  readonly winRate: number | null | undefined;
-  readonly winRateBracket: number | null | undefined;
-  readonly winRateSwiss: number | null | undefined;
-  readonly wins: number | null | undefined;
-  readonly winsBracket: number | null | undefined;
-  readonly winsSwiss: number | null | undefined;
+  readonly topCuts: number;
   readonly " $fragmentSpreads": FragmentRefs<"commanders_CommanderTableRowMobileView">;
   readonly " $fragmentType": "commanders_CommanderTableRow";
 };
@@ -51,56 +41,7 @@ const node: ReaderFragment = {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
-      "name": "colorID",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "wins",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "winsSwiss",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "winsBracket",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "draws",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "losses",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "lossesSwiss",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "lossesBracket",
+      "name": "colorId",
       "storageKey": null
     },
     {
@@ -108,27 +49,6 @@ const node: ReaderFragment = {
       "args": null,
       "kind": "ScalarField",
       "name": "count",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "winRate",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "winRateSwiss",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "winRateBracket",
       "storageKey": null
     },
     {
@@ -151,10 +71,10 @@ const node: ReaderFragment = {
       "name": "commanders_CommanderTableRowMobileView"
     }
   ],
-  "type": "CommanderType",
+  "type": "Commander",
   "abstractKey": null
 };
 
-(node as any).hash = "b7e52fa2cc75a21596c41cce6432e4aa";
+(node as any).hash = "a5aa2523497bac85028009fee8fcf7b8";
 
 export default node;

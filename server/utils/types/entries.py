@@ -17,6 +17,7 @@ class DBEntry(BaseModel):
     winRateSwiss: Union[float, None] = None
     winRateBracket: Union[float, None] = None
     draws: Union[int, None] = None
+    drawsSwiss: Union[int, None] = None
     losses: Union[int, None] = None
     lossesSwiss: Union[int, None] = None
     lossesBracket: Union[int, None] = None
