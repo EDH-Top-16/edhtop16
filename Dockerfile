@@ -54,7 +54,8 @@ COPY client/package*.json client/
 COPY client/server.js client
 COPY client/next.config.js client
 COPY client/relay.config.js client
-RUN cd client && npm ci && npx prisma generate && npm link unit-http
+COPY client/prisma client
+RUN cd client && npm ci && npm link unit-http && npx prisma generate
 
 # Copy server V1 and install dependencies.
 COPY server_v1 server_v1
