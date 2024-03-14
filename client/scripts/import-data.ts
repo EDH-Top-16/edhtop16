@@ -95,6 +95,9 @@ function trackPlayer(playerName: string) {
     return uuid;
   }
 }
+function isPlayerTracked(playerName: string) {
+  return playerUuidByName.has(playerName);
+}
 
 const commanderUuidByName = new Map<string, string>();
 function trackCommander(commanderName: string) {
@@ -105,6 +108,9 @@ function trackCommander(commanderName: string) {
     commanderUuidByName.set(commanderName, uuid);
     return uuid;
   }
+}
+function isCommanderTracked(commanderName: string) {
+  return commanderUuidByName.has(commanderName);
 }
 
 async function main() {
@@ -128,12 +134,53 @@ async function main() {
     });
 
     const entries = await getTournamentEntries(t.TID);
-    console.log("Creating", entries.length, "entries");
 
-    for (const e of entries) {
-      await prisma.entry.create({
-        data: {
-          uuid: randomUUID(),
+    const newCommanders = new Map(
+      entries
+        .filter((e) => !isCommanderTracked(e.commander))
+        .map((e) => [e.commander, e.colorID]),
+    );
+
+    if (newCommanders.size) {
+      console.log("Creating", newCommanders.size, "new commanders");
+      await prisma.commander.createMany({
+        // Create commanders ahead of time to ensure transactionality.
+        data: Array.from(newCommanders).map(([commander, colorId]) => ({
+          uuid: trackCommander(commander),
+          name: commander,
+          colorId,
+        })),
+      });
+    }
+
+    const newPlayers = new Map(
+      entries
+        .filter((e) => !isPlayerTracked(e.name))
+        .map((e) => [e.name, e.profile]),
+    );
+
+    if (newPlayers.size) {
+      console.log("Creating", newCommanders.size, "new players");
+      await prisma.player.createMany({
+        // Create players ahead of time to ensure transactionality.
+        data: Array.from(newPlayers).map(([playerName, topdeckProfile]) => ({
+          uuid: trackPlayer(playerName),
+          name: playerName,
+          topdeckProfile,
+        })),
+      });
+    }
+
+    console.log("Creating", entries.length, "entries");
+    await prisma.entry.createMany({
+      data: entries.map((e) => {
+        const entryUuid = randomUUID();
+        const playerUuid = trackPlayer(e.name);
+        const commanderUuid = trackCommander(e.commander);
+        const tournamentUuid = uuidByTid.get(t.TID)!;
+
+        return {
+          uuid: entryUuid,
           decklist: e.decklist,
           draws: e.draws,
           lossesBracket: e.lossesBracket,
@@ -141,32 +188,12 @@ async function main() {
           standing: e.standing,
           winsBracket: e.winsBracket,
           winsSwiss: e.winsSwiss,
-          player: {
-            connectOrCreate: {
-              where: { uuid: trackPlayer(e.name) },
-              create: {
-                uuid: trackPlayer(e.name),
-                name: e.name,
-                topdeckProfile: e.profile,
-              },
-            },
-          },
-          commander: {
-            connectOrCreate: {
-              where: { uuid: trackCommander(e.commander) },
-              create: {
-                uuid: trackCommander(e.commander),
-                name: e.commander,
-                colorId: e.colorID,
-              },
-            },
-          },
-          tournament: {
-            connect: { TID: t.TID },
-          },
-        },
-      });
-    }
+          playerUuid,
+          commanderUuid,
+          tournamentUuid,
+        };
+      }),
+    });
   }
 
   async function countEntries(
