@@ -39,7 +39,7 @@ function CommandersTableColumnHeader({
   return (
     <Column
       className={cn(className, "text-left", {
-        "hidden md:table-cell": hideOnMobile,
+        "hidden lg:table-cell": hideOnMobile,
         "hover:cursor-pointer": props.allowsSorting,
       })}
       {...props}
@@ -69,7 +69,7 @@ function CommanderTableDataCell({
     <Cell
       className={cn(
         className,
-        { "hidden md:table-cell": hideOnMobile },
+        { "hidden lg:table-cell": hideOnMobile },
         "border-b border-zinc-100/20 py-4 text-lg text-gray-100",
       )}
       {...props}
@@ -98,7 +98,7 @@ function CommanderTableRowMobileView({
   );
 
   return (
-    <div className="mb-4 grid h-16 grid-cols-[1fr_auto] items-baseline gap-x-3 gap-y-2 md:hidden">
+    <div className="mb-4 grid h-16 grid-cols-[1fr_auto] items-baseline gap-x-3 gap-y-2 lg:hidden">
       <div>
         <span className="mr-2 text-sm font-semibold text-indigo-300">
           #{rank}
@@ -154,7 +154,7 @@ function CommandersTableRow({
     <Row key={commander.name} className="">
       <CommanderTableDataCell hideOnMobile>{rank}</CommanderTableDataCell>
       <CommanderTableDataCell>
-        <span className="hidden font-semibold md:inline">{commander.name}</span>
+        <span className="hidden font-semibold lg:inline">{commander.name}</span>
         <CommanderTableRowMobileView rank={rank} commander={commander} />
       </CommanderTableDataCell>
       <CommanderTableDataCell hideOnMobile>
@@ -265,7 +265,7 @@ function CommandersTable(props: {
           Rank
         </CommandersTableColumnHeader>
         <CommandersTableColumnHeader isRowHeader>
-          <span className="hidden md:inline">Commander</span>
+          <span className="hidden lg:inline">Commander</span>
         </CommandersTableColumnHeader>
         <CommandersTableColumnHeader hideOnMobile allowsSorting id="count">
           Top 16s
@@ -344,7 +344,7 @@ function MobileSortMenus() {
   const [sort, setSort] = useTableSort(Array.from(items.keys()));
 
   return (
-    <div className="flex space-x-2 md:hidden">
+    <div className="flex space-x-2 lg:hidden">
       <ActionMenu
         items={items}
         onAction={(nextColumn) => {

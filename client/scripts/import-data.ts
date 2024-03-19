@@ -7,6 +7,7 @@ import { PrismaClient } from "@prisma/client";
 import { randomUUID } from "crypto";
 import { MongoClient } from "mongodb";
 import { z } from "zod";
+import { workerPool } from "@reverecre/promise";
 
 const env = z.object({ ENTRIES_DB_URL: z.string() }).parse(process.env);
 
@@ -113,13 +114,27 @@ function isCommanderTracked(commanderName: string) {
   return commanderUuidByName.has(commanderName);
 }
 
+async function countEntries(
+  commanderUuid: string,
+  tournamentSize: number,
+  topCut?: number,
+) {
+  return await prisma.entry.count({
+    where: {
+      commanderUuid,
+      standing: { gte: topCut },
+      tournament: { size: { gte: tournamentSize } },
+    },
+  });
+}
+
 async function main() {
   const tournaments = await getTournaments();
   console.log("Found", tournaments.length, "tournaments!");
 
   const uuidByTid = new Map(tournaments.map((t) => [t.TID, randomUUID()]));
 
-  for (const t of tournaments) {
+  await workerPool(tournaments, async (t) => {
     console.log("Creating", t.tournamentName);
     await prisma.tournament.create({
       data: {
@@ -194,55 +209,56 @@ async function main() {
         };
       }),
     });
-  }
+  });
 
-  async function countEntries(
-    commanderUuid: string,
-    tournamentSize: number,
-    topCut?: number,
-  ) {
-    return await prisma.entry.count({
-      where: {
-        commanderUuid,
-        standing: { gte: topCut },
-        tournament: { size: { gte: tournamentSize } },
-      },
-    });
-  }
+  await workerPool(
+    Array.from(commanderUuidByName),
+    async ([tournamentName, uuid]) => {
+      console.log("Calculating stats for", tournamentName);
+      const [
+        size000Count,
+        size000Top04,
+        size000Top16,
+        size064Count,
+        size064Top04,
+        size064Top16,
+        size128Count,
+        size128Top04,
+        size128Top16,
+      ] = await Promise.all([
+        countEntries(uuid, 0),
+        countEntries(uuid, 0, 4),
+        countEntries(uuid, 0, 16),
+        countEntries(uuid, 64),
+        countEntries(uuid, 64, 4),
+        countEntries(uuid, 64, 16),
+        countEntries(uuid, 128),
+        countEntries(uuid, 128, 4),
+        countEntries(uuid, 128, 16),
+      ]);
 
-  for (const [tournamentName, uuid] of Array.from(commanderUuidByName)) {
-    console.log("Calculating stats for", tournamentName);
-    const size000Count = await countEntries(uuid, 0);
-    const size000Top04 = await countEntries(uuid, 0, 4);
-    const size000Top16 = await countEntries(uuid, 0, 16);
-    const size064Count = await countEntries(uuid, 64);
-    const size064Top04 = await countEntries(uuid, 64, 4);
-    const size064Top16 = await countEntries(uuid, 64, 16);
-    const size128Count = await countEntries(uuid, 128);
-    const size128Top04 = await countEntries(uuid, 128, 4);
-    const size128Top16 = await countEntries(uuid, 128, 16);
-
-    await prisma.commander.update({
-      where: { uuid },
-      data: {
-        size000EntryCount: size000Count,
-        size000Top04Count: size000Top04,
-        size000Top16Count: size000Top16,
-        size000Top04ConversionRate: size000Top04 / size000Count,
-        size000Top16ConversionRate: size000Top16 / size000Count,
-        size064EntryCount: size064Count,
-        size064Top04Count: size064Top04,
-        size064Top16Count: size064Top16,
-        size064Top04ConversionRate: size064Top04 / size064Count,
-        size064Top16ConversionRate: size064Top16 / size064Count,
-        size128EntryCount: size128Count,
-        size128Top04Count: size128Top04,
-        size128Top16Count: size128Top16,
-        size128Top04ConversionRate: size128Top04 / size128Count,
-        size128Top16ConversionRate: size128Top16 / size128Count,
-      },
-    });
-  }
+      await prisma.commander.update({
+        where: { uuid },
+        data: {
+          size000EntryCount: size000Count,
+          size000Top04Count: size000Top04,
+          size000Top16Count: size000Top16,
+          size000Top04ConversionRate: size000Top04 / size000Count,
+          size000Top16ConversionRate: size000Top16 / size000Count,
+          size064EntryCount: size064Count,
+          size064Top04Count: size064Top04,
+          size064Top16Count: size064Top16,
+          size064Top04ConversionRate: size064Top04 / size064Count,
+          size064Top16ConversionRate: size064Top16 / size064Count,
+          size128EntryCount: size128Count,
+          size128Top04Count: size128Top04,
+          size128Top16Count: size128Top16,
+          size128Top04ConversionRate: size128Top04 / size128Count,
+          size128Top16ConversionRate: size128Top16 / size128Count,
+        },
+      });
+    },
+  );
 }
 
 main()
