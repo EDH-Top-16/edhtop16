@@ -95,7 +95,7 @@ const PlayerType = builder.prismaObject("Player", {
         return totalWins / totalGames;
       },
     }),
-    conversionRate: t.int({
+    conversionRate: t.float({
       resolve: async (parent) => {
         const entries = await prisma.entry.findMany({
           where: { playerUuid: parent.uuid },
