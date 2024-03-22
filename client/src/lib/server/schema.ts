@@ -2,18 +2,77 @@ import SchemaBuilder from "@pothos/core";
 import PrismaPlugin from "@pothos/plugin-prisma";
 import type PrismaTypes from "@pothos/plugin-prisma/generated";
 import { prisma } from "./prisma";
+import { Commander } from "@prisma/client";
+import DataLoader from "dataloader";
 
-const builder = new SchemaBuilder<{ PrismaTypes: PrismaTypes }>({
+const MIN_ENTRIES = 10;
+
+interface CommanderCalculatedStats {
+  count: number;
+  topCuts: number;
+  conversionRate: number;
+}
+
+interface Context {
+  commanderStats: DataLoader<
+    { uuid: string; topCut: number; minSize: number },
+    CommanderCalculatedStats
+  >;
+}
+
+export function createContext(): Context {
+  return {
+    commanderStats: new DataLoader(
+      async (commanders): Promise<CommanderCalculatedStats[]> => {
+        const stats = await Promise.all(
+          commanders.map(async ({ uuid, topCut, minSize }) => {
+            return prisma.$queryRaw<(Commander & CommanderCalculatedStats)[]>`
+              select
+                c.*,
+                count(c.uuid)::int as "count",
+                sum(case when e.standing <= t."topCut" then 1 else 0 end)::int as "topCuts",
+                sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e) as "conversionRate"
+              from "Commander" as c
+              left join "Entry" e on c.uuid = e."commanderUuid"
+              left join "Tournament" t on t.uuid = e."tournamentUuid"
+              where t.size >= ${minSize}
+              and t."topCut" >= ${topCut}
+              and c.uuid = ${uuid}
+              group by c.uuid
+              having count(c.uuid) > ${MIN_ENTRIES}
+            `;
+          }),
+        );
+
+        const statsByCommanderUuid = new Map<
+          string,
+          CommanderCalculatedStats
+        >();
+
+        for (const { uuid, conversionRate, count, topCuts } of stats.flat()) {
+          statsByCommanderUuid.set(uuid, {
+            conversionRate,
+            count,
+            topCuts,
+          });
+        }
+
+        return commanders.map(({ uuid }) => statsByCommanderUuid.get(uuid)!);
+      },
+      {
+        cacheKeyFn: ({ uuid, topCut, minSize }) =>
+          [uuid, topCut, minSize].join(":"),
+      },
+    ),
+  };
+}
+
+const builder = new SchemaBuilder<{
+  PrismaTypes: PrismaTypes;
+  Context: Context;
+}>({
   plugins: [PrismaPlugin],
   prisma: { client: prisma },
-});
-
-const TopCutEnum = builder.enumType("TopCut", {
-  values: ["TOP_4", "TOP_16"] as const,
-});
-
-const TournamentSizeEnum = builder.enumType("TournamentSize", {
-  values: ["SIZE_0", "SIZE_64", "SIZE_128"] as const,
 });
 
 const PlayerType = builder.prismaObject("Player", {
@@ -36,7 +95,7 @@ const PlayerType = builder.prismaObject("Player", {
       },
     }),
     losses: t.int({
-      resolve: async (parent) => {
+      resolve: async (parent, _args, ctx) => {
         const aggregateLosses = await prisma.entry.aggregate({
           _sum: { lossesBracket: true, lossesSwiss: true },
           where: { playerUuid: parent.uuid },
@@ -112,28 +171,6 @@ const PlayerType = builder.prismaObject("Player", {
   }),
 });
 
-function topCutKey(topCut: typeof TopCutEnum.$inferType) {
-  if (topCut === "TOP_4") {
-    return "Top04";
-  } else if (topCut === "TOP_16") {
-    return "Top16";
-  } else {
-    throw new Error(`Unknown top cut: ${topCut}`);
-  }
-}
-
-function sizeKey(size: typeof TournamentSizeEnum.$inferType) {
-  if (size === "SIZE_0") {
-    return "size000";
-  } else if (size === "SIZE_64") {
-    return "size064";
-  } else if (size === "SIZE_128") {
-    return "size128";
-  } else {
-    throw new Error(`Unknown tournament size: ${size}`);
-  }
-}
-
 builder.prismaObject("Commander", {
   fields: (t) => ({
     id: t.exposeID("uuid"),
@@ -146,61 +183,46 @@ builder.prismaObject("Commander", {
     }),
     count: t.int({
       args: {
-        minSize: t.arg({ type: TournamentSizeEnum }),
+        minSize: t.arg({ type: "Int" }),
       },
-      select: {
-        size000EntryCount: true,
-        size064EntryCount: true,
-        size128EntryCount: true,
-      },
-      resolve: (parent, { minSize }) => {
-        return parent[`${sizeKey(minSize ?? "SIZE_64")}EntryCount`] ?? 0;
+      resolve: async (parent, { minSize }, ctx) => {
+        const { count } = await ctx.commanderStats.load({
+          uuid: parent.uuid,
+          topCut: 16,
+          minSize: minSize ?? 64,
+        });
+
+        return count;
       },
     }),
     topCuts: t.int({
       args: {
-        topCut: t.arg({ type: TopCutEnum }),
-        minSize: t.arg({ type: TournamentSizeEnum }),
+        topCut: t.arg({ type: "Int" }),
+        minSize: t.arg({ type: "Int" }),
       },
-      select: {
-        size000Top16Count: true,
-        size064Top16Count: true,
-        size128Top16Count: true,
-        size000Top04Count: true,
-        size064Top04Count: true,
-        size128Top04Count: true,
-      },
-      resolve: (parent, { topCut, minSize }) => {
-        return (
-          parent[
-            `${sizeKey(minSize ?? "SIZE_64")}${topCutKey(
-              topCut ?? "TOP_16",
-            )}Count`
-          ] ?? 0
-        );
+      resolve: async (parent, { topCut, minSize }, ctx) => {
+        const { topCuts } = await ctx.commanderStats.load({
+          uuid: parent.uuid,
+          topCut: topCut ?? 16,
+          minSize: minSize ?? 64,
+        });
+
+        return topCuts;
       },
     }),
     conversionRate: t.float({
       args: {
-        topCut: t.arg({ type: TopCutEnum }),
-        minSize: t.arg({ type: TournamentSizeEnum }),
+        topCut: t.arg({ type: "Int" }),
+        minSize: t.arg({ type: "Int" }),
       },
-      select: {
-        size000Top16ConversionRate: true,
-        size064Top16ConversionRate: true,
-        size128Top16ConversionRate: true,
-        size000Top04ConversionRate: true,
-        size064Top04ConversionRate: true,
-        size128Top04ConversionRate: true,
-      },
-      resolve: (parent, { topCut, minSize }) => {
-        return (
-          parent[
-            `${sizeKey(minSize ?? "SIZE_64")}${topCutKey(
-              topCut ?? "TOP_16",
-            )}ConversionRate`
-          ] ?? 0
-        );
+      resolve: async (parent, { topCut, minSize }, ctx) => {
+        const { conversionRate } = await ctx.commanderStats.load({
+          uuid: parent.uuid,
+          topCut: topCut ?? 16,
+          minSize: minSize ?? 64,
+        });
+
+        return conversionRate;
       },
     }),
   }),
@@ -271,22 +293,39 @@ builder.queryType({
     commanders: t.prismaField({
       type: ["Commander"],
       args: {
-        sortTopCut: t.arg({ type: TopCutEnum }),
-        sortMinSize: t.arg({ type: TournamentSizeEnum }),
+        topCut: t.arg({ type: "Int" }),
+        minSize: t.arg({ type: "Int" }),
       },
-      resolve: async (
-        query,
-        _root,
-        { sortMinSize = "SIZE_64", sortTopCut = "TOP_16" },
-      ) => {
-        return prisma.commander.findMany({
-          ...query,
-          orderBy: {
-            [`${sizeKey(sortMinSize ?? "SIZE_64")}${topCutKey(
-              sortTopCut ?? "TOP_16",
-            )}ConversionRate`]: { sort: "desc", nulls: "last" },
-          },
-        });
+      resolve: async (query, _root, args, ctx) => {
+        const minSize = args.minSize ?? 64;
+        const topCut = args.topCut ?? 16;
+
+        const commanderStats = await prisma.$queryRaw<
+          (Commander & CommanderCalculatedStats)[]
+        >`
+          select
+          	c.*,
+          	count(c.uuid)::int as "count",
+          	sum(case when e.standing <= t."topCut" then 1 else 0 end)::int as "topCuts",
+          	sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e) as "conversionRate"
+          from "Commander" as c
+          left join "Entry" e on c.uuid = e."commanderUuid"
+          left join "Tournament" t on t.uuid = e."tournamentUuid"
+          where t.size >= ${minSize}
+          and t."topCut" >= ${topCut}
+          group by c.uuid
+          having count(c.uuid) > ${MIN_ENTRIES}
+          order by "topCuts" desc
+        `;
+
+        for (const { uuid, topCuts, conversionRate, count } of commanderStats) {
+          ctx.commanderStats.prime(
+            { uuid, topCut, minSize },
+            { conversionRate, topCuts, count },
+          );
+        }
+
+        return commanderStats;
       },
     }),
 
