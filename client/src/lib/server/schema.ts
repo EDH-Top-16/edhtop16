@@ -37,7 +37,7 @@ export function createContext(): Context {
               left join "Tournament" t on t.uuid = e."tournamentUuid"
               where t.size >= ${minSize}
               and t."topCut" >= ${topCut}
-              and c.uuid = ${uuid}
+              and c.uuid = ${uuid}::uuid
               group by c.uuid
               having count(c.uuid) > ${MIN_ENTRIES}
             `;
