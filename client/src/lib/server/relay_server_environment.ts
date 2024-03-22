@@ -6,14 +6,14 @@ import {
   RecordSource,
   Store,
 } from "relay-runtime";
-import { schema } from "./schema";
+import { createContext, schema } from "./schema";
 
 const networkFetchFunction: FetchFunction = async (request, variables) => {
   const results = await graphql({
     schema,
     source: request.text!,
     variableValues: variables,
-    contextValue: {},
+    contextValue: createContext(),
   });
 
   return results as any;
