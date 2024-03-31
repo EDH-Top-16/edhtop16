@@ -3,9 +3,10 @@
  * well-shaped form specified in schema.prisma.
  */
 
-import { PrismaClient } from "@prisma/client";
+import { Commander, Player, PrismaClient } from "@prisma/client";
 import { workerPool } from "@reverecre/promise";
 import { randomUUID } from "crypto";
+import DataLoader from "dataloader";
 import { MongoClient } from "mongodb";
 import { z } from "zod";
 
@@ -18,6 +19,10 @@ const prisma = new PrismaClient();
 
 function isNotFalse<T>(v: T | false): v is T {
   return !!v;
+}
+
+function isNotError<T>(v: T | Error): v is T {
+  return !(v instanceof Error);
 }
 
 async function getTournaments() {
@@ -86,33 +91,60 @@ async function getTournamentEntries(tournamentId: string) {
   return (await entries.toArray()).filter(isNotFalse);
 }
 
-const playerUuidByName = new Map<string, string>();
-function trackPlayer(playerName: string) {
-  if (playerUuidByName.has(playerName)) {
-    return playerUuidByName.get(playerName)!;
-  } else {
-    const uuid = randomUUID();
-    playerUuidByName.set(playerName, uuid);
-    return uuid;
-  }
-}
-function isPlayerTracked(playerName: string) {
-  return playerUuidByName.has(playerName);
+function createPlayerDataLoader() {
+  return new DataLoader<Omit<Player, "uuid">, [string, string], string>(
+    async (players) => {
+      const newUuidsByName = new Map<string, string>();
+      for (const player of players) {
+        newUuidsByName.set(player.name, randomUUID());
+      }
+
+      await prisma.player.createMany({
+        data: players.map(
+          (p): Player => ({
+            uuid: newUuidsByName.get(p.name)!,
+            name: p.name,
+            topdeckProfile: p.topdeckProfile,
+          }),
+        ),
+      });
+
+      return players.map((p) => [p.name, newUuidsByName.get(p.name)!]);
+    },
+    {
+      cacheKeyFn: (player) => player.name,
+    },
+  );
 }
 
-const commanderUuidByName = new Map<string, string>();
-function trackCommander(commanderName: string) {
-  if (commanderUuidByName.has(commanderName)) {
-    return commanderUuidByName.get(commanderName)!;
-  } else {
-    const uuid = randomUUID();
-    commanderUuidByName.set(commanderName, uuid);
-    return uuid;
-  }
+function createCommanderDataLoader() {
+  return new DataLoader<Omit<Commander, "uuid">, [string, string], string>(
+    async (commanders) => {
+      const newUuidsByName = new Map<string, string>();
+      for (const commander of commanders) {
+        newUuidsByName.set(commander.name, randomUUID());
+      }
+
+      await prisma.commander.createMany({
+        data: commanders.map(
+          (c): Commander => ({
+            uuid: newUuidsByName.get(c.name)!,
+            name: c.name,
+            colorId: c.colorId,
+          }),
+        ),
+      });
+
+      return commanders.map((c) => [c.name, newUuidsByName.get(c.name)!]);
+    },
+    {
+      cacheKeyFn: (commander) => commander.name,
+    },
+  );
 }
-function isCommanderTracked(commanderName: string) {
-  return commanderUuidByName.has(commanderName);
-}
+
+const players = createPlayerDataLoader();
+const commanders = createCommanderDataLoader();
 
 async function main() {
   const tournaments = await getTournaments();
@@ -136,48 +168,34 @@ async function main() {
 
     const entries = await getTournamentEntries(t.TID);
 
-    const newCommanders = new Map(
-      entries
-        .filter((e) => !isCommanderTracked(e.commander))
-        .map((e) => [e.commander, e.colorID]),
+    const commandersByUuid = new Map(
+      (
+        await commanders.loadMany(
+          entries.map((e) => ({
+            name: e.commander,
+            colorId: e.colorID,
+          })),
+        )
+      ).filter(isNotError),
     );
 
-    if (newCommanders.size) {
-      console.log("Creating", newCommanders.size, "new commanders");
-      await prisma.commander.createMany({
-        // Create commanders ahead of time to ensure transactionality.
-        data: Array.from(newCommanders).map(([commander, colorId]) => ({
-          uuid: trackCommander(commander),
-          name: commander,
-          colorId,
-        })),
-      });
-    }
-
-    const newPlayers = new Map(
-      entries
-        .filter((e) => !isPlayerTracked(e.name))
-        .map((e) => [e.name, e.profile]),
+    const playersByUuid = new Map(
+      (
+        await players.loadMany(
+          entries.map((e) => ({
+            name: e.name,
+            topdeckProfile: e.profile ?? null,
+          })),
+        )
+      ).filter(isNotError),
     );
-
-    if (newPlayers.size) {
-      console.log("Creating", newCommanders.size, "new players");
-      await prisma.player.createMany({
-        // Create players ahead of time to ensure transactionality.
-        data: Array.from(newPlayers).map(([playerName, topdeckProfile]) => ({
-          uuid: trackPlayer(playerName),
-          name: playerName,
-          topdeckProfile,
-        })),
-      });
-    }
 
     console.log("Creating", entries.length, "entries");
     await prisma.entry.createMany({
       data: entries.map((e) => {
         const entryUuid = randomUUID();
-        const playerUuid = trackPlayer(e.name);
-        const commanderUuid = trackCommander(e.commander);
+        const playerUuid = playersByUuid.get(e.name)!;
+        const commanderUuid = commandersByUuid.get(e.commander)!;
         const tournamentUuid = uuidByTid.get(t.TID)!;
 
         return {
