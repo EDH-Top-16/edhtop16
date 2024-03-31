@@ -4,11 +4,10 @@
  */
 
 import { PrismaClient } from "@prisma/client";
+import { workerPool } from "@reverecre/promise";
 import { randomUUID } from "crypto";
 import { MongoClient } from "mongodb";
 import { z } from "zod";
-import { workerPool } from "@reverecre/promise";
-import { subYears } from "date-fns";
 
 const env = z.object({ ENTRIES_DB_URL: z.string() }).parse(process.env);
 
@@ -55,7 +54,7 @@ async function getTournaments() {
 async function getTournamentEntries(tournamentId: string) {
   const entrySchema = z.object({
     name: z.string().trim(),
-    profile: z.string().nullable(),
+    profile: z.string().nullable().optional(),
     decklist: z.string().nullable(),
     winsSwiss: z.number().int(),
     winsBracket: z.number().int(),
