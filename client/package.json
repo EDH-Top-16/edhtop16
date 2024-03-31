@@ -7,9 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate:schema": "DATABASE_URL=postgresql://localhost:5432/dummy npx ts-node-script scripts/print-schema.ts",
+    "generate:schema": "DATABASE_URL=postgresql://localhost:5432/dummy node -r ts-node/register scripts/print-schema.ts",
     "generate:relay": "relay-compiler",
-    "data-import": "npx prisma migrate reset -f && npx ts-node-script scripts/import-data.ts"
+    "data-import": "npx prisma migrate reset -f && node -r ts-node/register scripts/import-data.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.10.0",
