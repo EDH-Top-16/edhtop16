@@ -20,15 +20,15 @@ import {
 } from "react-aria-components";
 import { graphql, useFragment, usePreloadedQuery } from "react-relay/hooks";
 import { RelayProps, withRelay } from "relay-nextjs";
-import { ColorIdentity } from "../assets/icons/colors";
-import { Banner } from "../components/banner/banner";
-import { Searchbar } from "../components/banner/searchbar";
-import { Navigation } from "../components/nav";
-import { getClientEnvironment } from "../lib/client/relay_client_environment";
-import { commanders_CommanderTableRow$key } from "../queries/__generated__/commanders_CommanderTableRow.graphql";
-import { commanders_CommanderTableRowMobileView$key } from "../queries/__generated__/commanders_CommanderTableRowMobileView.graphql";
-import { commanders_CommandersQuery } from "../queries/__generated__/commanders_CommandersQuery.graphql";
-import { commanders_CommandersTableData$key } from "../queries/__generated__/commanders_CommandersTableData.graphql";
+import { ColorIdentity } from "../../assets/icons/colors";
+import { Banner } from "../../components/banner/banner";
+import { Searchbar } from "../../components/banner/searchbar";
+import { Navigation } from "../../components/nav";
+import { getClientEnvironment } from "../../lib/client/relay_client_environment";
+import { commanders_CommanderTableRow$key } from "../../queries/__generated__/commanders_CommanderTableRow.graphql";
+import { commanders_CommanderTableRowMobileView$key } from "../../queries/__generated__/commanders_CommanderTableRowMobileView.graphql";
+import { commanders_CommandersQuery } from "../../queries/__generated__/commanders_CommandersQuery.graphql";
+import { commanders_CommandersTableData$key } from "../../queries/__generated__/commanders_CommandersTableData.graphql";
 
 function CommandersTableColumnHeader({
   hideOnMobile,
@@ -410,7 +410,7 @@ export default withRelay(CommandersPage, CommandersQuery, {
   createClientEnvironment: () => getClientEnvironment()!,
   createServerEnvironment: async (ctx) => {
     const { createServerEnvironment } = await import(
-      "../lib/server/relay_server_environment"
+      "../../lib/server/relay_server_environment"
     );
 
     return createServerEnvironment();

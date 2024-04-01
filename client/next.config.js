@@ -1,11 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  basePath: "/v2",
   async rewrites() {
     return [
       {
-        source: "/",
-        destination: "/commanders",
+        source: "/v2",
+        destination: "/v2/commanders",
       },
     ];
   },
