@@ -16,7 +16,7 @@ export default function About() {
       </p>
       <p className="text-2xl mb-4">
         Our platform is powered by <a class="font-bold text-bantextner dark:text-text" href="https://edh.events/subscribe" target="_blank" rel="noreferrer">Command Tower</a>, 
-        a product of <a class="font-bold text-banner dark:text-text" href="https://eminence.events/" target="_blank" rel="noreferrer">Eminence Gaming</a>, 
+        a product of <a class="font-bold text-banner dark:text-text" href="https://topdeck.gg/" target="_blank" rel="noreferrer">Topdeck.gg</a>, 
         and presents a comprehensive overview of the decks being played, meta breakdowns, pilot profiles, event standings, and decklists from top-performing players. We also provide a few other statistics to help players optimize their decks for improved performance.
       </p>
       <p className="text-2xl mb-4">
@@ -24,7 +24,6 @@ export default function About() {
       </p>
       <p className="text-2xl mb-4">
         Feel free to <a class="font-bold text-bantextner dark:text-text" href="https://github.com/JasonQiu21/cedhtop16/issues" target="_blank" rel="noreferrer">submit an issue</a> if you see a bug or think of a feature you'd like to see. You can also find us <a class="font-bold text-bantextner dark:text-text" href="https://discord.gg/gfpD6EFHGm" target="_blank">on Discord</a>.
-        We'll be working hard to put together ways to view tournaments and individual players soon; thanks in advance for your patience.
       </p>
       <p className="text-2xl pb-24">
         If you would like to see a tournament added to our site, please contact us!

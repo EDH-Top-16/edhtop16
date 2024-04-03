@@ -58,7 +58,7 @@ export default function Nav() {
         <span>
           <a href="https://eminence.events/" target="_blank" className="flex flex-row items-center gap-2 [&_path]:fill-voilet [&_path]:dark:fill-white">
             <EminenceIcon  />
-            <span className="md:hidden md:group-hover:block">Eminence</span>
+            <span className="md:hidden md:group-hover:block">Topdeck.gg</span>
           </a>
         </span>
       </div>
