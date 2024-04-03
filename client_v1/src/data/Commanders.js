@@ -5,7 +5,7 @@ import { CheckValidFields } from "./ErrorChecking";
 /**
  * @returns all valid commanders from our api
  */
-export async function getCommanders(filters) {
+export async function getCommanders(filters, showUnknown = false) {
   const config = {
     headers: {
       "Content-Type": "application/json",
@@ -19,7 +19,7 @@ export async function getCommanders(filters) {
     config
   );
   return res.data.filter(
-    (el) => "commander" in el && el.commander !== "Unknown Commander"
+    (el) => "commander" in el && (showUnknown || el.commander !== "Unknown Commander")
   );
 }
 

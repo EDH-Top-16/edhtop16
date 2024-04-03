@@ -3,7 +3,7 @@ import Link from "next/link";
 import AboutIcon from "../assets/icons/AboutIcon";
 import BracketIcon from "../assets/icons/BracketIcon";
 import DeckIcon from "../assets/icons/DeckIcon";
-import { EGLogo } from "../assets/images";
+import { TopDeckLogo } from "../assets/images";
 
 interface NavLink {
   href: string;
@@ -25,8 +25,8 @@ export function Navigation(): JSX.Element {
           <Image
             fill
             style={{ objectFit: "cover" }}
-            src={EGLogo}
-            alt={"eminence gaming logo"}
+            src={TopDeckLogo}
+            alt={"topdeck logo"}
           />
         </div>
       </Link>
