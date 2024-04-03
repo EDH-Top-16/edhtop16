@@ -1,3 +1,10 @@
+/**
+ * @fileoverview This is a copy of the legacy /api/req code, kept
+ * as faithful as possible to the original source. The intention
+ * is to support this API going into the future for old consumers,
+ * but it may be deprecated in the future.
+ */
+
 const dbo = (() => {
   return {
     getDb: function () {
