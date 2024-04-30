@@ -92,27 +92,38 @@ async function getTournamentEntries(tournamentId: string) {
 }
 
 function createPlayerDataLoader() {
-  return new DataLoader<Omit<Player, "uuid">, [string, string], string>(
+  return new DataLoader<
+    Omit<Player, "uuid">,
+    [string | null, string | null],
+    string | null
+  >(
     async (players) => {
-      const newUuidsByName = new Map<string, string>();
+      const newUuidsByTopdeckProfile = new Map<string, string>();
       for (const player of players) {
-        newUuidsByName.set(player.name, randomUUID());
+        if (player.topdeckProfile) {
+          newUuidsByTopdeckProfile.set(player.topdeckProfile, randomUUID());
+        }
       }
 
       await prisma.player.createMany({
-        data: players.map(
-          (p): Player => ({
-            uuid: newUuidsByName.get(p.name)!,
-            name: p.name,
-            topdeckProfile: p.topdeckProfile,
-          }),
-        ),
+        data: players
+          .filter((p) => p.topdeckProfile != null)
+          .map(
+            (p): Player => ({
+              uuid: newUuidsByTopdeckProfile.get(p.topdeckProfile!)!,
+              name: p.name,
+              topdeckProfile: p.topdeckProfile,
+            }),
+          ),
       });
 
-      return players.map((p) => [p.name, newUuidsByName.get(p.name)!]);
+      return players.map((p) => [
+        p.topdeckProfile,
+        newUuidsByTopdeckProfile.get(p.topdeckProfile!) ?? null,
+      ]);
     },
     {
-      cacheKeyFn: (player) => player.name,
+      cacheKeyFn: (player) => player.topdeckProfile,
     },
   );
 }
@@ -168,7 +179,7 @@ async function main() {
 
     const entries = await getTournamentEntries(t.TID);
 
-    const commandersByUuid = new Map(
+    const commanderUuidByName = new Map(
       (
         await commanders.loadMany(
           entries.map((e) => ({
@@ -179,7 +190,7 @@ async function main() {
       ).filter(isNotError),
     );
 
-    const playersByUuid = new Map(
+    const playerUuidByProfile = new Map(
       (
         await players.loadMany(
           entries.map((e) => ({
@@ -194,8 +205,8 @@ async function main() {
     await prisma.entry.createMany({
       data: entries.map((e) => {
         const entryUuid = randomUUID();
-        const playerUuid = playersByUuid.get(e.name)!;
-        const commanderUuid = commandersByUuid.get(e.commander)!;
+        const playerUuid = playerUuidByProfile.get(e.profile!);
+        const commanderUuid = commanderUuidByName.get(e.commander)!;
         const tournamentUuid = uuidByTid.get(t.TID)!;
 
         return {
