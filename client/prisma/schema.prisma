@@ -34,7 +34,7 @@ model Player {
   uuid String @id @db.Uuid
 
   /// Unique topdeck profile ID.
-  topdeckProfile String?
+  topdeckProfile String? @unique
   /// Name of this player, as found in their most recent tournament.
   name           String
 
@@ -55,9 +55,9 @@ model Commander {
 model Entry {
   uuid String @id @db.Uuid
 
-  tournamentUuid String @db.Uuid
-  playerUuid     String @db.Uuid
-  commanderUuid  String @db.Uuid
+  tournamentUuid String  @db.Uuid
+  playerUuid     String? @db.Uuid
+  commanderUuid  String  @db.Uuid
 
   standing      Int
   decklist      String?
@@ -68,6 +68,6 @@ model Entry {
   lossesBracket Int
 
   tournament Tournament @relation(fields: [tournamentUuid], references: [uuid])
-  player     Player     @relation(fields: [playerUuid], references: [uuid])
+  player     Player?    @relation(fields: [playerUuid], references: [uuid])
   commander  Commander  @relation(fields: [commanderUuid], references: [uuid])
 }

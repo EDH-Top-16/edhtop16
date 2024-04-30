@@ -16,7 +16,7 @@ type Entry {
   losses: Int!
   lossesBracket: Int!
   lossesSwiss: Int!
-  player: Player!
+  player: Player
   standing: Int!
   tournament: Tournament!
   wins: Int!

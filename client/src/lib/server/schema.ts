@@ -239,7 +239,7 @@ const EntryType = builder.prismaObject("Entry", {
     lossesSwiss: t.exposeInt("lossesSwiss"),
     lossesBracket: t.exposeInt("lossesBracket"),
     commander: t.relation("commander"),
-    player: t.relation("player"),
+    player: t.relation("player", { nullable: true }),
     tournament: t.relation("tournament"),
     wins: t.int({
       resolve: (parent) => parent.winsBracket + parent.winsSwiss,
