@@ -29,6 +29,7 @@ import { commanders_CommanderTableRow$key } from "../../queries/__generated__/co
 import { commanders_CommanderTableRowMobileView$key } from "../../queries/__generated__/commanders_CommanderTableRowMobileView.graphql";
 import { commanders_CommandersQuery } from "../../queries/__generated__/commanders_CommandersQuery.graphql";
 import { commanders_CommandersTableData$key } from "../../queries/__generated__/commanders_CommandersTableData.graphql";
+import { Entry } from "../../components/entry";
 
 function CommandersTableColumnHeader({
   hideOnMobile,
@@ -150,27 +151,7 @@ function CommandersTableRow({
     props.commander,
   );
 
-  return (
-    <Row key={commander.name} className="">
-      <CommanderTableDataCell hideOnMobile>{rank}</CommanderTableDataCell>
-      <CommanderTableDataCell>
-        <span className="hidden font-semibold lg:inline">{commander.name}</span>
-        <CommanderTableRowMobileView rank={rank} commander={commander} />
-      </CommanderTableDataCell>
-      <CommanderTableDataCell hideOnMobile>
-        {commander.topCuts}
-      </CommanderTableDataCell>
-      <CommanderTableDataCell hideOnMobile>
-        {commander.count}
-      </CommanderTableDataCell>
-      <CommanderTableDataCell hideOnMobile>
-        {Math.round((commander.conversionRate ?? 0) * 100)}%
-      </CommanderTableDataCell>
-      <CommanderTableDataCell hideOnMobile>
-        {commander.colorId && <ColorIdentity identity={commander.colorId} />}
-      </CommanderTableDataCell>
-    </Row>
-  );
+  return <Entry rank={rank} name={commander.name} />;
 }
 
 function useTableSort(
