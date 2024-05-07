@@ -57,7 +57,14 @@ export function createContext(): Context {
           });
         }
 
-        return commanders.map(({ uuid }) => statsByCommanderUuid.get(uuid)!);
+        return commanders.map(
+          ({ uuid }) =>
+            statsByCommanderUuid.get(uuid) ?? {
+              topCuts: 0,
+              conversionRate: 0,
+              count: 0,
+            },
+        );
       },
       {
         cacheKeyFn: ({ uuid, topCut, minSize }) =>
