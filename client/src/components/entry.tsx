@@ -1,3 +1,4 @@
+import cn from "classnames";
 import { Cell, Row } from "react-aria-components";
 import { ColorIdentity } from "../assets/icons/colors";
 
@@ -20,10 +21,9 @@ interface EntryProps {
   rank: string | number;
   name: string;
   decklistLink?: string;
-  metadata?: string[];
+  metadata?: [string, string | number, showOnMobile?: boolean][];
   colorIdentity?: string;
   tournament?: string;
-  metadata_fields?: string[];
   layout?: "default" | "WLD";
 }
 
@@ -34,22 +34,21 @@ export function Entry({
   metadata,
   colorIdentity,
   tournament,
-  metadata_fields,
   layout = "default",
 }: EntryProps) {
   return (
-    <Row className="text-cadet shadow-modal grid grid-cols-3 grid-rows-2 rounded-lg py-2 text-lg dark:text-white sm:py-0 md:table-row md:[&>td]:py-3">
+    <Row className="my-3 grid grid-cols-3 grid-rows-2 rounded-lg px-4 py-2 text-lg text-cadet shadow-modal dark:text-white sm:py-0 md:my-0 md:table-row md:px-0 md:[&>td]:py-3">
       {rank && (
-        <Cell className="text-lightText dark:text-text hidden md:table-cell">
+        <Cell className="hidden text-lightText dark:text-text md:table-cell md:px-4">
           {rank}
         </Cell>
       )}
 
       {name && (
-        <Cell className="col-span-2 col-start-1 font-semibold">
-          <span className="flex items-center gap-1 text-lg font-semibold">
+        <Cell className="col-span-2 col-start-1 font-semibold md:px-4">
+          <span className="space-x-2 text-lg font-semibold md:space-x-0">
             {rank && (
-              <span className="text-lightText dark:text-text text-sm md:hidden">
+              <span className="text-sm text-lightText dark:text-text md:hidden">
                 #{rank}
               </span>
             )}
@@ -59,52 +58,52 @@ export function Entry({
               {decklistLink && <CardIcon />}
             </a>
 
-            <span className="text-lightText dark:text-text text-sm md:hidden">
-              ({metadata?.at(-1)})
+            <span className="text-sm text-lightText dark:text-text md:hidden">
+              ({metadata?.at(-1)?.[1]})
             </span>
           </span>
         </Cell>
       )}
 
-      {metadata?.map((data, i) => (
-        <Cell key={i} className="hidden md:table-cell">
-          {data}
-        </Cell>
-      ))}
-
       {layout === "default" &&
-        metadata?.map(
-          (data, i, a) =>
-            i < a.length - 1 && (
-              <Cell
-                key={i}
-                className="col-start-3 flex justify-end text-sm md:hidden"
-              >
-                {metadata_fields?.[i]}: {data}
-              </Cell>
-            ),
-        )}
+        metadata?.map(([key, data, showOnMobile = true]) => {
+          return (
+            <Cell
+              key={key}
+              className={cn(
+                showOnMobile ? "flex" : "hidden",
+                "col-start-3 justify-end text-sm md:col-auto md:table-cell md:text-base",
+              )}
+            >
+              <span className="md:hidden">{key}:&nbsp;</span>
+              {data}
+            </Cell>
+          );
+        })}
 
       {metadata && layout === "WLD" && (
-        <Cell className="col-start-3 flex justify-end text-sm md:hidden">
+        <Cell className="col-start-3 flex justify-end text-sm md:hidden md:px-4">
           St / W / L / D
         </Cell>
       )}
 
       {metadata && layout === "WLD" && (
-        <Cell className="col-start-3 row-start-2 flex justify-end text-sm md:hidden">
-          {metadata.filter((data, i, a) => i < a.length - 1).join(" / ")}
+        <Cell className="col-start-3 row-start-2 flex justify-end text-sm md:hidden md:px-4">
+          {metadata
+            .filter((data, i, a) => i < a.length - 1)
+            .map(([key, data]) => data)
+            .join(" / ")}
         </Cell>
       )}
 
       {colorIdentity && (
-        <Cell className="col-span-2 col-start-1 row-start-2 !m-0 flex flex-wrap gap-2 px-2 align-middle">
+        <Cell className="col-span-2 col-start-1 row-start-2 !m-0 flex flex-wrap items-center gap-2 px-2 align-middle md:table-cell md:px-4">
           <ColorIdentity identity={colorIdentity} />
         </Cell>
       )}
 
       {tournament && (
-        <Cell className="col-span-2 col-start-1 flex text-sm md:table-cell">
+        <Cell className="col-span-2 col-start-1 flex text-sm md:table-cell md:px-4">
           {tournament}
         </Cell>
       )}

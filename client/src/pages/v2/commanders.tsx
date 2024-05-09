@@ -71,7 +71,7 @@ function CommanderTableDataCell({
       className={cn(
         className,
         { "hidden lg:table-cell": hideOnMobile },
-        "border-b border-zinc-100/20 py-4 text-lg text-gray-100",
+        "text-gray-100 border-b border-zinc-100/20 py-4 text-lg",
       )}
       {...props}
     />
@@ -107,7 +107,7 @@ function CommanderTableRowMobileView({
         <span className="font-semibold">{commander.name}</span>
       </div>
 
-      <div className="flex flex-col items-end text-sm text-gray-200">
+      <div className="text-gray-200 flex flex-col items-end text-sm">
         <div>Top X: {commander.topCuts}</div>
         <div>
           {commander.conversionRate && (
@@ -122,7 +122,7 @@ function CommanderTableRowMobileView({
         {commander.colorId && <ColorIdentity identity={commander.colorId} />}
       </div>
 
-      <div className="flex flex-col items-end text-sm text-gray-200">
+      <div className="text-gray-200 flex flex-col items-end text-sm">
         <div>Entries: {commander.count}</div>
       </div>
     </div>
@@ -151,7 +151,18 @@ function CommandersTableRow({
     props.commander,
   );
 
-  return <Entry rank={rank} name={commander.name} />;
+  return (
+    <Entry
+      rank={rank}
+      name={commander.name}
+      metadata={[
+        ["Top X", commander.topCuts],
+        ["Entries", commander.count],
+        ["Conversion", `${Math.round(commander.conversionRate * 100)}%`, false],
+      ]}
+      colorIdentity={commander.colorId}
+    />
+  );
 }
 
 function useTableSort(
@@ -240,7 +251,11 @@ function CommandersTable(props: {
   }, [commanders, sort]);
 
   return (
-    <Table className="w-full" sortDescriptor={sort} onSortChange={updateSort}>
+    <Table
+      className="w-full border-separate border-spacing-y-3"
+      sortDescriptor={sort}
+      onSortChange={updateSort}
+    >
       <TableHeader>
         <CommandersTableColumnHeader hideOnMobile allowsSorting id="rank">
           Rank
@@ -283,7 +298,7 @@ function ActionMenu<T extends string>({
 }: PropsWithChildren<ActionMenuProps<T>>) {
   return (
     <MenuTrigger>
-      <Button className="cursor-pointer rounded bg-gray-50 p-2 !outline-none">
+      <Button className="bg-gray-50 cursor-pointer rounded p-2 !outline-none">
         {children}
       </Button>
       <Popover>
@@ -294,7 +309,7 @@ function ActionMenu<T extends string>({
                 key={key}
                 id={key}
                 className={cn(
-                  "cursor-pointer bg-gray-50 px-2 pb-1 pt-2 !outline-none hover:bg-indigo-500 hover:text-white",
+                  "bg-gray-50 cursor-pointer px-2 pb-1 pt-2 !outline-none hover:bg-indigo-500 hover:text-white",
                   i === 0
                     ? "rounded-t pb-1 pt-2"
                     : i === length - 1
@@ -379,7 +394,7 @@ function CommandersPage({
           <MobileSortMenus />
         </Banner>
 
-        <main className="w-full bg-secondary px-8 py-4 text-white">
+        <main className="w-full bg-secondary px-2 py-4 text-white md:px-8">
           <CommandersTable commanders={commanders} />
         </main>
       </div>
