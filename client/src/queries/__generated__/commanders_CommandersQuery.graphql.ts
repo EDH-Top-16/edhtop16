@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<f838e5e5cc557d166d33b6517b16b9f4>>
+ * @generated SignedSource<<725fa3e0cec65330a09a72bde5ef8f9f>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -110,12 +110,12 @@ const node: ConcreteRequest = {
     ]
   },
   "params": {
-    "cacheID": "9b858d8e312f4a54faa8c0443e12f15a",
+    "cacheID": "d954f7cbbaea1d0102fed2479d1667a3",
     "id": null,
     "metadata": {},
     "name": "commanders_CommandersQuery",
     "operationKind": "query",
-    "text": "query commanders_CommandersQuery {\n  commanders {\n    ...commanders_CommandersTableData\n    id\n  }\n}\n\nfragment commanders_CommanderTableRow on Commander {\n  name\n  colorId\n  count\n  topCuts\n  conversionRate\n  ...commanders_CommanderTableRowMobileView\n}\n\nfragment commanders_CommanderTableRowMobileView on Commander {\n  name\n  colorId\n  topCuts\n  conversionRate\n  count\n}\n\nfragment commanders_CommandersTableData on Commander {\n  name\n  topCuts\n  count\n  conversionRate\n  ...commanders_CommanderTableRow\n}\n"
+    "text": "query commanders_CommandersQuery {\n  commanders {\n    ...commanders_CommandersTableData\n    id\n  }\n}\n\nfragment commanders_CommanderTableRow on Commander {\n  name\n  colorId\n  count\n  topCuts\n  conversionRate\n}\n\nfragment commanders_CommandersTableData on Commander {\n  name\n  topCuts\n  count\n  conversionRate\n  ...commanders_CommanderTableRow\n}\n"
   }
 };
 

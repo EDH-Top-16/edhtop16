@@ -39,6 +39,7 @@ type Player {
 
 type Query {
   commander(name: String!): Commander!
+  commanderNames: [String!]!
   commanders(minSize: Int, topCut: Int): [Commander!]!
   player(profile: String!): Player!
   tournament(TID: String!): Tournament!

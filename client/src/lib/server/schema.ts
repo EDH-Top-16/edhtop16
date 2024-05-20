@@ -458,6 +458,16 @@ builder.queryType({
         }),
     }),
 
+    commanderNames: t.stringList({
+      resolve: async () => {
+        const commanders = await prisma.commander.findMany({
+          select: { name: true },
+        });
+
+        return commanders.map((c) => c.name);
+      },
+    }),
+
     player: t.prismaField({
       type: "Player",
       args: { profile: t.arg.string({ required: true }) },

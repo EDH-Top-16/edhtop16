@@ -103,27 +103,31 @@ export function WhiteIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+export function ColorIcon({ color }: { color: string }) {
+  switch (color) {
+    case "W":
+      return <WhiteIcon height={20} width={20} />;
+    case "U":
+      return <BlueIcon height={20} width={20} />;
+    case "B":
+      return <BlackIcon height={20} width={20} />;
+    case "R":
+      return <RedIcon height={20} width={20} />;
+    case "G":
+      return <GreenIcon height={20} width={20} />;
+    case "C":
+      return <ColorlessIcon height={20} width={20} />;
+    default:
+      return null;
+  }
+}
+
 export function ColorIdentity({ identity }: { identity: string }) {
   return (
     <span className="flex space-x-1">
-      {identity.split("").map((char) => {
-        switch (char) {
-          case "W":
-            return <WhiteIcon height={20} width={20} key={char} />;
-          case "U":
-            return <BlueIcon height={20} width={20} key={char} />;
-          case "B":
-            return <BlackIcon height={20} width={20} key={char} />;
-          case "R":
-            return <RedIcon height={20} width={20} key={char} />;
-          case "G":
-            return <GreenIcon height={20} width={20} key={char} />;
-          case "C":
-            return <ColorlessIcon height={20} width={20} key={char} />;
-          default:
-            return null;
-        }
-      })}
+      {identity.split("").map((char) => (
+        <ColorIcon key={char} color={char} />
+      ))}
     </span>
   );
 }

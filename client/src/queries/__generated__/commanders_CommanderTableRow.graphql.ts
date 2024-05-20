@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<21aa331fd7a1196faf537b6574aa4bb9>>
+ * @generated SignedSource<<a8e6d47b2779cfcbe5bc5e17853095ba>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,7 +16,6 @@ export type commanders_CommanderTableRow$data = {
   readonly count: number;
   readonly name: string;
   readonly topCuts: number;
-  readonly " $fragmentSpreads": FragmentRefs<"commanders_CommanderTableRowMobileView">;
   readonly " $fragmentType": "commanders_CommanderTableRow";
 };
 export type commanders_CommanderTableRow$key = {
@@ -64,17 +63,12 @@ const node: ReaderFragment = {
       "kind": "ScalarField",
       "name": "conversionRate",
       "storageKey": null
-    },
-    {
-      "args": null,
-      "kind": "FragmentSpread",
-      "name": "commanders_CommanderTableRowMobileView"
     }
   ],
   "type": "Commander",
   "abstractKey": null
 };
 
-(node as any).hash = "a5aa2523497bac85028009fee8fcf7b8";
+(node as any).hash = "9e4e17f2088aa475b702e998df62b955";
 
 export default node;

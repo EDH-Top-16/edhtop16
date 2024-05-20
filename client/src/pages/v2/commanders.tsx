@@ -3,8 +3,6 @@ import { useRouter } from "next/router";
 import { PropsWithChildren, useCallback, useMemo, useRef } from "react";
 import {
   Button,
-  Cell,
-  CellProps,
   Column,
   ColumnProps,
   Key,
@@ -12,7 +10,6 @@ import {
   MenuItem,
   MenuTrigger,
   Popover,
-  Row,
   SortDescriptor,
   Table,
   TableBody,
@@ -20,16 +17,13 @@ import {
 } from "react-aria-components";
 import { graphql, useFragment, usePreloadedQuery } from "react-relay/hooks";
 import { RelayProps, withRelay } from "relay-nextjs";
-import { ColorIdentity } from "../../assets/icons/colors";
 import { Banner } from "../../components/banner/banner";
-import { Searchbar } from "../../components/banner/searchbar";
+import { Entry } from "../../components/entry";
 import { Navigation } from "../../components/nav";
 import { getClientEnvironment } from "../../lib/client/relay_client_environment";
 import { commanders_CommanderTableRow$key } from "../../queries/__generated__/commanders_CommanderTableRow.graphql";
-import { commanders_CommanderTableRowMobileView$key } from "../../queries/__generated__/commanders_CommanderTableRowMobileView.graphql";
 import { commanders_CommandersQuery } from "../../queries/__generated__/commanders_CommandersQuery.graphql";
 import { commanders_CommandersTableData$key } from "../../queries/__generated__/commanders_CommandersTableData.graphql";
-import { Entry } from "../../components/entry";
 
 function CommandersTableColumnHeader({
   hideOnMobile,
@@ -59,76 +53,6 @@ function CommandersTableColumnHeader({
   );
 }
 
-function CommanderTableDataCell({
-  hideOnMobile,
-  className,
-  ...props
-}: {
-  hideOnMobile?: boolean;
-} & CellProps) {
-  return (
-    <Cell
-      className={cn(
-        className,
-        { "hidden lg:table-cell": hideOnMobile },
-        "text-gray-100 border-b border-zinc-100/20 py-4 text-lg",
-      )}
-      {...props}
-    />
-  );
-}
-
-function CommanderTableRowMobileView({
-  rank,
-  ...props
-}: {
-  rank: number;
-  commander: commanders_CommanderTableRowMobileView$key;
-}) {
-  const commander = useFragment(
-    graphql`
-      fragment commanders_CommanderTableRowMobileView on Commander {
-        name
-        colorId
-        topCuts
-        conversionRate
-        count
-      }
-    `,
-    props.commander,
-  );
-
-  return (
-    <div className="mb-4 grid h-16 grid-cols-[1fr_auto] items-baseline gap-x-3 gap-y-2 lg:hidden">
-      <div>
-        <span className="mr-2 text-sm font-semibold text-indigo-300">
-          #{rank}
-        </span>
-        <span className="font-semibold">{commander.name}</span>
-      </div>
-
-      <div className="text-gray-200 flex flex-col items-end text-sm">
-        <div>Top X: {commander.topCuts}</div>
-        <div>
-          {commander.conversionRate && (
-            <span className="ml-2 text-sm font-semibold text-indigo-300">
-              ({Math.round(commander.conversionRate * 100)}%)
-            </span>
-          )}
-        </div>
-      </div>
-
-      <div>
-        {commander.colorId && <ColorIdentity identity={commander.colorId} />}
-      </div>
-
-      <div className="text-gray-200 flex flex-col items-end text-sm">
-        <div>Entries: {commander.count}</div>
-      </div>
-    </div>
-  );
-}
-
 function CommandersTableRow({
   rank,
   ...props
@@ -144,8 +68,6 @@ function CommandersTableRow({
         count
         topCuts
         conversionRate
-
-        ...commanders_CommanderTableRowMobileView
       }
     `,
     props.commander,
@@ -389,10 +311,7 @@ function CommandersPage({
     <div className="flex h-screen w-screen bg-secondary">
       <Navigation />
       <div className="flex flex-grow flex-col overflow-auto">
-        <Banner title="Commander Decks">
-          <Searchbar placeholder="Find Commander..." />
-          <MobileSortMenus />
-        </Banner>
+        <Banner title="Commander Decks" enableSearchbar enableFilters />
 
         <main className="w-full bg-secondary px-2 py-4 text-white md:px-8">
           <CommandersTable commanders={commanders} />
