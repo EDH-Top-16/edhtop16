@@ -7,7 +7,7 @@ import {
 } from "react-aria-components";
 import cn from "classnames";
 import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 
 interface FilterConfiguration {
   displayName: string;
@@ -38,10 +38,27 @@ interface FilterButtonProps {
 
 function FilterButton({ filter: option, onChange }: FilterButtonProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
+
   const handleRemove = useCallback(() => {
     triggerRef.current?.focus();
     onChange?.(undefined);
   }, [onChange]);
+
+  const [pendingValue, setPendingValue] = useState<string>();
+  const handleApply = useCallback(() => {
+    triggerRef.current?.focus();
+    setPendingValue(undefined);
+    onChange?.(pendingValue);
+  }, [onChange, pendingValue]);
+
+  let buttonText = option.displayName;
+  if (option.currentValue && option.selectOptions) {
+    const selectedOptionText = option.selectOptions.find(
+      ([, key]) => key === option.currentValue,
+    )?.[0];
+
+    if (selectedOptionText) buttonText += `: ${selectedOptionText}`;
+  }
 
   return (
     <DialogTrigger>
@@ -60,7 +77,7 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
           </div>
         )}
 
-        {option.displayName}
+        {buttonText}
 
         {option.currentValue && (
           <div
@@ -80,7 +97,10 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
           {option.selectOptions && (
             <div className="flex-col">
               <select
-                value={option.currentValue}
+                value={pendingValue ?? option.currentValue}
+                onChange={(e) => {
+                  setPendingValue(e.target.value);
+                }}
                 className="rounded-lg border-2 border-solid border-transparent px-2 py-2 text-sm focus:border-accent focus-visible:outline-none"
               >
                 {option.selectOptions.map(([displayName, value]) => (
@@ -93,7 +113,10 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
           )}
 
           <div className="flex flex-row flex-wrap gap-2">
-            <button className="flex-grow rounded-lg bg-accent p-2 text-sm text-white">
+            <button
+              onClick={handleApply}
+              className="flex-grow rounded-lg bg-accent p-2 text-sm text-white"
+            >
               Apply
             </button>
             <button
