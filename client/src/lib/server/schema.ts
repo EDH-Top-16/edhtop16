@@ -316,6 +316,33 @@ const TournamentTableType = builder
           return entries.map((e) => (e instanceof Error ? undefined : e));
         },
       }),
+      winnerSeatPosition: t.int({
+        nullable: true,
+        resolve: (parent) => {
+          const winnerIndex = parent.players.findIndex(
+            (p) => p.name === parent.winner,
+          );
+
+          if (winnerIndex < 0) return null;
+          return winnerIndex + 1;
+        },
+      }),
+      winner: t.field({
+        type: EntryType,
+        nullable: true,
+        resolve: async (parent, _args, ctx) => {
+          const winnerPlayer = parent.players.find(
+            (p) => p.name === parent.winner,
+          );
+
+          if (winnerPlayer == null) return null;
+
+          return await ctx.entries.load({
+            TID: parent.TID,
+            topdeckProfile: winnerPlayer.id,
+          });
+        },
+      }),
     }),
   });
 
