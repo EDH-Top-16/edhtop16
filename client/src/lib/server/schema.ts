@@ -2,10 +2,21 @@ import SchemaBuilder from "@pothos/core";
 import PrismaPlugin from "@pothos/plugin-prisma";
 import type PrismaTypes from "@pothos/plugin-prisma/generated";
 import { prisma } from "./prisma";
-import { Commander } from "@prisma/client";
+import { Commander, Entry, Prisma } from "@prisma/client";
 import DataLoader from "dataloader";
+import {
+  TopdeckClient,
+  TopdeckTournamentRound,
+  TopdeckTournamentTable,
+} from "./topdeck";
 
 const MIN_ENTRIES = 10;
+
+interface CommanderStatsQuery {
+  uuid: string;
+  topCut: number;
+  minSize: number;
+}
 
 interface CommanderCalculatedStats {
   count: number;
@@ -13,64 +24,94 @@ interface CommanderCalculatedStats {
   conversionRate: number;
 }
 
+function createCommanderStatsLoader() {
+  return new DataLoader<CommanderStatsQuery, CommanderCalculatedStats, string>(
+    async (commanders) => {
+      const stats = await Promise.all(
+        commanders.map(async ({ uuid, topCut, minSize }) => {
+          return prisma.$queryRaw<(Commander & CommanderCalculatedStats)[]>`
+            select
+              c.*,
+              count(c.uuid)::int as "count",
+              sum(case when e.standing <= t."topCut" then 1 else 0 end)::int as "topCuts",
+              sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e) as "conversionRate"
+            from "Commander" as c
+            left join "Entry" e on c.uuid = e."commanderUuid"
+            left join "Tournament" t on t.uuid = e."tournamentUuid"
+            where t.size >= ${minSize}
+            and t."topCut" >= ${topCut}
+            and c.uuid = ${uuid}::uuid
+            group by c.uuid
+            having count(c.uuid) > ${MIN_ENTRIES}
+          `;
+        }),
+      );
+
+      const statsByCommanderUuid = new Map<string, CommanderCalculatedStats>();
+
+      for (const { uuid, conversionRate, count, topCuts } of stats.flat()) {
+        statsByCommanderUuid.set(uuid, {
+          conversionRate,
+          count,
+          topCuts,
+        });
+      }
+
+      return commanders.map(
+        ({ uuid }) =>
+          statsByCommanderUuid.get(uuid) ?? {
+            topCuts: 0,
+            conversionRate: 0,
+            count: 0,
+          },
+      );
+    },
+    {
+      cacheKeyFn: ({ uuid, topCut, minSize }) =>
+        [uuid, topCut, minSize].join(":"),
+    },
+  );
+}
+
+function createEntryLoader() {
+  return new DataLoader<
+    { TID: string; topdeckProfile: string },
+    Entry | undefined,
+    string
+  >(
+    async (entryKeys) => {
+      const entries = await prisma.$queryRaw<(Entry & { key: string })[]>`
+        select e.*, t."TID" || ':' || p."topdeckProfile" as key
+        from "Entry" as e
+        left join "Tournament" t on t.uuid = e."tournamentUuid"
+        left join "Player" p on p.uuid = e."playerUuid"
+        where t."TID" || ':' || p."topdeckProfile" in (${Prisma.join(
+          entryKeys.map((e) => `${e.TID}:${e.topdeckProfile}`),
+        )})
+      `;
+
+      const entriesByKey = new Map(entries.map((e) => [e.key, e]));
+      return entryKeys.map((e) =>
+        entriesByKey.get(`${e.TID}:${e.topdeckProfile}`),
+      );
+    },
+    {
+      cacheKeyFn: (e) => `${e.TID}:${e.topdeckProfile}`,
+    },
+  );
+}
+
 interface Context {
-  commanderStats: DataLoader<
-    { uuid: string; topCut: number; minSize: number },
-    CommanderCalculatedStats
-  >;
+  commanderStats: ReturnType<typeof createCommanderStatsLoader>;
+  entries: ReturnType<typeof createEntryLoader>;
+  topdeckClient: TopdeckClient;
 }
 
 export function createContext(): Context {
   return {
-    commanderStats: new DataLoader(
-      async (commanders): Promise<CommanderCalculatedStats[]> => {
-        const stats = await Promise.all(
-          commanders.map(async ({ uuid, topCut, minSize }) => {
-            return prisma.$queryRaw<(Commander & CommanderCalculatedStats)[]>`
-              select
-                c.*,
-                count(c.uuid)::int as "count",
-                sum(case when e.standing <= t."topCut" then 1 else 0 end)::int as "topCuts",
-                sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e) as "conversionRate"
-              from "Commander" as c
-              left join "Entry" e on c.uuid = e."commanderUuid"
-              left join "Tournament" t on t.uuid = e."tournamentUuid"
-              where t.size >= ${minSize}
-              and t."topCut" >= ${topCut}
-              and c.uuid = ${uuid}::uuid
-              group by c.uuid
-              having count(c.uuid) > ${MIN_ENTRIES}
-            `;
-          }),
-        );
-
-        const statsByCommanderUuid = new Map<
-          string,
-          CommanderCalculatedStats
-        >();
-
-        for (const { uuid, conversionRate, count, topCuts } of stats.flat()) {
-          statsByCommanderUuid.set(uuid, {
-            conversionRate,
-            count,
-            topCuts,
-          });
-        }
-
-        return commanders.map(
-          ({ uuid }) =>
-            statsByCommanderUuid.get(uuid) ?? {
-              topCuts: 0,
-              conversionRate: 0,
-              count: 0,
-            },
-        );
-      },
-      {
-        cacheKeyFn: ({ uuid, topCut, minSize }) =>
-          [uuid, topCut, minSize].join(":"),
-      },
-    ),
+    commanderStats: createCommanderStatsLoader(),
+    entries: createEntryLoader(),
+    topdeckClient: new TopdeckClient(),
   };
 }
 
@@ -257,6 +298,43 @@ const EntryType = builder.prismaObject("Entry", {
   }),
 });
 
+const TournamentTableType = builder
+  .objectRef<TopdeckTournamentTable & { TID: string }>("TournamentTable")
+  .implement({
+    fields: (t) => ({
+      table: t.exposeInt("table"),
+      entries: t.field({
+        type: t.listRef(EntryType, { nullable: true }),
+        resolve: async (parent, args, ctx) => {
+          const entries = await ctx.entries.loadMany(
+            parent.players.map((p) => ({
+              TID: parent.TID,
+              topdeckProfile: p.id,
+            })),
+          );
+
+          return entries.map((e) => (e instanceof Error ? undefined : e));
+        },
+      }),
+    }),
+  });
+
+const TournamentRoundType = builder
+  .objectRef<TopdeckTournamentRound & { TID: string }>("TournamentRound")
+  .implement({
+    fields: (t) => ({
+      round: t.string({
+        resolve: (parent) => `${parent.round}`,
+      }),
+      tables: t.field({
+        type: t.listRef(TournamentTableType),
+        resolve: (parent) => {
+          return parent.tables.map((t) => ({ ...t, TID: parent.TID }));
+        },
+      }),
+    }),
+  });
+
 const TournamentType = builder.prismaObject("Tournament", {
   fields: (t) => ({
     id: t.exposeID("uuid"),
@@ -271,6 +349,13 @@ const TournamentType = builder.prismaObject("Tournament", {
     entries: t.relation("entries", {
       query: {
         orderBy: { standing: "asc" },
+      },
+    }),
+    rounds: t.field({
+      type: t.listRef(TournamentRoundType),
+      resolve: async (parent, _args, ctx) => {
+        const tournament = await ctx.topdeckClient.loadRoundsData(parent.TID);
+        return tournament?.rounds.map((r) => ({ ...r, TID: parent.TID })) ?? [];
       },
     }),
   }),
