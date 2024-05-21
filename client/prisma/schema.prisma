@@ -28,6 +28,8 @@ model Tournament {
   topCut         Int
 
   entries Entry[]
+
+  @@index([TID])
 }
 
 model Player {
@@ -39,6 +41,8 @@ model Player {
   name           String
 
   entries Entry[]
+
+  @@index([topdeckProfile])
 }
 
 model Commander {
