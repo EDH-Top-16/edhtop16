@@ -8,6 +8,11 @@ type Commander {
   topCuts(minSize: Int, topCut: Int): Int!
 }
 
+enum CommanderSortBy {
+  COUNT
+  TOP_CUTS
+}
+
 type Entry {
   commander: Commander!
   decklist: String
@@ -18,6 +23,7 @@ type Entry {
   lossesSwiss: Int!
   player: Player
   standing: Int!
+  tables: [TournamentTable!]!
   tournament: Tournament!
   wins: Int!
   winsBracket: Int!
@@ -40,10 +46,20 @@ type Player {
 type Query {
   commander(name: String!): Commander!
   commanderNames: [String!]!
-  commanders(minSize: Int, topCut: Int): [Commander!]!
+  commanders(
+    minSize: Int
+    sortBy: CommanderSortBy = TOP_CUTS
+    sortDir: SortDirection = DESC
+    topCut: Int
+  ): [Commander!]!
   player(profile: String!): Player!
   tournament(TID: String!): Tournament!
   tournaments: [Tournament!]!
+}
+
+enum SortDirection {
+  ASC
+  DESC
 }
 
 type Tournament {
@@ -51,8 +67,22 @@ type Tournament {
   entries: [Entry!]!
   id: ID!
   name: String!
+  rounds: [TournamentRound!]!
   size: Int!
   swissRounds: Int!
   topCut: Int!
   tournamentDate: String!
+}
+
+type TournamentRound {
+  round: String!
+  tables: [TournamentTable!]!
+}
+
+type TournamentTable {
+  entries: [Entry]!
+  roundName: String!
+  table: Int!
+  winner: Entry
+  winnerSeatPosition: Int
 }
