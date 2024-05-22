@@ -9,7 +9,7 @@ import cn from "classnames";
 import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
 import { useCallback, useRef, useState } from "react";
 
-interface FilterConfiguration {
+export interface FilterConfiguration {
   displayName: string;
   variableName: string;
   selectOptions?: [string, string][];
@@ -19,13 +19,22 @@ interface FilterConfiguration {
 
 interface FilterProps {
   options: FilterConfiguration[];
+  onChange?: (variableName: string, value: string | null) => void;
 }
 
-export function Filters({ options }: FilterProps) {
+export function Filters({ options, onChange }: FilterProps) {
   return (
     <div className="flex space-x-2">
       {options.map((option) => {
-        return <FilterButton key={option.variableName} filter={option} />;
+        return (
+          <FilterButton
+            key={option.variableName}
+            filter={option}
+            onChange={(nextValue) => {
+              onChange?.(option.variableName, nextValue);
+            }}
+          />
+        );
       })}
     </div>
   );
@@ -33,7 +42,7 @@ export function Filters({ options }: FilterProps) {
 
 interface FilterButtonProps {
   filter: FilterConfiguration;
-  onChange?: (next: string | undefined) => void;
+  onChange?: (next: string | null) => void;
 }
 
 function FilterButton({ filter: option, onChange }: FilterButtonProps) {
@@ -41,14 +50,19 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
 
   const handleRemove = useCallback(() => {
     triggerRef.current?.focus();
-    onChange?.(undefined);
+    onChange?.(null);
   }, [onChange]);
 
-  const [pendingValue, setPendingValue] = useState<string>();
+  const [pendingValue, setPendingValue] = useState(
+    option.selectOptions?.[0][1],
+  );
+
   const handleApply = useCallback(() => {
     triggerRef.current?.focus();
-    setPendingValue(undefined);
-    onChange?.(pendingValue);
+    if (pendingValue) {
+      onChange?.(pendingValue);
+      setPendingValue(undefined);
+    }
   }, [onChange, pendingValue]);
 
   let buttonText = option.displayName;

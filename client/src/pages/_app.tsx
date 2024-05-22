@@ -1,3 +1,4 @@
+import { QueryParamsProvider } from "@reverecre/next-query-params";
 import { AppProps } from "next/app";
 import { RelayEnvironmentProvider } from "react-relay";
 import { useRelayNextjs } from "relay-nextjs/app";
@@ -11,8 +12,10 @@ export default function EdhTop16App({ Component, pageProps }: AppProps) {
   });
 
   return (
-    <RelayEnvironmentProvider environment={env}>
-      <Component {...pageProps} {...relayProps} />
-    </RelayEnvironmentProvider>
+    <QueryParamsProvider>
+      <RelayEnvironmentProvider environment={env}>
+        <Component {...pageProps} {...relayProps} />
+      </RelayEnvironmentProvider>
+    </QueryParamsProvider>
   );
 }

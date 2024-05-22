@@ -1,14 +1,14 @@
-import { ColorSelection } from "./color_selection";
-import { Filters } from "./filters";
-import { Searchbar } from "./searchbar";
 import { AiOutlineMenu } from "react-icons/ai";
 import { IoIosArrowBack } from "react-icons/io";
+import { FilterConfiguration, Filters } from "./filters";
+import { Searchbar } from "./searchbar";
 
 interface BannerProps {
   title: string;
+  filters?: FilterConfiguration[];
+  onFilterChange?: (filter: string, value: string | null) => void;
   enableSearchbar?: boolean;
   enableColors?: boolean;
-  enableFilters?: boolean;
   terms?: unknown;
   defaultFilters?: unknown;
   backEnabled?: boolean;
@@ -19,8 +19,9 @@ interface BannerProps {
 
 export function Banner({
   title,
+  filters,
+  onFilterChange,
   enableSearchbar = false,
-  enableFilters = false,
   backEnabled = false,
   enableMetaBreakdownButton = false,
   metabreakdownMessage = "",
@@ -62,32 +63,9 @@ export function Banner({
         {enableSearchbar && <Searchbar />}
       </div>
 
-      {enableFilters && (
+      {filters != null && (
         <div className="flex flex-wrap gap-2">
-          <Filters
-            options={[
-              {
-                displayName: "Entries",
-                variableName: "minSize",
-                currentValue: "64",
-                selectOptions: [
-                  ["≥ 64", "64"],
-                  ["≥ 128", "128"],
-                  ["≥ 256", "256"],
-                ],
-              },
-              {
-                displayName: "Standing",
-                variableName: "standing",
-                currentValue: undefined,
-                selectOptions: [
-                  ["≥ 64", "64"],
-                  ["≥ 128", "128"],
-                  ["≥ 256", "256"],
-                ],
-              },
-            ]}
-          />
+          <Filters options={filters} onChange={onFilterChange} />
 
           {enableMetaBreakdownButton && (
             <div className="inline-block">
