@@ -10,12 +10,11 @@ import {
   TopdeckTournamentTable,
 } from "./topdeck";
 
-const MIN_ENTRIES = 0;
-
 interface CommanderStatsQuery {
   uuid: string;
   topCut: number;
   minSize: number;
+  minEntries: number;
 }
 
 interface CommanderCalculatedStats {
@@ -28,7 +27,7 @@ function createCommanderStatsLoader() {
   return new DataLoader<CommanderStatsQuery, CommanderCalculatedStats, string>(
     async (commanders) => {
       const stats = await Promise.all(
-        commanders.map(async ({ uuid, topCut, minSize }) => {
+        commanders.map(async ({ uuid, topCut, minSize, minEntries }) => {
           return prisma.$queryRaw<(Commander & CommanderCalculatedStats)[]>`
             select
               c.*,
@@ -42,7 +41,7 @@ function createCommanderStatsLoader() {
             and t."topCut" >= ${topCut}
             and c.uuid = ${uuid}::uuid
             group by c.uuid
-            having count(c.uuid) > ${MIN_ENTRIES}
+            having count(c.uuid) > ${minEntries}
           `;
         }),
       );
@@ -67,8 +66,8 @@ function createCommanderStatsLoader() {
       );
     },
     {
-      cacheKeyFn: ({ uuid, topCut, minSize }) =>
-        [uuid, topCut, minSize].join(":"),
+      cacheKeyFn: ({ uuid, topCut, minSize, minEntries }) =>
+        [uuid, topCut, minSize, minEntries].join(":"),
     },
   );
 }
@@ -231,13 +230,15 @@ builder.prismaObject("Commander", {
     }),
     count: t.int({
       args: {
-        minSize: t.arg({ type: "Int" }),
+        minSize: t.arg({ type: "Int", defaultValue: 64 }),
+        minEntries: t.arg({ type: "Int", defaultValue: 10 }),
       },
-      resolve: async (parent, { minSize }, ctx) => {
+      resolve: async (parent, { minSize, minEntries }, ctx) => {
         const { count } = await ctx.commanderStats.load({
           uuid: parent.uuid,
           topCut: 16,
           minSize: minSize ?? 64,
+          minEntries: minEntries ?? 10,
         });
 
         return count;
@@ -245,14 +246,16 @@ builder.prismaObject("Commander", {
     }),
     topCuts: t.int({
       args: {
-        topCut: t.arg({ type: "Int" }),
-        minSize: t.arg({ type: "Int" }),
+        topCut: t.arg({ type: "Int", defaultValue: 16 }),
+        minSize: t.arg({ type: "Int", defaultValue: 64 }),
+        minEntries: t.arg({ type: "Int", defaultValue: 10 }),
       },
-      resolve: async (parent, { topCut, minSize }, ctx) => {
+      resolve: async (parent, { topCut, minSize, minEntries }, ctx) => {
         const { topCuts } = await ctx.commanderStats.load({
           uuid: parent.uuid,
           topCut: topCut ?? 16,
           minSize: minSize ?? 64,
+          minEntries: minEntries ?? 10,
         });
 
         return topCuts;
@@ -260,14 +263,16 @@ builder.prismaObject("Commander", {
     }),
     conversionRate: t.float({
       args: {
-        topCut: t.arg({ type: "Int" }),
-        minSize: t.arg({ type: "Int" }),
+        topCut: t.arg({ type: "Int", defaultValue: 16 }),
+        minSize: t.arg({ type: "Int", defaultValue: 64 }),
+        minEntries: t.arg({ type: "Int", defaultValue: 10 }),
       },
-      resolve: async (parent, { topCut, minSize }, ctx) => {
+      resolve: async (parent, { topCut, minSize, minEntries }, ctx) => {
         const { conversionRate } = await ctx.commanderStats.load({
           uuid: parent.uuid,
           topCut: topCut ?? 16,
           minSize: minSize ?? 64,
+          minEntries: minEntries ?? 10,
         });
 
         return conversionRate;
@@ -460,14 +465,24 @@ builder.queryType({
     commanders: t.prismaField({
       type: ["Commander"],
       args: {
-        topCut: t.arg({ type: "Int" }),
-        minSize: t.arg({ type: "Int" }),
+        topCut: t.arg({ type: "Int", defaultValue: 16 }),
+        minSize: t.arg({ type: "Int", defaultValue: 64 }),
+        minEntries: t.arg({ type: "Int", defaultValue: 10 }),
+        colorId: t.arg({ type: "String" }),
         sortBy: t.arg({ type: CommanderSortBy, defaultValue: "TOP_CUTS" }),
         sortDir: t.arg({ type: SortDirection, defaultValue: "DESC" }),
       },
       resolve: async (query, _root, args, ctx) => {
         const minSize = args.minSize ?? 64;
         const topCut = args.topCut ?? 16;
+        const minEntries = args.minEntries ?? 10;
+        const colorIdFilter =
+          "%" +
+          (args.colorId ?? "")
+            ?.split("")
+            .filter((c) => "WUBRG".includes(c))
+            .join("%") +
+          "%";
 
         const commanderStats = await prisma.$queryRaw<
           (Commander & CommanderCalculatedStats)[]
@@ -482,14 +497,15 @@ builder.queryType({
           left join "Tournament" t on t.uuid = e."tournamentUuid"
           where t.size >= ${minSize}
           and t."topCut" >= ${topCut}
+          and c."colorId" like ${colorIdFilter}
           group by c.uuid
-          having count(c.uuid) > ${MIN_ENTRIES}
+          having count(c.uuid) > ${minEntries}
           order by "topCuts" desc
         `;
 
         for (const { uuid, topCuts, conversionRate, count } of commanderStats) {
           ctx.commanderStats.prime(
-            { uuid, topCut, minSize },
+            { uuid, topCut, minSize, minEntries },
             { conversionRate, topCuts, count },
           );
         }
