@@ -10,7 +10,7 @@ import {
   TopdeckTournamentTable,
 } from "./topdeck";
 
-const MIN_ENTRIES = 10;
+const MIN_ENTRIES = 0;
 
 interface CommanderStatsQuery {
   uuid: string;
@@ -276,6 +276,14 @@ builder.prismaObject("Commander", {
   }),
 });
 
+const TournamentRoundType = builder.objectRef<
+  TopdeckTournamentRound & { TID: string }
+>("TournamentRound");
+
+const TournamentTableType = builder.objectRef<
+  TopdeckTournamentTable & { TID: string; roundName: string }
+>("TournamentTable");
+
 const EntryType = builder.prismaObject("Entry", {
   fields: (t) => ({
     id: t.exposeID("uuid"),
@@ -295,72 +303,99 @@ const EntryType = builder.prismaObject("Entry", {
     losses: t.int({
       resolve: (parent) => parent.lossesBracket + parent.lossesSwiss,
     }),
+    tables: t.field({
+      type: t.listRef(TournamentTableType),
+      resolve: async (parent, _args, ctx) => {
+        if (!parent.playerUuid) return [];
+
+        const { TID } = await prisma.tournament.findUniqueOrThrow({
+          where: { uuid: parent.tournamentUuid },
+          select: { TID: true },
+        });
+
+        const { topdeckProfile } = await prisma.player.findUniqueOrThrow({
+          where: { uuid: parent.playerUuid },
+          select: { topdeckProfile: true },
+        });
+
+        const roundsData = await ctx.topdeckClient.loadRoundsData(TID);
+
+        return (
+          roundsData?.rounds.flatMap((round) =>
+            round.tables
+              .filter((t) => t.players.some((p) => p.id === topdeckProfile))
+              .map((r) => ({ ...r, TID, roundName: `${round.round}` })),
+          ) ?? []
+        );
+      },
+    }),
   }),
 });
 
-const TournamentTableType = builder
-  .objectRef<TopdeckTournamentTable & { TID: string }>("TournamentTable")
-  .implement({
-    fields: (t) => ({
-      table: t.exposeInt("table"),
-      entries: t.field({
-        type: t.listRef(EntryType, { nullable: true }),
-        resolve: async (parent, args, ctx) => {
-          const entries = await ctx.entries.loadMany(
-            parent.players.map((p) => ({
-              TID: parent.TID,
-              topdeckProfile: p.id,
-            })),
-          );
-
-          return entries.map((e) => (e instanceof Error ? undefined : e));
-        },
-      }),
-      winnerSeatPosition: t.int({
-        nullable: true,
-        resolve: (parent) => {
-          const winnerIndex = parent.players.findIndex(
-            (p) => p.name === parent.winner,
-          );
-
-          if (winnerIndex < 0) return null;
-          return winnerIndex + 1;
-        },
-      }),
-      winner: t.field({
-        type: EntryType,
-        nullable: true,
-        resolve: async (parent, _args, ctx) => {
-          const winnerPlayer = parent.players.find(
-            (p) => p.name === parent.winner,
-          );
-
-          if (winnerPlayer == null) return null;
-
-          return await ctx.entries.load({
+TournamentTableType.implement({
+  fields: (t) => ({
+    table: t.exposeInt("table"),
+    roundName: t.exposeString("roundName"),
+    entries: t.field({
+      type: t.listRef(EntryType, { nullable: true }),
+      resolve: async (parent, args, ctx) => {
+        const entries = await ctx.entries.loadMany(
+          parent.players.map((p) => ({
             TID: parent.TID,
-            topdeckProfile: winnerPlayer.id,
-          });
-        },
-      }),
-    }),
-  });
+            topdeckProfile: p.id,
+          })),
+        );
 
-const TournamentRoundType = builder
-  .objectRef<TopdeckTournamentRound & { TID: string }>("TournamentRound")
-  .implement({
-    fields: (t) => ({
-      round: t.string({
-        resolve: (parent) => `${parent.round}`,
-      }),
-      tables: t.field({
-        type: t.listRef(TournamentTableType),
-        resolve: (parent) => {
-          return parent.tables.map((t) => ({ ...t, TID: parent.TID }));
-        },
-      }),
+        return entries.map((e) => (e instanceof Error ? undefined : e));
+      },
     }),
-  });
+    winnerSeatPosition: t.int({
+      nullable: true,
+      resolve: (parent) => {
+        const winnerIndex = parent.players.findIndex(
+          (p) => p.name === parent.winner,
+        );
+
+        if (winnerIndex < 0) return null;
+        return winnerIndex + 1;
+      },
+    }),
+    winner: t.field({
+      type: EntryType,
+      nullable: true,
+      resolve: async (parent, _args, ctx) => {
+        const winnerPlayer = parent.players.find(
+          (p) => p.name === parent.winner,
+        );
+
+        if (winnerPlayer == null) return null;
+
+        return await ctx.entries.load({
+          TID: parent.TID,
+          topdeckProfile: winnerPlayer.id,
+        });
+      },
+    }),
+  }),
+});
+
+TournamentRoundType.implement({
+  fields: (t) => ({
+    round: t.string({
+      resolve: (parent) => `${parent.round}`,
+    }),
+    tables: t.field({
+      type: t.listRef(TournamentTableType),
+      resolve: (parent) => {
+        return parent.tables.map((t) => ({
+          ...t,
+          TID: parent.TID,
+          roundName: `${parent.round}`,
+        }));
+      },
+    }),
+  }),
+});
 
 const TournamentType = builder.prismaObject("Tournament", {
   fields: (t) => ({
@@ -382,10 +417,23 @@ const TournamentType = builder.prismaObject("Tournament", {
       type: t.listRef(TournamentRoundType),
       resolve: async (parent, _args, ctx) => {
         const tournament = await ctx.topdeckClient.loadRoundsData(parent.TID);
-        return tournament?.rounds.map((r) => ({ ...r, TID: parent.TID })) ?? [];
+        return (
+          tournament?.rounds.map((r) => ({
+            ...r,
+            TID: parent.TID,
+          })) ?? []
+        );
       },
     }),
   }),
+});
+
+const CommanderSortBy = builder.enumType("CommanderSortBy", {
+  values: ["COUNT", "TOP_CUTS"] as const,
+});
+
+const SortDirection = builder.enumType("SortDirection", {
+  values: ["ASC", "DESC"] as const,
 });
 
 builder.queryType({
@@ -414,6 +462,8 @@ builder.queryType({
       args: {
         topCut: t.arg({ type: "Int" }),
         minSize: t.arg({ type: "Int" }),
+        sortBy: t.arg({ type: CommanderSortBy, defaultValue: "TOP_CUTS" }),
+        sortDir: t.arg({ type: SortDirection, defaultValue: "DESC" }),
       },
       resolve: async (query, _root, args, ctx) => {
         const minSize = args.minSize ?? 64;
@@ -444,6 +494,15 @@ builder.queryType({
           );
         }
 
+        const sortOperator =
+          args.sortDir === "ASC"
+            ? (a: number, b: number) => a - b
+            : (a: number, b: number) => b - a;
+
+        if (args.sortBy === "COUNT") {
+          commanderStats.sort((a, b) => sortOperator(a.count, b.count));
+        }
+
         return commanderStats;
       },
     }),
@@ -456,6 +515,16 @@ builder.queryType({
           ...query,
           where: { name: args.name },
         }),
+    }),
+
+    commanderNames: t.stringList({
+      resolve: async () => {
+        const commanders = await prisma.commander.findMany({
+          select: { name: true },
+        });
+
+        return commanders.map((c) => c.name);
+      },
     }),
 
     player: t.prismaField({

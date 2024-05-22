@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<499c944af312d75620237b59cfa88cdd>>
+ * @generated SignedSource<<d3bcdf6bfc03a7e1e81b3106f32f355b>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -23,8 +23,21 @@ export type commanders_CommandersTableData$key = ReadonlyArray<{
   readonly " $fragmentSpreads": FragmentRefs<"commanders_CommandersTableData">;
 }>;
 
-const node: ReaderFragment = {
-  "argumentDefinitions": [],
+const node: ReaderFragment = (function(){
+var v0 = [
+  {
+    "kind": "Variable",
+    "name": "minSize",
+    "variableName": "minSize"
+  }
+];
+return {
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "minSize"
+    }
+  ],
   "kind": "Fragment",
   "metadata": {
     "plural": true
@@ -40,21 +53,21 @@ const node: ReaderFragment = {
     },
     {
       "alias": null,
-      "args": null,
+      "args": (v0/*: any*/),
       "kind": "ScalarField",
       "name": "topCuts",
       "storageKey": null
     },
     {
       "alias": null,
-      "args": null,
+      "args": (v0/*: any*/),
       "kind": "ScalarField",
       "name": "count",
       "storageKey": null
     },
     {
       "alias": null,
-      "args": null,
+      "args": (v0/*: any*/),
       "kind": "ScalarField",
       "name": "conversionRate",
       "storageKey": null
@@ -68,7 +81,8 @@ const node: ReaderFragment = {
   "type": "Commander",
   "abstractKey": null
 };
+})();
 
-(node as any).hash = "129b02a8cbd2dc4f39f8853f4b2d1699";
+(node as any).hash = "d4e3636e63352d83249ef57434dd4864";
 
 export default node;

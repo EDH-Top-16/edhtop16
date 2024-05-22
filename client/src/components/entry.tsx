@@ -1,5 +1,4 @@
 import cn from "classnames";
-import { Cell, Row } from "react-aria-components";
 import { ColorIdentity } from "../assets/icons/colors";
 
 function CardIcon() {
@@ -37,15 +36,15 @@ export function Entry({
   layout = "default",
 }: EntryProps) {
   return (
-    <Row className="my-3 grid grid-cols-3 grid-rows-2 rounded-lg px-4 py-2 text-lg text-cadet shadow-modal dark:text-white sm:py-0 md:my-0 md:table-row md:px-0 md:[&>td]:py-3">
+    <tr className="my-3 grid grid-cols-3 grid-rows-2 rounded-lg px-4 py-2 text-lg text-cadet shadow-modal dark:text-white sm:py-0 md:my-0 md:table-row md:px-0 md:[&>td]:py-3">
       {rank && (
-        <Cell className="hidden text-lightText dark:text-text md:table-cell md:px-4">
+        <td className="hidden text-lightText dark:text-text md:table-cell md:px-4">
           {rank}
-        </Cell>
+        </td>
       )}
 
       {name && (
-        <Cell className="col-span-2 col-start-1 font-semibold md:px-4">
+        <td className="col-span-2 col-start-1 font-semibold md:px-4">
           <span className="space-x-2 text-lg font-semibold md:space-x-0">
             {rank && (
               <span className="text-sm text-lightText dark:text-text md:hidden">
@@ -62,13 +61,13 @@ export function Entry({
               ({metadata?.at(-1)?.[1]})
             </span>
           </span>
-        </Cell>
+        </td>
       )}
 
       {layout === "default" &&
         metadata?.map(([key, data, showOnMobile = true]) => {
           return (
-            <Cell
+            <td
               key={key}
               className={cn(
                 showOnMobile ? "flex" : "hidden",
@@ -77,36 +76,36 @@ export function Entry({
             >
               <span className="md:hidden">{key}:&nbsp;</span>
               {data}
-            </Cell>
+            </td>
           );
         })}
 
       {metadata && layout === "WLD" && (
-        <Cell className="col-start-3 flex justify-end text-sm md:hidden md:px-4">
+        <td className="col-start-3 flex justify-end text-sm md:hidden md:px-4">
           St / W / L / D
-        </Cell>
+        </td>
       )}
 
       {metadata && layout === "WLD" && (
-        <Cell className="col-start-3 row-start-2 flex justify-end text-sm md:hidden md:px-4">
+        <td className="col-start-3 row-start-2 flex justify-end text-sm md:hidden md:px-4">
           {metadata
             .filter((data, i, a) => i < a.length - 1)
             .map(([key, data]) => data)
             .join(" / ")}
-        </Cell>
+        </td>
       )}
 
       {colorIdentity && (
-        <Cell className="col-span-2 col-start-1 row-start-2 !m-0 flex flex-wrap items-center gap-2 px-2 align-middle md:table-cell md:px-4">
+        <td className="col-span-2 col-start-1 row-start-2 !m-0 flex flex-wrap items-center gap-2 px-2 align-middle md:table-cell md:px-4">
           <ColorIdentity identity={colorIdentity} />
-        </Cell>
+        </td>
       )}
 
       {tournament && (
-        <Cell className="col-span-2 col-start-1 flex text-sm md:table-cell md:px-4">
+        <td className="col-span-2 col-start-1 flex text-sm md:table-cell md:px-4">
           {tournament}
-        </Cell>
+        </td>
       )}
-    </Row>
+    </tr>
   );
 }

@@ -27,10 +27,12 @@ const topdeckTournamentRoundSchema = z.object({
 export type TopdeckTournament = z.infer<typeof topdeckTournamentSchema>;
 const topdeckTournamentSchema = z.object({
   TID: z.string(),
-  rounds: z.array(topdeckTournamentRoundSchema),
+  rounds: z
+    .union([z.array(topdeckTournamentRoundSchema), z.string()])
+    .transform((data) => (typeof data === "string" ? [] : data)),
   tournamentName: z.string(),
   swissNum: z.number().int(),
-  startDate: z.number().int(),
+  startDate: z.number().int().optional(),
   topCut: z.number().int(),
 });
 
