@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<039ffc848014c8bbb3a25b6ad0d234d0>>
+ * @generated SignedSource<<f2f2ca9a6706cbdf6d72112a758810be>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -27,15 +27,15 @@ const node: ReaderFragment = (function(){
 var v0 = [
   {
     "kind": "Variable",
-    "name": "minSize",
-    "variableName": "minSize"
+    "name": "filters",
+    "variableName": "filters"
   }
 ];
 return {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "minSize"
+      "name": "filters"
     }
   ],
   "kind": "Fragment",
@@ -83,6 +83,6 @@ return {
 };
 })();
 
-(node as any).hash = "cc05dee694c98fce3eb0cc551582a64b";
+(node as any).hash = "892d693f752bbd4f95fff863c477ab75";
 
 export default node;

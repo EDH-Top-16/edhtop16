@@ -1,11 +1,11 @@
 type Commander {
   colorId: String!
-  conversionRate(minSize: Int, topCut: Int): Float!
-  count(minSize: Int): Int!
+  conversionRate(filters: Filters): Float!
+  count(filters: Filters): Int!
   entries: [Entry!]!
   id: ID!
   name: String!
-  topCuts(minSize: Int, topCut: Int): Int!
+  topCuts(filters: Filters): Int!
 }
 
 enum CommanderSortBy {
@@ -30,6 +30,14 @@ type Entry {
   winsSwiss: Int!
 }
 
+input Filters {
+  colorId: String
+  minDate: String
+  minEntries: Int
+  minSize: Int
+  topCut: Int
+}
+
 type Player {
   conversionRate: Float!
   draws: Int!
@@ -47,10 +55,9 @@ type Query {
   commander(name: String!): Commander!
   commanderNames: [String!]!
   commanders(
-    minSize: Int
+    filters: Filters
     sortBy: CommanderSortBy = TOP_CUTS
     sortDir: SortDirection = DESC
-    topCut: Int
   ): [Commander!]!
   player(profile: String!): Player!
   tournament(TID: String!): Tournament!

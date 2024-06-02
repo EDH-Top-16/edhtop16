@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<0322b16e5f59fb6715001d74695fdb54>>
+ * @generated SignedSource<<48a67cafd1aa540e6143fb88ac88d0df>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,8 +10,15 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type commanders_CommandersQuery$variables = {
+export type Filters = {
+  colorId?: string | null | undefined;
+  minDate?: string | null | undefined;
+  minEntries?: number | null | undefined;
   minSize?: number | null | undefined;
+  topCut?: number | null | undefined;
+};
+export type commanders_CommandersQuery$variables = {
+  filters?: Filters | null | undefined;
 };
 export type commanders_CommandersQuery$data = {
   readonly commanders: ReadonlyArray<{
@@ -28,14 +35,14 @@ var v0 = [
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "minSize"
+    "name": "filters"
   }
 ],
 v1 = [
   {
     "kind": "Variable",
-    "name": "minSize",
-    "variableName": "minSize"
+    "name": "filters",
+    "variableName": "filters"
   }
 ];
 return {
@@ -127,16 +134,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "820fb9e6df680973ca3c50edf03a68e7",
+    "cacheID": "83fb0a337a6609743ddfbf8571795f25",
     "id": null,
     "metadata": {},
     "name": "commanders_CommandersQuery",
     "operationKind": "query",
-    "text": "query commanders_CommandersQuery(\n  $minSize: Int\n) {\n  commanders(minSize: $minSize) {\n    ...commanders_CommandersTableData\n    id\n  }\n}\n\nfragment commanders_CommanderTableRow on Commander {\n  name\n  colorId\n  count(minSize: $minSize)\n  topCuts(minSize: $minSize)\n  conversionRate(minSize: $minSize)\n}\n\nfragment commanders_CommandersTableData on Commander {\n  name\n  topCuts(minSize: $minSize)\n  count(minSize: $minSize)\n  conversionRate(minSize: $minSize)\n  ...commanders_CommanderTableRow\n}\n"
+    "text": "query commanders_CommandersQuery(\n  $filters: Filters\n) {\n  commanders(filters: $filters) {\n    ...commanders_CommandersTableData\n    id\n  }\n}\n\nfragment commanders_CommanderTableRow on Commander {\n  name\n  colorId\n  count(filters: $filters)\n  topCuts(filters: $filters)\n  conversionRate(filters: $filters)\n}\n\nfragment commanders_CommandersTableData on Commander {\n  name\n  topCuts(filters: $filters)\n  count(filters: $filters)\n  conversionRate(filters: $filters)\n  ...commanders_CommanderTableRow\n}\n"
   }
 };
 })();
 
-(node as any).hash = "68cd63ecae212346c58377b6f5a5a858";
+(node as any).hash = "c096d0d469518b6550e05e9045211855";
 
 export default node;
