@@ -50,9 +50,9 @@ function CommandersTableRow({
       fragment commanders_CommanderTableRow on Commander {
         name
         colorId
-        count(minSize: $minSize)
-        topCuts(minSize: $minSize)
-        conversionRate(minSize: $minSize)
+        count(filters: $filters)
+        topCuts(filters: $filters)
+        conversionRate(filters: $filters)
       }
     `,
     props.commander,
@@ -80,9 +80,9 @@ function CommandersTable(props: {
       fragment commanders_CommandersTableData on Commander
       @relay(plural: true) {
         name
-        topCuts(minSize: $minSize)
-        count(minSize: $minSize)
-        conversionRate(minSize: $minSize)
+        topCuts(filters: $filters)
+        count(filters: $filters)
+        conversionRate(filters: $filters)
 
         ...commanders_CommanderTableRow
       }
@@ -162,8 +162,8 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
 }
 
 const CommandersQuery = graphql`
-  query commanders_CommandersQuery($minSize: Int) {
-    commanders(minSize: $minSize) {
+  query commanders_CommandersQuery($filters: Filters) {
+    commanders(filters: $filters) {
       ...commanders_CommandersTableData
     }
   }
@@ -192,8 +192,10 @@ export default withRelay(CommandersPage, CommandersQuery, {
     return createServerEnvironment();
   },
   variablesFromContext: (ctx) => {
-    return parseQuery(ctx.query, {
+    const filters = parseQuery(ctx.query, {
       minSize: QueryParamKind.NUMBER,
     });
+
+    return { filters };
   },
 });
