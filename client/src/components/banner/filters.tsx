@@ -8,13 +8,14 @@ import {
 import cn from "classnames";
 import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
 import { useCallback, useRef, useState } from "react";
+import { ColorSelection } from "./color_selection";
 
 export interface FilterConfiguration {
   displayName: string;
   variableName: string;
-  selectOptions?: [string, string][];
-  selectColor?: string[];
   currentValue?: string;
+  inputType?: "date" | "colorId";
+  selectOptions?: [string, string][];
 }
 
 interface FilterProps {
@@ -48,14 +49,15 @@ interface FilterButtonProps {
 function FilterButton({ filter: option, onChange }: FilterButtonProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const handleRemove = useCallback(() => {
-    triggerRef.current?.focus();
-    onChange?.(null);
-  }, [onChange]);
-
   const [pendingValue, setPendingValue] = useState(
     option.selectOptions?.[0][1],
   );
+
+  const handleRemove = useCallback(() => {
+    triggerRef.current?.focus();
+    onChange?.(null);
+    setPendingValue(undefined);
+  }, [onChange]);
 
   const handleApply = useCallback(() => {
     triggerRef.current?.focus();
@@ -72,6 +74,8 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
     )?.[0];
 
     if (selectedOptionText) buttonText += `: ${selectedOptionText}`;
+  } else if (option.currentValue) {
+    buttonText += `: ${option.currentValue}`;
   }
 
   return (
@@ -124,6 +128,33 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
                 ))}
               </select>
             </div>
+          )}
+
+          {option.inputType === "date" && (
+            <>
+              <label htmlFor="filter-date-input" className="text-white">
+                Tournament is after:
+              </label>
+
+              <input
+                type="date"
+                id="filter-date-input"
+                value={pendingValue ?? option.currentValue}
+                min="2016-01-01"
+                onChange={(e) => {
+                  setPendingValue(e.target.value);
+                }}
+              />
+            </>
+          )}
+
+          {option.inputType === "colorId" && (
+            <ColorSelection
+              selected={(pendingValue ?? option.currentValue ?? "").split("")}
+              onChange={(next) => {
+                setPendingValue(next.join(""));
+              }}
+            />
           )}
 
           <div className="flex flex-row flex-wrap gap-2">

@@ -103,20 +103,23 @@ export function WhiteIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-export function ColorIcon({ color }: { color: string }) {
+export function ColorIcon({
+  color,
+  ...props
+}: { color: string } & React.SVGProps<SVGSVGElement>) {
   switch (color) {
     case "W":
-      return <WhiteIcon height={20} width={20} />;
+      return <WhiteIcon height={20} width={20} {...props} />;
     case "U":
-      return <BlueIcon height={20} width={20} />;
+      return <BlueIcon height={20} width={20} {...props} />;
     case "B":
-      return <BlackIcon height={20} width={20} />;
+      return <BlackIcon height={20} width={20} {...props} />;
     case "R":
-      return <RedIcon height={20} width={20} />;
+      return <RedIcon height={20} width={20} {...props} />;
     case "G":
-      return <GreenIcon height={20} width={20} />;
+      return <GreenIcon height={20} width={20} {...props} />;
     case "C":
-      return <ColorlessIcon height={20} width={20} />;
+      return <ColorlessIcon height={20} width={20} {...props} />;
     default:
       return null;
   }
