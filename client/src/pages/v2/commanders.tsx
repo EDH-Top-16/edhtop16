@@ -126,7 +126,9 @@ function CommandersTable(props: {
 function CommandersPageShell({ children }: PropsWithChildren<{}>) {
   const [queryParams, updateQueryParams] = useQueryParams({
     minSize: QueryParamKind.STRING,
-    standing: QueryParamKind.STRING,
+    minEntries: QueryParamKind.STRING,
+    minDate: QueryParamKind.STRING,
+    colorId: QueryParamKind.STRING,
   });
 
   return (
@@ -138,14 +140,36 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
           enableSearchbar
           filters={[
             {
+              displayName: "Colors",
+              variableName: "colorId",
+              currentValue: queryParams.colorId,
+              inputType: "colorId",
+            },
+            {
+              displayName: "Entries",
+              variableName: "minEntries",
+              currentValue: queryParams.minEntries,
+              selectOptions: [
+                ["≥ 10 Entries", "10"],
+                ["≥ 50 Entries ", "50"],
+                ["≥ 100 Entries", "100"],
+              ],
+            },
+            {
               displayName: "Tournament Size",
               variableName: "minSize",
               currentValue: queryParams.minSize,
               selectOptions: [
-                ["≥ 64", "64"],
-                ["≥ 128", "128"],
-                ["≥ 256", "256"],
+                ["≥ 64 Players", "64"],
+                ["≥ 128 Players ", "128"],
+                ["≥ 256 Players", "256"],
               ],
+            },
+            {
+              displayName: "Tournament Date",
+              variableName: "minDate",
+              currentValue: queryParams.minDate,
+              inputType: "date",
             },
           ]}
           onFilterChange={(variable, value) => {
@@ -194,6 +218,9 @@ export default withRelay(CommandersPage, CommandersQuery, {
   variablesFromContext: (ctx) => {
     const filters = parseQuery(ctx.query, {
       minSize: QueryParamKind.NUMBER,
+      minEntries: QueryParamKind.NUMBER,
+      minDate: QueryParamKind.STRING,
+      colorId: QueryParamKind.STRING,
     });
 
     return { filters };
