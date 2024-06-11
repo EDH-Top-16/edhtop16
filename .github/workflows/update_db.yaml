@@ -28,4 +28,4 @@ jobs:
           path: mtg_api/
           ref: main
       - name: <TEST> list files
-        run: ls
+        run: tree
