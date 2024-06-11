@@ -1,9 +1,9 @@
 import SchemaBuilder from "@pothos/core";
 import PrismaPlugin from "@pothos/plugin-prisma";
 import type PrismaTypes from "@pothos/plugin-prisma/generated";
-import { prisma } from "./prisma";
 import { Commander, Entry, Prisma } from "@prisma/client";
 import DataLoader from "dataloader";
+import { prisma } from "./prisma";
 import {
   TopdeckClient,
   TopdeckTournamentRound,
@@ -440,7 +440,7 @@ const TournamentType = builder.prismaObject("Tournament", {
 });
 
 const CommanderSortBy = builder.enumType("CommanderSortBy", {
-  values: ["COUNT", "TOP_CUTS"] as const,
+  values: ["ENTRIES", "TOP_CUTS"] as const,
 });
 
 const SortDirection = builder.enumType("SortDirection", {
@@ -521,7 +521,9 @@ builder.queryType({
             ? (a: number, b: number) => a - b
             : (a: number, b: number) => b - a;
 
-        if (args.sortBy === "COUNT") {
+        if (args.sortBy === "TOP_CUTS") {
+          commanderStats.sort((a, b) => sortOperator(a.topCuts, b.topCuts));
+        } else if (args.sortBy === "ENTRIES") {
           commanderStats.sort((a, b) => sortOperator(a.count, b.count));
         }
 

@@ -4,23 +4,44 @@ import {
   useQueryParams,
 } from "@reverecre/next-query-params";
 import cn from "classnames";
-import { PropsWithChildren, useMemo } from "react";
+import { PropsWithChildren, useCallback, useMemo } from "react";
 import { graphql, useFragment, usePreloadedQuery } from "react-relay/hooks";
 import { RelayProps, withRelay } from "relay-nextjs";
+import { HiSwitchHorizontal } from "react-icons/hi";
+import { RxCaretSort, RxChevronDown, RxChevronUp } from "react-icons/rx";
 import { Banner } from "../../components/banner/banner";
 import { Entry } from "../../components/entry";
 import { Navigation } from "../../components/nav";
 import { getClientEnvironment } from "../../lib/client/relay_client_environment";
 import { commanders_CommanderTableRow$key } from "../../queries/__generated__/commanders_CommanderTableRow.graphql";
-import { commanders_CommandersQuery } from "../../queries/__generated__/commanders_CommandersQuery.graphql";
+import {
+  CommanderSortBy,
+  SortDirection,
+  commanders_CommandersQuery,
+} from "../../queries/__generated__/commanders_CommandersQuery.graphql";
 import { commanders_CommandersTableData$key } from "../../queries/__generated__/commanders_CommandersTableData.graphql";
 
 function CommandersTableColumnHeader({
   hideOnMobile,
+  sortVariable,
   children,
   ...props
-}: PropsWithChildren<{ id?: string; hideOnMobile?: boolean }>) {
-  const sortDirection = undefined;
+}: PropsWithChildren<{
+  id: string;
+  hideOnMobile?: boolean;
+  sortVariable?: string;
+}>) {
+  const [{ sortBy = "TOP_CUTS", sortDir = "DESC" }, setSort] = useQueryParams({
+    sortBy: QueryParamKind.STRING,
+    sortDir: QueryParamKind.STRING,
+  });
+
+  const toggleSort = useCallback(() => {
+    setSort({
+      sortBy: sortVariable,
+      sortDir: sortDir === "ASC" ? "DESC" : "ASC",
+    });
+  }, [setSort, sortDir, sortVariable]);
 
   return (
     <th
@@ -30,10 +51,27 @@ function CommandersTableColumnHeader({
       })}
       {...props}
     >
-      {children}
-      <span className={cn("ml-1", { invisible: sortDirection == null })}>
-        {sortDirection === "ascending" ? "⬆️" : "⬇️"}
-      </span>
+      <div className="flex items-center gap-x-1" onClick={toggleSort}>
+        <span
+          className={cn("inline", {
+            hidden: sortVariable == null || sortBy !== sortVariable,
+          })}
+        >
+          <HiSwitchHorizontal />
+        </span>
+
+        {children}
+
+        <span className={cn({ hidden: sortVariable == null })}>
+          {sortBy !== sortVariable ? (
+            <RxCaretSort />
+          ) : sortDir === "ASC" ? (
+            <RxChevronUp />
+          ) : (
+            <RxChevronDown />
+          )}
+        </span>
+      </div>
     </th>
   );
 }
@@ -72,6 +110,50 @@ function CommandersTableRow({
   );
 }
 
+function CommandersTableLayout(props: PropsWithChildren<{}>) {
+  return (
+    <table className="w-full border-separate border-spacing-y-3">
+      <thead>
+        <tr>
+          <CommandersTableColumnHeader hideOnMobile id="rank">
+            Rank
+          </CommandersTableColumnHeader>
+
+          <CommandersTableColumnHeader id="name">
+            <span className="hidden lg:inline">Commander</span>
+          </CommandersTableColumnHeader>
+
+          <CommandersTableColumnHeader
+            hideOnMobile
+            id="count"
+            sortVariable="TOP_CUTS"
+          >
+            Top 16s
+          </CommandersTableColumnHeader>
+
+          <CommandersTableColumnHeader
+            hideOnMobile
+            id="entries"
+            sortVariable="ENTRIES"
+          >
+            Entries
+          </CommandersTableColumnHeader>
+
+          <CommandersTableColumnHeader hideOnMobile id="conversion">
+            Conversion
+          </CommandersTableColumnHeader>
+
+          <CommandersTableColumnHeader hideOnMobile id="colors">
+            Colors
+          </CommandersTableColumnHeader>
+        </tr>
+      </thead>
+
+      <tbody>{props.children}</tbody>
+    </table>
+  );
+}
+
 function CommandersTable(props: {
   commanders: commanders_CommandersTableData$key;
 }) {
@@ -91,35 +173,11 @@ function CommandersTable(props: {
   );
 
   return (
-    <table className="w-full border-separate border-spacing-y-3">
-      <thead>
-        <tr>
-          <CommandersTableColumnHeader hideOnMobile id="rank">
-            Rank
-          </CommandersTableColumnHeader>
-          <CommandersTableColumnHeader>
-            <span className="hidden lg:inline">Commander</span>
-          </CommandersTableColumnHeader>
-          <CommandersTableColumnHeader hideOnMobile id="count">
-            Top 16s
-          </CommandersTableColumnHeader>
-          <CommandersTableColumnHeader hideOnMobile id="entries">
-            Entries
-          </CommandersTableColumnHeader>
-          <CommandersTableColumnHeader hideOnMobile id="conversion">
-            Conversion
-          </CommandersTableColumnHeader>
-          <CommandersTableColumnHeader hideOnMobile>
-            Colors
-          </CommandersTableColumnHeader>
-        </tr>
-      </thead>
-      <tbody>
-        {commanders.map((c, i) => {
-          return <CommandersTableRow key={c.name} rank={i + 1} commander={c} />;
-        })}
-      </tbody>
-    </table>
+    <CommandersTableLayout>
+      {commanders.map((c, i) => {
+        return <CommandersTableRow key={c.name} rank={i + 1} commander={c} />;
+      })}
+    </CommandersTableLayout>
   );
 }
 
@@ -194,8 +252,12 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
 }
 
 const CommandersQuery = graphql`
-  query commanders_CommandersQuery($filters: Filters) {
-    commanders(filters: $filters) {
+  query commanders_CommandersQuery(
+    $filters: Filters
+    $sortBy: CommanderSortBy
+    $sortDir: SortDirection
+  ) {
+    commanders(filters: $filters, sortBy: $sortBy, sortDir: $sortDir) {
       ...commanders_CommandersTableData
     }
   }
@@ -214,7 +276,11 @@ function CommandersPage({
 }
 
 export default withRelay(CommandersPage, CommandersQuery, {
-  fallback: <CommandersPageShell />,
+  fallback: (
+    <CommandersPageShell>
+      <CommandersTableLayout />
+    </CommandersPageShell>
+  ),
   createClientEnvironment: () => getClientEnvironment()!,
   createServerEnvironment: async (ctx) => {
     const { createServerEnvironment } = await import(
@@ -224,13 +290,30 @@ export default withRelay(CommandersPage, CommandersQuery, {
     return createServerEnvironment();
   },
   variablesFromContext: (ctx) => {
-    const filters = parseQuery(ctx.query, {
+    const { sortBy, sortDir, ...filters } = parseQuery(ctx.query, {
+      sortBy: QueryParamKind.STRING,
+      sortDir: QueryParamKind.STRING,
       minSize: QueryParamKind.NUMBER,
       minEntries: QueryParamKind.NUMBER,
       minDate: QueryParamKind.STRING,
       colorId: QueryParamKind.STRING,
     });
 
-    return { filters };
+    if (
+      (sortBy != null && !isSortBy(sortBy)) ||
+      (sortDir != null && !isSortDir(sortDir))
+    ) {
+      return { filters };
+    }
+
+    return { sortBy, sortDir, filters };
   },
 });
+
+function isSortBy(s: string): s is CommanderSortBy {
+  return ["ENTRIES", "TOP_CUTS"].includes(s);
+}
+
+function isSortDir(s: string): s is SortDirection {
+  return ["ASC", "DESC"].includes(s);
+}
