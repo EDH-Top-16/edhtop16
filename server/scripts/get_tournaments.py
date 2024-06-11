@@ -51,7 +51,9 @@ def fetch_tournaments(filters=None):
     }
 
     # r = requests.post("https://topdeck.gg/api", json=data, headers=headers)
-    r = requests.post("https://topdeck.gg/api/v2/tournaments", json=data, headers=headers)
+    r = requests.post(
+        "https://topdeck.gg/api/v2/tournaments", json=data, headers=headers
+    )
     if r.status_code != 200:
         raise Exception(f"Error {r.status_code} -- {r.text}")
     return json.loads(r.text)
@@ -92,12 +94,13 @@ if __name__ == "__main__":
                 for i, j in enumerate(tourney["standings"]):
                     j.update({"standing": i + 1})
                 standings = [
-                    {**entry,
+                    {
+                        **entry,
                         "decklist": entry.get("decklist", None),
-                        "profile": entry.get("profile", entry.get("id", None))
+                        "profile": entry.get("profile", entry.get("id", None)),
                     }
                     for entry in tourney["standings"]
-                    ]
+                ]
                 for entry in standings:
                     entry.pop("id", None)
 
@@ -114,7 +117,9 @@ if __name__ == "__main__":
                             "date": datetime.datetime.fromtimestamp(
                                 tourney.get("startDate", tourney.get("dateCreated"))
                             ),
-                            "dateCreated": tourney.get("startDate", tourney.get("dateCreated")),
+                            "dateCreated": tourney.get(
+                                "startDate", tourney.get("dateCreated")
+                            ),
                             "swissNum": tourney["swissNum"],
                             "topCut": tourney["topCut"],
                         }
@@ -125,12 +130,13 @@ if __name__ == "__main__":
                 for i, j in enumerate(tourney["standings"]):
                     j.update({"standing": i + 1})
                 standings = [
-                    {**entry,
+                    {
+                        **entry,
                         "decklist": entry.get("decklist", None),
-                        "profile": entry.get("profile", entry.get("id", None))
+                        "profile": entry.get("profile", entry.get("id", None)),
                     }
                     for entry in tourney["standings"]
-                    ]
+                ]
                 for entry in standings:
                     entry.pop("id", None)
 
@@ -148,7 +154,9 @@ if __name__ == "__main__":
                                 "date": datetime.datetime.fromtimestamp(
                                     tourney.get("startDate", tourney.get("dateCreated"))
                                 ),
-                                "dateCreated": tourney.get("startDate", tourney.get("dateCreated")),
+                                "dateCreated": tourney.get(
+                                    "startDate", tourney.get("dateCreated")
+                                ),
                                 "swissNum": tourney["swissNum"],
                                 "topCut": tourney.get("topCut", None),
                             }
@@ -166,7 +174,7 @@ if __name__ == "__main__":
                 print(
                     f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data to collection '{tourney['TID']}'. Error: {e}"
                 )
-                if tourney['TID'] == "8ICURW1tiVt4yGiM8Kbp":
+                if tourney["TID"] == "8ICURW1tiVt4yGiM8Kbp":
                     print(tourney)
             else:
                 print(
