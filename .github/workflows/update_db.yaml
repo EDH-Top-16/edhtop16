@@ -16,13 +16,16 @@ jobs:
             server/scripts/get_tournaments.py
             server/scripts/get_commanders.py
           sparse-checkout-cone-mode: false
+          path: scripts/
       - name: Checkout private library
         uses: actions/checkout@v4
         with:
-          repository: EDH-Top-16/mtg_api@main
+          repository: EDH-Top-16/mtg_api
           token: ${{ secrets.MTG_API_PAT }}
           sparse-checkout: |-
             mtg_api.py
           sparse-checkout-cone-mode: false
+          path: mtg_api/
+          ref: main
       - name: <TEST> list files
         run: ls
