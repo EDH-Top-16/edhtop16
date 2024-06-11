@@ -174,8 +174,6 @@ if __name__ == "__main__":
                 print(
                     f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data to collection '{tourney['TID']}'. Error: {e}"
                 )
-                if tourney["TID"] == "8ICURW1tiVt4yGiM8Kbp":
-                    print(tourney)
             else:
                 print(
                     f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data. TID missing. received:\

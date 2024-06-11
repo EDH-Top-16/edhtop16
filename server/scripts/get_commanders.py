@@ -8,12 +8,24 @@ from tqdm import tqdm
 from dotenv import dotenv_values
 import sys
 import time
-from selenium import webdriver
-from selenium.webdriver.common.by import By
+
+# from selenium import webdriver
+# from selenium.webdriver.common.by import By
 import os
 
-from utils import wubrgify
+# from utils import wubrgify
 from html import unescape
+
+
+def wubrgify(color_string):
+    """Parse colors in WUBRG(C) order; removes duplicates and misordering"""
+    res = ""
+    for c in ["W", "U", "B", "R", "G"]:
+        res += c if c in color_string else ""
+    return (
+        res if res else "C"
+    )  # return "C" for colorless if W, U, B, R, G all not in color string
+
 
 if __name__ == "__main__":
     client = MongoClient(dotenv_values("./config.env")["ATLAS_URI"])
@@ -49,6 +61,10 @@ if __name__ == "__main__":
             except KeyError:
                 print(f"Warning: no decklist url. Object ID: {i['_id']}")
                 continue
+
+            # Empty or null decklist url
+            if not decklist_url:
+                commanders = []
 
             try:
                 if "melee.gg" in decklist_url:
