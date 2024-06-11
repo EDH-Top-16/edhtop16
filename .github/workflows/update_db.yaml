@@ -1,0 +1,28 @@
+name: Update Database
+
+on:
+  push:
+    branches: gh_actions #TODO: change this to cron when done
+
+jobs:
+  checkout:
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |-
+            server/scripts/get_tournaments.py
+            server/scripts/get_commanders.py
+          sparse-checkout-cone-mode: false
+      - name: Checkout private library
+        uses: actions/checkout@v4
+        with:
+          repository: EDH-Top-16/mtg_api@main
+          token: ${{ secrets.MTG_API_PAT }}
+          sparse-checkout: |-
+            mtg_api.py
+          sparse-checkout-cone-mode: false
+      - name: <TEST> list files
+        run: ls
