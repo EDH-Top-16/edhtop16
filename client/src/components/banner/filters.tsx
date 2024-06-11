@@ -1,13 +1,7 @@
-import {
-  Popover,
-  DialogTrigger,
-  OverlayArrow,
-  Dialog,
-  Button,
-} from "react-aria-components";
 import cn from "classnames";
-import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
 import { useCallback, useRef, useState } from "react";
+import { Button, Dialog, DialogTrigger, Popover } from "react-aria-components";
+import { AiOutlinePlusCircle } from "react-icons/ai";
 import { ColorSelection } from "./color_selection";
 
 export interface FilterConfiguration {
@@ -20,23 +14,38 @@ export interface FilterConfiguration {
 
 interface FilterProps {
   options: FilterConfiguration[];
-  onChange?: (variableName: string, value: string | null) => void;
+  onChange?: (nextPartialValues: Record<string, string | null>) => void;
 }
 
 export function Filters({ options, onChange }: FilterProps) {
+  const resetAll = useCallback(() => {
+    const nextValues = Object.fromEntries(
+      options.map((o) => [o.variableName, null]),
+    );
+
+    onChange?.(nextValues);
+  }, [onChange, options]);
+
   return (
-    <div className="flex space-x-2">
+    <div className="flex flex-wrap gap-2">
       {options.map((option) => {
         return (
           <FilterButton
             key={option.variableName}
             filter={option}
             onChange={(nextValue) => {
-              onChange?.(option.variableName, nextValue);
+              onChange?.({ [option.variableName]: nextValue });
             }}
           />
         );
       })}
+
+      <button
+        className="rounded-full bg-red-400 px-2 py-1 text-sm text-white"
+        onClick={resetAll}
+      >
+        Reset
+      </button>
     </div>
   );
 }
@@ -50,7 +59,7 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   const [pendingValue, setPendingValue] = useState(
-    option.selectOptions?.[0][1],
+    option.currentValue ?? option.selectOptions?.[0][1],
   );
 
   const handleRemove = useCallback(() => {
@@ -96,18 +105,6 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
         )}
 
         {buttonText}
-
-        {option.currentValue && (
-          <div
-            className="ml-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleRemove();
-            }}
-          >
-            <AiOutlineClose />
-          </div>
-        )}
       </Button>
 
       <Popover offset={0}>
@@ -115,7 +112,7 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
           {option.selectOptions && (
             <div className="flex-col">
               <select
-                value={pendingValue ?? option.currentValue}
+                value={pendingValue || option.currentValue}
                 onChange={(e) => {
                   setPendingValue(e.target.value);
                 }}
@@ -168,7 +165,7 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
               className="flex-grow rounded-lg bg-highlight p-2 text-sm dark:text-white"
               onClick={handleRemove}
             >
-              Clear
+              Reset
             </button>
           </div>
         </Dialog>

@@ -503,6 +503,7 @@ builder.queryType({
           and t."topCut" >= ${topCut}
           and t."tournamentDate" >= ${minDate}
           and c."colorId" like ${colorIdFilter}
+          and c."name" != 'Unknown Commander'
           group by c.uuid
           having count(c.uuid) > ${minEntries}
           order by "topCuts" desc

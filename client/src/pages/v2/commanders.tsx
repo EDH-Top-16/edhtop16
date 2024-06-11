@@ -4,7 +4,7 @@ import {
   useQueryParams,
 } from "@reverecre/next-query-params";
 import cn from "classnames";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useMemo } from "react";
 import { graphql, useFragment, usePreloadedQuery } from "react-relay/hooks";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { Banner } from "../../components/banner/banner";
@@ -131,6 +131,12 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
     colorId: QueryParamKind.STRING,
   });
 
+  const tomorrow = useMemo(() => {
+    const now = new Date();
+    now.setDate(now.getDate() + 1);
+    return now.toISOString().split("T")[0];
+  }, []);
+
   return (
     <div className="flex h-screen w-screen bg-secondary">
       <Navigation />
@@ -148,8 +154,9 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
             {
               displayName: "Entries",
               variableName: "minEntries",
-              currentValue: queryParams.minEntries,
+              currentValue: queryParams.minEntries ?? "10",
               selectOptions: [
+                ["≥ 0 Entries", "0"],
                 ["≥ 10 Entries", "10"],
                 ["≥ 50 Entries ", "50"],
                 ["≥ 100 Entries", "100"],
@@ -158,8 +165,9 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
             {
               displayName: "Tournament Size",
               variableName: "minSize",
-              currentValue: queryParams.minSize,
+              currentValue: queryParams.minSize ?? "64",
               selectOptions: [
+                ["≥ 0 Players", "0"],
                 ["≥ 64 Players", "64"],
                 ["≥ 128 Players ", "128"],
                 ["≥ 256 Players", "256"],
@@ -168,12 +176,12 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
             {
               displayName: "Tournament Date",
               variableName: "minDate",
-              currentValue: queryParams.minDate,
+              currentValue: queryParams.minDate ?? tomorrow,
               inputType: "date",
             },
           ]}
-          onFilterChange={(variable, value) => {
-            updateQueryParams({ [variable]: value });
+          onFilterChange={(nextValues) => {
+            updateQueryParams(nextValues as any);
           }}
         />
 
