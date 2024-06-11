@@ -6,7 +6,7 @@ import { Searchbar } from "./searchbar";
 interface BannerProps {
   title: string;
   filters?: FilterConfiguration[];
-  onFilterChange?: (filter: string, value: string | null) => void;
+  onFilterChange?: (nextPartialValues: Record<string, string | null>) => void;
   enableSearchbar?: boolean;
   enableColors?: boolean;
   terms?: unknown;
