@@ -43,7 +43,7 @@ jobs:
         run: echo "${{ secrets.TOPDECK_API_KEY }}" > eminence_api_key.txt
       - name: Mongo Config
         run: |-
-          echo "${{ secrets.ATLAS_URI }} > config.env
+          echo "${{ secrets.ATLAS_URI }}" > config.env
 
       - name: Run get_tournaments.py
         run: python get_tournaments.py
