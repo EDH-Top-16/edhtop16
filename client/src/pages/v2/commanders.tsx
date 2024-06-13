@@ -211,25 +211,17 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
             },
             {
               displayName: "Entries",
+              label: "Entries ≥",
               variableName: "minEntries",
               currentValue: queryParams.minEntries ?? "10",
-              selectOptions: [
-                ["≥ 0 Entries", "0"],
-                ["≥ 10 Entries", "10"],
-                ["≥ 50 Entries ", "50"],
-                ["≥ 100 Entries", "100"],
-              ],
+              inputType: "number",
             },
             {
               displayName: "Tournament Size",
+              label: "Tournament Size ≥",
               variableName: "minSize",
               currentValue: queryParams.minSize ?? "64",
-              selectOptions: [
-                ["≥ 0 Players", "0"],
-                ["≥ 64 Players", "64"],
-                ["≥ 128 Players ", "128"],
-                ["≥ 256 Players", "256"],
-              ],
+              inputType: "number",
             },
             {
               displayName: "Tournament Date",
