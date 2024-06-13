@@ -45,10 +45,10 @@ jobs:
       - name: Mongo Config
         run: |-
           echo "${{ secrets.ATLAS_URI }} > config.env
-          echo "${{ secrets.PORT }} >> config.env
 
       - name: Run get_tournaments.py
         run: python get_tournaments.py
       - name: Run get_commanders.py
         run: python get_commanders.py
       - name: Deploy 3nf db # TODO
+        run: echo "TODO"
