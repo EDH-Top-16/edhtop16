@@ -11,12 +11,7 @@ jobs:
       - name: Checkout files
         uses: actions/checkout@v4
         with:
-          sparse-checkout: |-
-            server/scripts/get_tournaments.py
-            server/scripts/get_commanders.py
-            server/scripts/requirements.txt
-          sparse-checkout-cone-mode: false
-          path: scripts/
+          path: edhtop16/
 
       - name: Checkout private library
         uses: actions/checkout@v4
@@ -31,23 +26,31 @@ jobs:
 
       - name: Copy files to same working directory
         run: |-
-          cp scripts/server/scripts/* .
-          cp mtg_api/mtg_api.py .
+          cp mtg_api/mtg_api.py edhtop16/server/scripts/
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
       - name: Install Dependencies
         run: pip install -r requirements.txt
 
-      - name: Topdeck API Key
-        run: echo "${{ secrets.TOPDECK_API_KEY }}" > eminence_api_key.txt
-      - name: Mongo Config
+      - name: Copy Secrets
+        working-directory: edhtop16/server/scripts/
         run: |-
+          echo "${{ secrets.TOPDECK_API_KEY }}" > eminence_api_key.txt
           echo "ATLAS_URI=${{ secrets.ATLAS_URI }}" > config.env
 
       - name: Run get_tournaments.py
+        working-directory: edhtop16/server/scripts/
         run: python get_tournaments.py
       - name: Run get_commanders.py
+        working-directory: edhtop16/server/scripts/
         run: python get_commanders.py
-      - name: Deploy 3nf db # TODO
-        run: echo "TODO"
+
+      - name: Copy Secrets
+        working-directory: edhtop16/client/
+        run:  |-
+          echo 'ENTRIES_DB_URL="${{ secrets.ATLAS_URI }}"' > .env
+          echo 'DATABASE_URL="${{ secrets.PSQL_CONN_STRING }}"' >> .env
+      - name: Deploy 3nf db
+        working-directory: edhtop16/client/
+        run: npm run data-import -- --env-file=.env
