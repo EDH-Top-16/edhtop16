@@ -8,7 +8,8 @@ export interface FilterConfiguration {
   displayName: string;
   variableName: string;
   currentValue?: string;
-  inputType?: "date" | "colorId";
+  label?: string;
+  inputType?: "date" | "colorId" | "number";
   selectOptions?: [string, string][];
 }
 
@@ -152,6 +153,23 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
                 setPendingValue(next.join(""));
               }}
             />
+          )}
+
+          {option.inputType === "number" && (
+            <>
+              <label htmlFor="filter-number-input" className="text-white">
+                {option.label ?? option.displayName}
+              </label>
+
+              <input
+                type="number"
+                id="filter-number-input"
+                value={pendingValue ?? option.currentValue}
+                onChange={(e) => {
+                  setPendingValue(e.target.value);
+                }}
+              />
+            </>
           )}
 
           <div className="flex flex-row flex-wrap gap-2">
