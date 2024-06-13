@@ -31,8 +31,7 @@ jobs:
 
       - name: Copy files to same working directory
         run: |-
-          cp scripts/server/scripts/get_tournaments.py .
-          cp scripts/server/scripts/get_commanders.py .
+          cp scripts/server/scripts/* .
           cp mtg_api/mtg_api.py .
       - uses: actions/setup-python@v5
         with:
