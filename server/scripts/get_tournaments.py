@@ -61,7 +61,6 @@ def fetch_tournaments(filters=None):
 
 
 if __name__ == "__main__":
-    print(dotenv_values("./config.env"))
     client = MongoClient(dotenv_values("./config.env")["ATLAS_URI"])
 
     db = client["cedhtop16"]
