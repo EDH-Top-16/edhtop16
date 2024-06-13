@@ -9,6 +9,7 @@ import requests
 import datetime
 import json
 import sys
+from dotenv import dotenv_values
 
 # -o overwrite tournaments, even if the db already contains them.
 overwrite_tourneys = True if "-o" in sys.argv else False
@@ -60,7 +61,7 @@ def fetch_tournaments(filters=None):
 
 
 if __name__ == "__main__":
-    client = MongoClient("mongodb://localhost:27017")
+    client = MongoClient(dotenv_values("./config.env")["ATLAS_URI"])
 
     db = client["cedhtop16"]
 

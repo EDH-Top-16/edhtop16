@@ -5,8 +5,7 @@ on:
     branches: gh_actions #TODO: change this to cron when done
 
 jobs:
-  checkout:
-
+  update_db:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout files
@@ -15,8 +14,10 @@ jobs:
           sparse-checkout: |-
             server/scripts/get_tournaments.py
             server/scripts/get_commanders.py
+            server/scripts/requirements.txt
           sparse-checkout-cone-mode: false
           path: scripts/
+
       - name: Checkout private library
         uses: actions/checkout@v4
         with:
@@ -27,5 +28,27 @@ jobs:
           sparse-checkout-cone-mode: false
           path: mtg_api/
           ref: main
-      - name: <TEST> list files
-        run: tree
+
+      - name: Copy files to same working directory
+        run: |-
+          cp scripts/server/scripts/get_tournaments.py .
+          cp scripts/server/scripts/get_commanders.py .
+          cp mtg_api/mtg_api.py .
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Topdeck API Key
+        run: echo "${{ secrets.TOPDECK_API_KEY }}" > eminence_api_key.txt
+      - name: Mongo Config
+        run: |-
+          echo "${{ secrets.ATLAS_URI }} > config.env
+          echo "${{ secrets.PORT }} >> config.env
+
+      - name: Run get_tournaments.py
+        run: python get_tournaments.py
+      - name: Run get_commanders.py
+        run: python get_commanders.py
+      - name: Deploy 3nf db # TODO
