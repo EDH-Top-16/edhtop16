@@ -4,7 +4,13 @@ import {
   useQueryParams,
 } from "@reverecre/next-query-params";
 import cn from "classnames";
-import { PropsWithChildren, useCallback, useMemo } from "react";
+import {
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { graphql, useFragment, usePreloadedQuery } from "react-relay/hooks";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { HiSwitchHorizontal } from "react-icons/hi";
@@ -21,15 +27,48 @@ import {
 } from "../../queries/__generated__/commanders_CommandersQuery.graphql";
 import { commanders_CommandersTableData$key } from "../../queries/__generated__/commanders_CommandersTableData.graphql";
 
+/** Recalls the last known size of a given element, identified by `id`.
+ *
+ * @returns A tuple of a ref to assign to the element, along with the last seen width.
+ */
+function useLastKnownSizeObserver(id: string) {
+  const lastKnownSizeKey = `last-known-size-${id}`;
+
+  const ref = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!ref.current) return;
+
+    const observer = new ResizeObserver((entries) => {
+      const headerEntry = entries[0];
+
+      if (headerEntry.contentRect.width > 0) {
+        (window as any)[lastKnownSizeKey] = headerEntry.contentRect.width;
+      }
+    });
+
+    observer.observe(ref.current);
+    return () => {
+      observer.disconnect();
+    };
+  }, [id, lastKnownSizeKey]);
+
+  return [
+    ref,
+    typeof window === "undefined" ? null : (window as any)[lastKnownSizeKey],
+  ];
+}
+
 function CommandersTableColumnHeader({
   hideOnMobile,
   sortVariable,
+  isPlaceholder = false,
   children,
   ...props
 }: PropsWithChildren<{
   id: string;
   hideOnMobile?: boolean;
   sortVariable?: string;
+  isPlaceholder?: boolean;
 }>) {
   const [{ sortBy = "TOP_CUTS", sortDir = "DESC" }, setSort] = useQueryParams({
     sortBy: QueryParamKind.STRING,
@@ -44,12 +83,16 @@ function CommandersTableColumnHeader({
     });
   }, [setSort, sortBy, sortDir, sortVariable]);
 
+  const [headerRef, lastKnownSize] = useLastKnownSizeObserver(props.id);
+
   return (
     <th
+      ref={headerRef}
       className={cn("text-left", {
         "hidden lg:table-cell": hideOnMobile,
         "hover:cursor-pointer": true,
       })}
+      style={{ width: isPlaceholder ? lastKnownSize : undefined }}
       {...props}
     >
       <div className="flex items-center gap-x-1" onClick={toggleSort}>
@@ -111,20 +154,32 @@ function CommandersTableRow({
   );
 }
 
-function CommandersTableLayout(props: PropsWithChildren<{}>) {
+function CommandersTableLayout({
+  isPlaceholder = false,
+  ...props
+}: PropsWithChildren<{ isPlaceholder?: boolean }>) {
   return (
     <table className="w-full border-separate border-spacing-y-3">
       <thead>
         <tr>
-          <CommandersTableColumnHeader hideOnMobile id="rank">
+          <CommandersTableColumnHeader
+            isPlaceholder={isPlaceholder}
+            hideOnMobile
+            id="rank"
+          >
             Rank
           </CommandersTableColumnHeader>
 
-          <CommandersTableColumnHeader id="name" sortVariable="NAME">
+          <CommandersTableColumnHeader
+            isPlaceholder={isPlaceholder}
+            id="name"
+            sortVariable="NAME"
+          >
             <span className="hidden lg:inline">Commander</span>
           </CommandersTableColumnHeader>
 
           <CommandersTableColumnHeader
+            isPlaceholder={isPlaceholder}
             hideOnMobile
             id="count"
             sortVariable="TOP_CUTS"
@@ -133,6 +188,7 @@ function CommandersTableLayout(props: PropsWithChildren<{}>) {
           </CommandersTableColumnHeader>
 
           <CommandersTableColumnHeader
+            isPlaceholder={isPlaceholder}
             hideOnMobile
             id="entries"
             sortVariable="ENTRIES"
@@ -141,6 +197,7 @@ function CommandersTableLayout(props: PropsWithChildren<{}>) {
           </CommandersTableColumnHeader>
 
           <CommandersTableColumnHeader
+            isPlaceholder={isPlaceholder}
             hideOnMobile
             id="conversion"
             sortVariable="CONVERSION"
@@ -148,7 +205,11 @@ function CommandersTableLayout(props: PropsWithChildren<{}>) {
             Conversion
           </CommandersTableColumnHeader>
 
-          <CommandersTableColumnHeader hideOnMobile id="colors">
+          <CommandersTableColumnHeader
+            isPlaceholder={isPlaceholder}
+            hideOnMobile
+            id="colors"
+          >
             Colors
           </CommandersTableColumnHeader>
         </tr>
@@ -319,7 +380,7 @@ function CommandersPage({
 export default withRelay(CommandersPage, CommandersQuery, {
   fallback: (
     <CommandersPageShell>
-      <CommandersTableLayout />
+      <CommandersTableLayout isPlaceholder />
     </CommandersPageShell>
   ),
   createClientEnvironment: () => getClientEnvironment()!,
