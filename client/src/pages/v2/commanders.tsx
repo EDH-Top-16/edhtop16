@@ -39,9 +39,10 @@ function CommandersTableColumnHeader({
   const toggleSort = useCallback(() => {
     setSort({
       sortBy: sortVariable,
-      sortDir: sortDir === "ASC" ? "DESC" : "ASC",
+      sortDir:
+        sortVariable !== sortBy ? "DESC" : sortDir === "ASC" ? "DESC" : "ASC",
     });
-  }, [setSort, sortDir, sortVariable]);
+  }, [setSort, sortBy, sortDir, sortVariable]);
 
   return (
     <th
@@ -119,7 +120,7 @@ function CommandersTableLayout(props: PropsWithChildren<{}>) {
             Rank
           </CommandersTableColumnHeader>
 
-          <CommandersTableColumnHeader id="name">
+          <CommandersTableColumnHeader id="name" sortVariable="NAME">
             <span className="hidden lg:inline">Commander</span>
           </CommandersTableColumnHeader>
 
@@ -139,7 +140,11 @@ function CommandersTableLayout(props: PropsWithChildren<{}>) {
             Entries
           </CommandersTableColumnHeader>
 
-          <CommandersTableColumnHeader hideOnMobile id="conversion">
+          <CommandersTableColumnHeader
+            hideOnMobile
+            id="conversion"
+            sortVariable="CONVERSION"
+          >
             Conversion
           </CommandersTableColumnHeader>
 
@@ -224,11 +229,13 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
                 {
                   variableName: "minEntries",
                   label: "is greater than (≥)",
+                  shortLabel: "≥",
                   currentValue: queryParams.minEntries,
                 },
                 {
                   variableName: "maxEntries",
                   label: "is less than (≤)",
+                  shortLabel: "≤",
                   currentValue: queryParams.maxEntries,
                 },
               ],
@@ -241,11 +248,13 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
                 {
                   variableName: "minSize",
                   label: "is greater than (≥)",
+                  shortLabel: "≥",
                   currentValue: queryParams.minSize,
                 },
                 {
                   variableName: "maxSize",
                   label: "is less than (≤)",
+                  shortLabel: "≤",
                   currentValue: queryParams.maxSize,
                 },
               ],
@@ -257,11 +266,13 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
                 {
                   variableName: "minDate",
                   label: "is after (≥)",
+                  shortLabel: "after",
                   currentValue: queryParams.minDate,
                 },
                 {
                   variableName: "maxDate",
                   label: "is before (≤)",
+                  shortLabel: "before",
                   currentValue: queryParams.maxDate,
                 },
               ],
@@ -344,7 +355,7 @@ export default withRelay(CommandersPage, CommandersQuery, {
 });
 
 function isSortBy(s: string): s is CommanderSortBy {
-  return ["ENTRIES", "TOP_CUTS"].includes(s);
+  return ["ENTRIES", "TOP_CUTS", "NAME", "CONVERSION"].includes(s);
 }
 
 function isSortDir(s: string): s is SortDirection {

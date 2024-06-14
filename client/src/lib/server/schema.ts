@@ -467,7 +467,7 @@ const TournamentType = builder.prismaObject("Tournament", {
 });
 
 const CommanderSortBy = builder.enumType("CommanderSortBy", {
-  values: ["ENTRIES", "TOP_CUTS"] as const,
+  values: ["ENTRIES", "TOP_CUTS", "NAME", "CONVERSION"] as const,
 });
 
 const SortDirection = builder.enumType("SortDirection", {
@@ -569,6 +569,22 @@ builder.queryType({
           commanderStats.sort((a, b) => sortOperator(a.topCuts, b.topCuts));
         } else if (args.sortBy === "ENTRIES") {
           commanderStats.sort((a, b) => sortOperator(a.count, b.count));
+        } else if (args.sortBy === "CONVERSION") {
+          commanderStats.sort((a, b) =>
+            sortOperator(a.conversionRate, b.conversionRate),
+          );
+        } else if (args.sortBy === "NAME") {
+          commanderStats.sort((a, b) =>
+            args.sortDir === "ASC"
+              ? a.name.localeCompare(b.name, "en", {
+                  sensitivity: "base",
+                  usage: "sort",
+                })
+              : b.name.localeCompare(a.name, "en", {
+                  sensitivity: "base",
+                  usage: "sort",
+                }),
+          );
         }
 
         return commanderStats;
