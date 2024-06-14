@@ -184,10 +184,18 @@ function CommandersTable(props: {
 function CommandersPageShell({ children }: PropsWithChildren<{}>) {
   const [queryParams, updateQueryParams] = useQueryParams({
     minSize: QueryParamKind.STRING,
+    maxSize: QueryParamKind.STRING,
     minEntries: QueryParamKind.STRING,
+    maxEntries: QueryParamKind.STRING,
     minDate: QueryParamKind.STRING,
+    maxDate: QueryParamKind.STRING,
     colorId: QueryParamKind.STRING,
   });
+
+  const start = useMemo(() => {
+    const now = new Date(0);
+    return now.toISOString().split("T")[0];
+  }, []);
 
   const tomorrow = useMemo(() => {
     const now = new Date();
@@ -211,22 +219,52 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
             },
             {
               displayName: "Entries",
-              label: "Entries ≥",
-              variableName: "minEntries",
-              currentValue: queryParams.minEntries ?? "10",
+              label: "Entries",
+              variableName: [
+                {
+                  variableName: "minEntries",
+                  label: "is greater than (≥)",
+                  currentValue: queryParams.minEntries,
+                },
+                {
+                  variableName: "maxEntries",
+                  label: "is less than (≤)",
+                  currentValue: queryParams.maxEntries,
+                },
+              ],
               inputType: "number",
             },
             {
               displayName: "Tournament Size",
-              label: "Tournament Size ≥",
-              variableName: "minSize",
-              currentValue: queryParams.minSize ?? "64",
+              label: "Tournament Size",
+              variableName: [
+                {
+                  variableName: "minSize",
+                  label: "is greater than (≥)",
+                  currentValue: queryParams.minSize,
+                },
+                {
+                  variableName: "maxSize",
+                  label: "is less than (≤)",
+                  currentValue: queryParams.maxSize,
+                },
+              ],
               inputType: "number",
             },
             {
               displayName: "Tournament Date",
-              variableName: "minDate",
-              currentValue: queryParams.minDate ?? tomorrow,
+              variableName: [
+                {
+                  variableName: "minDate",
+                  label: "is after (≥)",
+                  currentValue: queryParams.minDate,
+                },
+                {
+                  variableName: "maxDate",
+                  label: "is before (≤)",
+                  currentValue: queryParams.maxDate,
+                },
+              ],
               inputType: "date",
             },
           ]}
@@ -288,6 +326,9 @@ export default withRelay(CommandersPage, CommandersQuery, {
       minSize: QueryParamKind.NUMBER,
       minEntries: QueryParamKind.NUMBER,
       minDate: QueryParamKind.STRING,
+      maxSize: QueryParamKind.NUMBER,
+      maxEntries: QueryParamKind.NUMBER,
+      maxDate: QueryParamKind.STRING,
       colorId: QueryParamKind.STRING,
     });
 
