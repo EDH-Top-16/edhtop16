@@ -8,7 +8,12 @@ export interface FilterConfiguration {
   displayName: string;
   variableName:
     | string
-    | { variableName: string; label: string; currentValue?: string }[];
+    | {
+        variableName: string;
+        label: string;
+        shortLabel?: string;
+        currentValue?: string;
+      }[];
   currentValue?: string;
   label?: string;
   inputType?: "date" | "colorId" | "number";
@@ -141,6 +146,13 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
     if (selectedOptionText) buttonText += `: ${selectedOptionText}`;
   } else if (option.currentValue) {
     buttonText += `: ${option.currentValue}`;
+  } else if (Array.isArray(option.variableName)) {
+    const selected = option.variableName.find((v) => v.currentValue != null);
+    if (selected) {
+      buttonText += ` ${selected.shortLabel ?? selected.label} ${
+        selected.currentValue
+      }`;
+    }
   }
 
   return (
