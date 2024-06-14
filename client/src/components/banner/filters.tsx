@@ -1,12 +1,14 @@
 import cn from "classnames";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Button, Dialog, DialogTrigger, Popover } from "react-aria-components";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { ColorSelection } from "./color_selection";
 
 export interface FilterConfiguration {
   displayName: string;
-  variableName: string;
+  variableName:
+    | string
+    | { variableName: string; label: string; currentValue?: string }[];
   currentValue?: string;
   label?: string;
   inputType?: "date" | "colorId" | "number";
@@ -20,8 +22,14 @@ interface FilterProps {
 
 export function Filters({ options, onChange }: FilterProps) {
   const resetAll = useCallback(() => {
+    const allVariableNames = options.flatMap((o) =>
+      typeof o.variableName === "string"
+        ? [o.variableName]
+        : o.variableName.map((oo) => oo.variableName),
+    );
+
     const nextValues = Object.fromEntries(
-      options.map((o) => [o.variableName, null]),
+      allVariableNames.map((v) => [v, null]),
     );
 
     onChange?.(nextValues);
@@ -30,13 +38,16 @@ export function Filters({ options, onChange }: FilterProps) {
   return (
     <div className="flex flex-wrap gap-2">
       {options.map((option) => {
+        const activeVariableName = Array.isArray(option.variableName)
+          ? option.variableName.find((v) => v.currentValue != null)
+              ?.variableName ?? option.variableName[0].variableName
+          : option.variableName;
+
         return (
           <FilterButton
-            key={option.variableName}
+            key={activeVariableName}
             filter={option}
-            onChange={(nextValue) => {
-              onChange?.({ [option.variableName]: nextValue });
-            }}
+            onChange={onChange}
           />
         );
       })}
@@ -53,7 +64,7 @@ export function Filters({ options, onChange }: FilterProps) {
 
 interface FilterButtonProps {
   filter: FilterConfiguration;
-  onChange?: (next: string | null) => void;
+  onChange?: (nextPartialValues: Record<string, string | null>) => void;
 }
 
 function FilterButton({ filter: option, onChange }: FilterButtonProps) {
@@ -63,19 +74,63 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
     option.currentValue ?? option.selectOptions?.[0][1],
   );
 
+  const defaultVariableName = useMemo(
+    () =>
+      typeof option.variableName === "string"
+        ? option.variableName
+        : option.variableName.find((v) => v.currentValue != null)
+            ?.variableName ?? option.variableName[0].variableName,
+    [option.variableName],
+  );
+
+  const [pendingVariableName, setPendingVariableName] =
+    useState(defaultVariableName);
+
+  const defaultVariableState = useMemo((): Record<string, string | null> => {
+    const allVariableNames =
+      typeof option.variableName === "string"
+        ? [option.variableName]
+        : option.variableName.map((v) => v.variableName);
+
+    return Object.fromEntries(allVariableNames.map((n) => [n, null] as const));
+  }, [option.variableName]);
+
   const handleRemove = useCallback(() => {
     triggerRef.current?.focus();
-    onChange?.(null);
+
+    onChange?.(defaultVariableState);
     setPendingValue(undefined);
-  }, [onChange]);
+    setPendingVariableName(defaultVariableName);
+  }, [defaultVariableName, defaultVariableState, onChange]);
+
+  const currentValue = useMemo(() => {
+    if (Array.isArray(option.variableName)) {
+      return option.variableName.find((v) => v.currentValue)?.currentValue;
+    }
+
+    return option.currentValue;
+  }, [option.currentValue, option.variableName]);
 
   const handleApply = useCallback(() => {
     triggerRef.current?.focus();
-    if (pendingValue) {
-      onChange?.(pendingValue);
+
+    const nextValue = pendingValue ?? currentValue;
+    if (nextValue) {
+      const nextState = { ...defaultVariableState };
+      nextState[pendingVariableName] = nextValue;
+
+      onChange?.(nextState);
       setPendingValue(undefined);
+      setPendingVariableName(defaultVariableName);
     }
-  }, [onChange, pendingValue]);
+  }, [
+    currentValue,
+    defaultVariableName,
+    defaultVariableState,
+    onChange,
+    pendingValue,
+    pendingVariableName,
+  ]);
 
   let buttonText = option.displayName;
   if (option.currentValue && option.selectOptions) {
@@ -94,12 +149,12 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
         ref={triggerRef}
         className={cn(
           `flex items-center rounded-full border p-1 px-3 text-sm dark:border-gray dark:text-white`,
-          !!option.currentValue
+          !!currentValue
             ? "border-solid border-voilet text-cadet dark:border-gray"
             : "border-dashed border-text text-lightText dark:text-text",
         )}
       >
-        {!option.currentValue && (
+        {!currentValue && (
           <div className="mr-1">
             <AiOutlinePlusCircle />
           </div>
@@ -128,24 +183,6 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
             </div>
           )}
 
-          {option.inputType === "date" && (
-            <>
-              <label htmlFor="filter-date-input" className="text-white">
-                Tournament is after:
-              </label>
-
-              <input
-                type="date"
-                id="filter-date-input"
-                value={pendingValue ?? option.currentValue}
-                min="2016-01-01"
-                onChange={(e) => {
-                  setPendingValue(e.target.value);
-                }}
-              />
-            </>
-          )}
-
           {option.inputType === "colorId" && (
             <ColorSelection
               selected={(pendingValue ?? option.currentValue ?? "").split("")}
@@ -155,16 +192,32 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
             />
           )}
 
-          {option.inputType === "number" && (
+          {(option.inputType === "number" || option.inputType === "date") && (
             <>
               <label htmlFor="filter-number-input" className="text-white">
                 {option.label ?? option.displayName}
               </label>
 
+              {Array.isArray(option.variableName) && (
+                <select
+                  value={pendingVariableName}
+                  onChange={(e) => {
+                    setPendingVariableName(e.target.value);
+                  }}
+                  className="rounded-lg border-2 border-solid border-transparent px-2 py-2 text-sm focus:border-accent focus-visible:outline-none"
+                >
+                  {option.variableName.map(({ label, variableName }) => (
+                    <option key={variableName} value={variableName}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              )}
+
               <input
-                type="number"
+                type={option.inputType}
                 id="filter-number-input"
-                value={pendingValue ?? option.currentValue}
+                value={pendingValue ?? currentValue}
                 onChange={(e) => {
                   setPendingValue(e.target.value);
                 }}
