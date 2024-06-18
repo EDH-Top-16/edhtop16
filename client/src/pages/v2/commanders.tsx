@@ -95,7 +95,7 @@ function CommandersTableColumnHeader({
       style={{ width: isPlaceholder ? lastKnownSize : undefined }}
       {...props}
     >
-      <div className="flex items-center gap-x-1" onClick={toggleSort}>
+      <div className="hidden items-center gap-x-1 lg:flex" onClick={toggleSort}>
         <span
           className={cn("inline", {
             hidden: sortVariable == null || sortBy !== sortVariable,
@@ -160,7 +160,7 @@ function CommandersTableLayout({
 }: PropsWithChildren<{ isPlaceholder?: boolean }>) {
   return (
     <table className="w-full border-separate border-spacing-y-3">
-      <thead>
+      <thead className="hidden lg:table-header-group">
         <tr>
           <CommandersTableColumnHeader
             isPlaceholder={isPlaceholder}
@@ -257,17 +257,6 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
     maxDate: QueryParamKind.STRING,
     colorId: QueryParamKind.STRING,
   });
-
-  const start = useMemo(() => {
-    const now = new Date(0);
-    return now.toISOString().split("T")[0];
-  }, []);
-
-  const tomorrow = useMemo(() => {
-    const now = new Date();
-    now.setDate(now.getDate() + 1);
-    return now.toISOString().split("T")[0];
-  }, []);
 
   return (
     <div className="flex h-screen w-screen bg-secondary">
