@@ -178,7 +178,11 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
       <Popover offset={0}>
         <Dialog className="flex max-w-[250px] flex-col gap-2 rounded-xl bg-white p-4 shadow-modal outline-0 dark:bg-cadet">
           {option.selectOptions && (
-            <div className="flex-col">
+            <div className="flex flex-col space-y-1">
+              {option.label && (
+                <label className="text-white">{option.label}</label>
+              )}
+
               <select
                 value={pendingValue || option.currentValue}
                 onChange={(e) => {
