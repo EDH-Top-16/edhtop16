@@ -260,6 +260,13 @@ builder.prismaObject("Commander", {
         orderBy: { standing: "asc" },
       },
     }),
+    breakdownUrl: t.string({
+      resolve: (parent) =>
+        new URL(
+          `/commander/${encodeURIComponent(parent.name)}`,
+          "https://edhtop16.com",
+        ).href,
+    }),
     count: t.int({
       args: { filters: t.arg({ type: FiltersInput }) },
       resolve: async (parent, { filters }, ctx) => {

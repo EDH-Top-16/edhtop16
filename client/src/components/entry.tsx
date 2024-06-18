@@ -19,7 +19,7 @@ function CardIcon() {
 interface EntryProps {
   rank: string | number;
   name: string;
-  decklistLink?: string;
+  href?: string;
   metadata?: [string, string | number, showOnMobile?: boolean][];
   colorIdentity?: string;
   tournament?: string;
@@ -29,7 +29,7 @@ interface EntryProps {
 export function Entry({
   rank,
   name,
-  decklistLink,
+  href,
   metadata,
   colorIdentity,
   tournament,
@@ -52,9 +52,9 @@ export function Entry({
               </span>
             )}
 
-            <a href={decklistLink} target="_blank" rel="noreferrer">
+            <a href={href} target="_blank" rel="noreferrer">
               {name}
-              {decklistLink && <CardIcon />}
+              {href != null && layout === "WLD" && <CardIcon />}
             </a>
 
             <span className="text-sm text-lightText dark:text-text md:hidden">

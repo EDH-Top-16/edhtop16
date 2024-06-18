@@ -26,6 +26,7 @@ import {
   commanders_CommandersQuery,
 } from "../../queries/__generated__/commanders_CommandersQuery.graphql";
 import { commanders_CommandersTableData$key } from "../../queries/__generated__/commanders_CommandersTableData.graphql";
+import Head from "next/head";
 
 /** Recalls the last known size of a given element, identified by `id`.
  *
@@ -131,6 +132,7 @@ function CommandersTableRow({
     graphql`
       fragment commanders_CommanderTableRow on Commander {
         name
+        breakdownUrl
         colorId
         count(filters: $filters)
         topCuts(filters: $filters)
@@ -144,10 +146,15 @@ function CommandersTableRow({
     <Entry
       rank={rank}
       name={commander.name}
+      href={commander.breakdownUrl}
       metadata={[
         ["Top X", commander.topCuts],
         ["Entries", commander.count],
-        ["Conversion", `${Math.round(commander.conversionRate * 100)}%`, false],
+        [
+          "Conversion",
+          `${Math.round(commander.conversionRate * 10000) / 100}%`,
+          false,
+        ],
       ]}
       colorIdentity={commander.colorId}
     />
@@ -258,6 +265,12 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
     colorId: QueryParamKind.STRING,
   });
 
+  const oneYearAgo = useMemo(() => {
+    const now = new Date();
+    now.setUTCFullYear(now.getUTCFullYear() - 1);
+    return now.toISOString().split("T")[0];
+  }, []);
+
   return (
     <div className="flex h-screen w-screen bg-secondary">
       <Navigation />
@@ -299,7 +312,10 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
                   variableName: "minSize",
                   label: "is greater than (≥)",
                   shortLabel: "≥",
-                  currentValue: queryParams.minSize,
+                  currentValue:
+                    queryParams.minSize == null && queryParams.maxSize == null
+                      ? "64"
+                      : queryParams.minSize,
                 },
                 {
                   variableName: "maxSize",
@@ -316,13 +332,16 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
                 {
                   variableName: "minDate",
                   label: "is after (≥)",
-                  shortLabel: "after",
-                  currentValue: queryParams.minDate,
+                  shortLabel: "≥",
+                  currentValue:
+                    queryParams.minDate == null && queryParams.maxDate == null
+                      ? oneYearAgo
+                      : queryParams.minDate,
                 },
                 {
                   variableName: "maxDate",
                   label: "is before (≤)",
-                  shortLabel: "before",
+                  shortLabel: "≤",
                   currentValue: queryParams.maxDate,
                 },
               ],
@@ -360,9 +379,14 @@ function CommandersPage({
   const { commanders } = usePreloadedQuery(CommandersQuery, preloadedQuery);
 
   return (
-    <CommandersPageShell>
-      <CommandersTable commanders={commanders} />
-    </CommandersPageShell>
+    <>
+      <Head>
+        <title>EDH Top16</title>
+      </Head>
+      <CommandersPageShell>
+        <CommandersTable commanders={commanders} />
+      </CommandersPageShell>
+    </>
   );
 }
 
@@ -381,7 +405,7 @@ export default withRelay(CommandersPage, CommandersQuery, {
     return createServerEnvironment();
   },
   variablesFromContext: (ctx) => {
-    const { sortBy, sortDir, ...filters } = parseQuery(ctx.query, {
+    let { sortBy, sortDir, ...filters } = parseQuery(ctx.query, {
       sortBy: QueryParamKind.STRING,
       sortDir: QueryParamKind.STRING,
       minSize: QueryParamKind.NUMBER,
@@ -392,6 +416,16 @@ export default withRelay(CommandersPage, CommandersQuery, {
       maxDate: QueryParamKind.STRING,
       colorId: QueryParamKind.STRING,
     });
+
+    if (filters.minSize == null && filters.maxSize == null) {
+      filters = { ...filters, minSize: 64 };
+    }
+
+    if (filters.minDate == null && filters.maxDate == null) {
+      const now = new Date();
+      now.setUTCFullYear(now.getUTCFullYear() - 1);
+      filters = { ...filters, minDate: now.toISOString().split("T")[0] };
+    }
 
     if (
       (sortBy != null && !isSortBy(sortBy)) ||
