@@ -1,4 +1,5 @@
 type Commander {
+  breakdownUrl: String!
   colorId: String!
   conversionRate(filters: Filters): Float!
   count(filters: Filters): Int!
@@ -9,7 +10,9 @@ type Commander {
 }
 
 enum CommanderSortBy {
-  COUNT
+  CONVERSION
+  ENTRIES
+  NAME
   TOP_CUTS
 }
 
@@ -32,6 +35,9 @@ type Entry {
 
 input Filters {
   colorId: String
+  maxDate: String
+  maxEntries: Int
+  maxSize: Int
   minDate: String
   minEntries: Int
   minSize: Int

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<65b5524985ed24eb5ea9626517042bf4>>
+ * @generated SignedSource<<c7f53eedf7fcf49f1642fe37bacd3c11>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,10 +10,13 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type CommanderSortBy = "COUNT" | "TOP_CUTS" | "%future added value";
+export type CommanderSortBy = "CONVERSION" | "ENTRIES" | "NAME" | "TOP_CUTS" | "%future added value";
 export type SortDirection = "ASC" | "DESC" | "%future added value";
 export type Filters = {
   colorId?: string | null | undefined;
+  maxDate?: string | null | undefined;
+  maxEntries?: number | null | undefined;
+  maxSize?: number | null | undefined;
   minDate?: string | null | undefined;
   minEntries?: number | null | undefined;
   minSize?: number | null | undefined;
@@ -146,6 +149,13 @@ return {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
+            "name": "breakdownUrl",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "colorId",
             "storageKey": null
           },
@@ -162,12 +172,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "5d60186307f3fb2b44eca5010d4f2724",
+    "cacheID": "4aaa06a81735aac08c4f1f91873bc3ca",
     "id": null,
     "metadata": {},
     "name": "commanders_CommandersQuery",
     "operationKind": "query",
-    "text": "query commanders_CommandersQuery(\n  $filters: Filters\n  $sortBy: CommanderSortBy\n  $sortDir: SortDirection\n) {\n  commanders(filters: $filters, sortBy: $sortBy, sortDir: $sortDir) {\n    ...commanders_CommandersTableData\n    id\n  }\n}\n\nfragment commanders_CommanderTableRow on Commander {\n  name\n  colorId\n  count(filters: $filters)\n  topCuts(filters: $filters)\n  conversionRate(filters: $filters)\n}\n\nfragment commanders_CommandersTableData on Commander {\n  name\n  topCuts(filters: $filters)\n  count(filters: $filters)\n  conversionRate(filters: $filters)\n  ...commanders_CommanderTableRow\n}\n"
+    "text": "query commanders_CommandersQuery(\n  $filters: Filters\n  $sortBy: CommanderSortBy\n  $sortDir: SortDirection\n) {\n  commanders(filters: $filters, sortBy: $sortBy, sortDir: $sortDir) {\n    ...commanders_CommandersTableData\n    id\n  }\n}\n\nfragment commanders_CommanderTableRow on Commander {\n  name\n  breakdownUrl\n  colorId\n  count(filters: $filters)\n  topCuts(filters: $filters)\n  conversionRate(filters: $filters)\n}\n\nfragment commanders_CommandersTableData on Commander {\n  name\n  topCuts(filters: $filters)\n  count(filters: $filters)\n  conversionRate(filters: $filters)\n  ...commanders_CommanderTableRow\n}\n"
   }
 };
 })();

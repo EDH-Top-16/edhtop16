@@ -24,7 +24,7 @@ export function Navigation(): JSX.Element {
         <div className="relative h-12 w-12">
           <Image
             fill
-            style={{ objectFit: "cover" }}
+            style={{ objectFit: "contain" }}
             src={TopDeckLogo}
             alt={"topdeck logo"}
           />
@@ -38,7 +38,7 @@ export function Navigation(): JSX.Element {
   );
 }
 
-const NavItem: React.FC<NavLink> = ({ href, label, icon }) => {
+function NavItem({ href, label, icon }: NavLink) {
   return (
     <Link href={href} legacyBehavior passHref={true}>
       <a className="w-fit [&>svg]:w-8 [&>svg]:text-white" aria-label={label}>
@@ -46,4 +46,4 @@ const NavItem: React.FC<NavLink> = ({ href, label, icon }) => {
       </a>
     </Link>
   );
-};
+}

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<f2f2ca9a6706cbdf6d72112a758810be>>
+ * @generated SignedSource<<b41d2b7753d83d0b9e1ce3c97e79cd01>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,6 +11,7 @@
 import { Fragment, ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type commanders_CommanderTableRow$data = {
+  readonly breakdownUrl: string;
   readonly colorId: string;
   readonly conversionRate: number;
   readonly count: number;
@@ -53,6 +54,13 @@ return {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
+      "name": "breakdownUrl",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
       "name": "colorId",
       "storageKey": null
     },
@@ -83,6 +91,6 @@ return {
 };
 })();
 
-(node as any).hash = "892d693f752bbd4f95fff863c477ab75";
+(node as any).hash = "b719a6973c7a2e371f0c434d81e9c355";
 
 export default node;
