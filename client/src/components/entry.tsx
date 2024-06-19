@@ -16,7 +16,7 @@ function CardIcon() {
   );
 }
 
-interface EntryProps {
+export interface EntryProps {
   rank: string | number;
   name: string;
   href?: string;
