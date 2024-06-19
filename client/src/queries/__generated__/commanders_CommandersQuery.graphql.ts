@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<c7f53eedf7fcf49f1642fe37bacd3c11>>
+ * @generated SignedSource<<07beba7e8a554628cdfeab65d7f08358>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -126,9 +126,23 @@ return {
           },
           {
             "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "breakdownUrl",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "colorId",
+            "storageKey": null
+          },
+          {
+            "alias": null,
             "args": (v3/*: any*/),
             "kind": "ScalarField",
-            "name": "topCuts",
+            "name": "conversionRate",
             "storageKey": null
           },
           {
@@ -142,21 +156,7 @@ return {
             "alias": null,
             "args": (v3/*: any*/),
             "kind": "ScalarField",
-            "name": "conversionRate",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "breakdownUrl",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "colorId",
+            "name": "topCuts",
             "storageKey": null
           },
           {
@@ -172,12 +172,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "4aaa06a81735aac08c4f1f91873bc3ca",
+    "cacheID": "02997e5bda69b8bf10f871a64074fc01",
     "id": null,
     "metadata": {},
     "name": "commanders_CommandersQuery",
     "operationKind": "query",
-    "text": "query commanders_CommandersQuery(\n  $filters: Filters\n  $sortBy: CommanderSortBy\n  $sortDir: SortDirection\n) {\n  commanders(filters: $filters, sortBy: $sortBy, sortDir: $sortDir) {\n    ...commanders_CommandersTableData\n    id\n  }\n}\n\nfragment commanders_CommanderTableRow on Commander {\n  name\n  breakdownUrl\n  colorId\n  count(filters: $filters)\n  topCuts(filters: $filters)\n  conversionRate(filters: $filters)\n}\n\nfragment commanders_CommandersTableData on Commander {\n  name\n  topCuts(filters: $filters)\n  count(filters: $filters)\n  conversionRate(filters: $filters)\n  ...commanders_CommanderTableRow\n}\n"
+    "text": "query commanders_CommandersQuery(\n  $filters: Filters\n  $sortBy: CommanderSortBy\n  $sortDir: SortDirection\n) {\n  commanders(filters: $filters, sortBy: $sortBy, sortDir: $sortDir) {\n    ...commanders_CommandersTableData\n    id\n  }\n}\n\nfragment commanders_CommandersTableData on Commander {\n  name\n  breakdownUrl\n  colorId\n  conversionRate(filters: $filters)\n  count(filters: $filters)\n  topCuts(filters: $filters)\n}\n"
   }
 };
 })();

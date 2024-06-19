@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<09293d1239f2372d71e34b0236d035fe>>
+ * @generated SignedSource<<cbb16c3a1fe8513a5fb73bbb44945b85>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,11 +11,12 @@
 import { Fragment, ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type commanders_CommandersTableData$data = ReadonlyArray<{
+  readonly breakdownUrl: string;
+  readonly colorId: string;
   readonly conversionRate: number;
   readonly count: number;
   readonly name: string;
   readonly topCuts: number;
-  readonly " $fragmentSpreads": FragmentRefs<"commanders_CommanderTableRow">;
   readonly " $fragmentType": "commanders_CommandersTableData";
 }>;
 export type commanders_CommandersTableData$key = ReadonlyArray<{
@@ -53,9 +54,23 @@ return {
     },
     {
       "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "breakdownUrl",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "colorId",
+      "storageKey": null
+    },
+    {
+      "alias": null,
       "args": (v0/*: any*/),
       "kind": "ScalarField",
-      "name": "topCuts",
+      "name": "conversionRate",
       "storageKey": null
     },
     {
@@ -69,13 +84,8 @@ return {
       "alias": null,
       "args": (v0/*: any*/),
       "kind": "ScalarField",
-      "name": "conversionRate",
+      "name": "topCuts",
       "storageKey": null
-    },
-    {
-      "args": null,
-      "kind": "FragmentSpread",
-      "name": "commanders_CommanderTableRow"
     }
   ],
   "type": "Commander",
@@ -83,6 +93,6 @@ return {
 };
 })();
 
-(node as any).hash = "9aa36ff41488b4b7216c1a841b500d0a";
+(node as any).hash = "60ef5f0e70e60b23153031e850177c54";
 
 export default node;
