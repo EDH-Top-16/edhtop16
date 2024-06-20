@@ -60,7 +60,9 @@ jobs:
         run: doctl databases firewalls append ${{ secrets.DIGITALOCEAN_DB_ID }} --rule ip_addr:$(curl ifconfig.me)
       - name: Deploy 3nf db
         working-directory: edhtop16/client/
-        run: npm run data-import -- --env-file=.env
+        run: |-
+          npm ci
+          npm run data-import -- --env-file=.env
       - name: Delete DigitalOcean Firewall Rules
         run: |-
           doctl database firewalls delete \
