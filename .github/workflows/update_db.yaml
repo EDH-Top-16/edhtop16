@@ -64,7 +64,8 @@ jobs:
           npm ci
           npm run data-import -- --env-file=.env
       - name: Delete DigitalOcean Firewall Rules
+        if: always()
         run: |-
           doctl database firewalls remove \
-            ${{ secrets.DIGITALOCEAN_DB_ID }} \  
+            ${{ secrets.DIGITALOCEAN_DB_ID }} \
             --uuid $(doctl database firewalls list ${{ secrets.DIGITALOCEAN_DB_ID }} | grep $(curl ifconfig.me) | awk '{print $1}')
