@@ -1,69 +1,141 @@
-import {
-  Popover,
-  DialogTrigger,
-  OverlayArrow,
-  Dialog,
-  Button,
-} from "react-aria-components";
 import cn from "classnames";
-import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { Button, Dialog, DialogTrigger, Popover } from "react-aria-components";
+import { AiOutlinePlusCircle } from "react-icons/ai";
+import { ColorSelection } from "./color_selection";
 
 export interface FilterConfiguration {
   displayName: string;
-  variableName: string;
-  selectOptions?: [string, string][];
-  selectColor?: string[];
+  variableName:
+    | string
+    | {
+        variableName: string;
+        label: string;
+        shortLabel?: string;
+        currentValue?: string;
+      }[];
   currentValue?: string;
+  label?: string;
+  inputType?: "date" | "colorId" | "number";
+  selectOptions?: [string, string][];
 }
 
 interface FilterProps {
   options: FilterConfiguration[];
-  onChange?: (variableName: string, value: string | null) => void;
+  onChange?: (nextPartialValues: Record<string, string | null>) => void;
 }
 
 export function Filters({ options, onChange }: FilterProps) {
+  const resetAll = useCallback(() => {
+    const allVariableNames = options.flatMap((o) =>
+      typeof o.variableName === "string"
+        ? [o.variableName]
+        : o.variableName.map((oo) => oo.variableName),
+    );
+
+    const nextValues = Object.fromEntries(
+      allVariableNames.map((v) => [v, null]),
+    );
+
+    onChange?.(nextValues);
+  }, [onChange, options]);
+
   return (
-    <div className="flex space-x-2">
+    <div className="flex flex-wrap gap-2">
       {options.map((option) => {
+        const activeVariableName = Array.isArray(option.variableName)
+          ? option.variableName.find((v) => v.currentValue != null)
+              ?.variableName ?? option.variableName[0].variableName
+          : option.variableName;
+
         return (
           <FilterButton
-            key={option.variableName}
+            key={activeVariableName}
             filter={option}
-            onChange={(nextValue) => {
-              onChange?.(option.variableName, nextValue);
-            }}
+            onChange={onChange}
           />
         );
       })}
+
+      <button
+        className="rounded-full bg-red-400 px-2 py-1 text-sm text-white"
+        onClick={resetAll}
+      >
+        Reset
+      </button>
     </div>
   );
 }
 
 interface FilterButtonProps {
   filter: FilterConfiguration;
-  onChange?: (next: string | null) => void;
+  onChange?: (nextPartialValues: Record<string, string | null>) => void;
 }
 
 function FilterButton({ filter: option, onChange }: FilterButtonProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
 
+  const [pendingValue, setPendingValue] = useState(
+    option.currentValue ?? option.selectOptions?.[0][1],
+  );
+
+  const defaultVariableName = useMemo(
+    () =>
+      typeof option.variableName === "string"
+        ? option.variableName
+        : option.variableName.find((v) => v.currentValue != null)
+            ?.variableName ?? option.variableName[0].variableName,
+    [option.variableName],
+  );
+
+  const [pendingVariableName, setPendingVariableName] =
+    useState(defaultVariableName);
+
+  const defaultVariableState = useMemo((): Record<string, string | null> => {
+    const allVariableNames =
+      typeof option.variableName === "string"
+        ? [option.variableName]
+        : option.variableName.map((v) => v.variableName);
+
+    return Object.fromEntries(allVariableNames.map((n) => [n, null] as const));
+  }, [option.variableName]);
+
   const handleRemove = useCallback(() => {
     triggerRef.current?.focus();
-    onChange?.(null);
-  }, [onChange]);
 
-  const [pendingValue, setPendingValue] = useState(
-    option.selectOptions?.[0][1],
-  );
+    onChange?.(defaultVariableState);
+    setPendingValue(undefined);
+    setPendingVariableName(defaultVariableName);
+  }, [defaultVariableName, defaultVariableState, onChange]);
+
+  const currentValue = useMemo(() => {
+    if (Array.isArray(option.variableName)) {
+      return option.variableName.find((v) => v.currentValue)?.currentValue;
+    }
+
+    return option.currentValue;
+  }, [option.currentValue, option.variableName]);
 
   const handleApply = useCallback(() => {
     triggerRef.current?.focus();
-    if (pendingValue) {
-      onChange?.(pendingValue);
+
+    const nextValue = pendingValue ?? currentValue;
+    if (nextValue) {
+      const nextState = { ...defaultVariableState };
+      nextState[pendingVariableName] = nextValue;
+
+      onChange?.(nextState);
       setPendingValue(undefined);
+      setPendingVariableName(defaultVariableName);
     }
-  }, [onChange, pendingValue]);
+  }, [
+    currentValue,
+    defaultVariableName,
+    defaultVariableState,
+    onChange,
+    pendingValue,
+    pendingVariableName,
+  ]);
 
   let buttonText = option.displayName;
   if (option.currentValue && option.selectOptions) {
@@ -72,6 +144,15 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
     )?.[0];
 
     if (selectedOptionText) buttonText += `: ${selectedOptionText}`;
+  } else if (option.currentValue) {
+    buttonText += `: ${option.currentValue}`;
+  } else if (Array.isArray(option.variableName)) {
+    const selected = option.variableName.find((v) => v.currentValue != null);
+    if (selected) {
+      buttonText += ` ${selected.shortLabel ?? selected.label} ${
+        selected.currentValue
+      }`;
+    }
   }
 
   return (
@@ -80,38 +161,30 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
         ref={triggerRef}
         className={cn(
           `flex items-center rounded-full border p-1 px-3 text-sm dark:border-gray dark:text-white`,
-          !!option.currentValue
+          !!currentValue
             ? "border-solid border-voilet text-cadet dark:border-gray"
             : "border-dashed border-text text-lightText dark:text-text",
         )}
       >
-        {!option.currentValue && (
+        {!currentValue && (
           <div className="mr-1">
             <AiOutlinePlusCircle />
           </div>
         )}
 
         {buttonText}
-
-        {option.currentValue && (
-          <div
-            className="ml-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleRemove();
-            }}
-          >
-            <AiOutlineClose />
-          </div>
-        )}
       </Button>
 
       <Popover offset={0}>
         <Dialog className="flex max-w-[250px] flex-col gap-2 rounded-xl bg-white p-4 shadow-modal outline-0 dark:bg-cadet">
           {option.selectOptions && (
-            <div className="flex-col">
+            <div className="flex flex-col space-y-1">
+              {option.label && (
+                <label className="text-white">{option.label}</label>
+              )}
+
               <select
-                value={pendingValue ?? option.currentValue}
+                value={pendingValue || option.currentValue}
                 onChange={(e) => {
                   setPendingValue(e.target.value);
                 }}
@@ -126,6 +199,48 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
             </div>
           )}
 
+          {option.inputType === "colorId" && (
+            <ColorSelection
+              selected={(pendingValue ?? option.currentValue ?? "").split("")}
+              onChange={(next) => {
+                setPendingValue(next.join(""));
+              }}
+            />
+          )}
+
+          {(option.inputType === "number" || option.inputType === "date") && (
+            <>
+              <label htmlFor="filter-number-input" className="text-white">
+                {option.label ?? option.displayName}
+              </label>
+
+              {Array.isArray(option.variableName) && (
+                <select
+                  value={pendingVariableName}
+                  onChange={(e) => {
+                    setPendingVariableName(e.target.value);
+                  }}
+                  className="rounded-lg border-2 border-solid border-transparent px-2 py-2 text-sm focus:border-accent focus-visible:outline-none"
+                >
+                  {option.variableName.map(({ label, variableName }) => (
+                    <option key={variableName} value={variableName}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              <input
+                type={option.inputType}
+                id="filter-number-input"
+                value={pendingValue ?? currentValue}
+                onChange={(e) => {
+                  setPendingValue(e.target.value);
+                }}
+              />
+            </>
+          )}
+
           <div className="flex flex-row flex-wrap gap-2">
             <button
               onClick={handleApply}
@@ -137,7 +252,7 @@ function FilterButton({ filter: option, onChange }: FilterButtonProps) {
               className="flex-grow rounded-lg bg-highlight p-2 text-sm dark:text-white"
               onClick={handleRemove}
             >
-              Clear
+              Reset
             </button>
           </div>
         </Dialog>

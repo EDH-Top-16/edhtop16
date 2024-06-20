@@ -3,74 +3,49 @@ import {
   parseQuery,
   useQueryParams,
 } from "@reverecre/next-query-params";
-import cn from "classnames";
-import { PropsWithChildren } from "react";
+import Head from "next/head";
+import { PropsWithChildren, useMemo } from "react";
 import { graphql, useFragment, usePreloadedQuery } from "react-relay/hooks";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { Banner } from "../../components/banner/banner";
-import { Entry } from "../../components/entry";
 import { Navigation } from "../../components/nav";
+import { Table, TableColumnConfig } from "../../components/table";
 import { getClientEnvironment } from "../../lib/client/relay_client_environment";
-import { commanders_CommanderTableRow$key } from "../../queries/__generated__/commanders_CommanderTableRow.graphql";
-import { commanders_CommandersQuery } from "../../queries/__generated__/commanders_CommandersQuery.graphql";
+import {
+  CommanderSortBy,
+  SortDirection,
+  commanders_CommandersQuery,
+} from "../../queries/__generated__/commanders_CommandersQuery.graphql";
 import { commanders_CommandersTableData$key } from "../../queries/__generated__/commanders_CommandersTableData.graphql";
 
-function CommandersTableColumnHeader({
-  hideOnMobile,
-  children,
-  ...props
-}: PropsWithChildren<{ id?: string; hideOnMobile?: boolean }>) {
-  const sortDirection = undefined;
+const COMMANDERS_TABLE_COLUMN_CONFIG: TableColumnConfig[] = [
+  {
+    id: "name",
+    displayName: "Commander",
+    sortVariable: "NAME",
+  },
+  {
+    id: "count",
+    displayName: "Top 16s",
+    sortVariable: "TOP_CUTS",
+  },
+  {
+    id: "entries",
+    displayName: "Entries",
+    sortVariable: "ENTRIES",
+  },
 
-  return (
-    <th
-      className={cn("text-left", {
-        "hidden lg:table-cell": hideOnMobile,
-        "hover:cursor-pointer": true,
-      })}
-      {...props}
-    >
-      {children}
-      <span className={cn("ml-1", { invisible: sortDirection == null })}>
-        {sortDirection === "ascending" ? "⬆️" : "⬇️"}
-      </span>
-    </th>
-  );
-}
-
-function CommandersTableRow({
-  rank,
-  ...props
-}: {
-  rank: number;
-  commander: commanders_CommanderTableRow$key;
-}) {
-  const commander = useFragment(
-    graphql`
-      fragment commanders_CommanderTableRow on Commander {
-        name
-        colorId
-        count(filters: $filters)
-        topCuts(filters: $filters)
-        conversionRate(filters: $filters)
-      }
-    `,
-    props.commander,
-  );
-
-  return (
-    <Entry
-      rank={rank}
-      name={commander.name}
-      metadata={[
-        ["Top X", commander.topCuts],
-        ["Entries", commander.count],
-        ["Conversion", `${Math.round(commander.conversionRate * 100)}%`, false],
-      ]}
-      colorIdentity={commander.colorId}
-    />
-  );
-}
+  {
+    id: "conversion",
+    displayName: "Conversion",
+    sortVariable: "CONVERSION",
+    showOnMobile: false,
+  },
+  {
+    id: "colors",
+    displayName: "Colors",
+  },
+];
 
 function CommandersTable(props: {
   commanders: commanders_CommandersTableData$key;
@@ -80,54 +55,52 @@ function CommandersTable(props: {
       fragment commanders_CommandersTableData on Commander
       @relay(plural: true) {
         name
-        topCuts(filters: $filters)
-        count(filters: $filters)
+        breakdownUrl
+        colorId
         conversionRate(filters: $filters)
-
-        ...commanders_CommanderTableRow
+        count(filters: $filters)
+        topCuts(filters: $filters)
       }
     `,
     props.commanders,
   );
 
   return (
-    <table className="w-full border-separate border-spacing-y-3">
-      <thead>
-        <tr>
-          <CommandersTableColumnHeader hideOnMobile id="rank">
-            Rank
-          </CommandersTableColumnHeader>
-          <CommandersTableColumnHeader>
-            <span className="hidden lg:inline">Commander</span>
-          </CommandersTableColumnHeader>
-          <CommandersTableColumnHeader hideOnMobile id="count">
-            Top 16s
-          </CommandersTableColumnHeader>
-          <CommandersTableColumnHeader hideOnMobile id="entries">
-            Entries
-          </CommandersTableColumnHeader>
-          <CommandersTableColumnHeader hideOnMobile id="conversion">
-            Conversion
-          </CommandersTableColumnHeader>
-          <CommandersTableColumnHeader hideOnMobile>
-            Colors
-          </CommandersTableColumnHeader>
-        </tr>
-      </thead>
-      <tbody>
-        {commanders.map((c, i) => {
-          return <CommandersTableRow key={c.name} rank={i + 1} commander={c} />;
-        })}
-      </tbody>
-    </table>
+    <Table
+      columns={COMMANDERS_TABLE_COLUMN_CONFIG}
+      data={commanders.map((c) => {
+        return {
+          id: c.name,
+          name: c.name,
+          href: c.breakdownUrl,
+          colorIdentity: c.colorId,
+          metadata: {
+            count: c.topCuts,
+            entries: c.count,
+            conversion: `${Math.round(c.conversionRate * 10000) / 100}%`,
+          },
+        };
+      })}
+    />
   );
 }
 
 function CommandersPageShell({ children }: PropsWithChildren<{}>) {
   const [queryParams, updateQueryParams] = useQueryParams({
     minSize: QueryParamKind.STRING,
-    standing: QueryParamKind.STRING,
+    maxSize: QueryParamKind.STRING,
+    minEntries: QueryParamKind.STRING,
+    maxEntries: QueryParamKind.STRING,
+    minDate: QueryParamKind.STRING,
+    maxDate: QueryParamKind.STRING,
+    colorId: QueryParamKind.STRING,
   });
+
+  const oneYearAgo = useMemo(() => {
+    const now = new Date();
+    now.setUTCFullYear(now.getUTCFullYear() - 1);
+    return now.toISOString().split("T")[0];
+  }, []);
 
   return (
     <div className="flex h-screen w-screen bg-secondary">
@@ -138,18 +111,76 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
           enableSearchbar
           filters={[
             {
-              displayName: "Tournament Size",
-              variableName: "minSize",
-              currentValue: queryParams.minSize,
-              selectOptions: [
-                ["≥ 64", "64"],
-                ["≥ 128", "128"],
-                ["≥ 256", "256"],
+              displayName: "Colors",
+              variableName: "colorId",
+              currentValue: queryParams.colorId,
+              inputType: "colorId",
+            },
+            {
+              displayName: "Entries",
+              label: "Entries",
+              variableName: [
+                {
+                  variableName: "minEntries",
+                  label: "is greater than (≥)",
+                  shortLabel: "≥",
+                  currentValue: queryParams.minEntries,
+                },
+                {
+                  variableName: "maxEntries",
+                  label: "is less than (≤)",
+                  shortLabel: "≤",
+                  currentValue: queryParams.maxEntries,
+                },
               ],
+              inputType: "number",
+            },
+            {
+              displayName: "Tournament Size",
+              label: "Tournament Size",
+              variableName: [
+                {
+                  variableName: "minSize",
+                  label: "is greater than (≥)",
+                  shortLabel: "≥",
+                  currentValue:
+                    queryParams.minSize == null && queryParams.maxSize == null
+                      ? "64"
+                      : queryParams.minSize,
+                },
+                {
+                  variableName: "maxSize",
+                  label: "is less than (≤)",
+                  shortLabel: "≤",
+                  currentValue: queryParams.maxSize,
+                },
+              ],
+              inputType: "number",
+            },
+            {
+              displayName: "Tournament Date",
+              variableName: [
+                {
+                  variableName: "minDate",
+                  label: "is after (≥)",
+                  shortLabel: "≥",
+                  currentValue:
+                    queryParams.minDate == null && queryParams.maxDate == null
+                      ? oneYearAgo
+                      : queryParams.minDate,
+                },
+                {
+                  variableName: "maxDate",
+                  label: "is before (≤)",
+                  shortLabel: "≤",
+                  currentValue: queryParams.maxDate,
+                },
+              ],
+              inputType: "date",
             },
           ]}
-          onFilterChange={(variable, value) => {
-            updateQueryParams({ [variable]: value });
+          onFilterChange={(nextValues) => {
+            updateQueryParams(nextValues as any);
           }}
         />
 
@@ -162,8 +193,12 @@ function CommandersPageShell({ children }: PropsWithChildren<{}>) {
 }
 
 const CommandersQuery = graphql`
-  query commanders_CommandersQuery($filters: Filters) {
-    commanders(filters: $filters) {
+  query commanders_CommandersQuery(
+    $filters: Filters
+    $sortBy: CommanderSortBy
+    $sortDir: SortDirection
+  ) {
+    commanders(filters: $filters, sortBy: $sortBy, sortDir: $sortDir) {
       ...commanders_CommandersTableData
     }
   }
@@ -175,14 +210,23 @@ function CommandersPage({
   const { commanders } = usePreloadedQuery(CommandersQuery, preloadedQuery);
 
   return (
-    <CommandersPageShell>
-      <CommandersTable commanders={commanders} />
-    </CommandersPageShell>
+    <>
+      <Head>
+        <title>EDH Top16</title>
+      </Head>
+      <CommandersPageShell>
+        <CommandersTable commanders={commanders} />
+      </CommandersPageShell>
+    </>
   );
 }
 
 export default withRelay(CommandersPage, CommandersQuery, {
-  fallback: <CommandersPageShell />,
+  fallback: (
+    <CommandersPageShell>
+      <Table columns={COMMANDERS_TABLE_COLUMN_CONFIG} />
+    </CommandersPageShell>
+  ),
   createClientEnvironment: () => getClientEnvironment()!,
   createServerEnvironment: async (ctx) => {
     const { createServerEnvironment } = await import(
@@ -192,10 +236,43 @@ export default withRelay(CommandersPage, CommandersQuery, {
     return createServerEnvironment();
   },
   variablesFromContext: (ctx) => {
-    const filters = parseQuery(ctx.query, {
+    let { sortBy, sortDir, ...filters } = parseQuery(ctx.query, {
+      sortBy: QueryParamKind.STRING,
+      sortDir: QueryParamKind.STRING,
       minSize: QueryParamKind.NUMBER,
+      minEntries: QueryParamKind.NUMBER,
+      minDate: QueryParamKind.STRING,
+      maxSize: QueryParamKind.NUMBER,
+      maxEntries: QueryParamKind.NUMBER,
+      maxDate: QueryParamKind.STRING,
+      colorId: QueryParamKind.STRING,
     });
 
-    return { filters };
+    if (filters.minSize == null && filters.maxSize == null) {
+      filters = { ...filters, minSize: 64 };
+    }
+
+    if (filters.minDate == null && filters.maxDate == null) {
+      const now = new Date();
+      now.setUTCFullYear(now.getUTCFullYear() - 1);
+      filters = { ...filters, minDate: now.toISOString().split("T")[0] };
+    }
+
+    if (
+      (sortBy != null && !isSortBy(sortBy)) ||
+      (sortDir != null && !isSortDir(sortDir))
+    ) {
+      return { filters };
+    }
+
+    return { sortBy, sortDir, filters };
   },
 });
+
+function isSortBy(s: string): s is CommanderSortBy {
+  return ["ENTRIES", "TOP_CUTS", "NAME", "CONVERSION"].includes(s);
+}
+
+function isSortDir(s: string): s is SortDirection {
+  return ["ASC", "DESC"].includes(s);
+}

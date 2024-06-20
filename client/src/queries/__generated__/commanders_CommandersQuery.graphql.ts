@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<48a67cafd1aa540e6143fb88ac88d0df>>
+ * @generated SignedSource<<07beba7e8a554628cdfeab65d7f08358>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,8 +10,13 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
+export type CommanderSortBy = "CONVERSION" | "ENTRIES" | "NAME" | "TOP_CUTS" | "%future added value";
+export type SortDirection = "ASC" | "DESC" | "%future added value";
 export type Filters = {
   colorId?: string | null | undefined;
+  maxDate?: string | null | undefined;
+  maxEntries?: number | null | undefined;
+  maxSize?: number | null | undefined;
   minDate?: string | null | undefined;
   minEntries?: number | null | undefined;
   minSize?: number | null | undefined;
@@ -19,6 +24,8 @@ export type Filters = {
 };
 export type commanders_CommandersQuery$variables = {
   filters?: Filters | null | undefined;
+  sortBy?: CommanderSortBy | null | undefined;
+  sortDir?: SortDirection | null | undefined;
 };
 export type commanders_CommandersQuery$data = {
   readonly commanders: ReadonlyArray<{
@@ -36,14 +43,38 @@ var v0 = [
     "defaultValue": null,
     "kind": "LocalArgument",
     "name": "filters"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "sortBy"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "sortDir"
   }
 ],
-v1 = [
+v1 = {
+  "kind": "Variable",
+  "name": "filters",
+  "variableName": "filters"
+},
+v2 = [
+  (v1/*: any*/),
   {
     "kind": "Variable",
-    "name": "filters",
-    "variableName": "filters"
+    "name": "sortBy",
+    "variableName": "sortBy"
+  },
+  {
+    "kind": "Variable",
+    "name": "sortDir",
+    "variableName": "sortDir"
   }
+],
+v3 = [
+  (v1/*: any*/)
 ];
 return {
   "fragment": {
@@ -54,7 +85,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v2/*: any*/),
         "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "commanders",
@@ -80,7 +111,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v2/*: any*/),
         "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "commanders",
@@ -95,23 +126,9 @@ return {
           },
           {
             "alias": null,
-            "args": (v1/*: any*/),
+            "args": null,
             "kind": "ScalarField",
-            "name": "topCuts",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": (v1/*: any*/),
-            "kind": "ScalarField",
-            "name": "count",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": (v1/*: any*/),
-            "kind": "ScalarField",
-            "name": "conversionRate",
+            "name": "breakdownUrl",
             "storageKey": null
           },
           {
@@ -119,6 +136,27 @@ return {
             "args": null,
             "kind": "ScalarField",
             "name": "colorId",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": (v3/*: any*/),
+            "kind": "ScalarField",
+            "name": "conversionRate",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": (v3/*: any*/),
+            "kind": "ScalarField",
+            "name": "count",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": (v3/*: any*/),
+            "kind": "ScalarField",
+            "name": "topCuts",
             "storageKey": null
           },
           {
@@ -134,16 +172,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "83fb0a337a6609743ddfbf8571795f25",
+    "cacheID": "02997e5bda69b8bf10f871a64074fc01",
     "id": null,
     "metadata": {},
     "name": "commanders_CommandersQuery",
     "operationKind": "query",
-    "text": "query commanders_CommandersQuery(\n  $filters: Filters\n) {\n  commanders(filters: $filters) {\n    ...commanders_CommandersTableData\n    id\n  }\n}\n\nfragment commanders_CommanderTableRow on Commander {\n  name\n  colorId\n  count(filters: $filters)\n  topCuts(filters: $filters)\n  conversionRate(filters: $filters)\n}\n\nfragment commanders_CommandersTableData on Commander {\n  name\n  topCuts(filters: $filters)\n  count(filters: $filters)\n  conversionRate(filters: $filters)\n  ...commanders_CommanderTableRow\n}\n"
+    "text": "query commanders_CommandersQuery(\n  $filters: Filters\n  $sortBy: CommanderSortBy\n  $sortDir: SortDirection\n) {\n  commanders(filters: $filters, sortBy: $sortBy, sortDir: $sortDir) {\n    ...commanders_CommandersTableData\n    id\n  }\n}\n\nfragment commanders_CommandersTableData on Commander {\n  name\n  breakdownUrl\n  colorId\n  conversionRate(filters: $filters)\n  count(filters: $filters)\n  topCuts(filters: $filters)\n}\n"
   }
 };
 })();
 
-(node as any).hash = "c096d0d469518b6550e05e9045211855";
+(node as any).hash = "87806fefab79fcdec02c8527c44d0ea0";
 
 export default node;

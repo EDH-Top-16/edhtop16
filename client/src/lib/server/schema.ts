@@ -1,9 +1,9 @@
 import SchemaBuilder from "@pothos/core";
 import PrismaPlugin from "@pothos/plugin-prisma";
 import type PrismaTypes from "@pothos/plugin-prisma/generated";
-import { prisma } from "./prisma";
 import { Commander, Entry, Prisma } from "@prisma/client";
 import DataLoader from "dataloader";
+import { prisma } from "./prisma";
 import {
   TopdeckClient,
   TopdeckTournamentRound,
@@ -16,6 +16,9 @@ interface CommanderStatsQuery {
   minSize: number;
   minEntries: number;
   minDate: Date;
+  maxSize: number;
+  maxEntries: number;
+  maxDate: Date;
 }
 
 interface CommanderCalculatedStats {
@@ -29,7 +32,16 @@ function createCommanderStatsLoader() {
     async (commanders) => {
       const stats = await Promise.all(
         commanders.map(
-          async ({ uuid, topCut, minSize, minEntries, minDate }) => {
+          async ({
+            uuid,
+            topCut,
+            minSize,
+            minEntries,
+            minDate,
+            maxDate,
+            maxEntries,
+            maxSize,
+          }) => {
             return prisma.$queryRaw<(Commander & CommanderCalculatedStats)[]>`
               select
                 c.*,
@@ -40,11 +52,14 @@ function createCommanderStatsLoader() {
               left join "Entry" e on c.uuid = e."commanderUuid"
               left join "Tournament" t on t.uuid = e."tournamentUuid"
               where t.size >= ${minSize}
+              and t.size <= ${maxSize}
               and t."topCut" >= ${topCut}
               and t."tournamentDate" >= ${minDate}
+              and t."tournamentDate" <= ${maxDate}
               and c.uuid = ${uuid}::uuid
               group by c.uuid
-              having count(c.uuid) > ${minEntries}
+              having count(c.uuid) >= ${minEntries}
+              and count(c.uuid) <= ${maxEntries}
             `;
           },
         ),
@@ -129,10 +144,13 @@ const builder = new SchemaBuilder<{
 const FiltersInput = builder.inputType("Filters", {
   fields: (t) => ({
     topCut: t.int(),
+    colorId: t.string(),
     minSize: t.int(),
     minEntries: t.int(),
-    colorId: t.string(),
     minDate: t.string(),
+    maxSize: t.int(),
+    maxEntries: t.int(),
+    maxDate: t.string(),
   }),
 });
 
@@ -242,15 +260,25 @@ builder.prismaObject("Commander", {
         orderBy: { standing: "asc" },
       },
     }),
+    breakdownUrl: t.string({
+      resolve: (parent) =>
+        new URL(
+          `/commander/${encodeURIComponent(parent.name)}`,
+          "https://edhtop16.com",
+        ).href,
+    }),
     count: t.int({
       args: { filters: t.arg({ type: FiltersInput }) },
       resolve: async (parent, { filters }, ctx) => {
         const { count } = await ctx.commanderStats.load({
           uuid: parent.uuid,
-          topCut: filters?.topCut ?? 16,
-          minSize: filters?.minSize ?? 64,
-          minEntries: filters?.minEntries ?? 10,
+          topCut: filters?.topCut ?? 0,
+          minSize: filters?.minSize ?? 0,
+          minEntries: filters?.minEntries ?? 0,
           minDate: new Date(filters?.minDate ?? 0),
+          maxSize: filters?.maxSize ?? Number.MAX_SAFE_INTEGER,
+          maxEntries: filters?.maxEntries ?? Number.MAX_SAFE_INTEGER,
+          maxDate: filters?.maxDate ? new Date(filters.maxDate) : new Date(),
         });
 
         return count;
@@ -261,10 +289,13 @@ builder.prismaObject("Commander", {
       resolve: async (parent, { filters }, ctx) => {
         const { topCuts } = await ctx.commanderStats.load({
           uuid: parent.uuid,
-          topCut: filters?.topCut ?? 16,
-          minSize: filters?.minSize ?? 64,
-          minEntries: filters?.minEntries ?? 10,
+          topCut: filters?.topCut ?? 0,
+          minSize: filters?.minSize ?? 0,
+          minEntries: filters?.minEntries ?? 0,
           minDate: new Date(filters?.minDate ?? 0),
+          maxSize: filters?.maxSize ?? Number.MAX_SAFE_INTEGER,
+          maxEntries: filters?.maxEntries ?? Number.MAX_SAFE_INTEGER,
+          maxDate: filters?.maxDate ? new Date(filters.maxDate) : new Date(),
         });
 
         return topCuts;
@@ -275,10 +306,13 @@ builder.prismaObject("Commander", {
       resolve: async (parent, { filters }, ctx) => {
         const { conversionRate } = await ctx.commanderStats.load({
           uuid: parent.uuid,
-          topCut: filters?.topCut ?? 16,
-          minSize: filters?.minSize ?? 64,
-          minEntries: filters?.minEntries ?? 10,
+          topCut: filters?.topCut ?? 0,
+          minSize: filters?.minSize ?? 0,
+          minEntries: filters?.minEntries ?? 0,
           minDate: new Date(filters?.minDate ?? 0),
+          maxSize: filters?.maxSize ?? Number.MAX_SAFE_INTEGER,
+          maxEntries: filters?.maxEntries ?? Number.MAX_SAFE_INTEGER,
+          maxDate: filters?.maxDate ? new Date(filters.maxDate) : new Date(),
         });
 
         return conversionRate;
@@ -440,7 +474,7 @@ const TournamentType = builder.prismaObject("Tournament", {
 });
 
 const CommanderSortBy = builder.enumType("CommanderSortBy", {
-  values: ["COUNT", "TOP_CUTS"] as const,
+  values: ["ENTRIES", "TOP_CUTS", "NAME", "CONVERSION"] as const,
 });
 
 const SortDirection = builder.enumType("SortDirection", {
@@ -476,10 +510,15 @@ builder.queryType({
         sortDir: t.arg({ type: SortDirection, defaultValue: "DESC" }),
       },
       resolve: async (query, _root, args, ctx) => {
-        const minSize = args.filters?.minSize ?? 64;
-        const topCut = args.filters?.topCut ?? 16;
-        const minEntries = args.filters?.minEntries ?? 10;
+        const minSize = args.filters?.minSize ?? 0;
+        const topCut = args.filters?.topCut ?? 0;
+        const minEntries = args.filters?.minEntries ?? 0;
         const minDate = new Date(args.filters?.minDate ?? 0);
+        const maxSize = args.filters?.maxSize ?? Number.MAX_SAFE_INTEGER;
+        const maxEntries = args.filters?.maxEntries ?? Number.MAX_SAFE_INTEGER;
+        const maxDate = args.filters?.maxDate
+          ? new Date(args.filters.maxDate)
+          : new Date();
         const colorIdFilter =
           "%" +
           (args.filters?.colorId ?? "")
@@ -500,17 +539,30 @@ builder.queryType({
           left join "Entry" e on c.uuid = e."commanderUuid"
           left join "Tournament" t on t.uuid = e."tournamentUuid"
           where t.size >= ${minSize}
+          and t.size <= ${maxSize}
           and t."topCut" >= ${topCut}
           and t."tournamentDate" >= ${minDate}
+          and t."tournamentDate" <= ${maxDate}
           and c."colorId" like ${colorIdFilter}
+          and c."name" != 'Unknown Commander'
           group by c.uuid
-          having count(c.uuid) > ${minEntries}
+          having count(c.uuid) >= ${minEntries}
+          and count(c.uuid) <= ${maxEntries}
           order by "topCuts" desc
         `;
 
         for (const { uuid, topCuts, conversionRate, count } of commanderStats) {
           ctx.commanderStats.prime(
-            { uuid, topCut, minSize, minEntries, minDate },
+            {
+              uuid,
+              topCut,
+              minSize,
+              minEntries,
+              minDate,
+              maxDate,
+              maxEntries,
+              maxSize,
+            },
             { conversionRate, topCuts, count },
           );
         }
@@ -520,8 +572,26 @@ builder.queryType({
             ? (a: number, b: number) => a - b
             : (a: number, b: number) => b - a;
 
-        if (args.sortBy === "COUNT") {
+        if (args.sortBy === "TOP_CUTS") {
+          commanderStats.sort((a, b) => sortOperator(a.topCuts, b.topCuts));
+        } else if (args.sortBy === "ENTRIES") {
           commanderStats.sort((a, b) => sortOperator(a.count, b.count));
+        } else if (args.sortBy === "CONVERSION") {
+          commanderStats.sort((a, b) =>
+            sortOperator(a.conversionRate, b.conversionRate),
+          );
+        } else if (args.sortBy === "NAME") {
+          commanderStats.sort((a, b) =>
+            args.sortDir === "ASC"
+              ? a.name.localeCompare(b.name, "en", {
+                  sensitivity: "base",
+                  usage: "sort",
+                })
+              : b.name.localeCompare(a.name, "en", {
+                  sensitivity: "base",
+                  usage: "sort",
+                }),
+          );
         }
 
         return commanderStats;

@@ -74,7 +74,9 @@ function Suggestions({ search }: { search: string }) {
       {suggestions.slice(0, 20).map((suggestion) => (
         <Link
           key={suggestion}
-          href={`/commander/${encodeURIComponent(suggestion)}`}
+          href={`https://edhtop16.com/commander/${encodeURIComponent(
+            suggestion,
+          )}`}
         >
           <li
             className="px-4 py-1 text-white hover:bg-select dark:text-gray"
