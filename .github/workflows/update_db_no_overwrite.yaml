@@ -1,0 +1,12 @@
+name: Update Database - Nightly, No Overwrite
+
+on:
+  schedule:
+    - cron: "30 3 * * 2-6,0" # This runs 3:30 AM UTC = 11:30 PM EDT every non-Monday
+
+jobs:
+  update_db:
+    uses: ./.github/workflows/update_db.yaml@main
+    with:
+      overwrite_existing_unknown: false
+    secrets: inherit

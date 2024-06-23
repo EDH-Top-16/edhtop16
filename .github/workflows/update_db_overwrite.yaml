@@ -1,0 +1,12 @@
+name: Update Database - Mondays, Overwrite
+
+on:
+  schedule:
+    - cron: "30 3 * * 1" # This runs 3:30 AM UTC = 11:30 PM EDT every Monday
+
+jobs:
+  update_db:
+    uses: ./.github/workflows/update_db.yaml@main
+    with:
+      overwrite_existing_unknown: true
+    secrets: inherit

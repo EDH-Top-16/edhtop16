@@ -9,6 +9,7 @@ import requests
 import datetime
 import json
 import sys
+from dotenv import dotenv_values
 
 # -o overwrite tournaments, even if the db already contains them.
 overwrite_tourneys = True if "-o" in sys.argv else False
@@ -20,10 +21,12 @@ with open("./eminence_api_key.txt", "r") as f:
 
 def fetch_tournaments(filters=None):
     data = {
-        "last": 365,  # TODO: CHANGE THIS TO A REASONABLE NUMBER WHEN ATTACHING TO CRON JOB
+        "game": "Magic: The Gathering",
+        "format": "EDH",
         "columns": [
             "name",
             "profile",
+            "id",
             "decklist",
             "wins",
             "winsSwiss",
@@ -48,12 +51,17 @@ def fetch_tournaments(filters=None):
         "Accept": "application/json",
     }
 
-    r = requests.post("https://topdeck.gg/api", json=data, headers=headers)
+    # r = requests.post("https://topdeck.gg/api", json=data, headers=headers)
+    r = requests.post(
+        "https://topdeck.gg/api/v2/tournaments", json=data, headers=headers
+    )
+    if r.status_code != 200:
+        raise Exception(f"Error {r.status_code} -- {r.text}")
     return json.loads(r.text)
 
 
 if __name__ == "__main__":
-    client = MongoClient("mongodb://localhost:27017")
+    client = MongoClient(dotenv_values("./config.env")["ATLAS_URI"])
 
     db = client["cedhtop16"]
 
@@ -68,17 +76,17 @@ if __name__ == "__main__":
 
     try:
         tournaments = fetch_tournaments(
-            {"last": 356000} if overwrite_tourneys else None
+            {"start": 0} if overwrite_tourneys else {"last": 30}
         )
-    except:
+    except Exception as e:
         print(
-            f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while fetching tournaments from Eminence."
+            f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while fetching tournaments from Topdeck: {e}"
         )
         exit()
 
     for tourney in tournaments:
         try:
-            if not tourney["standings"][0]:
+            if (not tourney["standings"]) or (not tourney["standings"][0]):
                 print(
                     f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Warning - empty standings for '{tourney['TID']}'."
                 )
@@ -86,7 +94,17 @@ if __name__ == "__main__":
             if tourney["TID"] not in existing_tourneys:
                 for i, j in enumerate(tourney["standings"]):
                     j.update({"standing": i + 1})
-                standings = [i for i in tourney["standings"] if i["decklist"]]
+                standings = [
+                    {
+                        **entry,
+                        "decklist": entry.get("decklist", None),
+                        "profile": entry.get("profile", entry.get("id", None)),
+                    }
+                    for entry in tourney["standings"]
+                ]
+                for entry in standings:
+                    entry.pop("id", None)
+
                 if standings:
                     db["metadata"].insert_one(
                         {
@@ -98,9 +116,11 @@ if __name__ == "__main__":
                             ),
                             "size": len(tourney["standings"]),
                             "date": datetime.datetime.fromtimestamp(
-                                tourney["dateCreated"]
+                                tourney.get("startDate", tourney.get("dateCreated"))
                             ),
-                            "dateCreated": tourney["dateCreated"],
+                            "dateCreated": tourney.get(
+                                "startDate", tourney.get("dateCreated")
+                            ),
                             "swissNum": tourney["swissNum"],
                             "topCut": tourney["topCut"],
                         }
@@ -110,7 +130,17 @@ if __name__ == "__main__":
                 # db[tourney['TID']].drop()
                 for i, j in enumerate(tourney["standings"]):
                     j.update({"standing": i + 1})
-                standings = [i for i in tourney["standings"] if i["decklist"]]
+                standings = [
+                    {
+                        **entry,
+                        "decklist": entry.get("decklist", None),
+                        "profile": entry.get("profile", entry.get("id", None)),
+                    }
+                    for entry in tourney["standings"]
+                ]
+                for entry in standings:
+                    entry.pop("id", None)
+
                 if standings:
                     db["metadata"].update_one(
                         {"TID": tourney["TID"]},
@@ -123,11 +153,13 @@ if __name__ == "__main__":
                                 ),
                                 "size": len(tourney["standings"]),
                                 "date": datetime.datetime.fromtimestamp(
-                                    tourney["dateCreated"]
+                                    tourney.get("startDate", tourney.get("dateCreated"))
                                 ),
-                                "dateCreated": tourney["dateCreated"],
+                                "dateCreated": tourney.get(
+                                    "startDate", tourney.get("dateCreated")
+                                ),
                                 "swissNum": tourney["swissNum"],
-                                "topCut": tourney["topCut"],
+                                "topCut": tourney.get("topCut", None),
                             }
                         },
                     )
@@ -138,10 +170,10 @@ if __name__ == "__main__":
                             upsert=True,
                         )
 
-        except:
+        except Exception as e:
             if "TID" in tourney.keys():
                 print(
-                    f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data to collection '{tourney['TID']}'."
+                    f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data to collection '{tourney['TID']}'. Error: {e}"
                 )
             else:
                 print(

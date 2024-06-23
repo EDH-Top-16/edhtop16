@@ -1,0 +1,82 @@
+name: Update Database
+
+on:
+  workflow_call:
+    inputs:
+      overwrite_existing_unknown:
+        type: boolean
+        default: false
+        description: Overwrite existing tournaments with what topdeck gives, and re-query 'Unknown Commander' values when assigning commanders
+    secrets:
+      MTG_API_PAT:
+      DIGITALOCEAN_ACCESS_TOKEN:
+      TOPDECK_API_KEY:
+      ATLAS_URI:
+      DIGITALOCEAN_DB_ID:
+      PSQL_CONN_STRING:
+
+jobs:
+  update_db:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v4
+        with:
+          path: edhtop16/
+
+      - name: Checkout private library
+        uses: actions/checkout@v4
+        with:
+          repository: EDH-Top-16/mtg_api
+          token: ${{ secrets.MTG_API_PAT }}
+          sparse-checkout: |-
+            mtg_api.py
+          sparse-checkout-cone-mode: false
+          path: mtg_api/
+          ref: main
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Copy files to same working directory
+        run: |-
+          cp mtg_api/mtg_api.py edhtop16/server/scripts/
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Install Dependencies
+        working-directory: edhtop16/server/scripts/
+        run: pip install -r requirements.txt
+
+      - name: Copy Secrets
+        working-directory: edhtop16/server/scripts/
+        run: |-
+          echo "${{ secrets.TOPDECK_API_KEY }}" > eminence_api_key.txt
+          echo "ATLAS_URI=${{ secrets.ATLAS_URI }}" > config.env
+
+      - name: Run get_tournaments.py
+        working-directory: edhtop16/server/scripts/
+        run: python get_tournaments.py ${{ inputs.overwrite_existing_unknown && '-o' || '' }}
+      - name: Run get_commanders.py
+        working-directory: edhtop16/server/scripts/
+        run: python get_commanders.py ${{ inputs.overwrite_existing_unknown && '-u' || '' }}
+
+      - name: Copy Secrets
+        working-directory: edhtop16/client/
+        run: |-
+          echo 'ENTRIES_DB_URL="${{ secrets.ATLAS_URI }}"' > .env
+          echo 'DATABASE_URL="${{ secrets.PSQL_CONN_STRING }}"' >> .env
+      - name: Configure DigitalOcean Firewall Rules
+        run: doctl databases firewalls append ${{ secrets.DIGITALOCEAN_DB_ID }} --rule ip_addr:$(curl ifconfig.me)
+      - name: Deploy 3nf db
+        working-directory: edhtop16/client/
+        run: |-
+          npm ci
+          npm run data-import -- --env-file=.env
+      - name: Delete DigitalOcean Firewall Rules
+        if: always()
+        run: |-
+          doctl database firewalls remove \
+            ${{ secrets.DIGITALOCEAN_DB_ID }} \
+            --uuid $(doctl database firewalls list ${{ secrets.DIGITALOCEAN_DB_ID }} | grep $(curl ifconfig.me) | awk '{print $1}')
