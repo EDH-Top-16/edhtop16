@@ -1,8 +1,19 @@
 name: Update Database
 
 on:
-  push:
-    branches: gh_actions #TODO: change this to cron when done
+  workflow_call:
+    inputs:
+      overwrite_existing_unknown:
+        type: boolean
+        default: false
+        description: Overwrite existing tournaments with what topdeck gives, and re-query 'Unknown Commander' values when assigning commanders
+    secrets:
+      MTG_API_PAT:
+      DIGITALOCEAN_ACCESS_TOKEN:
+      TOPDECK_API_KEY:
+      ATLAS_URI:
+      DIGITALOCEAN_DB_ID:
+      PSQL_CONN_STRING:
 
 jobs:
   update_db:
@@ -46,10 +57,10 @@ jobs:
 
       - name: Run get_tournaments.py
         working-directory: edhtop16/server/scripts/
-        run: python get_tournaments.py
+        run: python get_tournaments.py ${{ inputs.overwrite_existing_unknown && '-o' || '' }}
       - name: Run get_commanders.py
         working-directory: edhtop16/server/scripts/
-        run: python get_commanders.py
+        run: python get_commanders.py ${{ inputs.overwrite_existing_unknown && '-u' || '' }}
 
       - name: Copy Secrets
         working-directory: edhtop16/client/
