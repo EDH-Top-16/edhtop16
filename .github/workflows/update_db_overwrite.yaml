@@ -6,7 +6,7 @@ on:
 
 jobs:
   update_db:
-    uses: ./.github/workflows/update_db.yaml@main
+    uses: ./.github/workflows/update_db.yaml
     with:
       overwrite_existing_unknown: true
     secrets: inherit
