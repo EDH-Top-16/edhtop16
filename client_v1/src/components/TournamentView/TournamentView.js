@@ -47,7 +47,7 @@ const TERMS = [
 export default function TournamentView() {
   const defaultFilters = {
     tourney_filter: {
-      size: { $gte: 64 },
+      size: { $gte: 60 },
       dateCreated: { $gte: moment().subtract(1, "year").unix() },
     },
   };
