@@ -3,7 +3,11 @@ type Commander {
   colorId: String!
   conversionRate(filters: Filters): Float!
   count(filters: Filters): Int!
-  entries: [Entry!]!
+  entries(
+    filters: EntryFilters
+    sortBy: EntrySortBy = STANDING
+    sortDir: SortDirection = DESC
+  ): [Entry!]!
   id: ID!
   name: String!
   topCuts(filters: Filters): Int!
@@ -28,9 +32,34 @@ type Entry {
   standing: Int!
   tables: [TournamentTable!]!
   tournament: Tournament!
+  winRate: Float
   wins: Int!
   winsBracket: Int!
   winsSwiss: Int!
+}
+
+input EntryFilters {
+  maxDate: String
+  maxDraws: Int
+  maxLosses: Int
+  maxSize: Int
+  maxStanding: Int
+  maxWins: Int
+  minDate: String
+  minDraws: Int
+  minLosses: Int
+  minSize: Int
+  minStanding: Int
+  minWins: Int
+}
+
+enum EntrySortBy {
+  DATE
+  DRAWS
+  LOSSES
+  STANDING
+  WINRATE
+  WINS
 }
 
 input Filters {
@@ -67,7 +96,7 @@ type Query {
   ): [Commander!]!
   player(profile: String!): Player!
   tournament(TID: String!): Tournament!
-  tournaments: [Tournament!]!
+  tournaments(filters: TournamentFilters, search: String): [Tournament!]!
 }
 
 enum SortDirection {
@@ -85,6 +114,11 @@ type Tournament {
   swissRounds: Int!
   topCut: Int!
   tournamentDate: String!
+}
+
+input TournamentFilters {
+  maxSize: Int
+  minSize: Int
 }
 
 type TournamentRound {

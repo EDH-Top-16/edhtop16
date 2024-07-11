@@ -4,13 +4,14 @@ import { PropsWithChildren, useCallback, useEffect, useRef } from "react";
 import { HiSwitchHorizontal } from "react-icons/hi";
 import { RxCaretSort, RxChevronDown, RxChevronUp } from "react-icons/rx";
 import { ColorIdentity } from "../assets/icons/colors";
+import { Link } from "react-aria-components";
 
 function CardIcon() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 640 512"
-      className="w-6"
+      className="ml-2 inline w-6"
     >
       <path
         fill="#6CA6EA"
@@ -56,12 +57,16 @@ function TableEntry({
               </span>
             )}
 
-            <a href={href} target="_blank" rel="noreferrer">
+            <Link
+              href={href}
+              target={layout === "WLD" ? "_blank" : undefined}
+              rel={layout === "WLD" ? "noreferrer" : undefined}
+            >
               {name}
               {href != null && layout === "WLD" && <CardIcon />}
-            </a>
+            </Link>
 
-            <span className="text-sm text-lightText dark:text-text md:hidden">
+            <span className="block text-sm text-lightText dark:text-text md:hidden">
               ({metadata?.at(-1)?.[1]})
             </span>
           </span>
@@ -93,7 +98,7 @@ function TableEntry({
       {metadata && layout === "WLD" && (
         <td className="col-start-3 row-start-2 flex justify-end text-sm md:hidden md:px-4">
           {metadata
-            .filter((data, i, a) => i < a.length - 1)
+            .filter((data, i, a) => i < a.length - 2)
             .map(([key, data]) => data)
             .join(" / ")}
         </td>
