@@ -152,7 +152,7 @@ export default function CommanderView({ setCommanderExist }, _filters) {
       ? _filters
       : {
           tourney_filter: {
-            size: { $gte: 64 },
+            size: { $gte: 60 },
             dateCreated: { $gte: moment().subtract(1, "year").unix() },
           },
         };
