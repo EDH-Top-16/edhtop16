@@ -150,6 +150,9 @@ export function sortEntries(entries, sort, toggled) {
         ? a.commander.localeCompare(b.commander)
         : b.commander.localeCompare(a.commander);
     } else if (sort === "winrate") {
+      if (b[sort] - a[sort] === 0){
+        return !toggled ? b[defaultTieBreaker] - a[defaultTieBreaker]: a[defaultTieBreaker]
+      }
       return !toggled ? b.winRate - a.winRate : a.winRate - b.winRate;
     } else if (sort === "tournament" || sort === "tournamentName") {
       return !toggled
