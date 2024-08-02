@@ -19,11 +19,12 @@ export async function getCommanders(filters, showUnknown = false) {
     config
   );
   return res.data.filter(
-    (el) => "commander" in el && (showUnknown || el.commander !== "Unknown Commander")
+    (el) =>
+      "commander" in el && (showUnknown || el.commander !== "Unknown Commander")
   );
 }
 
-export async function getTournaments(filters){
+export async function getTournaments(filters) {
   const config = {
     headers: {
       "Content-Type": "application/json",
@@ -38,7 +39,7 @@ export async function getTournaments(filters){
   return res.data;
 }
 
-/** 
+/**
  * @returns each unique commander(s) rankings given some data
  */
 export function getCommanderRankings(data, entries, x) {
@@ -51,19 +52,16 @@ export function getCommanderRankings(data, entries, x) {
      * If so-far unique, push it to the uniqueCommanders array given the filters
      */
     if (!uniqueCommanders.find((el) => el.commander === data[i].commander)) {
-
-      topCuts.forEach(cut => {
-        if(data[i].standing <= cut){
-          if(!data[i].hasOwnProperty(cut)) data[i][cut] = 1;
+      topCuts.forEach((cut) => {
+        if (data[i].standing <= cut) {
+          if (!data[i].hasOwnProperty(cut)) data[i][cut] = 1;
         } else {
-          if(!data[i].hasOwnProperty(cut)) data[i][cut] = 0;
+          if (!data[i].hasOwnProperty(cut)) data[i][cut] = 0;
         }
       });
 
       data[i].tiebreaker = 0;
-      if(!data[i].hasOwnProperty("count"))
-        data[i].count = 1;
-
+      if (!data[i].hasOwnProperty("count")) data[i].count = 1;
 
       let slug;
       if (data[i].commander) {
@@ -80,7 +78,7 @@ export function getCommanderRankings(data, entries, x) {
       let match = uniqueCommanders.find(
         (el) => el.commander === data[i].commander
       );
-      
+
       topCuts.forEach((cut) => {
         if (data[i].standing <= cut) {
           match[cut]++;
@@ -90,11 +88,11 @@ export function getCommanderRankings(data, entries, x) {
       match.count++;
     }
 
-    uniqueCommanders.forEach(commander => {
+    uniqueCommanders.forEach((commander) => {
       commander.topX = commander[x];
       let tiebreaker = x === 16 ? 4 : x === 4 ? 1 : 16;
       commander.tiebreaker = commander[tiebreaker];
-    })
+    });
   }
 
   // Sort the array with respect to topXs and tiebreaker
@@ -113,7 +111,7 @@ export function getCommanderRankings(data, entries, x) {
         return el.count >= entries["$gte"];
       } else if (Object.keys(entries)[0] === "$lte") {
         return el.count <= entries["$lte"];
-      } else if (Object.keys(entries)[0] === "$eq"){
+      } else if (Object.keys(entries)[0] === "$eq") {
         return el.count === entries["$eq"];
       } else {
         return true;
@@ -142,6 +140,7 @@ export function getCommanderNames() {
 
 export function sortEntries(entries, sort, toggled) {
   let sortedCommanders = entries.sort((a, b) => {
+    let defaultTieBreaker = "dateCreated";
     if (sort === "name") {
       return !toggled
         ? a.name.localeCompare(b.name)
@@ -150,13 +149,10 @@ export function sortEntries(entries, sort, toggled) {
       return !toggled
         ? a.commander.localeCompare(b.commander)
         : b.commander.localeCompare(a.commander);
-    } else if (sort === "wins") {
-      return !toggled ? b.wins - a.wins : a.wins - b.wins;
-    } else if (sort === "losses") {
-      return !toggled ? b.losses - a.losses : a.losses - b.losses;
-    } else if (sort === "draws") {
-      return !toggled ? b.draws - a.draws : a.draws - b.draws;
     } else if (sort === "winrate") {
+      if (b[sort] - a[sort] === 0){
+        return !toggled ? b[defaultTieBreaker] - a[defaultTieBreaker]: a[defaultTieBreaker]
+      }
       return !toggled ? b.winRate - a.winRate : a.winRate - b.winRate;
     } else if (sort === "tournament" || sort === "tournamentName") {
       return !toggled
@@ -178,13 +174,24 @@ export function sortEntries(entries, sort, toggled) {
 
       return !toggled ? conversionB - conversionA : conversionA - conversionB;
     } else if (sort === "standing") {
+      // Separate from default filers because it's reversed
+      if (b[sort] - a[sort] === 0) {
+        return !toggled
+          ? b[defaultTieBreaker] - a[defaultTieBreaker]
+          : a[defaultTieBreaker];
+      }
       return !toggled ? a.standing - b.standing : b.standing - a.standing;
     } else {
+      // Wins, losses, draws, resolve to this catch all; we assume that the field is some number and try to sort accordingly.
+      if (b[sort] - a[sort] === 0) {
+        return !toggled
+          ? b[defaultTieBreaker] - a[defaultTieBreaker]
+          : a[defaultTieBreaker];
+      }
       return !toggled ? b[sort] - a[sort] : a[sort] - b[sort];
     }
   });
 
-  // console.log(sortedCommanders);
   return sortedCommanders;
 }
 

@@ -195,7 +195,7 @@ const TERMS_NO_TOURNEY_FILTER = [
  */
 export default function DeckView({ setCommanderExist }) {
   const defaultFilters = {tourney_filter: {
-    size: { $gte: 64 },
+    size: { $gte: 60 },
     dateCreated: { $gte: moment().subtract(1, "year").unix() },
   },
 };
