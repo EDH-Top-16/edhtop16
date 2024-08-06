@@ -154,6 +154,13 @@ const FiltersInput = builder.inputType("Filters", {
   }),
 });
 
+const TournamentFiltersInput = builder.inputType("TournamentFilters", {
+  fields: (t) => ({
+    minSize: t.int(),
+    maxSize: t.int(),
+  }),
+});
+
 const PlayerType = builder.prismaObject("Player", {
   fields: (t) => ({
     id: t.exposeID("uuid"),
@@ -485,11 +492,33 @@ builder.queryType({
   fields: (t) => ({
     tournaments: t.prismaField({
       type: ["Tournament"],
-      resolve: async (query, _root, _args, _ctx, _info) =>
-        prisma.tournament.findMany({
+      args: {
+        search: t.arg.string(),
+        filters: t.arg({ type: TournamentFiltersInput }),
+      },
+      resolve: async (query, _root, args, _ctx, _info) => {
+        const where: Prisma.TournamentWhereInput[] = [];
+
+        if (args.search) {
+          where.push({
+            name: { contains: args.search, mode: "insensitive" },
+          });
+        }
+
+        if (args.filters?.minSize) {
+          where.push({ size: { gte: args.filters.minSize } });
+        }
+
+        if (args.filters?.maxSize) {
+          where.push({ size: { lte: args.filters.maxSize } });
+        }
+
+        return prisma.tournament.findMany({
           ...query,
           orderBy: { tournamentDate: "desc" },
-        }),
+          where: { AND: where },
+        });
+      },
     }),
 
     tournament: t.prismaField({
