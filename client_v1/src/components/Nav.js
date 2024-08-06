@@ -6,7 +6,7 @@ import { logo, deckIcon, bracketIcon } from "../images/";
 import BracketIcon from "../images/BracketIcon";
 import DeckIcon from "../images/DeckIcon";
 import AboutIcon from "../images/AboutIcon";
-import EminenceIcon from "../images/EminenceIcon";
+import TopdeckIcon from "../images/TopdeckIcon";
 import ThemeSwitcher from "./ThemeSwitcher/ThemeSwitcher";
 
 export default function Nav() {
@@ -32,7 +32,7 @@ export default function Nav() {
 
   return (
     <div className={`fixed ${open ? "w-[200px] " : 'w-0'} md:static flex flex-col items-center justify-start min-h-screen md:w-1/12 md:hover:w-2/12 overflow-hidden bg-white dark:bg-nav drop-shadow-nav z-[100] transition-all duration-200 group`} ref={navRef}>
-      <img className="mt-24" src={logo} alt="logo" width="40%" />
+
       <div className={`${open ? "block opacity-1" : "opacity-0 hidden md:group-hover:block md:group-hover:opacity-100"} mt-6`}>
         <ThemeSwitcher />
       </div>
@@ -56,8 +56,8 @@ export default function Nav() {
           </Link>
         </span>
         <span>
-          <a href="https://eminence.events/" target="_blank" className="flex flex-row items-center gap-2 [&_path]:fill-voilet [&_path]:dark:fill-white">
-            <EminenceIcon  />
+          <a href="https://topdeck.gg/" target="_blank" className="flex flex-row items-center gap-2 [&_path]:fill-voilet [&_path]:dark:fill-white">
+            <TopdeckIcon  />
             <span className="md:hidden md:group-hover:block">Topdeck.gg</span>
           </a>
         </span>
