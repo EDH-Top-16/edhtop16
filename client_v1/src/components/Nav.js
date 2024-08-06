@@ -56,7 +56,7 @@ export default function Nav() {
         <span>
           <a href="https://topdeck.gg/" target="_blank" className="flex flex-row items-center gap-2 [&_path]:fill-voilet [&_path]:dark:fill-white">
             <TopdeckIcon  />
-            <span className={`md:block ${!open && "hidden"}`}>Topdeck.gg</span>
+            <span className={`md:block ${!open && "hidden"}`}>TopDeck.gg</span>
           </a>
         </span>
       </div>
