@@ -1,5 +1,5 @@
 // Logo
-export const logo = require("./TGLogo.png");
+export const logo = require("./EGLogo.png");
 
 // SVG
 export const W = require("./colors/W.svg").default;
@@ -19,4 +19,4 @@ export const bracketIcon = require("./bracketIcon.svg").default;
 export const aboutIcon = require("./aboutIcon.svg").default;
 export const moxIcon = require("./moxIcon.svg").default;
 export const cardIcon = require("./cardIcon.svg").default;
-export const topdeckIcon = require("./TopDeckLogoNoBorder.svg").default;
+export const eminenceIcon = require("./EminenceIcon.svg").default;
