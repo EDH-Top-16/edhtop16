@@ -27,38 +27,36 @@ export default function Nav() {
     }
   }, [])
 
-  
 
 
   return (
-    <div className="fixed w-[200px] md:static flex flex-col items-center justify-start min-h-screen md:w-1/8 overflow-hidden bg-white dark:bg-nav drop-shadow-nav z-[100] transition-all duration-200 group" ref={navRef}>
-
-      <div className="block opacity-1  mt-6">
+    <div className={`fixed ${open ? "w-[200px] " : 'w-0 md:w-[200px]'} md:static flex flex-col items-center justify-start min-h-screen md:w-1/8 overflow-hidden bg-white dark:bg-nav drop-shadow-nav z-[100] transition-all duration-200`} ref={navRef}>
+      <div className={`${open ? "block opacity-1" : "opacity-0 md:opacity-100"} mt-6`}>
         <ThemeSwitcher />
       </div>
       <div className="flex flex-col md:items-start mt-12 space-y-16 text-voilet dark:text-white [&>*>*>img]:w-8">
         <span className="flex flex-col gap-4">
           <Link to="/" className="flex flex-row items-center gap-2 [&_path]:fill-voilet [&_path]:dark:fill-white">
             <DeckIcon />
-            <span>Decks</span>
+            <span className={`md:block ${!open && "hidden"}`}>Decks</span>
           </Link>
         </span>
         <span>
           <Link to="/tournaments" className="flex flex-row items-center gap-2 [&_path]:fill-voilet [&_path]:dark:fill-white">
             <BracketIcon  />
-            <span>Tournaments</span>
+            <span className={`md:block ${!open && "hidden"}`}>Tournaments</span>
           </Link>
         </span>
         <span>
           <Link to="/about" className="flex flex-row items-center gap-2 [&_path]:fill-voilet [&_path]:dark:fill-white">
             <AboutIcon  />
-            <span>About</span>
+            <span className={`md:block ${!open && "hidden"}`}>About</span>
           </Link>
         </span>
         <span>
           <a href="https://topdeck.gg/" target="_blank" className="flex flex-row items-center gap-2 [&_path]:fill-voilet [&_path]:dark:fill-white">
             <TopdeckIcon  />
-            <span>Topdeck.gg</span>
+            <span className={`md:block ${!open && "hidden"}`}>Topdeck.gg</span>
           </a>
         </span>
       </div>
