@@ -97,8 +97,8 @@ export default function Banner({
           href="https://topdeck.gg/championship-series-2024/voting"
           target="_blank"
         >
-          Support EDHTop16 by voting Jason Qiu for the TopDeck Championship
-          Series!
+          Congrats to Jason Qiu for qualifying for the TopDeck Championship
+          Invitational!
         </a>
       </div>
     </>
