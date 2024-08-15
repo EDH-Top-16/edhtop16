@@ -63,7 +63,7 @@ if __name__ == '__main__':
         tournaments = fetch_tournaments()
     except:
         print(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while fetching tournaments from Eminence.")
-        exit()
+        exit(1)
     
     for tourney in tournaments:
         try:
