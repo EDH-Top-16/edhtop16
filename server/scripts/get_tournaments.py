@@ -166,7 +166,7 @@ if __name__ == "__main__":
                         },
                     )
                     for i in standings:
-                        if "profile" in i.keys():
+                        if "profile" in i.keys() and i["profile"]:
                             db[tourney["TID"]].find_one_and_update(
                                 {"standing": i["standing"], "profile": i["profile"]},
                                 {"$set": i},
