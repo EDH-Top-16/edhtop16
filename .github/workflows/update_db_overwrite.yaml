@@ -1,6 +1,7 @@
 name: Update Database - Mondays, Overwrite
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "30 3 * * 1" # This runs 3:30 AM UTC = 11:30 PM EDT every Monday
 
