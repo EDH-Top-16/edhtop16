@@ -166,11 +166,18 @@ if __name__ == "__main__":
                         },
                     )
                     for i in standings:
-                        db[tourney["TID"]].find_one_and_update(
-                            {"standing": i["standing"], "name": i["name"]},
-                            {"$set": i},
-                            upsert=True,
-                        )
+                        if "profile" in i.keys():
+                            db[tourney["TID"]].find_one_and_update(
+                                {"standing": i["standing"], "profile": i["profile"]},
+                                {"$set": i},
+                                upsert=True,
+                            )
+                        else:
+                            db[tourney["TID"]].find_one_and_update(
+                                {"standing": i["standing"], "name": i["name"]},
+                                {"$set": i},
+                                upsert=True,
+                            )
 
         except Exception as e:
             if "TID" in tourney.keys():
