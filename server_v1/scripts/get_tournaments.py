@@ -33,7 +33,15 @@ def fetch_tournaments():
         'Authorization': apiKey,
         'Accept': 'application/json'}
 
-    r = requests.post("https://eminence.events/api", json=data, headers=headers)
+    r = requests.post("https://topdeck.gg/api", json=data, headers=headers)
+
+    if r.status_code != 200:
+        print("An error occurred while making api request")
+        print(f"Status Code: {r.status_code}")
+        print("Response text:")
+        print(r.text)
+        raise Exception
+
     return json.loads(r.text)
 
 if __name__ == '__main__':
