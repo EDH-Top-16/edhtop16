@@ -71,6 +71,7 @@ if __name__ == '__main__':
                 print(f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Warning - empty standings for '{tourney['TID']}'.")
                 continue
             if tourney['TID'] not in existing_tourneys:
+                print(f"Adding '{tourney['TID']}'")
                 for i, j in enumerate(tourney['standings']):
                     j.update({'standing': i+1})
                 standings = [i for i in tourney['standings'] if i['decklist']]
@@ -87,6 +88,7 @@ if __name__ == '__main__':
                     db[tourney['TID']].insert_many(standings)
             elif overwrite_tourneys:
                 # db[tourney['TID']].drop() 
+                print(f"Updating '{tourney['TID']}'")
                 for i, j in enumerate(tourney['standings']):
                     j.update({'standing': i+1})
                 standings = [i for i in tourney['standings'] if i['decklist']]
