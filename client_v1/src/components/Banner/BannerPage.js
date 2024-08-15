@@ -21,7 +21,7 @@ export default function Banner({
         </button>}
         {title}
       </h1>
-      {backEnabled && <button className={`md:hidden flex flex-row gap-1 items-center text-cadet dark:text-text`} onClick={() => navigate(-1)}>
+      {backEnabled && <button className={`hidden flex flex-row gap-1 items-center text-cadet dark:text-text`} onClick={() => navigate(-1)}>
         <IoIosArrowBack />
         Back to tournaments
       </button>}
