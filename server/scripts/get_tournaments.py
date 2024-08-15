@@ -92,6 +92,7 @@ if __name__ == "__main__":
                 )
                 continue
             if tourney["TID"] not in existing_tourneys:
+                print(f"Adding {tourney['TID']}")
                 for i, j in enumerate(tourney["standings"]):
                     j.update({"standing": i + 1})
                 standings = [
@@ -127,6 +128,7 @@ if __name__ == "__main__":
                     )
                     db[tourney["TID"]].insert_many(standings)
             elif overwrite_tourneys:
+                print(f"Updating {tourney['TID']}")
                 # db[tourney['TID']].drop()
                 for i, j in enumerate(tourney["standings"]):
                     j.update({"standing": i + 1})
