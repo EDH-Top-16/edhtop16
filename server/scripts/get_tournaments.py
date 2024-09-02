@@ -55,6 +55,11 @@ def fetch_tournaments(filters=None):
     r = requests.post(
         "https://topdeck.gg/api/v2/tournaments", json=data, headers=headers
     )
+    while r.status_code == 502:
+        print("502 error, retry")
+        r = requests.post(
+            "https://topdeck.gg/api/v2/tournaments", json=data, headers=headers
+        )
     if r.status_code != 200:
         raise Exception(f"Error {r.status_code} -- {r.text}")
     return json.loads(r.text)
