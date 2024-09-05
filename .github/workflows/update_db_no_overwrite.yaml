@@ -2,8 +2,8 @@ name: Update Database - Nightly, No Overwrite
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "30 3 * * 2-6,0" # This runs 3:30 AM UTC = 11:30 PM EDT every non-Monday
+  # schedule:
+  #   - cron: "30 3 * * 2-6,0" # This runs 3:30 AM UTC = 11:30 PM EDT every non-Monday
 
 jobs:
   update_db:
