@@ -5,6 +5,7 @@
     }
   },
   "routes": [
+    { "action": { "share": ["/app/maintenance.html"] } },
     {
       "match": {
         "uri": [

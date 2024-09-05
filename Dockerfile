@@ -35,5 +35,8 @@ COPY client/relay.config.js client
 COPY client/prisma client
 RUN cd client && npm ci && npm link unit-http && npx prisma generate
 
+# Copy maintenance message if needed to serve.
+COPY maintenance.html maintenance.html
+
 # Copy Nginx unit configuration file to configuration directory.
 COPY unit.config.json /docker-entrypoint.d/
