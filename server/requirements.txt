@@ -1,4 +1,0 @@
-fastapi==0.103.1
-motor==3.3.1
-pydantic==2.3.0
-strawberry-graphql[cli]==0.209.6
