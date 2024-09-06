@@ -1,7 +1,8 @@
 import { ApolloServer } from "@apollo/server";
 import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default";
 import { startServerAndCreateNextHandler } from "@as-integrations/next";
-import { createContext, schema } from "../../lib/server/schema";
+import { createContext } from "../../lib/server/context";
+import { schema } from "../../lib/server/schema";
 
 const server = new ApolloServer({
   schema,
