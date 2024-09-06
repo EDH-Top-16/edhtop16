@@ -2,6 +2,7 @@ import { AiOutlineMenu } from "react-icons/ai";
 import { IoIosArrowBack } from "react-icons/io";
 import { FilterConfiguration, Filters } from "./filters";
 import { Searchbar } from "./searchbar";
+import Link from "next/link";
 
 interface BannerProps {
   title: string;
@@ -11,7 +12,7 @@ interface BannerProps {
   enableColors?: boolean;
   terms?: unknown;
   defaultFilters?: unknown;
-  backEnabled?: boolean;
+  backHref?: string;
   enableMetaBreakdownButton?: boolean;
   metabreakdownMessage?: string;
   toggleMetabreakdown?: () => void;
@@ -22,41 +23,42 @@ export function Banner({
   filters,
   onFilterChange,
   enableSearchbar = false,
-  backEnabled = false,
+  backHref,
   enableMetaBreakdownButton = false,
   metabreakdownMessage = "",
   toggleMetabreakdown,
 }: BannerProps) {
   function toggleNav() {}
-  function back() {}
 
   return (
     <div className="relative flex w-full flex-col gap-4 border-0 border-b border-solid border-banner p-4 dark:bg-banner md:px-8 md:py-6">
-      <h1 className="flex flex-row gap-2 text-3xl font-bold text-banner dark:text-text ">
+      <h1 className="flex flex-row items-center gap-2 text-3xl font-bold text-banner dark:text-text ">
         <button
           className="inline text-cadet dark:text-white md:hidden"
           onClick={toggleNav}
         >
           <AiOutlineMenu />
         </button>
-        {backEnabled && (
-          <button
+
+        {backHref && (
+          <Link
             className="hidden text-cadet dark:text-white md:inline"
-            onClick={back}
+            href={backHref}
           >
             <IoIosArrowBack />
-          </button>
+          </Link>
         )}
         {title}
       </h1>
-      {backEnabled && (
-        <button
+
+      {backHref && (
+        <Link
           className="flex flex-row items-center gap-1 text-cadet dark:text-text md:hidden"
-          onClick={back}
+          href={backHref}
         >
           <IoIosArrowBack />
           Back to tournaments
-        </button>
+        </Link>
       )}
 
       <div className="flex flex-wrap items-center gap-4 md:max-w-[600px]">

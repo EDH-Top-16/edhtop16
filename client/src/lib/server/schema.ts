@@ -154,6 +154,20 @@ const FiltersInput = builder.inputType("Filters", {
   }),
 });
 
+function commanderStatsQueryFromFilters(
+  filters: (typeof FiltersInput)["$inferInput"] | null | undefined,
+): Omit<CommanderStatsQuery, "uuid"> {
+  return {
+    topCut: filters?.topCut ?? 0,
+    minSize: filters?.minSize ?? 0,
+    minEntries: filters?.minEntries ?? 0,
+    minDate: new Date(filters?.minDate ?? 0),
+    maxSize: filters?.maxSize ?? Number.MAX_SAFE_INTEGER,
+    maxEntries: filters?.maxEntries ?? Number.MAX_SAFE_INTEGER,
+    maxDate: filters?.maxDate ? new Date(filters.maxDate) : new Date(),
+  };
+}
+
 const TournamentFiltersInput = builder.inputType("TournamentFilters", {
   fields: (t) => ({
     minSize: t.int(),
@@ -257,35 +271,130 @@ const PlayerType = builder.prismaObject("Player", {
   }),
 });
 
+const EntryFilters = builder.inputType("EntryFilters", {
+  fields: (t) => ({
+    minSize: t.int(),
+    maxSize: t.int(),
+    minDate: t.string(),
+    maxDate: t.string(),
+    minStanding: t.int(),
+    maxStanding: t.int(),
+    minWins: t.int(),
+    maxWins: t.int(),
+    minLosses: t.int(),
+    maxLosses: t.int(),
+    minDraws: t.int(),
+    maxDraws: t.int(),
+  }),
+});
+
+const EntrySortBy = builder.enumType("EntrySortBy", {
+  values: ["STANDING", "WINS", "LOSSES", "DRAWS", "WINRATE", "DATE"] as const,
+});
+
 builder.prismaObject("Commander", {
   fields: (t) => ({
     id: t.exposeID("uuid"),
     name: t.exposeString("name"),
     colorId: t.exposeString("colorId"),
-    entries: t.relation("entries", {
-      query: {
-        orderBy: { standing: "asc" },
+    entries: t.field({
+      type: t.listRef(EntryType),
+      args: {
+        filters: t.arg({ type: EntryFilters }),
+        sortBy: t.arg({ type: EntrySortBy, defaultValue: "STANDING" }),
+        sortDir: t.arg({ type: SortDirection, defaultValue: "DESC" }),
+      },
+      resolve: async (parent, { filters, sortBy, sortDir }) => {
+        const minDate = new Date(filters?.minDate ?? 0);
+        const maxDate = filters?.maxDate
+          ? new Date(filters.maxDate)
+          : new Date();
+
+        const entries = await prisma.$queryRaw<
+          (Entry & { tournamentDate: Date })[]
+        >`
+          select e.*, t."tournamentDate" as "tournamentDate"
+          from "Entry" as e
+          left join "Tournament" t on t.uuid = e."tournamentUuid"
+          where e."commanderUuid" = ${parent.uuid}::uuid
+          and e.standing >= ${filters?.minStanding ?? 0}
+          and e.standing <= ${filters?.maxStanding ?? Number.MAX_SAFE_INTEGER}
+          and t.size >= ${filters?.minSize ?? 0}
+          and t.size <= ${filters?.maxSize ?? Number.MAX_SAFE_INTEGER}
+          and e."winsSwiss" + "winsBracket" >= ${filters?.minWins ?? 0}
+          and e."winsSwiss" + "winsBracket" <= ${
+            filters?.maxWins ?? Number.MAX_SAFE_INTEGER
+          }
+          and e."lossesSwiss" + e."lossesBracket" >= ${filters?.minLosses ?? 0}
+          and e."lossesSwiss" + e."lossesBracket" <= ${
+            filters?.maxLosses ?? Number.MAX_SAFE_INTEGER
+          }
+          and e.draws >= ${filters?.minDraws ?? 0}
+          and e.draws <= ${filters?.maxDraws ?? Number.MAX_SAFE_INTEGER}
+          and t."tournamentDate" >= ${minDate}
+          and t."tournamentDate" <= ${maxDate}
+          order by e.standing asc, t.size desc, e."winsSwiss" + e."winsBracket" desc
+        `;
+
+        const sortOperator =
+          sortDir === "ASC"
+            ? (a: number, b: number) => a - b
+            : (a: number, b: number) => b - a;
+
+        if (sortBy === "WINS") {
+          entries.sort((a, b) =>
+            sortOperator(
+              a.winsBracket + a.winsSwiss,
+              b.winsBracket + b.winsSwiss,
+            ),
+          );
+        } else if (sortBy === "LOSSES") {
+          entries.sort((a, b) =>
+            sortOperator(
+              a.lossesBracket + a.lossesSwiss,
+              b.lossesBracket + b.lossesSwiss,
+            ),
+          );
+        } else if (sortBy === "DRAWS") {
+          entries.sort((a, b) => sortOperator(a.draws, b.draws));
+        } else if (sortBy === "WINRATE") {
+          entries.sort((a, b) =>
+            sortOperator(
+              (a.winsBracket + a.winsSwiss) /
+                (a.winsBracket +
+                  a.winsSwiss +
+                  a.draws +
+                  a.lossesBracket +
+                  a.lossesSwiss),
+              (b.winsBracket + b.winsSwiss) /
+                (b.winsBracket +
+                  b.winsSwiss +
+                  b.draws +
+                  b.lossesBracket +
+                  b.lossesSwiss),
+            ),
+          );
+        } else if (sortBy === "DATE") {
+          entries.sort((a, b) =>
+            sortOperator(
+              a.tournamentDate.getTime(),
+              b.tournamentDate.getTime(),
+            ),
+          );
+        }
+
+        return entries;
       },
     }),
     breakdownUrl: t.string({
-      resolve: (parent) =>
-        new URL(
-          `/commander/${encodeURIComponent(parent.name)}`,
-          "https://edhtop16.com",
-        ).href,
+      resolve: (parent) => `/v2/commander/${encodeURIComponent(parent.name)}`,
     }),
     count: t.int({
       args: { filters: t.arg({ type: FiltersInput }) },
       resolve: async (parent, { filters }, ctx) => {
         const { count } = await ctx.commanderStats.load({
           uuid: parent.uuid,
-          topCut: filters?.topCut ?? 0,
-          minSize: filters?.minSize ?? 0,
-          minEntries: filters?.minEntries ?? 0,
-          minDate: new Date(filters?.minDate ?? 0),
-          maxSize: filters?.maxSize ?? Number.MAX_SAFE_INTEGER,
-          maxEntries: filters?.maxEntries ?? Number.MAX_SAFE_INTEGER,
-          maxDate: filters?.maxDate ? new Date(filters.maxDate) : new Date(),
+          ...commanderStatsQueryFromFilters(filters),
         });
 
         return count;
@@ -296,13 +405,7 @@ builder.prismaObject("Commander", {
       resolve: async (parent, { filters }, ctx) => {
         const { topCuts } = await ctx.commanderStats.load({
           uuid: parent.uuid,
-          topCut: filters?.topCut ?? 0,
-          minSize: filters?.minSize ?? 0,
-          minEntries: filters?.minEntries ?? 0,
-          minDate: new Date(filters?.minDate ?? 0),
-          maxSize: filters?.maxSize ?? Number.MAX_SAFE_INTEGER,
-          maxEntries: filters?.maxEntries ?? Number.MAX_SAFE_INTEGER,
-          maxDate: filters?.maxDate ? new Date(filters.maxDate) : new Date(),
+          ...commanderStatsQueryFromFilters(filters),
         });
 
         return topCuts;
@@ -313,13 +416,7 @@ builder.prismaObject("Commander", {
       resolve: async (parent, { filters }, ctx) => {
         const { conversionRate } = await ctx.commanderStats.load({
           uuid: parent.uuid,
-          topCut: filters?.topCut ?? 0,
-          minSize: filters?.minSize ?? 0,
-          minEntries: filters?.minEntries ?? 0,
-          minDate: new Date(filters?.minDate ?? 0),
-          maxSize: filters?.maxSize ?? Number.MAX_SAFE_INTEGER,
-          maxEntries: filters?.maxEntries ?? Number.MAX_SAFE_INTEGER,
-          maxDate: filters?.maxDate ? new Date(filters.maxDate) : new Date(),
+          ...commanderStatsQueryFromFilters(filters),
         });
 
         return conversionRate;
@@ -354,6 +451,17 @@ const EntryType = builder.prismaObject("Entry", {
     }),
     losses: t.int({
       resolve: (parent) => parent.lossesBracket + parent.lossesSwiss,
+    }),
+    winRate: t.float({
+      nullable: true,
+      resolve: (parent) => {
+        const wins = parent.winsBracket + parent.winsSwiss;
+        const games =
+          wins + parent.lossesBracket + parent.lossesSwiss + parent.draws;
+
+        if (games === 0) return null;
+        return wins / games;
+      },
     }),
     tables: t.field({
       type: t.listRef(TournamentTableType),
@@ -539,12 +647,12 @@ builder.queryType({
         sortDir: t.arg({ type: SortDirection, defaultValue: "DESC" }),
       },
       resolve: async (query, _root, args, ctx) => {
-        const minSize = args.filters?.minSize ?? 0;
         const topCut = args.filters?.topCut ?? 0;
         const minEntries = args.filters?.minEntries ?? 0;
-        const minDate = new Date(args.filters?.minDate ?? 0);
-        const maxSize = args.filters?.maxSize ?? Number.MAX_SAFE_INTEGER;
         const maxEntries = args.filters?.maxEntries ?? Number.MAX_SAFE_INTEGER;
+        const minSize = args.filters?.minSize ?? 0;
+        const maxSize = args.filters?.maxSize ?? Number.MAX_SAFE_INTEGER;
+        const minDate = new Date(args.filters?.minDate ?? 0);
         const maxDate = args.filters?.maxDate
           ? new Date(args.filters.maxDate)
           : new Date();
