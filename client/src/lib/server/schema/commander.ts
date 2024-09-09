@@ -1,5 +1,6 @@
-import { Commander, Entry } from "@prisma/client";
+import { Commander, Entry, Prisma } from "@prisma/client";
 import DataLoader from "dataloader";
+import { subMonths } from "date-fns";
 import { prisma } from "../prisma";
 import { builder } from "./builder";
 import { EntryFilters, EntrySortBy, EntryType } from "./entry";
@@ -92,7 +93,26 @@ export function createCommanderStatsLoader(): CommanderStatsDataLoader {
   );
 }
 
-const FiltersInput = builder.inputType("Filters", {
+const TopCommandersTimePeriod = builder.enumType("TopCommandersTimePeriod", {
+  values: ["ONE_MONTH", "THREE_MONTHS", "SIX_MONTHS"] as const,
+});
+
+const TopCommandersSortBy = builder.enumType("TopCommandersSortBy", {
+  values: ["POPULARITY", "CONVERSION"] as const,
+});
+
+const CommanderSortBy = builder.enumType("CommanderSortBy", {
+  values: ["ENTRIES", "TOP_CUTS", "NAME", "CONVERSION"] as const,
+});
+
+const TopCommandersTopEntriesSortBy = builder.enumType(
+  "TopCommandersTopEntriesSortBy",
+  {
+    values: ["NEW", "TOP"] as const,
+  },
+);
+
+const FiltersInput = builder.inputType("CommanderStatsFilters", {
   fields: (t) => ({
     topCut: t.int(),
     colorId: t.string(),
@@ -102,28 +122,36 @@ const FiltersInput = builder.inputType("Filters", {
     maxSize: t.int(),
     maxEntries: t.int(),
     maxDate: t.string(),
+    timePeriod: t.field({ type: TopCommandersTimePeriod }),
   }),
 });
 
 function commanderStatsQueryFromFilters(
   filters: (typeof FiltersInput)["$inferInput"] | null | undefined,
 ): Omit<CommanderStatsQuery, "uuid"> {
+  const minDate =
+    filters?.minDate != null
+      ? new Date(filters?.minDate ?? 0)
+      : filters?.timePeriod === "SIX_MONTHS"
+      ? subMonths(new Date(), 6)
+      : filters?.timePeriod === "THREE_MONTHS"
+      ? subMonths(new Date(), 3)
+      : filters?.timePeriod === "ONE_MONTH"
+      ? subMonths(new Date(), 1)
+      : new Date(0);
+
   return {
     topCut: filters?.topCut ?? 0,
     minSize: filters?.minSize ?? 0,
     minEntries: filters?.minEntries ?? 0,
-    minDate: new Date(filters?.minDate ?? 0),
+    minDate,
     maxSize: filters?.maxSize ?? Number.MAX_SAFE_INTEGER,
     maxEntries: filters?.maxEntries ?? Number.MAX_SAFE_INTEGER,
     maxDate: filters?.maxDate ? new Date(filters.maxDate) : new Date(),
   };
 }
 
-const CommanderSortBy = builder.enumType("CommanderSortBy", {
-  values: ["ENTRIES", "TOP_CUTS", "NAME", "CONVERSION"] as const,
-});
-
-builder.prismaObject("Commander", {
+const CommanderType = builder.prismaObject("Commander", {
   fields: (t) => ({
     id: t.exposeID("uuid"),
     name: t.exposeString("name"),
@@ -253,6 +281,42 @@ builder.prismaObject("Commander", {
         return conversionRate;
       },
     }),
+    topEntries: t.field({
+      type: [EntryType],
+      args: {
+        sortBy: t.arg({
+          type: TopCommandersTopEntriesSortBy,
+          defaultValue: "TOP",
+        }),
+        timePeriod: t.arg({
+          type: TopCommandersTimePeriod,
+          defaultValue: "ONE_MONTH",
+        }),
+      },
+      resolve: async (parent, { sortBy, timePeriod }) => {
+        const monthCount =
+          timePeriod === "SIX_MONTHS"
+            ? 6
+            : timePeriod === "THREE_MONTHS"
+            ? 3
+            : 1;
+
+        const minDate = subMonths(new Date(), monthCount);
+        const orderBy: Prisma.EntryOrderByWithRelationInput[] =
+          sortBy === "NEW"
+            ? [{ tournament: { tournamentDate: "desc" } }]
+            : [{ standing: "asc" }, { tournament: { size: "desc" } }];
+
+        return prisma.entry.findMany({
+          where: {
+            commanderUuid: parent.uuid,
+            tournament: { tournamentDate: { gte: minDate } },
+          },
+          take: 10,
+          orderBy,
+        });
+      },
+    }),
   }),
 });
 
@@ -374,6 +438,42 @@ builder.queryField("commanderNames", (t) =>
       });
 
       return commanders.map((c) => c.name);
+    },
+  }),
+);
+
+builder.queryField("topCommanders", (t) =>
+  t.field({
+    type: [CommanderType],
+    args: {
+      timePeriod: t.arg({ type: TopCommandersTimePeriod }),
+      sortBy: t.arg({ type: TopCommandersSortBy }),
+    },
+    resolve: async (_root, { timePeriod, sortBy }) => {
+      const monthCount =
+        timePeriod === "SIX_MONTHS" ? 6 : timePeriod === "THREE_MONTHS" ? 3 : 1;
+      const minDate = subMonths(new Date(), monthCount);
+      const minCount = monthCount * 20;
+
+      const orderBy =
+        sortBy === "POPULARITY"
+          ? Prisma.sql([`count(e)`])
+          : Prisma.sql([
+              `sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e)`,
+            ]);
+
+      return prisma.$queryRaw<Commander[]>`
+        SELECT c.*
+        FROM "Commander" as c
+        LEFT JOIN "Entry" e on e."commanderUuid" = c.uuid
+        LEFT JOIN "Tournament" t on t.uuid = e."tournamentUuid"
+        WHERE c.name != 'Unknown Commander'
+        AND t."tournamentDate" >= ${minDate}
+        GROUP BY c.uuid
+        HAVING count(e) >= ${minCount}
+        ORDER BY ${orderBy} DESC
+        LIMIT 25
+      `;
     },
   }),
 );
