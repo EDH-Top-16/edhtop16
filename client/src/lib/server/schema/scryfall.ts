@@ -27,5 +27,5 @@ export async function getCardByName(cardName: string) {
   }
 
   const json = await res.json();
-  return scryfallCardFaceSchema.parse(json);
+  return scryfallCardSchema.parse(json);
 }
