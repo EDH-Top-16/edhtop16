@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<67e1f12dcc82b8f00e77bceda9342a56>>
+ * @generated SignedSource<<ed04f7f8c0b7debb0e707b5c3ecb2bb3>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,7 +11,7 @@
 import { ConcreteRequest, Query } from 'relay-runtime';
 export type v2Query$variables = Record<PropertyKey, never>;
 export type v2Query$data = {
-  readonly commanders: ReadonlyArray<{
+  readonly topCommanders: ReadonlyArray<{
     readonly name: string;
   }>;
 };
@@ -40,7 +40,7 @@ return {
         "args": null,
         "concreteType": "Commander",
         "kind": "LinkedField",
-        "name": "commanders",
+        "name": "topCommanders",
         "plural": true,
         "selections": [
           (v0/*: any*/)
@@ -62,7 +62,7 @@ return {
         "args": null,
         "concreteType": "Commander",
         "kind": "LinkedField",
-        "name": "commanders",
+        "name": "topCommanders",
         "plural": true,
         "selections": [
           (v0/*: any*/),
@@ -79,16 +79,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "4f8d21f9db870f35d5d15aa86308f1e8",
+    "cacheID": "c27098ba879b83ba82ac6bbea22f67b7",
     "id": null,
     "metadata": {},
     "name": "v2Query",
     "operationKind": "query",
-    "text": "query v2Query {\n  commanders {\n    name\n    id\n  }\n}\n"
+    "text": "query v2Query {\n  topCommanders {\n    name\n    id\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "8a5cad822fbecfbee95cbf76ce367f07";
+(node as any).hash = "d86a5c1f13224510bbb0ae92ecd3bf17";
 
 export default node;

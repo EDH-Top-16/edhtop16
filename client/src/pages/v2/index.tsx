@@ -5,16 +5,26 @@ import { v2Query } from "../../queries/__generated__/v2Query.graphql";
 
 const V2Query = graphql`
   query v2Query {
-    commanders {
+    topCommanders {
       name
     }
   }
 `;
 
 function V2Page({ preloadedQuery }: RelayProps<{}, v2Query>) {
-  const { commanders } = usePreloadedQuery(V2Query, preloadedQuery);
+  const { topCommanders } = usePreloadedQuery(V2Query, preloadedQuery);
 
-  return <div>I am EDHTop16</div>;
+  return (
+    <div>
+      <div>I am EDHTop16.</div>
+      <p>These are the top commanders:</p>
+      <ul>
+        {topCommanders.map((c) => (
+          <li key={c.name}>{c.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 export default withRelay(V2Page, V2Query, {

@@ -9,8 +9,13 @@ type Commander {
     sortDir: SortDirection = DESC
   ): [Entry!]!
   id: ID!
+  imageUrls: [String!]!
   name: String!
   topCuts(filters: CommanderStatsFilters): Int!
+  topEntries(
+    sortBy: TopCommandersTopEntriesSortBy = TOP
+    timePeriod: TopCommandersTimePeriod = ONE_MONTH
+  ): [Entry!]!
 }
 
 enum CommanderSortBy {
@@ -118,6 +123,11 @@ enum TopCommandersTimePeriod {
   ONE_MONTH
   SIX_MONTHS
   THREE_MONTHS
+}
+
+enum TopCommandersTopEntriesSortBy {
+  NEW
+  TOP
 }
 
 type Tournament {

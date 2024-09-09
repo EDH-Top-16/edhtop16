@@ -5,6 +5,7 @@ import { prisma } from "../prisma";
 import { builder } from "./builder";
 import { EntryFilters, EntrySortBy, EntryType } from "./entry";
 import { SortDirection } from "./types";
+import { getCardByName } from "./scryfall";
 
 interface CommanderStatsQuery {
   uuid: string;
@@ -315,6 +316,19 @@ const CommanderType = builder.prismaObject("Commander", {
           take: 10,
           orderBy,
         });
+      },
+    }),
+    imageUrls: t.stringList({
+      resolve: async (parent) => {
+        const cardNames = parent.name.split(" / ");
+        const cards = await Promise.all(
+          cardNames.map((card) => getCardByName(card)),
+        );
+
+        return cards
+          .flatMap((c) => (c.card_faces ? c.card_faces : [c]))
+          .map((c) => c.image_uris?.art_crop)
+          .filter((c): c is string => c != null);
       },
     }),
   }),
