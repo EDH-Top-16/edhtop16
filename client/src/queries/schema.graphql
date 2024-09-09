@@ -1,16 +1,21 @@
 type Commander {
   breakdownUrl: String!
   colorId: String!
-  conversionRate(filters: Filters): Float!
-  count(filters: Filters): Int!
+  conversionRate(filters: CommanderStatsFilters): Float!
+  count(filters: CommanderStatsFilters): Int!
   entries(
     filters: EntryFilters
     sortBy: EntrySortBy = STANDING
     sortDir: SortDirection = DESC
   ): [Entry!]!
   id: ID!
+  imageUrls: [String!]!
   name: String!
-  topCuts(filters: Filters): Int!
+  topCuts(filters: CommanderStatsFilters): Int!
+  topEntries(
+    sortBy: TopCommandersTopEntriesSortBy = TOP
+    timePeriod: TopCommandersTimePeriod = ONE_MONTH
+  ): [Entry!]!
 }
 
 enum CommanderSortBy {
@@ -18,6 +23,18 @@ enum CommanderSortBy {
   ENTRIES
   NAME
   TOP_CUTS
+}
+
+input CommanderStatsFilters {
+  colorId: String
+  maxDate: String
+  maxEntries: Int
+  maxSize: Int
+  minDate: String
+  minEntries: Int
+  minSize: Int
+  timePeriod: TopCommandersTimePeriod
+  topCut: Int
 }
 
 type Entry {
@@ -62,17 +79,6 @@ enum EntrySortBy {
   WINS
 }
 
-input Filters {
-  colorId: String
-  maxDate: String
-  maxEntries: Int
-  maxSize: Int
-  minDate: String
-  minEntries: Int
-  minSize: Int
-  topCut: Int
-}
-
 type Player {
   conversionRate: Float!
   draws: Int!
@@ -90,11 +96,15 @@ type Query {
   commander(name: String!): Commander!
   commanderNames: [String!]!
   commanders(
-    filters: Filters
+    filters: CommanderStatsFilters
     sortBy: CommanderSortBy = TOP_CUTS
     sortDir: SortDirection = DESC
   ): [Commander!]!
   player(profile: String!): Player!
+  topCommanders(
+    sortBy: TopCommandersSortBy
+    timePeriod: TopCommandersTimePeriod
+  ): [Commander!]!
   tournament(TID: String!): Tournament!
   tournaments(filters: TournamentFilters, search: String): [Tournament!]!
 }
@@ -102,6 +112,22 @@ type Query {
 enum SortDirection {
   ASC
   DESC
+}
+
+enum TopCommandersSortBy {
+  CONVERSION
+  POPULARITY
+}
+
+enum TopCommandersTimePeriod {
+  ONE_MONTH
+  SIX_MONTHS
+  THREE_MONTHS
+}
+
+enum TopCommandersTopEntriesSortBy {
+  NEW
+  TOP
 }
 
 type Tournament {
