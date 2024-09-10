@@ -47,11 +47,17 @@ if __name__ == "__main__":
         commander_col = db["commanders"]
         col = db[c]
         for i in tqdm(col.find()):
-            if (
-                "commander" in i.keys() and "colorID" in i.keys()
-            ):  # Metadata already exists
+            if i.keys() >= {
+                "commander",
+                "colorID",
+                "mainDeck",
+            }:  # Metadata fields already exist; equivalent of checking of this set of keys is in the entry's keys
                 if (
-                    i["commander"] == "Unknown Commander" or i["colorID"] == "N/A"
+                    i["commander"] == "Unknown Commander"
+                    or i["colorID"] == "N/A"
+                    or not i[
+                        "mainDeck"
+                    ]  # Some sort of fail case happened previously to make the decklist error while processing
                 ) and not ignore_unknown:
                     pass
                 else:
@@ -68,6 +74,7 @@ if __name__ == "__main__":
 
             try:
                 if "melee.gg" in decklist_url:
+                    raise Exception("melee scraping broken")
                     ff_options = webdriver.FirefoxOptions()
                     ff_options.add_argument("-headless")
                     browser = webdriver.Firefox(options=ff_options)
@@ -87,7 +94,14 @@ if __name__ == "__main__":
                 )
                 commander_string = "Unknown Commander"
                 col.update_one(
-                    i, {"$set": {"commander": commander_string, "colorID": "N/A"}}
+                    i,
+                    {
+                        "$set": {
+                            "commander": commander_string,
+                            "colorID": "N/A",
+                            "mainDeck": None,
+                        }
+                    },
                 )
                 commander_col.find_one_and_update(
                     {"commander": commander_string},
@@ -113,7 +127,14 @@ if __name__ == "__main__":
                 )
                 commander_string = "Unknown Commander"
                 col.update_one(
-                    i, {"$set": {"commander": commander_string, "colorID": "N/A"}}
+                    i,
+                    {
+                        "$set": {
+                            "commander": commander_string,
+                            "colorID": "N/A",
+                            "mainDeck": None,
+                        }
+                    },
                 )
                 commander_col.find_one_and_update(
                     {"commander": commander_string},
@@ -150,14 +171,32 @@ if __name__ == "__main__":
                 )
                 color_id = wubrgify(color_id)
 
-                # print(commander_string, '')
-                # print(color_id)
+            # Try to get main deck from url
+            main_deck = []
+            try:
+                if "melee.gg" in decklist_url:
+                    # TODO: fix all processing with melee
+                    raise Exception("melee scraping broken")
+                else:
+                    for _cardname, cardinfo in (
+                        mtg_api.get_deck(decklist_url).get_decklist().items()
+                    ):
+                        for _i in range(cardinfo["quantity"]):
+                            main_deck.append(cardinfo["card"]["scryfall_id"])
+            except Exception as e:
+                print(
+                    f"Warning: error while fetching decklist. Main deck marked null. Object ID:  {i['_id']} Error: {e}"
+                )
+                col.update_one(i, {"$set": {"mainDeck": None}})
+                continue
+
             col.update_one(
                 i,
                 {
                     "$set": {
                         "commander": commander_string,
                         "colorID": (color_id if color_id else "N/A"),
+                        "mainDeck": (main_deck if main_deck else None),
                     }
                 },
             )
