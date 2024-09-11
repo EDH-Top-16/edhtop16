@@ -128,7 +128,8 @@ async function reqApi(req, res) {
   for (let i = 0; i < tourney_ids.length; i++) {
     const result = await db_connect
       .collection(tourney_ids[i].TID)
-      .find(query, { projection: { _id: 0 } })
+      .find(query)
+      .project({ _id: 0, mainDeck: 0 })
       .toArray();
 
     // Append tournamentName onto entries
