@@ -1,6 +1,5 @@
 import cn from "classnames";
-import { useCallback, useRef, useState } from "react";
-import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
+import { useCallback } from "react";
 import { ColorIcon } from "../../assets/icons/colors";
 
 interface ColorSelectionProps {
