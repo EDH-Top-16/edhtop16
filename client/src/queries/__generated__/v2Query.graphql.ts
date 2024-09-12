@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<ed04f7f8c0b7debb0e707b5c3ecb2bb3>>
+ * @generated SignedSource<<59881a688873f1aabe971c27c389b115>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,10 +9,15 @@
 // @ts-nocheck
 
 import { ConcreteRequest, Query } from 'relay-runtime';
-export type v2Query$variables = Record<PropertyKey, never>;
+import { FragmentRefs } from "relay-runtime";
+export type TopCommandersTimePeriod = "ONE_MONTH" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
+export type v2Query$variables = {
+  timePeriod?: TopCommandersTimePeriod | null | undefined;
+};
 export type v2Query$data = {
   readonly topCommanders: ReadonlyArray<{
-    readonly name: string;
+    readonly id: string;
+    readonly " $fragmentSpreads": FragmentRefs<"v2_TopCommandersCard">;
   }>;
 };
 export type v2Query = {
@@ -21,29 +26,55 @@ export type v2Query = {
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = {
+var v0 = [
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "timePeriod"
+  }
+],
+v1 = [
+  {
+    "kind": "Variable",
+    "name": "timePeriod",
+    "variableName": "timePeriod"
+  }
+],
+v2 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "name",
+  "name": "id",
   "storageKey": null
-};
+},
+v3 = [
+  {
+    "fields": (v1/*: any*/),
+    "kind": "ObjectValue",
+    "name": "filters"
+  }
+];
 return {
   "fragment": {
-    "argumentDefinitions": [],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "v2Query",
     "selections": [
       {
         "alias": null,
-        "args": null,
+        "args": (v1/*: any*/),
         "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "topCommanders",
         "plural": true,
         "selections": [
-          (v0/*: any*/)
+          (v2/*: any*/),
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "v2_TopCommandersCard"
+          }
         ],
         "storageKey": null
       }
@@ -53,24 +84,52 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": [],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
     "name": "v2Query",
     "selections": [
       {
         "alias": null,
-        "args": null,
+        "args": (v1/*: any*/),
         "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "topCommanders",
         "plural": true,
         "selections": [
-          (v0/*: any*/),
+          (v2/*: any*/),
           {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "id",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "colorId",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "imageUrls",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": (v3/*: any*/),
+            "kind": "ScalarField",
+            "name": "conversionRate",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": (v3/*: any*/),
+            "kind": "ScalarField",
+            "name": "topCuts",
             "storageKey": null
           }
         ],
@@ -79,16 +138,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "c27098ba879b83ba82ac6bbea22f67b7",
+    "cacheID": "7722a45bf2a24025e755f20211f9f8e8",
     "id": null,
     "metadata": {},
     "name": "v2Query",
     "operationKind": "query",
-    "text": "query v2Query {\n  topCommanders {\n    name\n    id\n  }\n}\n"
+    "text": "query v2Query(\n  $timePeriod: TopCommandersTimePeriod\n) {\n  topCommanders(timePeriod: $timePeriod) {\n    id\n    ...v2_TopCommandersCard\n  }\n}\n\nfragment v2_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  conversionRate(filters: {timePeriod: $timePeriod})\n  topCuts(filters: {timePeriod: $timePeriod})\n}\n"
   }
 };
 })();
 
-(node as any).hash = "d86a5c1f13224510bbb0ae92ecd3bf17";
+(node as any).hash = "d5c69dce962735399b466db27b934e8f";
 
 export default node;
