@@ -55,14 +55,14 @@ function Navigation() {
   }, []);
 
   return (
-    <nav className="sticky top-0 z-20 mb-8 grid w-full grid-cols-[auto_auto_auto_1fr] items-center gap-x-6 gap-y-3 bg-[#312d5a] px-8 py-3 font-title text-white">
+    <nav className="sticky top-0 z-20 mb-8 grid w-full grid-cols-[auto_auto_auto_1fr] items-center gap-x-6 gap-y-3 bg-[#312d5a] px-4 py-3 font-title text-white md:px-8">
       <span className="text-xl font-black">EDHTop16</span>
 
-      <span className="underline decoration-transparent transition-colors hover:decoration-inherit">
+      <span className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm">
         Commanders
       </span>
 
-      <span className="underline decoration-transparent transition-colors hover:decoration-inherit">
+      <span className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm">
         Tournaments
       </span>
 
@@ -70,7 +70,7 @@ function Navigation() {
         className="block justify-self-end	md:hidden"
         onClick={toggleSearch}
       >
-        <MagnifyingGlassIcon className="h-6 w-6" />
+        <MagnifyingGlassIcon className="h-5 w-5" />
       </button>
 
       <div
