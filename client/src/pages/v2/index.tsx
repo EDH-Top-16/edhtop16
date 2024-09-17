@@ -129,7 +129,7 @@ function V2PageShell({
   return (
     <div className="relative min-h-screen bg-[#514f86]">
       <Navigation />
-      <div className="mx-auto w-fit max-w-screen-xl px-8">
+      <div className="mx-auto w-full max-w-screen-xl px-8">
         <div className="mb-8 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0">
           <h1 className="flex-1 text-5xl font-extrabold text-white">
             cEDH Metagame Breakdown
@@ -207,7 +207,7 @@ function V2PagePlaceholder() {
       sortBy={router.query.sortBy as TopCommandersSortBy}
       timePeriod={router.query.timePeriod as TopCommandersTimePeriod}
     >
-      <div className="flex w-screen justify-center pt-24 text-white">
+      <div className="flex w-full justify-center pt-24 text-white">
         <FireIcon className="h-12 w-12 animate-pulse" />
       </div>
     </V2PageShell>
