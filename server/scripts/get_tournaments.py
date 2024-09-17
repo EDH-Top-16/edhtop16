@@ -168,6 +168,7 @@ if __name__ == "__main__":
                                 ),
                                 "swissNum": tourney["swissNum"],
                                 "topCut": tourney.get("topCut", None),
+                                "bracketUrl": f"topdeck.gg/bracket/{tourney['TID']}",
                             }
                         },
                     )
