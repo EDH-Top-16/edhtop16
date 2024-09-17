@@ -1,6 +1,6 @@
 import cn from "classnames";
 import { useCallback } from "react";
-import { ColorIcon } from "../../assets/icons/colors";
+import { ColorIcon } from "../assets/icons/colors";
 
 interface ColorSelectionProps {
   selected: string[];

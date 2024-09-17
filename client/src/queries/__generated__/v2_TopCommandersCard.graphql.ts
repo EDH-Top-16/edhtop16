@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<9218f9a0810e1ca9f9884c3686138e65>>
+ * @generated SignedSource<<f2fdc8f4d099d667478801715bc667e7>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -14,6 +14,7 @@ export type v2_TopCommandersCard$data = {
   readonly breakdownUrl: string;
   readonly colorId: string;
   readonly conversionRate: number;
+  readonly count: number;
   readonly imageUrls: ReadonlyArray<string>;
   readonly name: string;
   readonly topCuts: number;
@@ -86,6 +87,13 @@ return {
     },
     {
       "alias": null,
+      "args": (v0/*: any*/),
+      "kind": "ScalarField",
+      "name": "count",
+      "storageKey": null
+    },
+    {
+      "alias": null,
       "args": null,
       "kind": "ScalarField",
       "name": "breakdownUrl",
@@ -97,6 +105,6 @@ return {
 };
 })();
 
-(node as any).hash = "ffbdce2c5f39f34235b95c18442d5f61";
+(node as any).hash = "c07ee36a45d64fa68a41cb4d24b8f955";
 
 export default node;
