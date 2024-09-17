@@ -1,6 +1,8 @@
 import FireIcon from "@heroicons/react/24/solid/FireIcon";
 import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
+import XMarkIcon from "@heroicons/react/24/solid/XMarkIcon";
 import cn from "classnames";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { PropsWithChildren, useCallback, useState } from "react";
 import { graphql, useFragment, usePreloadedQuery } from "react-relay";
@@ -25,6 +27,7 @@ function TopCommandersCard(props: { commander: v2_TopCommandersCard$key }) {
         imageUrls
         conversionRate(filters: { timePeriod: $timePeriod })
         topCuts(filters: { timePeriod: $timePeriod })
+        breakdownUrl
       }
     `,
     props.commander,
@@ -51,9 +54,12 @@ function TopCommandersCard(props: { commander: v2_TopCommandersCard$key }) {
 
       <div className="relative px-4 py-5 text-white sm:p-6">
         <div className="flex h-28 flex-col space-y-2">
-          <p className="text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit">
+          <Link
+            href={commander.breakdownUrl}
+            className="text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
+          >
             {commander.name}
-          </p>
+          </Link>
 
           <ColorIdentity identity={commander.colorId} />
         </div>
@@ -77,19 +83,29 @@ function Navigation() {
     <nav className="sticky top-0 z-20 mb-8 grid w-full grid-cols-[auto_auto_auto_1fr] items-center gap-x-6 gap-y-3 bg-[#312d5a] px-4 py-3 font-title text-white md:px-8">
       <span className="text-xl font-black">EDHTop16</span>
 
-      <span className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm">
+      <Link
+        href="/v2"
+        className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm"
+      >
         Commanders
-      </span>
+      </Link>
 
-      <span className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm">
+      <Link
+        href="/v2/tournaments"
+        className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm"
+      >
         Tournaments
-      </span>
+      </Link>
 
       <button
         className="block justify-self-end	md:hidden"
         onClick={toggleSearch}
       >
-        <MagnifyingGlassIcon className="h-5 w-5" />
+        {mobileSearchOpen ? (
+          <XMarkIcon className="h-5 w-5" />
+        ) : (
+          <MagnifyingGlassIcon className="h-5 w-5" />
+        )}
       </button>
 
       <div
