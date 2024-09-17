@@ -1,5 +1,5 @@
-import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
 import FireIcon from "@heroicons/react/24/solid/FireIcon";
+import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
 import cn from "classnames";
 import { useRouter } from "next/router";
 import { PropsWithChildren, useCallback, useState } from "react";
@@ -7,8 +7,8 @@ import { graphql, useFragment, usePreloadedQuery } from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { ColorIdentity } from "../../assets/icons/colors";
 import { Searchbar } from "../../components/banner/searchbar";
+import { Select } from "../../components/select";
 import { getClientEnvironment } from "../../lib/client/relay_client_environment";
-import { Select } from "../../lib/client/select";
 import { v2_TopCommandersCard$key } from "../../queries/__generated__/v2_TopCommandersCard.graphql";
 import {
   TopCommandersSortBy,

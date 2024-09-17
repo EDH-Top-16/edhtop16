@@ -25,6 +25,7 @@ export function Select({
           id={id}
           value={value}
           disabled={disabled}
+          className="bg-white"
           onChange={(e) => {
             onChange?.(e.target.value);
           }}
