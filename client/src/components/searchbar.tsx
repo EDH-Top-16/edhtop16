@@ -2,8 +2,8 @@ import cn from "classnames";
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
-import { ServerSafeSuspense } from "../../lib/client/suspense";
-import { searchbar_CommanderNamesQuery } from "../../queries/__generated__/searchbar_CommanderNamesQuery.graphql";
+import { ServerSafeSuspense } from "../lib/client/suspense";
+import { searchbar_CommanderNamesQuery } from "../queries/__generated__/searchbar_CommanderNamesQuery.graphql";
 
 export function Searchbar() {
   const [searchTerm, setSearchTerm] = useState("");

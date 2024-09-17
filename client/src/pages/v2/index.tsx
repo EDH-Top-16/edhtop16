@@ -4,11 +4,11 @@ import XMarkIcon from "@heroicons/react/24/solid/XMarkIcon";
 import cn from "classnames";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { PropsWithChildren, useCallback, useState } from "react";
+import { PropsWithChildren, useCallback, useMemo, useState } from "react";
 import { graphql, useFragment, usePreloadedQuery } from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { ColorIdentity } from "../../assets/icons/colors";
-import { Searchbar } from "../../components/banner/searchbar";
+import { Searchbar } from "../../components/searchbar";
 import { Select } from "../../components/select";
 import { getClientEnvironment } from "../../lib/client/relay_client_environment";
 import { v2_TopCommandersCard$key } from "../../queries/__generated__/v2_TopCommandersCard.graphql";
@@ -18,7 +18,13 @@ import {
   v2Query,
 } from "../../queries/__generated__/v2Query.graphql";
 
-function TopCommandersCard(props: { commander: v2_TopCommandersCard$key }) {
+function TopCommandersCard({
+  secondaryStatistic,
+  ...props
+}: {
+  secondaryStatistic: "topCuts" | "count";
+  commander: v2_TopCommandersCard$key;
+}) {
   const commander = useFragment(
     graphql`
       fragment v2_TopCommandersCard on Commander {
@@ -27,11 +33,26 @@ function TopCommandersCard(props: { commander: v2_TopCommandersCard$key }) {
         imageUrls
         conversionRate(filters: { timePeriod: $timePeriod })
         topCuts(filters: { timePeriod: $timePeriod })
+        count(filters: { timePeriod: $timePeriod })
         breakdownUrl
       }
     `,
     props.commander,
   );
+
+  const commanderStats = useMemo(() => {
+    const stats = [
+      `Conversion Rate: ${Math.floor(commander.conversionRate * 10000) / 100}%`,
+    ];
+
+    if (secondaryStatistic === "count") {
+      stats.push(`Entries: ${commander.count}`);
+    } else if (secondaryStatistic === "topCuts") {
+      stats.push(`Top Cuts: ${commander.topCuts}`);
+    }
+
+    return stats.join(" / ");
+  }, [commander, secondaryStatistic]);
 
   return (
     <div className="group relative cursor-pointer overflow-hidden rounded-lg bg-white shadow transition-shadow hover:shadow-lg">
@@ -66,8 +87,7 @@ function TopCommandersCard(props: { commander: v2_TopCommandersCard$key }) {
       </div>
 
       <div className="absolute bottom-0 w-full bg-black/60 px-2 py-2 text-white">
-        Conversion Rate: {Math.floor(commander.conversionRate * 10000) / 100}% /
-        Top Cuts: {commander.topCuts}
+        {commanderStats}
       </div>
     </div>
   );
@@ -91,7 +111,7 @@ function Navigation() {
       </Link>
 
       <Link
-        href="/v2/tournaments"
+        href="https://edhtop16.com/tournaments"
         className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm"
       >
         Tournaments
@@ -119,18 +139,6 @@ function Navigation() {
     </nav>
   );
 }
-
-const V2Query = graphql`
-  query v2Query(
-    $timePeriod: TopCommandersTimePeriod
-    $sortBy: TopCommandersSortBy
-  ) {
-    topCommanders(timePeriod: $timePeriod, sortBy: $sortBy) {
-      id
-      ...v2_TopCommandersCard
-    }
-  }
-`;
 
 function V2PageShell({
   sortBy,
@@ -187,11 +195,23 @@ function V2PageShell({
   );
 }
 
+const V2Query = graphql`
+  query v2Query(
+    $timePeriod: TopCommandersTimePeriod
+    $sortBy: TopCommandersSortBy
+  ) {
+    topCommanders(timePeriod: $timePeriod, sortBy: $sortBy) {
+      id
+      ...v2_TopCommandersCard
+    }
+  }
+`;
+
 function V2Page({ preloadedQuery }: RelayProps<{}, v2Query>) {
   const { topCommanders } = usePreloadedQuery(V2Query, preloadedQuery);
 
   const router = useRouter();
-  const setVariable = useCallback(
+  const setQueryVariable = useCallback(
     (key: string, value: string) => {
       const nextUrl = new URL(window.location.href);
       nextUrl.searchParams.set(key, value);
@@ -204,11 +224,19 @@ function V2Page({ preloadedQuery }: RelayProps<{}, v2Query>) {
     <V2PageShell
       sortBy={preloadedQuery.variables.sortBy ?? "CONVERSION"}
       timePeriod={preloadedQuery.variables.timePeriod ?? "SIX_MONTHS"}
-      onUpdateQueryParam={setVariable}
+      onUpdateQueryParam={setQueryVariable}
     >
       <div className="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
         {topCommanders.map((c) => (
-          <TopCommandersCard key={c.id} commander={c} />
+          <TopCommandersCard
+            key={c.id}
+            commander={c}
+            secondaryStatistic={
+              preloadedQuery.variables.sortBy === "CONVERSION"
+                ? "topCuts"
+                : "count"
+            }
+          />
         ))}
       </div>
     </V2PageShell>

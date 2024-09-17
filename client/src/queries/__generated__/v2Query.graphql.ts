@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<4d646e0af7ab7aa8a89c907787c23cf8>>
+ * @generated SignedSource<<2e6d07305ebce995443d6e031633ea90>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -153,6 +153,13 @@ return {
           },
           {
             "alias": null,
+            "args": (v5/*: any*/),
+            "kind": "ScalarField",
+            "name": "count",
+            "storageKey": null
+          },
+          {
+            "alias": null,
             "args": null,
             "kind": "ScalarField",
             "name": "breakdownUrl",
@@ -164,12 +171,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "fc7d87d2b4c12b5fd23264a4a61d88a3",
+    "cacheID": "c75e3ab4ecb222efff1c51f74fc86b71",
     "id": null,
     "metadata": {},
     "name": "v2Query",
     "operationKind": "query",
-    "text": "query v2Query(\n  $timePeriod: TopCommandersTimePeriod\n  $sortBy: TopCommandersSortBy\n) {\n  topCommanders(timePeriod: $timePeriod, sortBy: $sortBy) {\n    id\n    ...v2_TopCommandersCard\n  }\n}\n\nfragment v2_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  conversionRate(filters: {timePeriod: $timePeriod})\n  topCuts(filters: {timePeriod: $timePeriod})\n  breakdownUrl\n}\n"
+    "text": "query v2Query(\n  $timePeriod: TopCommandersTimePeriod\n  $sortBy: TopCommandersSortBy\n) {\n  topCommanders(timePeriod: $timePeriod, sortBy: $sortBy) {\n    id\n    ...v2_TopCommandersCard\n  }\n}\n\nfragment v2_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  conversionRate(filters: {timePeriod: $timePeriod})\n  topCuts(filters: {timePeriod: $timePeriod})\n  count(filters: {timePeriod: $timePeriod})\n  breakdownUrl\n}\n"
   }
 };
 })();
