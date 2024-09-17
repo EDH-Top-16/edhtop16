@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<c7d93d6ea51956a0dbb45374f8347835>>
+ * @generated SignedSource<<9218f9a0810e1ca9f9884c3686138e65>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,6 +11,7 @@
 import { Fragment, ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type v2_TopCommandersCard$data = {
+  readonly breakdownUrl: string;
   readonly colorId: string;
   readonly conversionRate: number;
   readonly imageUrls: ReadonlyArray<string>;
@@ -82,6 +83,13 @@ return {
       "kind": "ScalarField",
       "name": "topCuts",
       "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "breakdownUrl",
+      "storageKey": null
     }
   ],
   "type": "Commander",
@@ -89,6 +97,6 @@ return {
 };
 })();
 
-(node as any).hash = "92b214bde493d4024b7a67dfce44ac8e";
+(node as any).hash = "ffbdce2c5f39f34235b95c18442d5f61";
 
 export default node;
