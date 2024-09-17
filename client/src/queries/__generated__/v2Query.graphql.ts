@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<59881a688873f1aabe971c27c389b115>>
+ * @generated SignedSource<<ad0df3e1e170b491cf2c8ba88690d588>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,8 +10,10 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
+export type TopCommandersSortBy = "CONVERSION" | "POPULARITY" | "%future added value";
 export type TopCommandersTimePeriod = "ONE_MONTH" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type v2Query$variables = {
+  sortBy?: TopCommandersSortBy | null | undefined;
   timePeriod?: TopCommandersTimePeriod | null | undefined;
 };
 export type v2Query$data = {
@@ -26,50 +28,64 @@ export type v2Query = {
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = [
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "timePeriod"
-  }
-],
-v1 = [
+var v0 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "sortBy"
+},
+v1 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "timePeriod"
+},
+v2 = {
+  "kind": "Variable",
+  "name": "timePeriod",
+  "variableName": "timePeriod"
+},
+v3 = [
   {
     "kind": "Variable",
-    "name": "timePeriod",
-    "variableName": "timePeriod"
-  }
+    "name": "sortBy",
+    "variableName": "sortBy"
+  },
+  (v2/*: any*/)
 ],
-v2 = {
+v4 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
 },
-v3 = [
+v5 = [
   {
-    "fields": (v1/*: any*/),
+    "fields": [
+      (v2/*: any*/)
+    ],
     "kind": "ObjectValue",
     "name": "filters"
   }
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v0/*: any*/),
+      (v1/*: any*/)
+    ],
     "kind": "Fragment",
     "metadata": null,
     "name": "v2Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v3/*: any*/),
         "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "topCommanders",
         "plural": true,
         "selections": [
-          (v2/*: any*/),
+          (v4/*: any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -84,19 +100,22 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v1/*: any*/),
+      (v0/*: any*/)
+    ],
     "kind": "Operation",
     "name": "v2Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v3/*: any*/),
         "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "topCommanders",
         "plural": true,
         "selections": [
-          (v2/*: any*/),
+          (v4/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -120,14 +139,14 @@ return {
           },
           {
             "alias": null,
-            "args": (v3/*: any*/),
+            "args": (v5/*: any*/),
             "kind": "ScalarField",
             "name": "conversionRate",
             "storageKey": null
           },
           {
             "alias": null,
-            "args": (v3/*: any*/),
+            "args": (v5/*: any*/),
             "kind": "ScalarField",
             "name": "topCuts",
             "storageKey": null
@@ -138,16 +157,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "7722a45bf2a24025e755f20211f9f8e8",
+    "cacheID": "80a6e9cf3b6d43a1ebfafc080c7f2525",
     "id": null,
     "metadata": {},
     "name": "v2Query",
     "operationKind": "query",
-    "text": "query v2Query(\n  $timePeriod: TopCommandersTimePeriod\n) {\n  topCommanders(timePeriod: $timePeriod) {\n    id\n    ...v2_TopCommandersCard\n  }\n}\n\nfragment v2_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  conversionRate(filters: {timePeriod: $timePeriod})\n  topCuts(filters: {timePeriod: $timePeriod})\n}\n"
+    "text": "query v2Query(\n  $timePeriod: TopCommandersTimePeriod\n  $sortBy: TopCommandersSortBy\n) {\n  topCommanders(timePeriod: $timePeriod, sortBy: $sortBy) {\n    id\n    ...v2_TopCommandersCard\n  }\n}\n\nfragment v2_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  conversionRate(filters: {timePeriod: $timePeriod})\n  topCuts(filters: {timePeriod: $timePeriod})\n}\n"
   }
 };
 })();
 
-(node as any).hash = "d5c69dce962735399b466db27b934e8f";
+(node as any).hash = "98de12998cf05249943365fb73b95615";
 
 export default node;
