@@ -486,7 +486,7 @@ builder.queryField("topCommanders", (t) =>
         GROUP BY c.uuid
         HAVING count(e) >= ${minCount}
         ORDER BY ${orderBy} DESC
-        LIMIT 25
+        LIMIT 24
       `;
     },
   }),
