@@ -1,4 +1,4 @@
-# 🚀 Our Site is Live! https://www.edhtop16.com 🚀
+# 🚀 Our Site is Live! https://edhtop16.com 🚀
 
 > ⚡ Our team of developers are still working hard to push out new features!
 
@@ -8,9 +8,21 @@
 
 ## How to Contribute
 
-After cloning this repository, contact Jason for instructions on building the database. Becasue we rely on external APIs, our database update scripts don't work as-is. We're working on a script to pull from the EDHTop16 main database.
+After cloning this repository, contact Jason or Ryan for instructions on building the database. Becasue we rely on external APIs, our database update scripts don't work as-is. We're working on a script to pull from the EDHTop16 main database.
 
-## Running using Docker
+## Running Locally
+
+The V1 frontend is considered mostly read-only, so this section will only discuss running the V2 UI.
+
+```sh
+cd client
+npm install
+npm run dev
+```
+
+Please contact Jason or Ryan for setting up a local database for development and appropriate API keys. When submitting pull requests, please inform us if you've added any new packages and update the corresponding package lock files.
+
+## Running locally using Docker
 
 [Docker](https://www.docker.com/) is a simpler way of running and managing the application stack. To get this working, install [Docker Desktop](https://www.docker.com/products/docker-desktop/) on your system. To run the database, we recommend you run locally; contact Jason for a seed file.
 
@@ -22,7 +34,7 @@ To build:
 
 To run:
 
-Mac/Windows: 
+Mac/Windows:
 
 ```sh
 docker run -p 8000:8000 --env MONGO_URI=mongodb://host.docker.internal:27017 --env ATLAS_URI=mongodb://host.docker.internal:27017 --rm unit-app
@@ -44,30 +56,6 @@ curl -X GET -H 'Content-Type: application/json' -H 'Accept: application/json' ht
 
 or simply visit `localhost:8000` in browser.
 
-## Running without Docker
-
-### Start Backend
-
-[`server/`](/server/)
-
-```sh
-cd ./server/
-pip install -r ./requirements.txt
-uvicorn main:app --reload
-```
-
-### Start Frontend
-
-[`client/`](/client/)
-
-```sh
-cd ./client/
-npm install
-npm run dev
-```
-
-When submitting pull requests, please inform us if you've added any new packages and update the corresponding package lock files.
-
 ## ⌨️ Special Thanks
 
-Made possible by @znayer and the Eminence Team
+Made possible by @znayer and the TopDeck.gg Team
