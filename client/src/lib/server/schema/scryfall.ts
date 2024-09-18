@@ -31,7 +31,6 @@ const scryfallCardListSchema = z.object({
 export type ScryfallCardLoader = DataLoader<string, ScryfallCard>;
 export function createScryfallCardLoader() {
   return new DataLoader<string, ScryfallCard>(async (cardNames) => {
-    console.log("Loading", cardNames);
     const url = new URL("https://api.scryfall.com/cards/search");
     url.searchParams.set("q", cardNames.map((c) => `!"${c}"`).join(" OR "));
 
