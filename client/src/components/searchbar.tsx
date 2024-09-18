@@ -1,7 +1,8 @@
 import cn from "classnames";
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
+import { useSearch } from "../lib/client/search";
 import { ServerSafeSuspense } from "../lib/client/suspense";
 import { searchbar_CommanderNamesQuery } from "../queries/__generated__/searchbar_CommanderNamesQuery.graphql";
 
@@ -53,13 +54,7 @@ function Suggestions({ search }: { search: string }) {
     {},
   );
 
-  const suggestions = useMemo(
-    () =>
-      commanderNames.filter((c) =>
-        c.toLowerCase().includes(search.toLowerCase()),
-      ),
-    [commanderNames, search],
-  );
+  const suggestions = useSearch(commanderNames, search);
 
   if (suggestions.length === 0) {
     return (

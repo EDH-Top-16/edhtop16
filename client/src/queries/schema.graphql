@@ -14,7 +14,7 @@ type Commander {
   topCuts(filters: CommanderStatsFilters): Int!
   topEntries(
     sortBy: TopCommandersTopEntriesSortBy = TOP
-    timePeriod: TopCommandersTimePeriod = ONE_MONTH
+    timePeriod: TimePeriod = ONE_MONTH
   ): [Entry!]!
 }
 
@@ -33,7 +33,7 @@ input CommanderStatsFilters {
   minDate: String
   minEntries: Int
   minSize: Int
-  timePeriod: TopCommandersTimePeriod
+  timePeriod: TimePeriod
   topCut: Int
 }
 
@@ -103,7 +103,7 @@ type Query {
   player(profile: String!): Player!
   topCommanders(
     sortBy: TopCommandersSortBy
-    timePeriod: TopCommandersTimePeriod
+    timePeriod: TimePeriod
   ): [Commander!]!
   tournament(TID: String!): Tournament!
   tournaments(filters: TournamentFilters, search: String): [Tournament!]!
@@ -114,15 +114,15 @@ enum SortDirection {
   DESC
 }
 
-enum TopCommandersSortBy {
-  CONVERSION
-  POPULARITY
-}
-
-enum TopCommandersTimePeriod {
+enum TimePeriod {
   ONE_MONTH
   SIX_MONTHS
   THREE_MONTHS
+}
+
+enum TopCommandersSortBy {
+  CONVERSION
+  POPULARITY
 }
 
 enum TopCommandersTopEntriesSortBy {

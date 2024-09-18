@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<2e6d07305ebce995443d6e031633ea90>>
+ * @generated SignedSource<<0dadc62e65d88ea683d31c600a102eda>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,11 +10,11 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
+export type TimePeriod = "ONE_MONTH" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type TopCommandersSortBy = "CONVERSION" | "POPULARITY" | "%future added value";
-export type TopCommandersTimePeriod = "ONE_MONTH" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type v2Query$variables = {
   sortBy?: TopCommandersSortBy | null | undefined;
-  timePeriod?: TopCommandersTimePeriod | null | undefined;
+  timePeriod?: TimePeriod | null | undefined;
 };
 export type v2Query$data = {
   readonly topCommanders: ReadonlyArray<{
@@ -171,16 +171,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "c75e3ab4ecb222efff1c51f74fc86b71",
+    "cacheID": "a2f965b95313dfcb082a0dcfaab8625a",
     "id": null,
     "metadata": {},
     "name": "v2Query",
     "operationKind": "query",
-    "text": "query v2Query(\n  $timePeriod: TopCommandersTimePeriod\n  $sortBy: TopCommandersSortBy\n) {\n  topCommanders(timePeriod: $timePeriod, sortBy: $sortBy) {\n    id\n    ...v2_TopCommandersCard\n  }\n}\n\nfragment v2_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  conversionRate(filters: {timePeriod: $timePeriod})\n  topCuts(filters: {timePeriod: $timePeriod})\n  count(filters: {timePeriod: $timePeriod})\n  breakdownUrl\n}\n"
+    "text": "query v2Query(\n  $timePeriod: TimePeriod\n  $sortBy: TopCommandersSortBy\n) {\n  topCommanders(timePeriod: $timePeriod, sortBy: $sortBy) {\n    id\n    ...v2_TopCommandersCard\n  }\n}\n\nfragment v2_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  conversionRate(filters: {timePeriod: $timePeriod})\n  topCuts(filters: {timePeriod: $timePeriod})\n  count(filters: {timePeriod: $timePeriod})\n  breakdownUrl\n}\n"
   }
 };
 })();
 
-(node as any).hash = "98de12998cf05249943365fb73b95615";
+(node as any).hash = "1702913505bb0c86516649de73a226c4";
 
 export default node;
