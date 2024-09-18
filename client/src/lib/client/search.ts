@@ -5,7 +5,6 @@ const FuseLib = import("fuse.js").then((mod) => mod.default);
 type SearchOp = (term: string) => string[];
 function defaultSearchOperator(list: readonly string[]): SearchOp {
   return (term: string) => {
-    console.log("Searching for", term);
     return list.filter((c) => c.toLowerCase().includes(term.toLowerCase()));
   };
 }
