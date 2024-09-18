@@ -9,11 +9,13 @@ import {
 } from "../topdeck";
 import { type CommanderStatsDataLoader } from "./commander";
 import { EntryDataLoader } from "./entry";
+import { ScryfallCardLoader } from "./scryfall";
 
 export interface Context {
   commanderStats: CommanderStatsDataLoader;
   entries: EntryDataLoader;
   topdeckClient: TopdeckClient;
+  scryfallCardLoader: ScryfallCardLoader;
 }
 
 export const builder = new SchemaBuilder<{
