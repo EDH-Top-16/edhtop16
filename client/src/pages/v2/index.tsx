@@ -14,7 +14,7 @@ import { getClientEnvironment } from "../../lib/client/relay_client_environment"
 import { v2_TopCommandersCard$key } from "../../queries/__generated__/v2_TopCommandersCard.graphql";
 import {
   TopCommandersSortBy,
-  TopCommandersTimePeriod,
+  TimePeriod,
   v2Query,
 } from "../../queries/__generated__/v2Query.graphql";
 
@@ -147,7 +147,7 @@ function V2PageShell({
   children,
 }: PropsWithChildren<{
   sortBy: TopCommandersSortBy;
-  timePeriod: TopCommandersTimePeriod;
+  timePeriod: TimePeriod;
   onUpdateQueryParam?: (key: string, value: string) => void;
 }>) {
   return (
@@ -196,10 +196,7 @@ function V2PageShell({
 }
 
 const V2Query = graphql`
-  query v2Query(
-    $timePeriod: TopCommandersTimePeriod
-    $sortBy: TopCommandersSortBy
-  ) {
+  query v2Query($timePeriod: TimePeriod, $sortBy: TopCommandersSortBy) {
     topCommanders(timePeriod: $timePeriod, sortBy: $sortBy) {
       id
       ...v2_TopCommandersCard
@@ -249,7 +246,7 @@ function V2PagePlaceholder() {
   return (
     <V2PageShell
       sortBy={router.query.sortBy as TopCommandersSortBy}
-      timePeriod={router.query.timePeriod as TopCommandersTimePeriod}
+      timePeriod={router.query.timePeriod as TimePeriod}
     >
       <div className="flex w-full justify-center pt-24 text-white">
         <FireIcon className="h-12 w-12 animate-pulse" />
@@ -270,8 +267,7 @@ export default withRelay(V2Page, V2Query, {
   },
   variablesFromContext: (ctx) => {
     return {
-      timePeriod:
-        (ctx.query.timePeriod as TopCommandersTimePeriod) ?? "SIX_MONTHS",
+      timePeriod: (ctx.query.timePeriod as TimePeriod) ?? "SIX_MONTHS",
       sortBy: (ctx.query.sortBy as TopCommandersSortBy) ?? "CONVERSION",
     };
   },

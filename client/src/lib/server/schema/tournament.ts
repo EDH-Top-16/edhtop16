@@ -2,6 +2,8 @@ import { Prisma } from "@prisma/client";
 import { TournamentRoundType, TournamentTableType, builder } from "./builder";
 import { EntryType } from "./entry";
 import { prisma } from "../prisma";
+import { TimePeriod } from "./types";
+import { subMonths } from "date-fns";
 
 TournamentTableType.implement({
   fields: (t) => ({
@@ -68,7 +70,7 @@ TournamentRoundType.implement({
   }),
 });
 
-const TournamentType = builder.prismaObject("Tournament", {
+export const TournamentType = builder.prismaObject("Tournament", {
   fields: (t) => ({
     id: t.exposeID("uuid"),
     TID: t.exposeString("TID"),
@@ -99,8 +101,13 @@ const TournamentType = builder.prismaObject("Tournament", {
   }),
 });
 
+const TournamentSortBy = builder.enumType("TournamentSortBy", {
+  values: ["PLAYERS", "DATE"] as const,
+});
+
 const TournamentFiltersInput = builder.inputType("TournamentFilters", {
   fields: (t) => ({
+    timePeriod: t.field({ type: TimePeriod }),
     minSize: t.int(),
     maxSize: t.int(),
   }),
@@ -112,6 +119,7 @@ builder.queryField("tournaments", (t) =>
     args: {
       search: t.arg.string(),
       filters: t.arg({ type: TournamentFiltersInput }),
+      sortBy: t.arg({ type: TournamentSortBy, defaultValue: "DATE" }),
     },
     resolve: async (query, _root, args, _ctx, _info) => {
       const where: Prisma.TournamentWhereInput[] = [];
@@ -130,9 +138,27 @@ builder.queryField("tournaments", (t) =>
         where.push({ size: { lte: args.filters.maxSize } });
       }
 
+      if (args.filters?.timePeriod) {
+        const minDate =
+          args.filters.timePeriod === "SIX_MONTHS"
+            ? subMonths(new Date(), 6)
+            : args.filters.timePeriod === "THREE_MONTHS"
+            ? subMonths(new Date(), 3)
+            : args.filters.timePeriod === "ONE_MONTH"
+            ? subMonths(new Date(), 1)
+            : new Date(0);
+
+        where.push({ tournamentDate: { gte: minDate } });
+      }
+
+      const orderBy: Prisma.TournamentOrderByWithRelationInput[] =
+        args.sortBy === "PLAYERS"
+          ? [{ size: "desc" }, { tournamentDate: "desc" }]
+          : [{ tournamentDate: "desc" }, { size: "desc" }];
+
       return prisma.tournament.findMany({
         ...query,
-        orderBy: { tournamentDate: "desc" },
+        orderBy,
         where: { AND: where },
       });
     },

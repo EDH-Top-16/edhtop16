@@ -4,7 +4,7 @@ import { subMonths } from "date-fns";
 import { prisma } from "../prisma";
 import { builder } from "./builder";
 import { EntryFilters, EntrySortBy, EntryType } from "./entry";
-import { SortDirection } from "./types";
+import { SortDirection, TimePeriod } from "./types";
 import { getCardByName } from "./scryfall";
 
 interface CommanderStatsQuery {
@@ -94,10 +94,6 @@ export function createCommanderStatsLoader(): CommanderStatsDataLoader {
   );
 }
 
-const TopCommandersTimePeriod = builder.enumType("TopCommandersTimePeriod", {
-  values: ["ONE_MONTH", "THREE_MONTHS", "SIX_MONTHS"] as const,
-});
-
 const TopCommandersSortBy = builder.enumType("TopCommandersSortBy", {
   values: ["POPULARITY", "CONVERSION"] as const,
 });
@@ -123,7 +119,7 @@ const FiltersInput = builder.inputType("CommanderStatsFilters", {
     maxSize: t.int(),
     maxEntries: t.int(),
     maxDate: t.string(),
-    timePeriod: t.field({ type: TopCommandersTimePeriod }),
+    timePeriod: t.field({ type: TimePeriod }),
   }),
 });
 
@@ -294,7 +290,7 @@ const CommanderType = builder.prismaObject("Commander", {
           defaultValue: "TOP",
         }),
         timePeriod: t.arg({
-          type: TopCommandersTimePeriod,
+          type: TimePeriod,
           defaultValue: "ONE_MONTH",
         }),
       },
@@ -464,7 +460,7 @@ builder.queryField("topCommanders", (t) =>
   t.field({
     type: [CommanderType],
     args: {
-      timePeriod: t.arg({ type: TopCommandersTimePeriod }),
+      timePeriod: t.arg({ type: TimePeriod }),
       sortBy: t.arg({ type: TopCommandersSortBy }),
     },
     resolve: async (_root, { timePeriod, sortBy }) => {
