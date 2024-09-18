@@ -98,6 +98,12 @@ export const TournamentType = builder.prismaObject("Tournament", {
         );
       },
     }),
+    topPod: t.relation("entries", {
+      query: {
+        where: { standing: { lte: 4 } },
+        orderBy: { standing: "asc" },
+      },
+    }),
   }),
 });
 

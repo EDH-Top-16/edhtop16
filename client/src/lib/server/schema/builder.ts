@@ -2,6 +2,7 @@ import SchemaBuilder from "@pothos/core";
 import PrismaPlugin from "@pothos/plugin-prisma";
 import PrismaTypes from "@pothos/plugin-prisma/generated";
 import { prisma } from "../prisma";
+import { ScryfallCardLoader } from "../scryfall";
 import {
   TopdeckClient,
   TopdeckTournamentRound,
@@ -9,7 +10,6 @@ import {
 } from "../topdeck";
 import { type CommanderStatsDataLoader } from "./commander";
 import { EntryDataLoader } from "./entry";
-import { ScryfallCardLoader } from "./scryfall";
 
 export interface Context {
   commanderStats: CommanderStatsDataLoader;
