@@ -125,7 +125,7 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
           })}
         </div>
 
-        <h1 className="relative font-title text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
+        <h1 className="relative text-center font-title text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
           {commander.name}
         </h1>
         <div className="relative">
