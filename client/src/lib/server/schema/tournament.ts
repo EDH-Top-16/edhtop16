@@ -82,9 +82,11 @@ export const TournamentType = builder.prismaObject("Tournament", {
       resolve: (tournament) => tournament.tournamentDate.toISOString(),
     }),
     entries: t.relation("entries", {
-      query: {
+      args: { maxStanding: t.arg.int() },
+      query: (args) => ({
+        where: { standing: { lte: args.maxStanding ?? undefined } },
         orderBy: { standing: "asc" },
-      },
+      }),
     }),
     rounds: t.field({
       type: t.listRef(TournamentRoundType),
@@ -96,12 +98,6 @@ export const TournamentType = builder.prismaObject("Tournament", {
             TID: parent.TID,
           })) ?? []
         );
-      },
-    }),
-    topPod: t.relation("entries", {
-      query: {
-        where: { standing: { lte: 4 } },
-        orderBy: { standing: "asc" },
       },
     }),
   }),
