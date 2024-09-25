@@ -8,7 +8,7 @@ import { getClientEnvironment } from "../lib/client/relay_client_environment";
 import "../globals.css";
 
 const montserrat = Montserrat({
-  weight: ["900", "500"],
+  weight: ["500", "600", "900"],
   subsets: ["latin"],
   variable: "--font-montserrat",
 });

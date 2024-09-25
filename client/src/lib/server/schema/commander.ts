@@ -242,11 +242,7 @@ const CommanderType = builder.prismaObject("Commander", {
       },
     }),
     breakdownUrl: t.string({
-      resolve: (parent) =>
-        new URL(
-          `/commander/${encodeURIComponent(parent.name)}`,
-          "https://edhtop16.com",
-        ).href,
+      resolve: (parent) => `/v2/commander/${encodeURIComponent(parent.name)}`,
     }),
     count: t.int({
       args: { filters: t.arg({ type: FiltersInput }) },
@@ -312,7 +308,7 @@ const CommanderType = builder.prismaObject("Commander", {
             commanderUuid: parent.uuid,
             tournament: { tournamentDate: { gte: minDate } },
           },
-          take: 10,
+          take: 24,
           orderBy,
         });
       },

@@ -1,20 +1,18 @@
 import FireIcon from "@heroicons/react/24/solid/FireIcon";
-import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
-import XMarkIcon from "@heroicons/react/24/solid/XMarkIcon";
-import cn from "classnames";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { PropsWithChildren, useCallback, useMemo, useState } from "react";
+import { PropsWithChildren, useCallback, useMemo } from "react";
 import { graphql, useFragment, usePreloadedQuery } from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { ColorIdentity } from "../../assets/icons/colors";
-import { Searchbar } from "../../components/searchbar";
+import { Card } from "../../components/card";
+import { Navigation } from "../../components/navigation";
 import { Select } from "../../components/select";
 import { getClientEnvironment } from "../../lib/client/relay_client_environment";
 import { v2_TopCommandersCard$key } from "../../queries/__generated__/v2_TopCommandersCard.graphql";
 import {
-  TopCommandersSortBy,
   TimePeriod,
+  TopCommandersSortBy,
   v2Query,
 } from "../../queries/__generated__/v2Query.graphql";
 
@@ -55,88 +53,24 @@ function TopCommandersCard({
   }, [commander, secondaryStatistic]);
 
   return (
-    <div className="group relative cursor-pointer overflow-hidden rounded-lg bg-white shadow transition-shadow hover:shadow-lg">
-      <div className="absolute left-0 top-0 flex h-full w-full brightness-50 transition group-hover:brightness-[40%]">
-        {commander.imageUrls.map((img, i, { length }) => {
-          return (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              className={cn(
-                "flex-1 object-cover object-top",
-                length === 2 ? "w-1/2" : "w-full",
-              )}
-              key={img}
-              src={img}
-              alt={`${commander.name} card art`}
-            />
-          );
-        })}
+    <Card
+      bottomText={commanderStats}
+      images={commander.imageUrls.map((img) => ({
+        src: img,
+        alt: `${commander.name} card art`,
+      }))}
+    >
+      <div className="flex h-28 flex-col space-y-2">
+        <Link
+          href={commander.breakdownUrl}
+          className="text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
+        >
+          {commander.name}
+        </Link>
+
+        <ColorIdentity identity={commander.colorId} />
       </div>
-
-      <div className="relative px-4 py-5 text-white sm:p-6">
-        <div className="flex h-28 flex-col space-y-2">
-          <Link
-            href={commander.breakdownUrl}
-            className="text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
-          >
-            {commander.name}
-          </Link>
-
-          <ColorIdentity identity={commander.colorId} />
-        </div>
-      </div>
-
-      <div className="absolute bottom-0 w-full bg-black/60 px-2 py-2 text-white">
-        {commanderStats}
-      </div>
-    </div>
-  );
-}
-
-function Navigation() {
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const toggleSearch = useCallback(() => {
-    setMobileSearchOpen((open) => !open);
-  }, []);
-
-  return (
-    <nav className="sticky top-0 z-20 mb-8 grid w-full grid-cols-[auto_auto_auto_1fr] items-center gap-x-6 gap-y-3 bg-[#312d5a] px-4 py-3 font-title text-white md:px-8">
-      <span className="text-xl font-black">EDHTop16</span>
-
-      <Link
-        href="/v2"
-        className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm"
-      >
-        Commanders
-      </Link>
-
-      <Link
-        href="https://edhtop16.com/tournaments"
-        className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm"
-      >
-        Tournaments
-      </Link>
-
-      <button
-        className="block justify-self-end	md:hidden"
-        onClick={toggleSearch}
-      >
-        {mobileSearchOpen ? (
-          <XMarkIcon className="h-5 w-5" />
-        ) : (
-          <MagnifyingGlassIcon className="h-5 w-5" />
-        )}
-      </button>
-
-      <div
-        className={cn(
-          "col-span-4 justify-end md:col-span-1 md:flex",
-          mobileSearchOpen ? "flex" : "hidden",
-        )}
-      >
-        <Searchbar />
-      </div>
-    </nav>
+    </Card>
   );
 }
 
@@ -153,7 +87,7 @@ function V2PageShell({
   return (
     <div className="relative min-h-screen bg-[#514f86]">
       <Navigation />
-      <div className="mx-auto w-full max-w-screen-xl px-8">
+      <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
         <div className="mb-8 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0">
           <h1 className="flex-1 text-5xl font-extrabold text-white">
             cEDH Metagame Breakdown
