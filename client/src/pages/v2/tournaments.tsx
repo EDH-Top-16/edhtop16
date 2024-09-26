@@ -1,87 +1,84 @@
 import FireIcon from "@heroicons/react/24/solid/FireIcon";
+import { format } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { PropsWithChildren, useCallback, useMemo } from "react";
 import { graphql, useFragment, usePreloadedQuery } from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
-import { ColorIdentity } from "../../assets/icons/colors";
 import { Card } from "../../components/card";
 import { Navigation } from "../../components/navigation";
 import { Select } from "../../components/select";
 import { getClientEnvironment } from "../../lib/client/relay_client_environment";
-import { v2_TopCommandersCard$key } from "../../queries/__generated__/v2_TopCommandersCard.graphql";
+import { tournaments_TournamentCard$key } from "../../queries/__generated__/tournaments_TournamentCard.graphql";
 import {
   TimePeriod,
-  TopCommandersSortBy,
-  v2Query,
-} from "../../queries/__generated__/v2Query.graphql";
+  tournaments_TournamentsQuery,
+  TournamentSortBy,
+} from "../../queries/__generated__/tournaments_TournamentsQuery.graphql";
 
-function TopCommandersCard({
-  secondaryStatistic,
-  ...props
-}: {
-  secondaryStatistic: "topCuts" | "count";
-  commander: v2_TopCommandersCard$key;
-}) {
-  const commander = useFragment(
+function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
+  const tournament = useFragment(
     graphql`
-      fragment v2_TopCommandersCard on Commander {
+      fragment tournaments_TournamentCard on Tournament {
+        TID
         name
-        colorId
-        imageUrls
-        conversionRate(filters: { timePeriod: $timePeriod })
-        topCuts(filters: { timePeriod: $timePeriod })
-        count(filters: { timePeriod: $timePeriod })
-        breakdownUrl
+        size
+        tournamentDate
+        entries(maxStanding: 1) {
+          player {
+            name
+          }
+
+          commander {
+            imageUrls
+          }
+        }
       }
     `,
     props.commander,
   );
 
-  const commanderStats = useMemo(() => {
-    const stats = [
-      `Conversion Rate: ${Math.floor(commander.conversionRate * 10000) / 100}%`,
-    ];
-
-    if (secondaryStatistic === "count") {
-      stats.push(`Entries: ${commander.count}`);
-    } else if (secondaryStatistic === "topCuts") {
-      stats.push(`Top Cuts: ${commander.topCuts}`);
-    }
-
-    return stats.join(" / ");
-  }, [commander, secondaryStatistic]);
+  const tournamentStats = useMemo(() => {
+    return (
+      <div className="flex justify-between">
+        <span>Players: {tournament.size}</span>
+        <span>Winner: {tournament.entries[0].player?.name}</span>
+      </div>
+    );
+  }, [tournament]);
 
   return (
     <Card
-      bottomText={commanderStats}
-      images={commander.imageUrls.map((img) => ({
+      bottomText={tournamentStats}
+      images={tournament.entries[0].commander.imageUrls.map((img) => ({
         src: img,
-        alt: `${commander.name} card art`,
+        alt: `${tournament.name} winner card art`,
       }))}
     >
       <div className="flex h-28 flex-col space-y-2">
         <Link
-          href={commander.breakdownUrl}
+          href={`/v2/tournament/${tournament.TID}`}
           className="text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
         >
-          {commander.name}
+          {tournament.name}
         </Link>
 
-        <ColorIdentity identity={commander.colorId} />
+        <span>{format(tournament.tournamentDate, "MMMM do yyyy")}</span>
       </div>
     </Card>
   );
 }
 
-function V2PageShell({
+function TournamentsPageShell({
   sortBy,
   timePeriod,
+  minSize,
   onUpdateQueryParam,
   children,
 }: PropsWithChildren<{
-  sortBy: TopCommandersSortBy;
+  sortBy: TournamentSortBy;
   timePeriod: TimePeriod;
+  minSize: string;
   onUpdateQueryParam?: (key: string, value: string) => void;
 }>) {
   return (
@@ -90,12 +87,12 @@ function V2PageShell({
       <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
         <div className="mb-8 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0">
           <h1 className="flex-1 text-5xl font-extrabold text-white">
-            cEDH Metagame Breakdown
+            cEDH Tournaments
           </h1>
 
           <div className="flex space-x-4">
             <Select
-              id="commanders-sort-by"
+              id="tournaments-sort-by"
               label="Sort By"
               value={sortBy}
               disabled={onUpdateQueryParam == null}
@@ -103,12 +100,26 @@ function V2PageShell({
                 onUpdateQueryParam?.("sortBy", value);
               }}
             >
-              <option value="CONVERSION">Conversion Rate</option>
-              <option value="POPULARITY">Popularity</option>
+              <option value="PLAYERS">Tournament Size</option>
+              <option value="DATE">Date</option>
             </Select>
 
             <Select
-              id="commanders-time-period"
+              id="tournaments-players"
+              label="Players"
+              value={minSize}
+              disabled={onUpdateQueryParam == null}
+              onChange={(value) => {
+                onUpdateQueryParam?.("minSize", value);
+              }}
+            >
+              <option value="0">All Tournaments</option>
+              <option value="60">60+ Players</option>
+              <option value="100">100+ Players</option>
+            </Select>
+
+            <Select
+              id="tournaments-time-period"
               label="Time Period"
               value={timePeriod}
               disabled={onUpdateQueryParam == null}
@@ -129,17 +140,26 @@ function V2PageShell({
   );
 }
 
-const V2Query = graphql`
-  query v2Query($timePeriod: TimePeriod!, $sortBy: TopCommandersSortBy!) {
-    topCommanders(timePeriod: $timePeriod, sortBy: $sortBy) {
+const TournamentsQuery = graphql`
+  query tournaments_TournamentsQuery(
+    $timePeriod: TimePeriod!
+    $sortBy: TournamentSortBy!
+    $minSize: Int!
+  ) {
+    tournaments(
+      filters: { timePeriod: $timePeriod, minSize: $minSize }
+      sortBy: $sortBy
+    ) {
       id
-      ...v2_TopCommandersCard
+      ...tournaments_TournamentCard
     }
   }
 `;
 
-function V2Page({ preloadedQuery }: RelayProps<{}, v2Query>) {
-  const { topCommanders } = usePreloadedQuery(V2Query, preloadedQuery);
+function TournamentsPage({
+  preloadedQuery,
+}: RelayProps<{}, tournaments_TournamentsQuery>) {
+  const { tournaments } = usePreloadedQuery(TournamentsQuery, preloadedQuery);
 
   const router = useRouter();
   const setQueryVariable = useCallback(
@@ -152,49 +172,43 @@ function V2Page({ preloadedQuery }: RelayProps<{}, v2Query>) {
   );
 
   return (
-    <V2PageShell
+    <TournamentsPageShell
       sortBy={preloadedQuery.variables.sortBy}
       timePeriod={preloadedQuery.variables.timePeriod}
+      minSize={`${preloadedQuery.variables.minSize}`}
       onUpdateQueryParam={setQueryVariable}
     >
       <div className="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
-        {topCommanders.map((c) => (
-          <TopCommandersCard
-            key={c.id}
-            commander={c}
-            secondaryStatistic={
-              preloadedQuery.variables.sortBy === "CONVERSION"
-                ? "topCuts"
-                : "count"
-            }
-          />
+        {tournaments.map((c) => (
+          <TournamentCard key={c.id} commander={c} />
         ))}
       </div>
-    </V2PageShell>
+    </TournamentsPageShell>
   );
 }
 
-function V2PagePlaceholder() {
+function TournamentsPagePlaceholder() {
   const router = useRouter();
 
   return (
-    <V2PageShell
+    <TournamentsPageShell
       sortBy={
-        (router.query.sortBy as TopCommandersSortBy | undefined) ?? "CONVERSION"
+        (router.query.sortBy as TournamentSortBy | undefined) ?? "PLAYERS"
       }
       timePeriod={
         (router.query.timePeriod as TimePeriod | undefined) ?? "SIX_MONTHS"
       }
+      minSize={(router.query.minSize as string | undefined) ?? "60"}
     >
       <div className="flex w-full justify-center pt-24 text-white">
         <FireIcon className="h-12 w-12 animate-pulse" />
       </div>
-    </V2PageShell>
+    </TournamentsPageShell>
   );
 }
 
-export default withRelay(V2Page, V2Query, {
-  fallback: <V2PagePlaceholder />,
+export default withRelay(TournamentsPage, TournamentsQuery, {
+  fallback: <TournamentsPagePlaceholder />,
   createClientEnvironment: () => getClientEnvironment()!,
   createServerEnvironment: async () => {
     const { createServerEnvironment } = await import(
@@ -206,7 +220,8 @@ export default withRelay(V2Page, V2Query, {
   variablesFromContext: (ctx) => {
     return {
       timePeriod: (ctx.query.timePeriod as TimePeriod) ?? "SIX_MONTHS",
-      sortBy: (ctx.query.sortBy as TopCommandersSortBy) ?? "CONVERSION",
+      sortBy: (ctx.query.sortBy as TournamentSortBy) ?? "PLAYERS",
+      minSize: Number((ctx.query.minSize as string) ?? 60),
     };
   },
 });

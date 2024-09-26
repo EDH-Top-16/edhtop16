@@ -23,7 +23,7 @@ export function Navigation() {
       </Link>
 
       <Link
-        href="https://edhtop16.com/tournaments"
+        href="/v2/tournaments"
         className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm"
       >
         Tournaments

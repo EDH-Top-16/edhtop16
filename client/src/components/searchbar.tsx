@@ -67,9 +67,7 @@ function Suggestions({ search }: { search: string }) {
       {suggestions.slice(0, 20).map((suggestion, i, { length }) => (
         <Link
           key={suggestion}
-          href={`https://edhtop16.com/commander/${encodeURIComponent(
-            suggestion,
-          )}`}
+          href={`/v2/commander/${encodeURIComponent(suggestion)}`}
         >
           <li
             className={cn(
