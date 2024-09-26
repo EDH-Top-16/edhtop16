@@ -106,7 +106,11 @@ type Query {
     timePeriod: TimePeriod
   ): [Commander!]!
   tournament(TID: String!): Tournament!
-  tournaments(filters: TournamentFilters, search: String): [Tournament!]!
+  tournaments(
+    filters: TournamentFilters
+    search: String
+    sortBy: TournamentSortBy = DATE
+  ): [Tournament!]!
 }
 
 enum SortDirection {
@@ -132,7 +136,7 @@ enum TopCommandersTopEntriesSortBy {
 
 type Tournament {
   TID: String!
-  entries: [Entry!]!
+  entries(maxStanding: Int): [Entry!]!
   id: ID!
   name: String!
   rounds: [TournamentRound!]!
@@ -145,11 +149,17 @@ type Tournament {
 input TournamentFilters {
   maxSize: Int
   minSize: Int
+  timePeriod: TimePeriod
 }
 
 type TournamentRound {
   round: String!
   tables: [TournamentTable!]!
+}
+
+enum TournamentSortBy {
+  DATE
+  PLAYERS
 }
 
 type TournamentTable {

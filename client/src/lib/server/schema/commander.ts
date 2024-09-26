@@ -306,7 +306,10 @@ const CommanderType = builder.prismaObject("Commander", {
         return prisma.entry.findMany({
           where: {
             commanderUuid: parent.uuid,
-            tournament: { tournamentDate: { gte: minDate } },
+            tournament: {
+              tournamentDate: { gte: minDate },
+              size: { gte: sortBy === "TOP" ? 60 : undefined },
+            },
           },
           take: 24,
           orderBy,

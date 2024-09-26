@@ -87,7 +87,7 @@ function EntryCard(props: { entry: Commander_EntryCard$key }) {
           <span className="text-xl font-bold">{entryName}</span>
         )}
 
-        <span>{format(entry.tournament.tournamentDate, "MMMM dd yyyy")}</span>
+        <span>{format(entry.tournament.tournamentDate, "MMMM do yyyy")}</span>
       </div>
     </Card>
   );
