@@ -58,6 +58,12 @@ jobs:
       - name: Run get_tournaments.py
         working-directory: edhtop16/server/scripts/
         run: python get_tournaments.py ${{ inputs.overwrite_existing_unknown && '-o' || '' }}
+
+      - name: Run get_jsonl.py
+        if: ${{ inputs.overwrite_existing_unknown }}
+        working-directory: edhtop16/server/scripts/
+        run: python get_jsonl.py
+
       - name: Run get_commanders.py
         working-directory: edhtop16/server/scripts/
         run: python get_commanders.py ${{ inputs.overwrite_existing_unknown && '-u' || '' }}
