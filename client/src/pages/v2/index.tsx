@@ -60,7 +60,7 @@ function TopCommandersCard({
         alt: `${commander.name} card art`,
       }))}
     >
-      <div className="flex h-28 flex-col space-y-2">
+      <div className="flex h-32 flex-col space-y-2">
         <Link
           href={commander.breakdownUrl}
           className="text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"

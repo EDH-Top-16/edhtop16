@@ -55,10 +55,10 @@ function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
         alt: `${tournament.name} winner card art`,
       }))}
     >
-      <div className="flex h-28 flex-col space-y-2">
+      <div className="flex h-32 flex-col space-y-2">
         <Link
           href={`/v2/tournament/${tournament.TID}`}
-          className="text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
+          className="line-clamp-2 text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
         >
           {tournament.name}
         </Link>
@@ -86,11 +86,11 @@ function TournamentsPageShell({
       <Navigation />
       <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
         <div className="mb-8 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0">
-          <h1 className="flex-1 text-5xl font-extrabold text-white">
+          <h1 className="flex-1 text-4xl font-extrabold text-white md:text-5xl">
             cEDH Tournaments
           </h1>
 
-          <div className="flex space-x-4">
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
             <Select
               id="tournaments-sort-by"
               label="Sort By"
