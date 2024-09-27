@@ -129,7 +129,7 @@ if __name__ == "__main__":
                             ),
                             "swissNum": tourney["swissNum"],
                             "topCut": tourney["topCut"],
-                            "bracketUrl": f"topdeck.gg/bracket/{tourney['TID']}",
+                            "bracketUrl": f"https://topdeck.gg/bracket/{tourney['TID']}",
                         }
                     )
                     db[tourney["TID"]].insert_many(standings)
