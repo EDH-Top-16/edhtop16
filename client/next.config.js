@@ -8,6 +8,13 @@ const nextConfig = {
       },
     ];
   },
+  images: {
+    remotePatterns: [
+      {
+        hostname: "cards.scryfall.io",
+      },
+    ],
+  },
   compiler: { relay: require("./relay.config") },
   webpack: (config, { isServer, webpack }) => {
     if (!isServer) {

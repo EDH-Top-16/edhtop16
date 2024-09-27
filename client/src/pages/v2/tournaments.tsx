@@ -1,5 +1,6 @@
 import FireIcon from "@heroicons/react/24/solid/FireIcon";
 import { format } from "date-fns";
+import { NextSeo } from "next-seo";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { PropsWithChildren, useCallback, useMemo } from "react";
@@ -84,6 +85,11 @@ function TournamentsPageShell({
   return (
     <div className="relative min-h-screen bg-[#514f86]">
       <Navigation />
+      <NextSeo
+        title="cEDH Tournaments"
+        description="Discover top and recent cEDH tournaments!"
+      />
+
       <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
         <div className="mb-8 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0">
           <h1 className="flex-1 text-4xl font-extrabold text-white md:text-5xl">

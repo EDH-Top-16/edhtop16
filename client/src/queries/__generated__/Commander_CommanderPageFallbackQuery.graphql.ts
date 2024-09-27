@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<43ebbc26837862a12b039922f9941b5a>>
+ * @generated SignedSource<<732b9b0db9fa3aa0073d39448085a164>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -113,12 +113,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "c2ee6b9d5fd22714ef67d3886a9bbd34",
+    "cacheID": "26dbee84e15411ee3c03a7300647e6d5",
     "id": null,
     "metadata": {},
     "name": "Commander_CommanderPageFallbackQuery",
     "operationKind": "query",
-    "text": "query Commander_CommanderPageFallbackQuery(\n  $commander: String!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  imageUrls\n  colorId\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  ...Commander_CommanderBanner\n}\n"
+    "text": "query Commander_CommanderPageFallbackQuery(\n  $commander: String!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  imageUrls\n  colorId\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n"
   }
 };
 })();

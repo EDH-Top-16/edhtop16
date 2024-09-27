@@ -6,6 +6,7 @@ import { useRelayNextjs } from "relay-nextjs/app";
 import { getClientEnvironment } from "../lib/client/relay_client_environment";
 
 import "../globals.css";
+import { DefaultSeo } from "next-seo";
 
 const montserrat = Montserrat({
   weight: ["500", "600", "900"],
@@ -21,6 +22,11 @@ export default function EdhTop16App({ Component, pageProps }: AppProps) {
   return (
     <QueryParamsProvider>
       <RelayEnvironmentProvider environment={env}>
+        <DefaultSeo
+          titleTemplate="%s | EDHTop 16"
+          additionalLinkTags={[{ rel: "icon", href: "/icon.png" }]}
+        />
+
         <main className={montserrat.variable}>
           <Component {...pageProps} {...relayProps} />
         </main>

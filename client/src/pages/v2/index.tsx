@@ -1,4 +1,5 @@
 import FireIcon from "@heroicons/react/24/solid/FireIcon";
+import { NextSeo } from "next-seo";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { PropsWithChildren, useCallback, useMemo } from "react";
@@ -8,6 +9,7 @@ import { ColorIdentity } from "../../assets/icons/colors";
 import { Card } from "../../components/card";
 import { Navigation } from "../../components/navigation";
 import { Select } from "../../components/select";
+import { formatPercent } from "../../lib/client/format";
 import { getClientEnvironment } from "../../lib/client/relay_client_environment";
 import { v2_TopCommandersCard$key } from "../../queries/__generated__/v2_TopCommandersCard.graphql";
 import {
@@ -40,7 +42,7 @@ function TopCommandersCard({
 
   const commanderStats = useMemo(() => {
     const stats = [
-      `Conversion Rate: ${Math.floor(commander.conversionRate * 10000) / 100}%`,
+      `Conversion Rate: ${formatPercent(commander.conversionRate)}`,
     ];
 
     if (secondaryStatistic === "count") {
@@ -87,6 +89,11 @@ function V2PageShell({
   return (
     <div className="relative min-h-screen bg-[#514f86]">
       <Navigation />
+      <NextSeo
+        title="cEDH Commanders"
+        description="Discover top performing commanders in cEDH!"
+      />
+
       <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
         <div className="mb-8 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0">
           <h1 className="flex-1 text-5xl font-extrabold text-white">

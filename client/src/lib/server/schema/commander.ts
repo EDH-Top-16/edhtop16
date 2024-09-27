@@ -447,6 +447,8 @@ builder.queryField("commanderNames", (t) =>
     resolve: async () => {
       const commanders = await prisma.commander.findMany({
         select: { name: true },
+        where: { name: { not: "Unknown Commander" } },
+        orderBy: { entries: { _count: "desc" } },
       });
 
       return commanders.map((c) => c.name);

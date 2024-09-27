@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<4f96e94064d3f53572e3ef41e572dc6b>>
+ * @generated SignedSource<<c9ee646e3efffaa12245b13ab75443c1>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -151,12 +151,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "6d9932862533f8b38d851368963fe001",
+    "cacheID": "d4454a7d82c8aea9ee5c6e38486ce239",
     "id": null,
     "metadata": {},
     "name": "TID_TournamentPageFallbackQuery",
     "operationKind": "query",
-    "text": "query TID_TournamentPageFallbackQuery(\n  $TID: String!\n) {\n  tournament(TID: $TID) {\n    ...TID_TournamentPageShell\n    id\n  }\n}\n\nfragment TID_TournamentBanner on Tournament {\n  name\n  size\n  tournamentDate\n  winner: entries(maxStanding: 1) {\n    commander {\n      imageUrls\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentPageShell on Tournament {\n  ...TID_TournamentBanner\n}\n"
+    "text": "query TID_TournamentPageFallbackQuery(\n  $TID: String!\n) {\n  tournament(TID: $TID) {\n    ...TID_TournamentPageShell\n    id\n  }\n}\n\nfragment TID_TournamentBanner on Tournament {\n  name\n  size\n  tournamentDate\n  winner: entries(maxStanding: 1) {\n    commander {\n      imageUrls\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentMeta on Tournament {\n  name\n}\n\nfragment TID_TournamentPageShell on Tournament {\n  ...TID_TournamentBanner\n  ...TID_TournamentMeta\n}\n"
   }
 };
 })();
