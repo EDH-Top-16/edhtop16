@@ -11,3 +11,7 @@ export function formatOrdinals(n: number) {
   const suffix = suffixes.get(rule);
   return `${n}${suffix}`;
 }
+
+export function formatPercent(n: number) {
+  return `${Math.floor(n * 10000) / 100}%`;
+}

@@ -1,7 +1,8 @@
 import DataLoader from "dataloader";
 import { prisma } from "../prisma";
-import { TournamentTableType, builder } from "./builder";
+import { builder } from "./builder";
 import { Entry, Prisma } from "@prisma/client";
+import { TopdeckTournamentTableType } from "./types";
 
 export type EntryDataLoader = DataLoader<
   { TID: string; topdeckProfile: string },
@@ -89,7 +90,7 @@ export const EntryType = builder.prismaObject("Entry", {
       },
     }),
     tables: t.field({
-      type: t.listRef(TournamentTableType),
+      type: t.listRef(TopdeckTournamentTableType),
       resolve: async (parent, _args, ctx) => {
         if (!parent.playerUuid) return [];
 

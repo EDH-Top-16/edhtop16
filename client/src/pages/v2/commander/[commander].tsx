@@ -1,20 +1,21 @@
 import cn from "classnames";
 import { format } from "date-fns";
+import { NextSeo } from "next-seo";
 import { useRouter } from "next/router";
-import { PropsWithChildren, useCallback } from "react";
+import { PropsWithChildren, Suspense, useCallback } from "react";
 import { Tabs } from "react-aria-components";
 import { useFragment, useLazyLoadQuery, usePreloadedQuery } from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { graphql } from "relay-runtime";
 import { ColorIdentity } from "../../../assets/icons/colors";
 import { Card } from "../../../components/card";
-import { Edhtop16Fallback } from "../../../components/fallback";
+import { Edhtop16Fallback, LoadingIcon } from "../../../components/fallback";
 import { Navigation } from "../../../components/navigation";
 import { Tab, TabList } from "../../../components/tabs";
 import { formatOrdinals } from "../../../lib/client/format";
 import { getClientEnvironment } from "../../../lib/client/relay_client_environment";
-import { ServerSafeSuspense } from "../../../lib/client/suspense";
 import { Commander_CommanderBanner$key } from "../../../queries/__generated__/Commander_CommanderBanner.graphql";
+import { Commander_CommanderMeta$key } from "../../../queries/__generated__/Commander_CommanderMeta.graphql";
 import { Commander_CommanderPageFallbackQuery } from "../../../queries/__generated__/Commander_CommanderPageFallbackQuery.graphql";
 import { Commander_CommanderPageShell$key } from "../../../queries/__generated__/Commander_CommanderPageShell.graphql";
 import {
@@ -136,6 +137,24 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
   );
 }
 
+function CommanderMeta(props: { commander: Commander_CommanderMeta$key }) {
+  const commander = useFragment(
+    graphql`
+      fragment Commander_CommanderMeta on Commander {
+        name
+      }
+    `,
+    props.commander,
+  );
+
+  return (
+    <NextSeo
+      title={commander.name}
+      description={`Top Performing and Recent Decklists for ${commander.name} in cEDH`}
+    />
+  );
+}
+
 function CommanderPageShell({
   sortBy,
   onUpdateQueryParam,
@@ -150,6 +169,7 @@ function CommanderPageShell({
     graphql`
       fragment Commander_CommanderPageShell on Commander {
         ...Commander_CommanderBanner
+        ...Commander_CommanderMeta
       }
     `,
     props.commander,
@@ -158,6 +178,7 @@ function CommanderPageShell({
   return (
     <div className="relative min-h-screen bg-[#514f86]">
       <Navigation />
+      <CommanderMeta commander={commander} />
       <CommanderBanner commander={commander} />
       <Tabs
         className="mx-auto max-w-screen-md"
@@ -242,15 +263,17 @@ function CommanderPageFallback() {
     <CommanderPageShell
       commander={commander}
       sortBy={router.query.sortBy as TopCommandersTopEntriesSortBy}
-    />
+    >
+      <LoadingIcon />
+    </CommanderPageShell>
   );
 }
 
 export default withRelay(CommanderPage, CommanderQuery, {
   fallback: (
-    <ServerSafeSuspense fallback={<Edhtop16Fallback />}>
+    <Suspense fallback={<Edhtop16Fallback />}>
       <CommanderPageFallback />
-    </ServerSafeSuspense>
+    </Suspense>
   ),
   createClientEnvironment: () => getClientEnvironment()!,
   createServerEnvironment: async () => {

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<9584b9e1f8a6104e9606aa0286ba1aec>>
+ * @generated SignedSource<<60b365f27d02d6939c9d8b3f15e342ba>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,6 +16,12 @@ export type TID_TournamentQuery$variables = {
 };
 export type TID_TournamentQuery$data = {
   readonly tournament: {
+    readonly breakdown?: ReadonlyArray<{
+      readonly commander: {
+        readonly id: string;
+      };
+      readonly " $fragmentSpreads": FragmentRefs<"TID_BreakdownCard">;
+    }>;
     readonly entries?: ReadonlyArray<{
       readonly id: string;
       readonly " $fragmentSpreads": FragmentRefs<"TID_EntryCard">;
@@ -68,6 +74,13 @@ v4 = {
   "kind": "ScalarField",
   "name": "imageUrls",
   "storageKey": null
+},
+v5 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "breakdownUrl",
+  "storageKey": null
 };
 return {
   "fragment": {
@@ -107,6 +120,41 @@ return {
                     "args": null,
                     "kind": "FragmentSpread",
                     "name": "TID_EntryCard"
+                  }
+                ],
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "condition": "breakdown",
+            "kind": "Condition",
+            "passingValue": true,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "TournamentBreakdownGroup",
+                "kind": "LinkedField",
+                "name": "breakdown",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "Commander",
+                    "kind": "LinkedField",
+                    "name": "commander",
+                    "plural": false,
+                    "selections": [
+                      (v2/*: any*/)
+                    ],
+                    "storageKey": null
+                  },
+                  {
+                    "args": null,
+                    "kind": "FragmentSpread",
+                    "name": "TID_BreakdownCard"
                   }
                 ],
                 "storageKey": null
@@ -252,8 +300,70 @@ return {
                     "selections": [
                       (v3/*: any*/),
                       (v4/*: any*/),
+                      (v5/*: any*/),
                       (v2/*: any*/)
                     ],
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "condition": "breakdown",
+            "kind": "Condition",
+            "passingValue": true,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "TournamentBreakdownGroup",
+                "kind": "LinkedField",
+                "name": "breakdown",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "Commander",
+                    "kind": "LinkedField",
+                    "name": "commander",
+                    "plural": false,
+                    "selections": [
+                      (v2/*: any*/),
+                      (v3/*: any*/),
+                      (v4/*: any*/),
+                      (v5/*: any*/),
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "colorId",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "entries",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "topCuts",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "conversionRate",
                     "storageKey": null
                   }
                 ],
@@ -268,16 +378,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "e8361628cd3e07838b4a825987da4110",
+    "cacheID": "f3ccd2d26e9fa389f0b4799889e7f617",
     "id": null,
     "metadata": {},
     "name": "TID_TournamentQuery",
     "operationKind": "query",
-    "text": "query TID_TournamentQuery(\n  $TID: String!\n  $breakdown: Boolean!\n) {\n  tournament(TID: $TID) {\n    ...TID_TournamentPageShell\n    entries @skip(if: $breakdown) {\n      id\n      ...TID_EntryCard\n    }\n    id\n  }\n}\n\nfragment TID_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  commander {\n    name\n    imageUrls\n    id\n  }\n}\n\nfragment TID_TournamentBanner on Tournament {\n  name\n  size\n  tournamentDate\n  winner: entries(maxStanding: 1) {\n    commander {\n      imageUrls\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentPageShell on Tournament {\n  ...TID_TournamentBanner\n}\n"
+    "text": "query TID_TournamentQuery(\n  $TID: String!\n  $breakdown: Boolean!\n) {\n  tournament(TID: $TID) {\n    ...TID_TournamentPageShell\n    entries @skip(if: $breakdown) {\n      id\n      ...TID_EntryCard\n    }\n    breakdown @include(if: $breakdown) {\n      commander {\n        id\n      }\n      ...TID_BreakdownCard\n    }\n    id\n  }\n}\n\nfragment TID_BreakdownCard on TournamentBreakdownGroup {\n  commander {\n    name\n    imageUrls\n    breakdownUrl\n    colorId\n    id\n  }\n  entries\n  topCuts\n  conversionRate\n}\n\nfragment TID_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  commander {\n    name\n    imageUrls\n    breakdownUrl\n    id\n  }\n}\n\nfragment TID_TournamentBanner on Tournament {\n  name\n  size\n  tournamentDate\n  winner: entries(maxStanding: 1) {\n    commander {\n      imageUrls\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentMeta on Tournament {\n  name\n}\n\nfragment TID_TournamentPageShell on Tournament {\n  ...TID_TournamentBanner\n  ...TID_TournamentMeta\n}\n"
   }
 };
 })();
 
-(node as any).hash = "aea06a809700aa197b50641eac9383a7";
+(node as any).hash = "a56d8f20eaa0f1bf7770b55e6f335ef2";
 
 export default node;

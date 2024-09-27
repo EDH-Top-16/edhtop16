@@ -47,7 +47,7 @@ type Entry {
   lossesSwiss: Int!
   player: Player
   standing: Int!
-  tables: [TournamentTable!]!
+  tables: [TopdeckTournamentTable!]!
   tournament: Tournament!
   winRate: Float
   wins: Int!
@@ -134,17 +134,38 @@ enum TopCommandersTopEntriesSortBy {
   TOP
 }
 
+type TopdeckTournamentRound {
+  round: String!
+  tables: [TopdeckTournamentTable!]!
+}
+
+type TopdeckTournamentTable {
+  entries: [Entry]!
+  roundName: String!
+  table: Int!
+  winner: Entry
+  winnerSeatPosition: Int
+}
+
 type Tournament {
   TID: String!
   bracketUrl: String!
+  breakdown: [TournamentBreakdownGroup!]!
   entries(maxStanding: Int): [Entry!]!
   id: ID!
   name: String!
-  rounds: [TournamentRound!]!
+  rounds: [TopdeckTournamentRound!]!
   size: Int!
   swissRounds: Int!
   topCut: Int!
   tournamentDate: String!
+}
+
+type TournamentBreakdownGroup {
+  commander: Commander!
+  conversionRate: Float!
+  entries: Int!
+  topCuts: Int!
 }
 
 input TournamentFilters {
@@ -153,20 +174,7 @@ input TournamentFilters {
   timePeriod: TimePeriod
 }
 
-type TournamentRound {
-  round: String!
-  tables: [TournamentTable!]!
-}
-
 enum TournamentSortBy {
   DATE
   PLAYERS
-}
-
-type TournamentTable {
-  entries: [Entry]!
-  roundName: String!
-  table: Int!
-  winner: Entry
-  winnerSeatPosition: Int
 }

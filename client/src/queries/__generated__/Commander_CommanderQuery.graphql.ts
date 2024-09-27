@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<c940c5b57c04631f3dbd9ccc576adac2>>
+ * @generated SignedSource<<f55540d01c7daeabd8d696c90aa64143>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -242,12 +242,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "4262921cdbcb8514a6e563d6a13d6c20",
+    "cacheID": "a0f953fd27f055dc046aaa2dd00c28f8",
     "id": null,
     "metadata": {},
     "name": "Commander_CommanderQuery",
     "operationKind": "query",
-    "text": "query Commander_CommanderQuery(\n  $commander: String!\n  $sortBy: TopCommandersTopEntriesSortBy!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    topEntries(sortBy: $sortBy, timePeriod: SIX_MONTHS) {\n      id\n      ...Commander_EntryCard\n    }\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  imageUrls\n  colorId\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  ...Commander_CommanderBanner\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    id\n  }\n}\n"
+    "text": "query Commander_CommanderQuery(\n  $commander: String!\n  $sortBy: TopCommandersTopEntriesSortBy!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    topEntries(sortBy: $sortBy, timePeriod: SIX_MONTHS) {\n      id\n      ...Commander_EntryCard\n    }\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  imageUrls\n  colorId\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    id\n  }\n}\n"
   }
 };
 })();

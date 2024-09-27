@@ -26,6 +26,7 @@
     "graphql": "^16.8.1",
     "mongodb": "^6.3.0",
     "next": "^14.2.11",
+    "next-seo": "^6.6.0",
     "prisma": "^5.9.1",
     "react": "18.2.0",
     "react-aria-components": "^1.0.1",

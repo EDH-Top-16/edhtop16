@@ -1,20 +1,24 @@
 import cn from "classnames";
 import { format } from "date-fns";
+import { NextSeo } from "next-seo";
+import Link from "next/link";
 import { useRouter } from "next/router";
-import { PropsWithChildren, useCallback } from "react";
+import { PropsWithChildren, Suspense, useCallback } from "react";
 import { Tabs } from "react-aria-components";
 import { useFragment, useLazyLoadQuery, usePreloadedQuery } from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { graphql } from "relay-runtime";
+import { ColorIdentity } from "../../../assets/icons/colors";
 import { Card } from "../../../components/card";
-import { Edhtop16Fallback } from "../../../components/fallback";
+import { Edhtop16Fallback, LoadingIcon } from "../../../components/fallback";
 import { Navigation } from "../../../components/navigation";
 import { Tab, TabList } from "../../../components/tabs";
-import { formatOrdinals } from "../../../lib/client/format";
+import { formatOrdinals, formatPercent } from "../../../lib/client/format";
 import { getClientEnvironment } from "../../../lib/client/relay_client_environment";
-import { ServerSafeSuspense } from "../../../lib/client/suspense";
+import { TID_BreakdownCard$key } from "../../../queries/__generated__/TID_BreakdownCard.graphql";
 import { TID_EntryCard$key } from "../../../queries/__generated__/TID_EntryCard.graphql";
 import { TID_TournamentBanner$key } from "../../../queries/__generated__/TID_TournamentBanner.graphql";
+import { TID_TournamentMeta$key } from "../../../queries/__generated__/TID_TournamentMeta.graphql";
 import { TID_TournamentPageFallbackQuery } from "../../../queries/__generated__/TID_TournamentPageFallbackQuery.graphql";
 import { TID_TournamentPageShell$key } from "../../../queries/__generated__/TID_TournamentPageShell.graphql";
 import { TID_TournamentQuery } from "../../../queries/__generated__/TID_TournamentQuery.graphql";
@@ -36,6 +40,7 @@ function EntryCard(props: { entry: TID_EntryCard$key }) {
         commander {
           name
           imageUrls
+          breakdownUrl
         }
       }
     `,
@@ -74,7 +79,7 @@ function EntryCard(props: { entry: TID_EntryCard$key }) {
           <a
             href={entry.decklist}
             target="_blank"
-            className="line-clamp-2 text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
+            className="line-clamp-2 text-xl font-bold underline decoration-transparent transition-colors hover:decoration-inherit"
           >
             {entryName}
           </a>
@@ -82,7 +87,59 @@ function EntryCard(props: { entry: TID_EntryCard$key }) {
           <span className="text-xl font-bold">{entryName}</span>
         )}
 
-        <span>{entry.commander.name}</span>
+        <Link
+          href={entry.commander.breakdownUrl}
+          className="underline decoration-transparent transition-colors hover:decoration-inherit"
+        >
+          {entry.commander.name}
+        </Link>
+      </div>
+    </Card>
+  );
+}
+
+function BreakdownCard(props: { group: TID_BreakdownCard$key }) {
+  const { commander, conversionRate, entries, topCuts } = useFragment(
+    graphql`
+      fragment TID_BreakdownCard on TournamentBreakdownGroup {
+        commander {
+          name
+          imageUrls
+          breakdownUrl
+          colorId
+        }
+
+        entries
+        topCuts
+        conversionRate
+      }
+    `,
+    props.group,
+  );
+
+  return (
+    <Card
+      bottomText={
+        <div className="flex flex-wrap justify-between gap-1">
+          <span>Top Cuts: {topCuts}</span>
+          <span>Entries: {entries}</span>
+          <span>Conversion: {formatPercent(conversionRate)}</span>
+        </div>
+      }
+      images={commander.imageUrls.map((img) => ({
+        src: img,
+        alt: `${commander.name} art`,
+      }))}
+    >
+      <div className="flex h-32 flex-col space-y-2">
+        <Link
+          href={commander.breakdownUrl}
+          className="text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
+        >
+          {commander.name}
+        </Link>
+
+        <ColorIdentity identity={commander.colorId} />
       </div>
     </Card>
   );
@@ -140,6 +197,24 @@ function TournamentBanner(props: { tournament: TID_TournamentBanner$key }) {
   );
 }
 
+function TournamentMeta(props: { tournament: TID_TournamentMeta$key }) {
+  const tournament = useFragment(
+    graphql`
+      fragment TID_TournamentMeta on Tournament {
+        name
+      }
+    `,
+    props.tournament,
+  );
+
+  return (
+    <NextSeo
+      title={tournament.name}
+      description={`Top Performing cEDH decks at ${tournament.name}`}
+    />
+  );
+}
+
 function TournamentPageShell({
   tab,
   onUpdateQueryParam,
@@ -154,6 +229,7 @@ function TournamentPageShell({
     graphql`
       fragment TID_TournamentPageShell on Tournament {
         ...TID_TournamentBanner
+        ...TID_TournamentMeta
       }
     `,
     props.tournament,
@@ -162,7 +238,8 @@ function TournamentPageShell({
   return (
     <div className="relative min-h-screen bg-[#514f86]">
       <Navigation />
-      <TournamentBanner tournament={tournament} />{" "}
+      <TournamentMeta tournament={tournament} />
+      <TournamentBanner tournament={tournament} />
       <Tabs
         className="mx-auto max-w-screen-md"
         isDisabled={onUpdateQueryParam == null}
@@ -189,6 +266,14 @@ const TournamentQuery = graphql`
       entries @skip(if: $breakdown) {
         id
         ...TID_EntryCard
+      }
+
+      breakdown @include(if: $breakdown) {
+        commander {
+          id
+        }
+
+        ...TID_BreakdownCard
       }
     }
   }
@@ -221,6 +306,12 @@ function TournamentPage({
           tournament.entries.map((entry) => (
             <EntryCard key={entry.id} entry={entry} />
           ))}
+
+        {preloadedQuery.variables.breakdown &&
+          tournament.breakdown &&
+          tournament.breakdown.map((group) => (
+            <BreakdownCard key={group.commander.id} group={group} />
+          ))}
       </div>
     </TournamentPageShell>
   );
@@ -245,15 +336,17 @@ function TournamentPageFallback() {
     <TournamentPageShell
       tournament={tournament}
       tab={router.query.tab as string}
-    />
+    >
+      <LoadingIcon />
+    </TournamentPageShell>
   );
 }
 
 export default withRelay(TournamentPage, TournamentQuery, {
   fallback: (
-    <ServerSafeSuspense fallback={<Edhtop16Fallback />}>
+    <Suspense fallback={<Edhtop16Fallback />}>
       <TournamentPageFallback />
-    </ServerSafeSuspense>
+    </Suspense>
   ),
   createClientEnvironment: () => getClientEnvironment()!,
   createServerEnvironment: async () => {
