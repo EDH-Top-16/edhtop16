@@ -176,7 +176,7 @@ function CommanderPageShell({
   );
 
   return (
-    <div className="relative min-h-screen bg-[#514f86]">
+    <>
       <Navigation />
       <CommanderMeta commander={commander} />
       <CommanderBanner commander={commander} />
@@ -194,7 +194,7 @@ function CommanderPageShell({
         </TabList>
       </Tabs>
       {children}
-    </div>
+    </>
   );
 }
 

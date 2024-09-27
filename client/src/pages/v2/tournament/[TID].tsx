@@ -236,7 +236,7 @@ function TournamentPageShell({
   );
 
   return (
-    <div className="relative min-h-screen bg-[#514f86]">
+    <>
       <Navigation />
       <TournamentMeta tournament={tournament} />
       <TournamentBanner tournament={tournament} />
@@ -254,7 +254,7 @@ function TournamentPageShell({
         </TabList>
       </Tabs>
       {children}
-    </div>
+    </>
   );
 }
 

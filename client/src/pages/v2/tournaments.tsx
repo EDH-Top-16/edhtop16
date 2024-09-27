@@ -83,7 +83,7 @@ function TournamentsPageShell({
   onUpdateQueryParam?: (key: string, value: string) => void;
 }>) {
   return (
-    <div className="relative min-h-screen bg-[#514f86]">
+    <>
       <Navigation />
       <NextSeo
         title="cEDH Tournaments"
@@ -142,7 +142,7 @@ function TournamentsPageShell({
 
         {children}
       </div>
-    </div>
+    </>
   );
 }
 
