@@ -11,9 +11,9 @@ export function LoadingIcon() {
 
 export function Edhtop16Fallback() {
   return (
-    <div className="relative min-h-screen bg-[#514f86]">
+    <>
       <Navigation />
       <LoadingIcon />
-    </div>
+    </>
   );
 }
