@@ -4,13 +4,20 @@ import { PropsWithChildren, ReactNode } from "react";
 export function Card({
   bottomText,
   images = [],
+  className,
   children,
 }: PropsWithChildren<{
   bottomText: ReactNode;
   images?: { src: string; alt: string }[];
+  className?: string;
 }>) {
   return (
-    <div className="group relative cursor-pointer overflow-hidden rounded-lg bg-white shadow transition-shadow hover:shadow-lg">
+    <div
+      className={cn(
+        "group relative cursor-pointer overflow-hidden rounded-lg bg-white shadow transition-shadow hover:shadow-lg",
+        className,
+      )}
+    >
       <div
         className={cn(
           "absolute left-0 top-0 flex h-full w-full bg-[#312d5a] transition",
@@ -37,7 +44,7 @@ export function Card({
 
       <div className="relative px-4 py-5 text-white sm:p-6">{children}</div>
 
-      <div className="absolute bottom-0 w-full bg-black/60 px-2 py-2 text-white">
+      <div className="absolute bottom-0 w-full bg-black/60 px-2 py-2 text-sm text-white md:text-base">
         {bottomText}
       </div>
     </div>

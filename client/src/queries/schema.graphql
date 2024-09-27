@@ -136,6 +136,7 @@ enum TopCommandersTopEntriesSortBy {
 
 type Tournament {
   TID: String!
+  bracketUrl: String!
   entries(maxStanding: Int): [Entry!]!
   id: ID!
   name: String!
