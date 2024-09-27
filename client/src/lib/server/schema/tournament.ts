@@ -100,6 +100,13 @@ export const TournamentType = builder.prismaObject("Tournament", {
         );
       },
     }),
+    bracketUrl: t.field({
+      type: "String",
+      resolve: (parent) => {
+        // TODO: Read from database for non-topdeck tournaments.
+        return `https://topdeck.gg/bracket/${parent.TID}`;
+      },
+    }),
   }),
 });
 
