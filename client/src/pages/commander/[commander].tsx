@@ -10,7 +10,9 @@ import { graphql } from "relay-runtime";
 import { ColorIdentity } from "../../assets/icons/colors";
 import { Card } from "../../components/card";
 import { Edhtop16Fallback, LoadingIcon } from "../../components/fallback";
+import { Footer } from "../../components/footer";
 import { Navigation } from "../../components/navigation";
+import { Select } from "../../components/select";
 import { Tab, TabList } from "../../components/tabs";
 import { formatOrdinals } from "../../lib/client/format";
 import { getClientEnvironment } from "../../lib/client/relay_client_environment";
@@ -23,7 +25,6 @@ import {
   TopCommandersTopEntriesSortBy,
 } from "../../queries/__generated__/Commander_CommanderQuery.graphql";
 import { Commander_EntryCard$key } from "../../queries/__generated__/Commander_EntryCard.graphql";
-import { Select } from "../../components/select";
 
 function EntryCard(props: { entry: Commander_EntryCard$key }) {
   const entry = useFragment(
@@ -127,7 +128,7 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
           })}
         </div>
 
-        <h1 className="relative text-center font-title text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
+        <h1 className="relative text-center font-title font-title text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
           {commander.name}
         </h1>
         <div className="relative">
@@ -316,6 +317,8 @@ function CommanderPage({
           <EntryCard key={entry.id} entry={entry} />
         ))}
       </div>
+
+      <Footer />
     </CommanderPageShell>
   );
 }

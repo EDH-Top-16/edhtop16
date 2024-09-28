@@ -1,3 +1,4 @@
+import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
 import cn from "classnames";
 import { format } from "date-fns";
 import { NextSeo } from "next-seo";
@@ -8,10 +9,10 @@ import { Tabs } from "react-aria-components";
 import { useFragment, useLazyLoadQuery, usePreloadedQuery } from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { graphql } from "relay-runtime";
-import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
 import { ColorIdentity } from "../../assets/icons/colors";
 import { Card } from "../../components/card";
 import { Edhtop16Fallback, LoadingIcon } from "../../components/fallback";
+import { Footer } from "../../components/footer";
 import { Navigation } from "../../components/navigation";
 import { Tab, TabList } from "../../components/tabs";
 import { formatOrdinals, formatPercent } from "../../lib/client/format";
@@ -228,7 +229,7 @@ function TournamentBanner(props: { tournament: TID_TournamentBanner$key }) {
           </div>
         )}
 
-        <h1 className="relative text-center font-title text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
+        <h1 className="relative text-center font-title font-title text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
           {tournament.name}
         </h1>
         <div className="relative flex w-full max-w-screen-md flex-col items-center justify-evenly gap-1 text-base text-white md:flex-row md:text-lg lg:text-xl">
@@ -404,6 +405,8 @@ function TournamentPage({
             <EntryCard key={entry.id} entry={entry} highlightFirst={false} />
           ))}
       </div>
+
+      <Footer />
     </TournamentPageShell>
   );
 }
