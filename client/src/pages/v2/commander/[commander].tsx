@@ -199,6 +199,57 @@ function CommanderPageShell({
   );
 }
 
+function RecentEntriesFilterCard({
+  minEventSize,
+  maxStanding,
+  setQueryVariable,
+}: {
+  minEventSize: number;
+  maxStanding: number | undefined | null;
+  setQueryVariable?: (key: string, value: string | null) => void;
+}) {
+  return (
+    <Card hoverEffect={false}>
+      <div className="flex flex-col gap-4">
+        <span className="border-b border-white text-white">
+          Search Settings
+        </span>
+
+        <div className="flex gap-4 text-black">
+          <Select
+            id="commander-event-size"
+            label="Event Size"
+            value={`${minEventSize}`}
+            disabled={setQueryVariable == null}
+            onChange={(e) => {
+              setQueryVariable?.("minEventSize", e);
+            }}
+          >
+            <option value="0">All Events</option>
+            <option value="60">60+ Players</option>
+            <option value="100">100+ Players</option>
+          </Select>
+
+          <Select
+            id="commander-event-size"
+            label="Player Standing"
+            value={`${maxStanding}`}
+            disabled={setQueryVariable == null}
+            onChange={(e) => {
+              setQueryVariable?.("maxStanding", e ? e : null);
+            }}
+          >
+            <option value="">All Players</option>
+            <option value="16">Top 16</option>
+            <option value="4">Top 4</option>
+            <option value="1">Winner</option>
+          </Select>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 const CommanderQuery = graphql`
   query Commander_CommanderQuery(
     $commander: String!
@@ -227,6 +278,8 @@ const CommanderQuery = graphql`
 function CommanderPage({
   preloadedQuery,
 }: RelayProps<{}, Commander_CommanderQuery>) {
+  // return <CommanderPageFallback />;
+
   const { commander } = usePreloadedQuery(CommanderQuery, preloadedQuery);
 
   const router = useRouter();
@@ -252,42 +305,11 @@ function CommanderPage({
     >
       <div className="mx-auto flex grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
         {preloadedQuery.variables.sortBy === "NEW" && (
-          <Card hoverEffect={false}>
-            <div className="flex flex-col gap-4">
-              <span className="border-b border-white text-white">
-                Search Settings
-              </span>
-
-              <div className="flex gap-4 text-black">
-                <Select
-                  id="commander-event-size"
-                  label="Event Size"
-                  value={`${preloadedQuery.variables.minEventSize}`}
-                  onChange={(e) => {
-                    setQueryVariable("minEventSize", e);
-                  }}
-                >
-                  <option value="0">All Events</option>
-                  <option value="60">60+ Players</option>
-                  <option value="100">100+ Players</option>
-                </Select>
-
-                <Select
-                  id="commander-event-size"
-                  label="Player Standing"
-                  value={`${preloadedQuery.variables.maxStanding}`}
-                  onChange={(e) => {
-                    setQueryVariable("maxStanding", e ? e : null);
-                  }}
-                >
-                  <option value="">All Players</option>
-                  <option value="16">Top 16</option>
-                  <option value="4">Top 4</option>
-                  <option value="1">Winner</option>
-                </Select>
-              </div>
-            </div>
-          </Card>
+          <RecentEntriesFilterCard
+            minEventSize={preloadedQuery.variables.minEventSize}
+            maxStanding={preloadedQuery.variables.maxStanding}
+            setQueryVariable={setQueryVariable}
+          />
         )}
 
         {commander.topEntries.map((entry) => (
@@ -318,7 +340,21 @@ function CommanderPageFallback() {
       commander={commander}
       sortBy={router.query.sortBy as TopCommandersTopEntriesSortBy}
     >
-      <LoadingIcon />
+      {router.query.sortBy === "NEW" ? (
+        <div className="mx-auto flex grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
+          <RecentEntriesFilterCard
+            minEventSize={Number(router.query.minEventSize || "60")}
+            maxStanding={
+              !router.query.maxStanding
+                ? undefined
+                : Number(router.query.maxStanding)
+            }
+          />
+          <LoadingIcon padding={false} className="self-center" />
+        </div>
+      ) : (
+        <LoadingIcon />
+      )}
     </CommanderPageShell>
   );
 }
