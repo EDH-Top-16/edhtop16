@@ -1,10 +1,9 @@
 import { Commander, Entry, Prisma } from "@prisma/client";
 import DataLoader from "dataloader";
-import { subMonths } from "date-fns";
 import { prisma } from "../prisma";
 import { builder } from "./builder";
 import { EntryFilters, EntrySortBy, EntryType } from "./entry";
-import { SortDirection, TimePeriod } from "./types";
+import { minDateFromTimePeriod, SortDirection, TimePeriod } from "./types";
 
 interface CommanderStatsQuery {
   uuid: string;
@@ -128,13 +127,7 @@ function commanderStatsQueryFromFilters(
   const minDate =
     filters?.minDate != null
       ? new Date(filters?.minDate ?? 0)
-      : filters?.timePeriod === "SIX_MONTHS"
-      ? subMonths(new Date(), 6)
-      : filters?.timePeriod === "THREE_MONTHS"
-      ? subMonths(new Date(), 3)
-      : filters?.timePeriod === "ONE_MONTH"
-      ? subMonths(new Date(), 1)
-      : new Date(0);
+      : minDateFromTimePeriod(filters?.timePeriod);
 
   return {
     topCut: filters?.topCut ?? 0,
@@ -250,7 +243,7 @@ const CommanderType = builder.prismaObject("Commander", {
       },
     }),
     breakdownUrl: t.string({
-      resolve: (parent) => `/v2/commander/${encodeURIComponent(parent.name)}`,
+      resolve: (parent) => `/commander/${encodeURIComponent(parent.name)}`,
     }),
     count: t.int({
       args: { filters: t.arg({ type: FiltersInput }) },
@@ -299,14 +292,7 @@ const CommanderType = builder.prismaObject("Commander", {
         const minEventSize = filters?.minEventSize ?? 60;
         const maxStanding = filters?.maxStanding;
 
-        const monthCount =
-          timePeriod === "SIX_MONTHS"
-            ? 6
-            : timePeriod === "THREE_MONTHS"
-            ? 3
-            : 1;
-
-        const minDate = subMonths(new Date(), monthCount);
+        const minDate = minDateFromTimePeriod(timePeriod);
         const orderBy: Prisma.EntryOrderByWithRelationInput[] =
           sortBy === "NEW"
             ? [{ tournament: { tournamentDate: "desc" } }]
@@ -478,10 +464,13 @@ builder.queryField("topCommanders", (t) =>
       sortBy: t.arg({ type: TopCommandersSortBy, defaultValue: "CONVERSION" }),
     },
     resolve: async (_root, { timePeriod, sortBy }) => {
-      const monthCount =
-        timePeriod === "SIX_MONTHS" ? 6 : timePeriod === "THREE_MONTHS" ? 3 : 1;
-      const minDate = subMonths(new Date(), monthCount);
-      const minCount = monthCount * 20;
+      const minDate = minDateFromTimePeriod(timePeriod ?? "ONE_MONTH");
+      const minCount =
+        timePeriod === "SIX_MONTHS"
+          ? 120
+          : timePeriod === "THREE_MONTHS"
+          ? 60
+          : 20;
 
       const orderBy =
         sortBy === "POPULARITY"
