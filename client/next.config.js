@@ -1,13 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  async rewrites() {
-    return [
-      {
-        source: "/v2/api/graphql",
-        destination: "/api/graphql",
-      },
-    ];
-  },
+  basePath: "/v2",
   images: {
     remotePatterns: [
       {

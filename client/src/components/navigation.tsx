@@ -13,19 +13,19 @@ export function Navigation() {
 
   return (
     <nav className="sticky top-0 z-20 grid w-full grid-cols-[auto_auto_auto_1fr] items-center gap-x-6 gap-y-3 bg-[#312d5a] px-4 py-3 font-title text-white md:px-8">
-      <Link href="/v2" className="text-xl font-black">
+      <Link href="/" className="text-xl font-black">
         EDHTop16
       </Link>
 
       <Link
-        href="/v2"
+        href="/"
         className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm"
       >
         Commanders
       </Link>
 
       <Link
-        href="/v2/tournaments"
+        href="/tournaments"
         className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm"
       >
         Tournaments

@@ -9,20 +9,20 @@ import { useFragment, useLazyLoadQuery, usePreloadedQuery } from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { graphql } from "relay-runtime";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
-import { ColorIdentity } from "../../../assets/icons/colors";
-import { Card } from "../../../components/card";
-import { Edhtop16Fallback, LoadingIcon } from "../../../components/fallback";
-import { Navigation } from "../../../components/navigation";
-import { Tab, TabList } from "../../../components/tabs";
-import { formatOrdinals, formatPercent } from "../../../lib/client/format";
-import { getClientEnvironment } from "../../../lib/client/relay_client_environment";
-import { TID_BreakdownGroupCard$key } from "../../../queries/__generated__/TID_BreakdownGroupCard.graphql";
-import { TID_EntryCard$key } from "../../../queries/__generated__/TID_EntryCard.graphql";
-import { TID_TournamentBanner$key } from "../../../queries/__generated__/TID_TournamentBanner.graphql";
-import { TID_TournamentMeta$key } from "../../../queries/__generated__/TID_TournamentMeta.graphql";
-import { TID_TournamentPageFallbackQuery } from "../../../queries/__generated__/TID_TournamentPageFallbackQuery.graphql";
-import { TID_TournamentPageShell$key } from "../../../queries/__generated__/TID_TournamentPageShell.graphql";
-import { TID_TournamentQuery } from "../../../queries/__generated__/TID_TournamentQuery.graphql";
+import { ColorIdentity } from "../../assets/icons/colors";
+import { Card } from "../../components/card";
+import { Edhtop16Fallback, LoadingIcon } from "../../components/fallback";
+import { Navigation } from "../../components/navigation";
+import { Tab, TabList } from "../../components/tabs";
+import { formatOrdinals, formatPercent } from "../../lib/client/format";
+import { getClientEnvironment } from "../../lib/client/relay_client_environment";
+import { TID_BreakdownGroupCard$key } from "../../queries/__generated__/TID_BreakdownGroupCard.graphql";
+import { TID_EntryCard$key } from "../../queries/__generated__/TID_EntryCard.graphql";
+import { TID_TournamentBanner$key } from "../../queries/__generated__/TID_TournamentBanner.graphql";
+import { TID_TournamentMeta$key } from "../../queries/__generated__/TID_TournamentMeta.graphql";
+import { TID_TournamentPageFallbackQuery } from "../../queries/__generated__/TID_TournamentPageFallbackQuery.graphql";
+import { TID_TournamentPageShell$key } from "../../queries/__generated__/TID_TournamentPageShell.graphql";
+import { TID_TournamentQuery } from "../../queries/__generated__/TID_TournamentQuery.graphql";
 
 function EntryCard({
   highlightFirst = true,
@@ -376,28 +376,6 @@ function TournamentPage({
       }
       onUpdateQueryParam={setQueryVariable}
     >
-      {/* {preloadedQuery.variables.showBreakdownCommander && (
-        <div className="mx-auto flex max-w-screen-md justify-between px-6 pt-4 text-white md:px-0">
-          <button
-            className="underline"
-            onClick={() => {
-              setQueryVariable("tab", "breakdown", { reset: true });
-            }}
-          >
-            Back
-          </button>
-
-          <Link
-            className="underline"
-            href={`/v2/commander/${encodeURIComponent(
-              preloadedQuery.variables.commander!,
-            )}`}
-          >
-            {preloadedQuery.variables.commander}
-          </Link>
-        </div>
-      )} */}
-
       <div className="mx-auto flex grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
         {preloadedQuery.variables.showStandings &&
           tournament.entries != null &&
@@ -465,7 +443,7 @@ export default withRelay(TournamentPage, TournamentQuery, {
   createClientEnvironment: () => getClientEnvironment()!,
   createServerEnvironment: async () => {
     const { createServerEnvironment } = await import(
-      "../../../lib/server/relay_server_environment"
+      "../../lib/server/relay_server_environment"
     );
 
     return createServerEnvironment();
