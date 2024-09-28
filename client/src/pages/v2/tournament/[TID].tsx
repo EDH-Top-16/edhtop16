@@ -3,11 +3,12 @@ import { format } from "date-fns";
 import { NextSeo } from "next-seo";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { PropsWithChildren, Suspense, useCallback } from "react";
+import { PropsWithChildren, Suspense, useCallback, useMemo } from "react";
 import { Tabs } from "react-aria-components";
 import { useFragment, useLazyLoadQuery, usePreloadedQuery } from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { graphql } from "relay-runtime";
+import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
 import { ColorIdentity } from "../../../assets/icons/colors";
 import { Card } from "../../../components/card";
 import { Edhtop16Fallback, LoadingIcon } from "../../../components/fallback";
@@ -171,6 +172,7 @@ function TournamentBanner(props: { tournament: TID_TournamentBanner$key }) {
         name
         size
         tournamentDate
+        bracketUrl
 
         winner: entries(maxStanding: 1) {
           commander {
@@ -181,6 +183,15 @@ function TournamentBanner(props: { tournament: TID_TournamentBanner$key }) {
     `,
     props.tournament,
   );
+
+  const bracketUrl = useMemo(() => {
+    try {
+      if (!tournament.bracketUrl) return null;
+      return new URL(tournament.bracketUrl);
+    } catch (e) {
+      return null;
+    }
+  }, [tournament]);
 
   return (
     <div className="h-64 w-full bg-black/60 md:h-80">
@@ -203,6 +214,19 @@ function TournamentBanner(props: { tournament: TID_TournamentBanner$key }) {
             },
           )}
         </div>
+
+        {bracketUrl && (
+          <div className="absolute right-4 top-0 z-10 text-xs md:text-sm">
+            <a
+              href={bracketUrl.href}
+              target="_blank"
+              rel="noopener norefferer"
+              className="text-white underline"
+            >
+              View Bracket <ArrowRightIcon className="inline h-3 w-3" />
+            </a>
+          </div>
+        )}
 
         <h1 className="relative text-center font-title text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
           {tournament.name}

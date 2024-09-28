@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<5fb077c715e303d3e2da6234b0afb823>>
+ * @generated SignedSource<<d16f49928eaec4d83c903ffec20e462a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,6 +11,7 @@
 import { Fragment, ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TID_TournamentBanner$data = {
+  readonly bracketUrl: string;
   readonly name: string;
   readonly size: number;
   readonly tournamentDate: string;
@@ -54,6 +55,13 @@ const node: ReaderFragment = {
       "storageKey": null
     },
     {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "bracketUrl",
+      "storageKey": null
+    },
+    {
       "alias": "winner",
       "args": [
         {
@@ -93,6 +101,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "52dbfe87557823a318c68fa9b32ba783";
+(node as any).hash = "98f206b7413a8dd8d66330c1000c326f";
 
 export default node;
