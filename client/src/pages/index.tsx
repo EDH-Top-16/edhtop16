@@ -5,29 +5,29 @@ import { useRouter } from "next/router";
 import { PropsWithChildren, useCallback, useMemo } from "react";
 import { graphql, useFragment, usePreloadedQuery } from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
-import { ColorIdentity } from "../../assets/icons/colors";
-import { Card } from "../../components/card";
-import { Navigation } from "../../components/navigation";
-import { Select } from "../../components/select";
-import { formatPercent } from "../../lib/client/format";
-import { getClientEnvironment } from "../../lib/client/relay_client_environment";
-import { v2_TopCommandersCard$key } from "../../queries/__generated__/v2_TopCommandersCard.graphql";
+import { ColorIdentity } from "../assets/icons/colors";
+import { Card } from "../components/card";
+import { Navigation } from "../components/navigation";
+import { Select } from "../components/select";
+import { formatPercent } from "../lib/client/format";
+import { getClientEnvironment } from "../lib/client/relay_client_environment";
 import {
+  pages_CommandersQuery,
   TimePeriod,
   TopCommandersSortBy,
-  v2Query,
-} from "../../queries/__generated__/v2Query.graphql";
+} from "../queries/__generated__/pages_CommandersQuery.graphql";
+import { pages_TopCommandersCard$key } from "../queries/__generated__/pages_TopCommandersCard.graphql";
 
 function TopCommandersCard({
   secondaryStatistic,
   ...props
 }: {
   secondaryStatistic: "topCuts" | "count";
-  commander: v2_TopCommandersCard$key;
+  commander: pages_TopCommandersCard$key;
 }) {
   const commander = useFragment(
     graphql`
-      fragment v2_TopCommandersCard on Commander {
+      fragment pages_TopCommandersCard on Commander {
         name
         colorId
         imageUrls
@@ -76,7 +76,7 @@ function TopCommandersCard({
   );
 }
 
-function V2PageShell({
+function CommandersPageShell({
   sortBy,
   timePeriod,
   onUpdateQueryParam,
@@ -136,17 +136,20 @@ function V2PageShell({
   );
 }
 
-const V2Query = graphql`
-  query v2Query($timePeriod: TimePeriod!, $sortBy: TopCommandersSortBy!) {
+const CommandersQuery = graphql`
+  query pages_CommandersQuery(
+    $timePeriod: TimePeriod!
+    $sortBy: TopCommandersSortBy!
+  ) {
     topCommanders(timePeriod: $timePeriod, sortBy: $sortBy) {
       id
-      ...v2_TopCommandersCard
+      ...pages_TopCommandersCard
     }
   }
 `;
 
-function V2Page({ preloadedQuery }: RelayProps<{}, v2Query>) {
-  const { topCommanders } = usePreloadedQuery(V2Query, preloadedQuery);
+function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
+  const { topCommanders } = usePreloadedQuery(CommandersQuery, preloadedQuery);
 
   const router = useRouter();
   const setQueryVariable = useCallback(
@@ -159,7 +162,7 @@ function V2Page({ preloadedQuery }: RelayProps<{}, v2Query>) {
   );
 
   return (
-    <V2PageShell
+    <CommandersPageShell
       sortBy={preloadedQuery.variables.sortBy}
       timePeriod={preloadedQuery.variables.timePeriod}
       onUpdateQueryParam={setQueryVariable}
@@ -177,15 +180,15 @@ function V2Page({ preloadedQuery }: RelayProps<{}, v2Query>) {
           />
         ))}
       </div>
-    </V2PageShell>
+    </CommandersPageShell>
   );
 }
 
-function V2PagePlaceholder() {
+function CommandersPagePlaceholder() {
   const router = useRouter();
 
   return (
-    <V2PageShell
+    <CommandersPageShell
       sortBy={
         (router.query.sortBy as TopCommandersSortBy | undefined) ?? "CONVERSION"
       }
@@ -196,16 +199,16 @@ function V2PagePlaceholder() {
       <div className="flex w-full justify-center pt-24 text-white">
         <FireIcon className="h-12 w-12 animate-pulse" />
       </div>
-    </V2PageShell>
+    </CommandersPageShell>
   );
 }
 
-export default withRelay(V2Page, V2Query, {
-  fallback: <V2PagePlaceholder />,
+export default withRelay(Commanders, CommandersQuery, {
+  fallback: <CommandersPagePlaceholder />,
   createClientEnvironment: () => getClientEnvironment()!,
   createServerEnvironment: async () => {
     const { createServerEnvironment } = await import(
-      "../../lib/server/relay_server_environment"
+      "../lib/server/relay_server_environment"
     );
 
     return createServerEnvironment();

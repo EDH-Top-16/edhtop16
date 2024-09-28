@@ -22,7 +22,16 @@
     },
     {
       "match": {
-        "uri": ["*"]
+        "uri": ["/api/*"]
+      },
+      "action": {
+        "rewrite": "/v2$uri",
+        "pass": "routes"
+      }
+    },
+    {
+      "match": {
+        "uri": ["/v2*"]
       },
       "action": {
         "pass": "applications/client"

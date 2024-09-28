@@ -32,7 +32,8 @@ COPY client/package*.json client/
 COPY client/server.js client
 COPY client/next.config.js client
 COPY client/relay.config.js client
-COPY client/prisma client
+COPY client/prisma client/prisma
+COPY client/public client/public
 RUN cd client && npm ci && npm link unit-http && npx prisma generate
 
 # Copy Nginx unit configuration file to configuration directory.

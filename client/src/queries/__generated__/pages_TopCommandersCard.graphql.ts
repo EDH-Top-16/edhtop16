@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<f2fdc8f4d099d667478801715bc667e7>>
+ * @generated SignedSource<<a687cbf0a57435c38d200409c81bfb7d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { Fragment, ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type v2_TopCommandersCard$data = {
+export type pages_TopCommandersCard$data = {
   readonly breakdownUrl: string;
   readonly colorId: string;
   readonly conversionRate: number;
@@ -18,11 +18,11 @@ export type v2_TopCommandersCard$data = {
   readonly imageUrls: ReadonlyArray<string>;
   readonly name: string;
   readonly topCuts: number;
-  readonly " $fragmentType": "v2_TopCommandersCard";
+  readonly " $fragmentType": "pages_TopCommandersCard";
 };
-export type v2_TopCommandersCard$key = {
-  readonly " $data"?: v2_TopCommandersCard$data;
-  readonly " $fragmentSpreads": FragmentRefs<"v2_TopCommandersCard">;
+export type pages_TopCommandersCard$key = {
+  readonly " $data"?: pages_TopCommandersCard$data;
+  readonly " $fragmentSpreads": FragmentRefs<"pages_TopCommandersCard">;
 };
 
 const node: ReaderFragment = (function(){
@@ -48,7 +48,7 @@ return {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "v2_TopCommandersCard",
+  "name": "pages_TopCommandersCard",
   "selections": [
     {
       "alias": null,
@@ -105,6 +105,6 @@ return {
 };
 })();
 
-(node as any).hash = "c07ee36a45d64fa68a41cb4d24b8f955";
+(node as any).hash = "a8dea811c830457828eca4b9c745ea90";
 
 export default node;

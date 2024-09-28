@@ -7,23 +7,23 @@ import { Tabs } from "react-aria-components";
 import { useFragment, useLazyLoadQuery, usePreloadedQuery } from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { graphql } from "relay-runtime";
-import { ColorIdentity } from "../../../assets/icons/colors";
-import { Card } from "../../../components/card";
-import { Edhtop16Fallback, LoadingIcon } from "../../../components/fallback";
-import { Navigation } from "../../../components/navigation";
-import { Tab, TabList } from "../../../components/tabs";
-import { formatOrdinals } from "../../../lib/client/format";
-import { getClientEnvironment } from "../../../lib/client/relay_client_environment";
-import { Commander_CommanderBanner$key } from "../../../queries/__generated__/Commander_CommanderBanner.graphql";
-import { Commander_CommanderMeta$key } from "../../../queries/__generated__/Commander_CommanderMeta.graphql";
-import { Commander_CommanderPageFallbackQuery } from "../../../queries/__generated__/Commander_CommanderPageFallbackQuery.graphql";
-import { Commander_CommanderPageShell$key } from "../../../queries/__generated__/Commander_CommanderPageShell.graphql";
+import { ColorIdentity } from "../../assets/icons/colors";
+import { Card } from "../../components/card";
+import { Edhtop16Fallback, LoadingIcon } from "../../components/fallback";
+import { Navigation } from "../../components/navigation";
+import { Tab, TabList } from "../../components/tabs";
+import { formatOrdinals } from "../../lib/client/format";
+import { getClientEnvironment } from "../../lib/client/relay_client_environment";
+import { Commander_CommanderBanner$key } from "../../queries/__generated__/Commander_CommanderBanner.graphql";
+import { Commander_CommanderMeta$key } from "../../queries/__generated__/Commander_CommanderMeta.graphql";
+import { Commander_CommanderPageFallbackQuery } from "../../queries/__generated__/Commander_CommanderPageFallbackQuery.graphql";
+import { Commander_CommanderPageShell$key } from "../../queries/__generated__/Commander_CommanderPageShell.graphql";
 import {
   Commander_CommanderQuery,
   TopCommandersTopEntriesSortBy,
-} from "../../../queries/__generated__/Commander_CommanderQuery.graphql";
-import { Commander_EntryCard$key } from "../../../queries/__generated__/Commander_EntryCard.graphql";
-import { Select } from "../../../components/select";
+} from "../../queries/__generated__/Commander_CommanderQuery.graphql";
+import { Commander_EntryCard$key } from "../../queries/__generated__/Commander_EntryCard.graphql";
+import { Select } from "../../components/select";
 
 function EntryCard(props: { entry: Commander_EntryCard$key }) {
   const entry = useFragment(
@@ -368,7 +368,7 @@ export default withRelay(CommanderPage, CommanderQuery, {
   createClientEnvironment: () => getClientEnvironment()!,
   createServerEnvironment: async () => {
     const { createServerEnvironment } = await import(
-      "../../../lib/server/relay_server_environment"
+      "../../lib/server/relay_server_environment"
     );
 
     return createServerEnvironment();

@@ -6,16 +6,16 @@ import { useRouter } from "next/router";
 import { PropsWithChildren, useCallback, useMemo } from "react";
 import { graphql, useFragment, usePreloadedQuery } from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
-import { Card } from "../../components/card";
-import { Navigation } from "../../components/navigation";
-import { Select } from "../../components/select";
-import { getClientEnvironment } from "../../lib/client/relay_client_environment";
-import { tournaments_TournamentCard$key } from "../../queries/__generated__/tournaments_TournamentCard.graphql";
+import { Card } from "../components/card";
+import { Navigation } from "../components/navigation";
+import { Select } from "../components/select";
+import { getClientEnvironment } from "../lib/client/relay_client_environment";
+import { tournaments_TournamentCard$key } from "../queries/__generated__/tournaments_TournamentCard.graphql";
 import {
   TimePeriod,
   tournaments_TournamentsQuery,
   TournamentSortBy,
-} from "../../queries/__generated__/tournaments_TournamentsQuery.graphql";
+} from "../queries/__generated__/tournaments_TournamentsQuery.graphql";
 
 function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
   const tournament = useFragment(
@@ -58,7 +58,7 @@ function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
     >
       <div className="flex h-32 flex-col space-y-2">
         <Link
-          href={`/v2/tournament/${tournament.TID}`}
+          href={`/tournament/${tournament.TID}`}
           className="line-clamp-2 text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
         >
           {tournament.name}
@@ -218,7 +218,7 @@ export default withRelay(TournamentsPage, TournamentsQuery, {
   createClientEnvironment: () => getClientEnvironment()!,
   createServerEnvironment: async () => {
     const { createServerEnvironment } = await import(
-      "../../lib/server/relay_server_environment"
+      "../lib/server/relay_server_environment"
     );
 
     return createServerEnvironment();
