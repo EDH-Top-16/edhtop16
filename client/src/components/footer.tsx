@@ -11,10 +11,12 @@ export function Footer() {
       </Link>
 
       <Link
-        href="/api/graphql"
+        href="https://github.com/EDH-Top-16/edhtop16"
+        target="_blank"
+        rel="noopener noreferrer"
         className="text-sm text-white/60 underline decoration-transparent transition-colors transition-colors hover:text-white hover:decoration-inherit"
       >
-        API
+        GitHub
       </Link>
 
       <Link
