@@ -104,9 +104,12 @@ export const TournamentType = builder.prismaObject("Tournament", {
       resolve: (tournament) => tournament.tournamentDate.toISOString(),
     }),
     entries: t.relation("entries", {
-      args: { maxStanding: t.arg.int() },
+      args: { maxStanding: t.arg.int(), commander: t.arg.string() },
       query: (args) => ({
-        where: { standing: { lte: args.maxStanding ?? undefined } },
+        where: {
+          standing: { lte: args.maxStanding ?? undefined },
+          commander: { name: args.commander ?? undefined },
+        },
         orderBy: { standing: "asc" },
       }),
     }),

@@ -4,26 +4,31 @@ import { PropsWithChildren, ReactNode } from "react";
 export function Card({
   bottomText,
   images = [],
+  hoverEffect = true,
   className,
   children,
 }: PropsWithChildren<{
-  bottomText: ReactNode;
+  bottomText?: ReactNode;
   images?: { src: string; alt: string }[];
+  hoverEffect?: boolean;
   className?: string;
 }>) {
   return (
     <div
       className={cn(
-        "group relative cursor-pointer overflow-hidden rounded-lg bg-white shadow transition-shadow hover:shadow-lg",
+        "group relative overflow-hidden rounded-lg bg-white shadow transition-shadow",
+        hoverEffect && "cursor-pointer hover:shadow-lg",
         className,
       )}
     >
       <div
         className={cn(
           "absolute left-0 top-0 flex h-full w-full bg-[#312d5a] transition",
-          images.length > 0
-            ? "brightness-50 group-hover:brightness-[40%]"
-            : "group-hover:brightness-[80%]",
+          images.length > 0 && "brightness-50",
+          hoverEffect &&
+            (images.length > 0
+              ? "group-hover:brightness-[40%]"
+              : "group-hover:brightness-[80%]"),
         )}
       >
         {images.map(({ src, alt }, _i, { length }) => {
@@ -44,9 +49,11 @@ export function Card({
 
       <div className="relative px-4 py-5 text-white sm:p-6">{children}</div>
 
-      <div className="absolute bottom-0 w-full bg-black/60 px-2 py-2 text-sm text-white md:text-base">
-        {bottomText}
-      </div>
+      {bottomText && (
+        <div className="absolute bottom-0 w-full bg-black/60 px-2 py-2 text-sm text-white md:text-base">
+          {bottomText}
+        </div>
+      )}
     </div>
   );
 }

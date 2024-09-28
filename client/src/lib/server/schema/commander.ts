@@ -147,6 +147,14 @@ function commanderStatsQueryFromFilters(
   };
 }
 
+const TopEntriesFilters = builder.inputType("TopEntriesFilters", {
+  fields: (t) => ({
+    timePeriod: t.field({ type: TimePeriod, defaultValue: "ONE_MONTH" }),
+    minEventSize: t.int({ defaultValue: 60 }),
+    maxStanding: t.int(),
+  }),
+});
+
 const CommanderType = builder.prismaObject("Commander", {
   fields: (t) => ({
     id: t.exposeID("uuid"),
@@ -280,16 +288,17 @@ const CommanderType = builder.prismaObject("Commander", {
     topEntries: t.field({
       type: [EntryType],
       args: {
+        filters: t.arg({ type: TopEntriesFilters }),
         sortBy: t.arg({
           type: TopCommandersTopEntriesSortBy,
           defaultValue: "TOP",
         }),
-        timePeriod: t.arg({
-          type: TimePeriod,
-          defaultValue: "ONE_MONTH",
-        }),
       },
-      resolve: async (parent, { sortBy, timePeriod }) => {
+      resolve: async (parent, { sortBy, filters }) => {
+        const timePeriod = filters?.timePeriod ?? "ONE_MONTH";
+        const minEventSize = filters?.minEventSize ?? 60;
+        const maxStanding = filters?.maxStanding;
+
         const monthCount =
           timePeriod === "SIX_MONTHS"
             ? 6
@@ -306,9 +315,10 @@ const CommanderType = builder.prismaObject("Commander", {
         return prisma.entry.findMany({
           where: {
             commanderUuid: parent.uuid,
+            standing: { lte: maxStanding ?? undefined },
             tournament: {
               tournamentDate: { gte: minDate },
-              size: { gte: sortBy === "TOP" ? 60 : undefined },
+              size: { gte: minEventSize },
             },
           },
           take: 24,
@@ -318,7 +328,11 @@ const CommanderType = builder.prismaObject("Commander", {
     }),
     imageUrls: t.stringList({
       resolve: async (parent, _args, ctx) => {
-        const cardNames = parent.name.split(" / ");
+        const cardNames =
+          parent.name === "Unknown Commander"
+            ? ["The Prismatic Piper"]
+            : parent.name.split(" / ");
+
         const cards = await ctx.scryfallCardLoader.loadMany(cardNames);
 
         return cards
@@ -460,8 +474,8 @@ builder.queryField("topCommanders", (t) =>
   t.field({
     type: [CommanderType],
     args: {
-      timePeriod: t.arg({ type: TimePeriod }),
-      sortBy: t.arg({ type: TopCommandersSortBy }),
+      timePeriod: t.arg({ type: TimePeriod, defaultValue: "ONE_MONTH" }),
+      sortBy: t.arg({ type: TopCommandersSortBy, defaultValue: "CONVERSION" }),
     },
     resolve: async (_root, { timePeriod, sortBy }) => {
       const monthCount =

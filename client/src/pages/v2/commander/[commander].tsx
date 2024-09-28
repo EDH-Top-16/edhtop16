@@ -23,6 +23,7 @@ import {
   TopCommandersTopEntriesSortBy,
 } from "../../../queries/__generated__/Commander_CommanderQuery.graphql";
 import { Commander_EntryCard$key } from "../../../queries/__generated__/Commander_EntryCard.graphql";
+import { Select } from "../../../components/select";
 
 function EntryCard(props: { entry: Commander_EntryCard$key }) {
   const entry = useFragment(
@@ -202,11 +203,20 @@ const CommanderQuery = graphql`
   query Commander_CommanderQuery(
     $commander: String!
     $sortBy: TopCommandersTopEntriesSortBy!
+    $minEventSize: Int!
+    $maxStanding: Int
   ) {
     commander(name: $commander) {
       ...Commander_CommanderPageShell
 
-      topEntries(sortBy: $sortBy, timePeriod: SIX_MONTHS) {
+      topEntries(
+        sortBy: $sortBy
+        filters: {
+          timePeriod: SIX_MONTHS
+          minEventSize: $minEventSize
+          maxStanding: $maxStanding
+        }
+      ) {
         id
         ...Commander_EntryCard
       }
@@ -221,9 +231,14 @@ function CommanderPage({
 
   const router = useRouter();
   const setQueryVariable = useCallback(
-    (key: string, value: string) => {
+    (key: string, value: string | null) => {
       const nextUrl = new URL(window.location.href);
-      nextUrl.searchParams.set(key, value);
+      if (value != null) {
+        nextUrl.searchParams.set(key, value);
+      } else {
+        nextUrl.searchParams.delete(key);
+      }
+
       router.replace(nextUrl, undefined, { shallow: true, scroll: false });
     },
     [router],
@@ -236,6 +251,45 @@ function CommanderPage({
       onUpdateQueryParam={setQueryVariable}
     >
       <div className="mx-auto flex grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
+        {preloadedQuery.variables.sortBy === "NEW" && (
+          <Card hoverEffect={false}>
+            <div className="flex flex-col gap-4">
+              <span className="border-b border-white text-white">
+                Search Settings
+              </span>
+
+              <div className="flex gap-4 text-black">
+                <Select
+                  id="commander-event-size"
+                  label="Event Size"
+                  value={`${preloadedQuery.variables.minEventSize}`}
+                  onChange={(e) => {
+                    setQueryVariable("minEventSize", e);
+                  }}
+                >
+                  <option value="0">All Events</option>
+                  <option value="60">60+ Players</option>
+                  <option value="100">100+ Players</option>
+                </Select>
+
+                <Select
+                  id="commander-event-size"
+                  label="Player Standing"
+                  value={`${preloadedQuery.variables.maxStanding}`}
+                  onChange={(e) => {
+                    setQueryVariable("maxStanding", e ? e : null);
+                  }}
+                >
+                  <option value="">All Players</option>
+                  <option value="16">Top 16</option>
+                  <option value="4">Top 4</option>
+                  <option value="1">Winner</option>
+                </Select>
+              </div>
+            </div>
+          </Card>
+        )}
+
         {commander.topEntries.map((entry) => (
           <EntryCard key={entry.id} entry={entry} />
         ))}
@@ -287,6 +341,14 @@ export default withRelay(CommanderPage, CommanderQuery, {
     return {
       commander: ctx.query.commander as string,
       sortBy: (ctx.query.sortBy ?? "TOP") as TopCommandersTopEntriesSortBy,
+      minEventSize:
+        ctx.query.sortBy === "TOP"
+          ? 60
+          : Number(ctx.query.minEventSize || "60"),
+      maxStanding:
+        ctx.query.sortBy === "TOP" || !ctx.query.maxStanding
+          ? undefined
+          : Number(ctx.query.maxStanding),
     };
   },
 });

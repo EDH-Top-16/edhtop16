@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<f55540d01c7daeabd8d696c90aa64143>>
+ * @generated SignedSource<<1a4b2c670a278f975a073284c1c5ce66>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -13,6 +13,8 @@ import { FragmentRefs } from "relay-runtime";
 export type TopCommandersTopEntriesSortBy = "NEW" | "TOP" | "%future added value";
 export type Commander_CommanderQuery$variables = {
   commander: string;
+  maxStanding?: number | null | undefined;
+  minEventSize: number;
   sortBy: TopCommandersTopEntriesSortBy;
 };
 export type Commander_CommanderQuery$data = {
@@ -30,45 +32,69 @@ export type Commander_CommanderQuery = {
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = [
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "commander"
-  },
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "sortBy"
-  }
-],
-v1 = [
+var v0 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "commander"
+},
+v1 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "maxStanding"
+},
+v2 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "minEventSize"
+},
+v3 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "sortBy"
+},
+v4 = [
   {
     "kind": "Variable",
     "name": "name",
     "variableName": "commander"
   }
 ],
-v2 = [
+v5 = [
+  {
+    "fields": [
+      {
+        "kind": "Variable",
+        "name": "maxStanding",
+        "variableName": "maxStanding"
+      },
+      {
+        "kind": "Variable",
+        "name": "minEventSize",
+        "variableName": "minEventSize"
+      },
+      {
+        "kind": "Literal",
+        "name": "timePeriod",
+        "value": "SIX_MONTHS"
+      }
+    ],
+    "kind": "ObjectValue",
+    "name": "filters"
+  },
   {
     "kind": "Variable",
     "name": "sortBy",
     "variableName": "sortBy"
-  },
-  {
-    "kind": "Literal",
-    "name": "timePeriod",
-    "value": "SIX_MONTHS"
   }
 ],
-v3 = {
+v6 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
 },
-v4 = {
+v7 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -77,14 +103,19 @@ v4 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v0/*: any*/),
+      (v1/*: any*/),
+      (v2/*: any*/),
+      (v3/*: any*/)
+    ],
     "kind": "Fragment",
     "metadata": null,
     "name": "Commander_CommanderQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v4/*: any*/),
         "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "commander",
@@ -97,13 +128,13 @@ return {
           },
           {
             "alias": null,
-            "args": (v2/*: any*/),
+            "args": (v5/*: any*/),
             "concreteType": "Entry",
             "kind": "LinkedField",
             "name": "topEntries",
             "plural": true,
             "selections": [
-              (v3/*: any*/),
+              (v6/*: any*/),
               {
                 "args": null,
                 "kind": "FragmentSpread",
@@ -121,19 +152,24 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v0/*: any*/),
+      (v3/*: any*/),
+      (v2/*: any*/),
+      (v1/*: any*/)
+    ],
     "kind": "Operation",
     "name": "Commander_CommanderQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v4/*: any*/),
         "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "commander",
         "plural": false,
         "selections": [
-          (v4/*: any*/),
+          (v7/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -150,13 +186,13 @@ return {
           },
           {
             "alias": null,
-            "args": (v2/*: any*/),
+            "args": (v5/*: any*/),
             "concreteType": "Entry",
             "kind": "LinkedField",
             "name": "topEntries",
             "plural": true,
             "selections": [
-              (v3/*: any*/),
+              (v6/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -200,8 +236,8 @@ return {
                 "name": "player",
                 "plural": false,
                 "selections": [
-                  (v4/*: any*/),
-                  (v3/*: any*/)
+                  (v7/*: any*/),
+                  (v6/*: any*/)
                 ],
                 "storageKey": null
               },
@@ -213,7 +249,7 @@ return {
                 "name": "tournament",
                 "plural": false,
                 "selections": [
-                  (v4/*: any*/),
+                  (v7/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -228,30 +264,30 @@ return {
                     "name": "tournamentDate",
                     "storageKey": null
                   },
-                  (v3/*: any*/)
+                  (v6/*: any*/)
                 ],
                 "storageKey": null
               }
             ],
             "storageKey": null
           },
-          (v3/*: any*/)
+          (v6/*: any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "cacheID": "a0f953fd27f055dc046aaa2dd00c28f8",
+    "cacheID": "18b3051490f113c9c538b2bfa1de8d1a",
     "id": null,
     "metadata": {},
     "name": "Commander_CommanderQuery",
     "operationKind": "query",
-    "text": "query Commander_CommanderQuery(\n  $commander: String!\n  $sortBy: TopCommandersTopEntriesSortBy!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    topEntries(sortBy: $sortBy, timePeriod: SIX_MONTHS) {\n      id\n      ...Commander_EntryCard\n    }\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  imageUrls\n  colorId\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    id\n  }\n}\n"
+    "text": "query Commander_CommanderQuery(\n  $commander: String!\n  $sortBy: TopCommandersTopEntriesSortBy!\n  $minEventSize: Int!\n  $maxStanding: Int\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    topEntries(sortBy: $sortBy, filters: {timePeriod: SIX_MONTHS, minEventSize: $minEventSize, maxStanding: $maxStanding}) {\n      id\n      ...Commander_EntryCard\n    }\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  imageUrls\n  colorId\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    id\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "6d66d39a41c7056661020c6e0d21f882";
+(node as any).hash = "3ac217cf66c763611c0826634bb48dbb";
 
 export default node;
