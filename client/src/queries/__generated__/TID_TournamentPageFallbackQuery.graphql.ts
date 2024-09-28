@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<c9ee646e3efffaa12245b13ab75443c1>>
+ * @generated SignedSource<<1960116ea69505121df32c9a3fe27ca8>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -108,6 +108,13 @@ return {
             "storageKey": null
           },
           {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "bracketUrl",
+            "storageKey": null
+          },
+          {
             "alias": "winner",
             "args": [
               {
@@ -151,12 +158,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "d4454a7d82c8aea9ee5c6e38486ce239",
+    "cacheID": "cfd40731878c0e5420eeb4c590e1bdb5",
     "id": null,
     "metadata": {},
     "name": "TID_TournamentPageFallbackQuery",
     "operationKind": "query",
-    "text": "query TID_TournamentPageFallbackQuery(\n  $TID: String!\n) {\n  tournament(TID: $TID) {\n    ...TID_TournamentPageShell\n    id\n  }\n}\n\nfragment TID_TournamentBanner on Tournament {\n  name\n  size\n  tournamentDate\n  winner: entries(maxStanding: 1) {\n    commander {\n      imageUrls\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentMeta on Tournament {\n  name\n}\n\nfragment TID_TournamentPageShell on Tournament {\n  ...TID_TournamentBanner\n  ...TID_TournamentMeta\n}\n"
+    "text": "query TID_TournamentPageFallbackQuery(\n  $TID: String!\n) {\n  tournament(TID: $TID) {\n    ...TID_TournamentPageShell\n    id\n  }\n}\n\nfragment TID_TournamentBanner on Tournament {\n  name\n  size\n  tournamentDate\n  bracketUrl\n  winner: entries(maxStanding: 1) {\n    commander {\n      imageUrls\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentMeta on Tournament {\n  name\n}\n\nfragment TID_TournamentPageShell on Tournament {\n  ...TID_TournamentBanner\n  ...TID_TournamentMeta\n}\n"
   }
 };
 })();
