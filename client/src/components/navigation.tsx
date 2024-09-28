@@ -13,7 +13,9 @@ export function Navigation() {
 
   return (
     <nav className="sticky top-0 z-20 grid w-full grid-cols-[auto_auto_auto_1fr] items-center gap-x-6 gap-y-3 bg-[#312d5a] px-4 py-3 font-title text-white md:px-8">
-      <span className="text-xl font-black">EDHTop16</span>
+      <Link href="/v2" className="text-xl font-black">
+        EDHTop16
+      </Link>
 
       <Link
         href="/v2"

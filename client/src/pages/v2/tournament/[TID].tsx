@@ -15,7 +15,7 @@ import { Navigation } from "../../../components/navigation";
 import { Tab, TabList } from "../../../components/tabs";
 import { formatOrdinals, formatPercent } from "../../../lib/client/format";
 import { getClientEnvironment } from "../../../lib/client/relay_client_environment";
-import { TID_BreakdownCard$key } from "../../../queries/__generated__/TID_BreakdownCard.graphql";
+import { TID_BreakdownGroupCard$key } from "../../../queries/__generated__/TID_BreakdownGroupCard.graphql";
 import { TID_EntryCard$key } from "../../../queries/__generated__/TID_EntryCard.graphql";
 import { TID_TournamentBanner$key } from "../../../queries/__generated__/TID_TournamentBanner.graphql";
 import { TID_TournamentMeta$key } from "../../../queries/__generated__/TID_TournamentMeta.graphql";
@@ -23,7 +23,13 @@ import { TID_TournamentPageFallbackQuery } from "../../../queries/__generated__/
 import { TID_TournamentPageShell$key } from "../../../queries/__generated__/TID_TournamentPageShell.graphql";
 import { TID_TournamentQuery } from "../../../queries/__generated__/TID_TournamentQuery.graphql";
 
-function EntryCard(props: { entry: TID_EntryCard$key }) {
+function EntryCard({
+  highlightFirst = true,
+  ...props
+}: {
+  highlightFirst?: boolean;
+  entry: TID_EntryCard$key;
+}) {
   const entry = useFragment(
     graphql`
       fragment TID_EntryCard on Entry {
@@ -67,7 +73,11 @@ function EntryCard(props: { entry: TID_EntryCard$key }) {
 
   return (
     <Card
-      className="group first:md:col-span-2 lg:max-w-3xl first:lg:col-span-3 first:lg:w-full first:lg:justify-self-center"
+      className={cn(
+        "group",
+        highlightFirst &&
+          "first:md:col-span-2 lg:max-w-3xl first:lg:col-span-3 first:lg:w-full first:lg:justify-self-center",
+      )}
       bottomText={bottomText}
       images={entry.commander.imageUrls.map((img) => ({
         src: img,
@@ -98,10 +108,16 @@ function EntryCard(props: { entry: TID_EntryCard$key }) {
   );
 }
 
-function BreakdownCard(props: { group: TID_BreakdownCard$key }) {
+function BreakdownGroupCard({
+  onClickGroup,
+  ...props
+}: {
+  onClickGroup?: (groupName: string) => void;
+  group: TID_BreakdownGroupCard$key;
+}) {
   const { commander, conversionRate, entries, topCuts } = useFragment(
     graphql`
-      fragment TID_BreakdownCard on TournamentBreakdownGroup {
+      fragment TID_BreakdownGroupCard on TournamentBreakdownGroup {
         commander {
           name
           imageUrls
@@ -132,12 +148,15 @@ function BreakdownCard(props: { group: TID_BreakdownCard$key }) {
       }))}
     >
       <div className="flex h-32 flex-col space-y-2">
-        <Link
-          href={commander.breakdownUrl}
-          className="text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
+        <button
+          // href={commander.breakdownUrl}
+          className="text-left text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
+          onClick={() => {
+            onClickGroup?.(commander.name);
+          }}
         >
           {commander.name}
-        </Link>
+        </button>
 
         <ColorIdentity identity={commander.colorId} />
       </div>
@@ -217,13 +236,15 @@ function TournamentMeta(props: { tournament: TID_TournamentMeta$key }) {
 
 function TournamentPageShell({
   tab,
+  commanderName,
   onUpdateQueryParam,
   children,
   ...props
 }: PropsWithChildren<{
   tab: string;
+  commanderName?: string | null;
   tournament: TID_TournamentPageShell$key;
-  onUpdateQueryParam?: (key: string, value: string) => void;
+  onUpdateQueryParam?: (keys: [key: string, value: string | null][]) => void;
 }>) {
   const tournament = useFragment(
     graphql`
@@ -244,13 +265,19 @@ function TournamentPageShell({
         className="mx-auto max-w-screen-md"
         isDisabled={onUpdateQueryParam == null}
         selectedKey={tab}
-        onSelectionChange={(nextKey) =>
-          onUpdateQueryParam?.("tab", nextKey as string)
-        }
+        onSelectionChange={(nextKey) => {
+          const nextParams: [key: string, value: string | null][] = [
+            ["tab", nextKey as string | null],
+          ];
+
+          if (nextKey !== "commander") nextParams.push(["commander", null]);
+          onUpdateQueryParam?.(nextParams);
+        }}
       >
         <TabList>
           <Tab id="entries">Standings</Tab>
           <Tab id="breakdown">Metagame Breakdown</Tab>
+          <Tab id="commander">{commanderName}</Tab>
         </TabList>
       </Tabs>
       {children}
@@ -259,21 +286,33 @@ function TournamentPageShell({
 }
 
 const TournamentQuery = graphql`
-  query TID_TournamentQuery($TID: String!, $breakdown: Boolean!) {
+  query TID_TournamentQuery(
+    $TID: String!
+    $commander: String
+    $showStandings: Boolean!
+    $showBreakdown: Boolean!
+    $showBreakdownCommander: Boolean!
+  ) {
     tournament(TID: $TID) {
       ...TID_TournamentPageShell
 
-      entries @skip(if: $breakdown) {
+      entries @include(if: $showStandings) {
         id
         ...TID_EntryCard
       }
 
-      breakdown @include(if: $breakdown) {
+      breakdown @include(if: $showBreakdown) {
         commander {
           id
         }
 
-        ...TID_BreakdownCard
+        ...TID_BreakdownGroupCard
+      }
+
+      breakdownEntries: entries(commander: $commander)
+        @include(if: $showBreakdownCommander) {
+        id
+        ...TID_EntryCard
       }
     }
   }
@@ -286,9 +325,15 @@ function TournamentPage({
 
   const router = useRouter();
   const setQueryVariable = useCallback(
-    (key: string, value: string) => {
+    (keys: [key: string, value: string | null][]) => {
       const nextUrl = new URL(window.location.href);
-      nextUrl.searchParams.set(key, value);
+      for (const [key, value] of keys) {
+        if (value != null) {
+          nextUrl.searchParams.set(key, value);
+        } else {
+          nextUrl.searchParams.delete(key);
+        }
+      }
       router.replace(nextUrl, undefined, { shallow: true, scroll: false });
     },
     [router],
@@ -297,20 +342,64 @@ function TournamentPage({
   return (
     <TournamentPageShell
       tournament={tournament}
-      tab={preloadedQuery.variables.breakdown ? "breakdown" : "entries"}
+      commanderName={preloadedQuery.variables.commander}
+      tab={
+        preloadedQuery.variables.showBreakdown
+          ? "breakdown"
+          : preloadedQuery.variables.showBreakdownCommander
+          ? "commander"
+          : "entries"
+      }
       onUpdateQueryParam={setQueryVariable}
     >
+      {/* {preloadedQuery.variables.showBreakdownCommander && (
+        <div className="mx-auto flex max-w-screen-md justify-between px-6 pt-4 text-white md:px-0">
+          <button
+            className="underline"
+            onClick={() => {
+              setQueryVariable("tab", "breakdown", { reset: true });
+            }}
+          >
+            Back
+          </button>
+
+          <Link
+            className="underline"
+            href={`/v2/commander/${encodeURIComponent(
+              preloadedQuery.variables.commander!,
+            )}`}
+          >
+            {preloadedQuery.variables.commander}
+          </Link>
+        </div>
+      )} */}
+
       <div className="mx-auto flex grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
-        {!preloadedQuery.variables.breakdown &&
+        {preloadedQuery.variables.showStandings &&
           tournament.entries != null &&
           tournament.entries.map((entry) => (
             <EntryCard key={entry.id} entry={entry} />
           ))}
 
-        {preloadedQuery.variables.breakdown &&
+        {preloadedQuery.variables.showBreakdown &&
           tournament.breakdown &&
           tournament.breakdown.map((group) => (
-            <BreakdownCard key={group.commander.id} group={group} />
+            <BreakdownGroupCard
+              key={group.commander.id}
+              group={group}
+              onClickGroup={(commanderName) => {
+                setQueryVariable([
+                  ["tab", "commander"],
+                  ["commander", commanderName],
+                ]);
+              }}
+            />
+          ))}
+
+        {preloadedQuery.variables.showBreakdownCommander &&
+          tournament.breakdownEntries &&
+          tournament.breakdownEntries.map((entry) => (
+            <EntryCard key={entry.id} entry={entry} highlightFirst={false} />
           ))}
       </div>
     </TournamentPageShell>
@@ -336,6 +425,7 @@ function TournamentPageFallback() {
     <TournamentPageShell
       tournament={tournament}
       tab={router.query.tab as string}
+      commanderName={router.query.commander as string | undefined}
     >
       <LoadingIcon />
     </TournamentPageShell>
@@ -359,7 +449,12 @@ export default withRelay(TournamentPage, TournamentQuery, {
   variablesFromContext: (ctx) => {
     return {
       TID: ctx.query.TID as string,
-      breakdown: ctx.query.tab === "breakdown",
+      commander: ctx.query.commander as string,
+      showStandings:
+        ctx.query.tab !== "breakdown" && ctx.query.tab !== "commander",
+      showBreakdown: ctx.query.tab === "breakdown",
+      showBreakdownCommander:
+        ctx.query.tab === "commander" && ctx.query.commander != null,
     };
   },
 });

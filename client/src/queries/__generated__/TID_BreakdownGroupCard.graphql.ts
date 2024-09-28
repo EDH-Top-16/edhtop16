@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<f6e2524fc93bd7d62a915c9ed4c63d08>>
+ * @generated SignedSource<<130377c6b8a31b37ac30a88e558a3e00>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { Fragment, ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type TID_BreakdownCard$data = {
+export type TID_BreakdownGroupCard$data = {
   readonly commander: {
     readonly breakdownUrl: string;
     readonly colorId: string;
@@ -20,18 +20,18 @@ export type TID_BreakdownCard$data = {
   readonly conversionRate: number;
   readonly entries: number;
   readonly topCuts: number;
-  readonly " $fragmentType": "TID_BreakdownCard";
+  readonly " $fragmentType": "TID_BreakdownGroupCard";
 };
-export type TID_BreakdownCard$key = {
-  readonly " $data"?: TID_BreakdownCard$data;
-  readonly " $fragmentSpreads": FragmentRefs<"TID_BreakdownCard">;
+export type TID_BreakdownGroupCard$key = {
+  readonly " $data"?: TID_BreakdownGroupCard$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TID_BreakdownGroupCard">;
 };
 
 const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "TID_BreakdownCard",
+  "name": "TID_BreakdownGroupCard",
   "selections": [
     {
       "alias": null,
@@ -98,6 +98,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "dd3503badb78a476dc0c074c95b63074";
+(node as any).hash = "2b71a671226cc3cb7f1a91a95a364e60";
 
 export default node;

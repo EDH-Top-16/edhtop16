@@ -13,8 +13,8 @@ type Commander {
   name: String!
   topCuts(filters: CommanderStatsFilters): Int!
   topEntries(
+    filters: TopEntriesFilters
     sortBy: TopCommandersTopEntriesSortBy = TOP
-    timePeriod: TimePeriod = ONE_MONTH
   ): [Entry!]!
 }
 
@@ -102,8 +102,8 @@ type Query {
   ): [Commander!]!
   player(profile: String!): Player!
   topCommanders(
-    sortBy: TopCommandersSortBy
-    timePeriod: TimePeriod
+    sortBy: TopCommandersSortBy = CONVERSION
+    timePeriod: TimePeriod = ONE_MONTH
   ): [Commander!]!
   tournament(TID: String!): Tournament!
   tournaments(
@@ -134,6 +134,12 @@ enum TopCommandersTopEntriesSortBy {
   TOP
 }
 
+input TopEntriesFilters {
+  maxStanding: Int
+  minEventSize: Int = 60
+  timePeriod: TimePeriod = ONE_MONTH
+}
+
 type TopdeckTournamentRound {
   round: String!
   tables: [TopdeckTournamentTable!]!
@@ -151,7 +157,7 @@ type Tournament {
   TID: String!
   bracketUrl: String!
   breakdown: [TournamentBreakdownGroup!]!
-  entries(maxStanding: Int): [Entry!]!
+  entries(commander: String, maxStanding: Int): [Entry!]!
   id: ID!
   name: String!
   rounds: [TopdeckTournamentRound!]!
