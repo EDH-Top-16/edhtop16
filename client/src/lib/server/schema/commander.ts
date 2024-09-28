@@ -243,7 +243,7 @@ const CommanderType = builder.prismaObject("Commander", {
       },
     }),
     breakdownUrl: t.string({
-      resolve: (parent) => `/commander/${encodeURIComponent(parent.name)}`,
+      resolve: (parent) => `/v2/commander/${encodeURIComponent(parent.name)}`,
     }),
     count: t.int({
       args: { filters: t.arg({ type: FiltersInput }) },
