@@ -80,9 +80,9 @@ function AboutPage() {
         <p className="w-full">
           EDHTop16 is developed and maintained by Ryan Delaney and Jason Qiu.
           When we&apos;re not working on this site, we are active cEDH
-          tournament grinders, but probably stuck at our day jobs. We&apos;
-          grateful for our community&apos; support of this project, and happy we
-          can give back!
+          tournament grinders, but we&apos;re probably stuck at our day jobs.
+          We&apos;re grateful for our community&apos;s support of this project
+          and happy that we can give back!
         </p>
       </div>
     </>
