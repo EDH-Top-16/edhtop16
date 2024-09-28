@@ -25,7 +25,7 @@ export default function EdhTop16App({ Component, pageProps }: AppProps) {
       <RelayEnvironmentProvider environment={env}>
         <DefaultSeo
           titleTemplate="%s | EDHTop 16"
-          additionalLinkTags={[{ rel: "icon", href: "/v2/icon.png" }]}
+          additionalLinkTags={[{ rel: "icon", href: "/icon.png" }]}
         />
 
         <main
