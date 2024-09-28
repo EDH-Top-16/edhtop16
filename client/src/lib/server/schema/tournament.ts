@@ -1,9 +1,9 @@
 import { Prisma } from "@prisma/client";
-import { subMonths } from "date-fns";
 import { prisma } from "../prisma";
 import { builder } from "./builder";
 import { EntryType } from "./entry";
 import {
+  minDateFromTimePeriod,
   TimePeriod,
   TopdeckTournamentRoundType,
   TopdeckTournamentTableType,
@@ -193,15 +193,7 @@ builder.queryField("tournaments", (t) =>
       }
 
       if (args.filters?.timePeriod) {
-        const minDate =
-          args.filters.timePeriod === "SIX_MONTHS"
-            ? subMonths(new Date(), 6)
-            : args.filters.timePeriod === "THREE_MONTHS"
-            ? subMonths(new Date(), 3)
-            : args.filters.timePeriod === "ONE_MONTH"
-            ? subMonths(new Date(), 1)
-            : new Date(0);
-
+        const minDate = minDateFromTimePeriod(args.filters.timePeriod);
         where.push({ tournamentDate: { gte: minDate } });
       }
 
