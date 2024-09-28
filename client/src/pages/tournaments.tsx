@@ -7,6 +7,7 @@ import { PropsWithChildren, useCallback, useMemo } from "react";
 import { graphql, useFragment, usePreloadedQuery } from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { Card } from "../components/card";
+import { Footer } from "../components/footer";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
 import { getClientEnvironment } from "../lib/client/relay_client_environment";
@@ -92,7 +93,7 @@ function TournamentsPageShell({
 
       <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
         <div className="mb-8 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0">
-          <h1 className="flex-1 text-4xl font-extrabold text-white md:text-5xl">
+          <h1 className="flex-1 font-title text-4xl font-extrabold text-white md:text-5xl">
             cEDH Tournaments
           </h1>
 
@@ -189,6 +190,8 @@ function TournamentsPage({
           <TournamentCard key={c.id} commander={c} />
         ))}
       </div>
+
+      <Footer />
     </TournamentsPageShell>
   );
 }

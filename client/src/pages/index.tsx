@@ -17,6 +17,7 @@ import {
   TopCommandersSortBy,
 } from "../queries/__generated__/pages_CommandersQuery.graphql";
 import { pages_TopCommandersCard$key } from "../queries/__generated__/pages_TopCommandersCard.graphql";
+import { Footer } from "../components/footer";
 
 function TopCommandersCard({
   secondaryStatistic,
@@ -96,7 +97,7 @@ function CommandersPageShell({
 
       <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
         <div className="mb-8 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0">
-          <h1 className="flex-1 text-5xl font-extrabold text-white">
+          <h1 className="flex-1 font-title text-5xl font-extrabold text-white">
             cEDH Metagame Breakdown
           </h1>
 
@@ -180,6 +181,8 @@ function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
           />
         ))}
       </div>
+
+      <Footer />
     </CommandersPageShell>
   );
 }
