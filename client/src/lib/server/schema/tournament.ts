@@ -144,7 +144,9 @@ export const TournamentType = builder.prismaObject("Tournament", {
             sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e) as "conversionRate"
           from "Entry" as e
           left join "Tournament" t on t.uuid = e."tournamentUuid"
-          where t."TID" = 'PuntCity3'
+          left join "Commander" c on c.uuid = e."commanderUuid"
+          where t."uuid"::text = ${parent.uuid}
+          and c.name != 'Unknown Commander'
           group by e."commanderUuid"
           order by "topCuts" desc, entries desc
         `;
