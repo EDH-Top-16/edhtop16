@@ -7,21 +7,6 @@
   "routes": [
     {
       "match": {
-        "uri": [
-          "/static/*",
-          "/",
-          "/api",
-          "/about",
-          "/commander*",
-          "/tournament*"
-        ]
-      },
-      "action": {
-        "share": ["/app/client_v1/$uri", "/app/client_v1/index.html"]
-      }
-    },
-    {
-      "match": {
         "uri": ["*"]
       },
       "action": {

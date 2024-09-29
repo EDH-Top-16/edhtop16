@@ -27,11 +27,3 @@ export const builder = new SchemaBuilder<{
 });
 
 builder.queryType({});
-
-export const TournamentRoundType = builder.objectRef<
-  TopdeckTournamentRound & { TID: string }
->("TournamentRound");
-
-export const TournamentTableType = builder.objectRef<
-  TopdeckTournamentTable & { TID: string; roundName: string }
->("TournamentTable");

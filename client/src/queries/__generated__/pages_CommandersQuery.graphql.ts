@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<4b5f9c098555a911681344de8eec5496>>
+ * @generated SignedSource<<de629ba3efe6ff2c56dcb71a2bae3981>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -12,19 +12,19 @@ import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TimePeriod = "ONE_MONTH" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type TopCommandersSortBy = "CONVERSION" | "POPULARITY" | "%future added value";
-export type v2Query$variables = {
+export type pages_CommandersQuery$variables = {
   sortBy: TopCommandersSortBy;
   timePeriod: TimePeriod;
 };
-export type v2Query$data = {
+export type pages_CommandersQuery$data = {
   readonly topCommanders: ReadonlyArray<{
     readonly id: string;
-    readonly " $fragmentSpreads": FragmentRefs<"v2_TopCommandersCard">;
+    readonly " $fragmentSpreads": FragmentRefs<"pages_TopCommandersCard">;
   }>;
 };
-export type v2Query = {
-  response: v2Query$data;
-  variables: v2Query$variables;
+export type pages_CommandersQuery = {
+  response: pages_CommandersQuery$data;
+  variables: pages_CommandersQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -75,7 +75,7 @@ return {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "v2Query",
+    "name": "pages_CommandersQuery",
     "selections": [
       {
         "alias": null,
@@ -89,7 +89,7 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "v2_TopCommandersCard"
+            "name": "pages_TopCommandersCard"
           }
         ],
         "storageKey": null
@@ -105,7 +105,7 @@ return {
       (v0/*: any*/)
     ],
     "kind": "Operation",
-    "name": "v2Query",
+    "name": "pages_CommandersQuery",
     "selections": [
       {
         "alias": null,
@@ -171,16 +171,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "6ef480087e7f2488e5b9c212bacfc997",
+    "cacheID": "55d666678d7d77e0ed272428a3fbd821",
     "id": null,
     "metadata": {},
-    "name": "v2Query",
+    "name": "pages_CommandersQuery",
     "operationKind": "query",
-    "text": "query v2Query(\n  $timePeriod: TimePeriod!\n  $sortBy: TopCommandersSortBy!\n) {\n  topCommanders(timePeriod: $timePeriod, sortBy: $sortBy) {\n    id\n    ...v2_TopCommandersCard\n  }\n}\n\nfragment v2_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  conversionRate(filters: {timePeriod: $timePeriod})\n  topCuts(filters: {timePeriod: $timePeriod})\n  count(filters: {timePeriod: $timePeriod})\n  breakdownUrl\n}\n"
+    "text": "query pages_CommandersQuery(\n  $timePeriod: TimePeriod!\n  $sortBy: TopCommandersSortBy!\n) {\n  topCommanders(timePeriod: $timePeriod, sortBy: $sortBy) {\n    id\n    ...pages_TopCommandersCard\n  }\n}\n\nfragment pages_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  conversionRate(filters: {timePeriod: $timePeriod})\n  topCuts(filters: {timePeriod: $timePeriod})\n  count(filters: {timePeriod: $timePeriod})\n  breakdownUrl\n}\n"
   }
 };
 })();
 
-(node as any).hash = "099593ed129cc90a1a48521521a15a5a";
+(node as any).hash = "600b418894b620dc737eae39ac7abf74";
 
 export default node;

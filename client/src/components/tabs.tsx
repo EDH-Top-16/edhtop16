@@ -11,7 +11,7 @@ function Edhtop16TabList({
     <TabList
       {...props}
       className={cn(
-        "space-y flex justify-center space-x-6 border-b border-white/40 py-6",
+        "flex flex-wrap justify-center gap-6 border-b border-white/40 p-6 text-center",
         className,
       )}
     >

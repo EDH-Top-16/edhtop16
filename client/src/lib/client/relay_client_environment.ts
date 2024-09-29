@@ -2,7 +2,7 @@ import { Environment, Network, RecordSource, Store } from "relay-runtime";
 
 export function createClientNetwork() {
   return Network.create(async (params, variables) => {
-    const response = await fetch("/v2/api/graphql", {
+    const response = await fetch("/api/graphql", {
       method: "POST",
       credentials: "include",
       headers: {

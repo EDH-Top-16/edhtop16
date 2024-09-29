@@ -1,11 +1,16 @@
 import { Prisma } from "@prisma/client";
-import { TournamentRoundType, TournamentTableType, builder } from "./builder";
-import { EntryType } from "./entry";
 import { prisma } from "../prisma";
-import { TimePeriod } from "./types";
-import { subMonths } from "date-fns";
+import { builder } from "./builder";
+import { EntryType } from "./entry";
+import {
+  minDateFromTimePeriod,
+  TimePeriod,
+  TopdeckTournamentRoundType,
+  TopdeckTournamentTableType,
+  TournamentBreakdownGroupType,
+} from "./types";
 
-TournamentTableType.implement({
+TopdeckTournamentTableType.implement({
   fields: (t) => ({
     table: t.exposeInt("table"),
     roundName: t.exposeString("roundName"),
@@ -52,19 +57,36 @@ TournamentTableType.implement({
   }),
 });
 
-TournamentRoundType.implement({
+TopdeckTournamentRoundType.implement({
   fields: (t) => ({
     round: t.string({
       resolve: (parent) => `${parent.round}`,
     }),
     tables: t.field({
-      type: t.listRef(TournamentTableType),
+      type: t.listRef(TopdeckTournamentTableType),
       resolve: (parent) => {
         return parent.tables.map((t) => ({
           ...t,
           TID: parent.TID,
           roundName: `${parent.round}`,
         }));
+      },
+    }),
+  }),
+});
+
+TournamentBreakdownGroupType.implement({
+  fields: (t) => ({
+    topCuts: t.exposeInt("topCuts"),
+    entries: t.exposeInt("entries"),
+    conversionRate: t.exposeFloat("conversionRate"),
+    commander: t.prismaField({
+      type: "Commander",
+      resolve: (query, parent) => {
+        return prisma.commander.findUniqueOrThrow({
+          ...query,
+          where: { uuid: parent.commanderUuid },
+        });
       },
     }),
   }),
@@ -82,14 +104,17 @@ export const TournamentType = builder.prismaObject("Tournament", {
       resolve: (tournament) => tournament.tournamentDate.toISOString(),
     }),
     entries: t.relation("entries", {
-      args: { maxStanding: t.arg.int() },
+      args: { maxStanding: t.arg.int(), commander: t.arg.string() },
       query: (args) => ({
-        where: { standing: { lte: args.maxStanding ?? undefined } },
+        where: {
+          standing: { lte: args.maxStanding ?? undefined },
+          commander: { name: args.commander ?? undefined },
+        },
         orderBy: { standing: "asc" },
       }),
     }),
     rounds: t.field({
-      type: t.listRef(TournamentRoundType),
+      type: t.listRef(TopdeckTournamentRoundType),
       resolve: async (parent, _args, ctx) => {
         const tournament = await ctx.topdeckClient.loadRoundsData(parent.TID);
         return (
@@ -98,6 +123,35 @@ export const TournamentType = builder.prismaObject("Tournament", {
             TID: parent.TID,
           })) ?? []
         );
+      },
+    }),
+    bracketUrl: t.field({
+      type: "String",
+      resolve: (parent) => {
+        // TODO: Read from database for non-topdeck tournaments.
+        return `https://topdeck.gg/bracket/${parent.TID}`;
+      },
+    }),
+    breakdown: t.field({
+      type: t.listRef(TournamentBreakdownGroupType),
+      resolve: async (parent) => {
+        type Group = (typeof TournamentBreakdownGroupType)["$inferType"];
+        const groups = await prisma.$queryRaw<Group[]>`
+          select
+            e."commanderUuid",
+            count(e."commanderUuid")::int as entries,
+            sum(case when e.standing <= t."topCut" then 1 else 0 end)::int as "topCuts",
+            sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e) as "conversionRate"
+          from "Entry" as e
+          left join "Tournament" t on t.uuid = e."tournamentUuid"
+          left join "Commander" c on c.uuid = e."commanderUuid"
+          where t."uuid"::text = ${parent.uuid}
+          and c.name != 'Unknown Commander'
+          group by e."commanderUuid"
+          order by "topCuts" desc, entries desc
+        `;
+
+        return groups;
       },
     }),
   }),
@@ -141,15 +195,7 @@ builder.queryField("tournaments", (t) =>
       }
 
       if (args.filters?.timePeriod) {
-        const minDate =
-          args.filters.timePeriod === "SIX_MONTHS"
-            ? subMonths(new Date(), 6)
-            : args.filters.timePeriod === "THREE_MONTHS"
-            ? subMonths(new Date(), 3)
-            : args.filters.timePeriod === "ONE_MONTH"
-            ? subMonths(new Date(), 1)
-            : new Date(0);
-
+        const minDate = minDateFromTimePeriod(args.filters.timePeriod);
         where.push({ tournamentDate: { gte: minDate } });
       }
 

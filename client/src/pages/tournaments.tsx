@@ -1,20 +1,22 @@
 import FireIcon from "@heroicons/react/24/solid/FireIcon";
 import { format } from "date-fns";
+import { NextSeo } from "next-seo";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { PropsWithChildren, useCallback, useMemo } from "react";
 import { graphql, useFragment, usePreloadedQuery } from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
-import { Card } from "../../components/card";
-import { Navigation } from "../../components/navigation";
-import { Select } from "../../components/select";
-import { getClientEnvironment } from "../../lib/client/relay_client_environment";
-import { tournaments_TournamentCard$key } from "../../queries/__generated__/tournaments_TournamentCard.graphql";
+import { Card } from "../components/card";
+import { Footer } from "../components/footer";
+import { Navigation } from "../components/navigation";
+import { Select } from "../components/select";
+import { getClientEnvironment } from "../lib/client/relay_client_environment";
+import { tournaments_TournamentCard$key } from "../queries/__generated__/tournaments_TournamentCard.graphql";
 import {
   TimePeriod,
   tournaments_TournamentsQuery,
   TournamentSortBy,
-} from "../../queries/__generated__/tournaments_TournamentsQuery.graphql";
+} from "../queries/__generated__/tournaments_TournamentsQuery.graphql";
 
 function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
   const tournament = useFragment(
@@ -57,7 +59,7 @@ function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
     >
       <div className="flex h-32 flex-col space-y-2">
         <Link
-          href={`/v2/tournament/${tournament.TID}`}
+          href={`/tournament/${tournament.TID}`}
           className="line-clamp-2 text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
         >
           {tournament.name}
@@ -82,11 +84,16 @@ function TournamentsPageShell({
   onUpdateQueryParam?: (key: string, value: string) => void;
 }>) {
   return (
-    <div className="relative min-h-screen bg-[#514f86]">
+    <>
       <Navigation />
+      <NextSeo
+        title="cEDH Tournaments"
+        description="Discover top and recent cEDH tournaments!"
+      />
+
       <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
         <div className="mb-8 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0">
-          <h1 className="flex-1 text-4xl font-extrabold text-white md:text-5xl">
+          <h1 className="flex-1 font-title text-4xl font-extrabold text-white md:text-5xl">
             cEDH Tournaments
           </h1>
 
@@ -136,7 +143,7 @@ function TournamentsPageShell({
 
         {children}
       </div>
-    </div>
+    </>
   );
 }
 
@@ -183,6 +190,8 @@ function TournamentsPage({
           <TournamentCard key={c.id} commander={c} />
         ))}
       </div>
+
+      <Footer />
     </TournamentsPageShell>
   );
 }
@@ -212,7 +221,7 @@ export default withRelay(TournamentsPage, TournamentsQuery, {
   createClientEnvironment: () => getClientEnvironment()!,
   createServerEnvironment: async () => {
     const { createServerEnvironment } = await import(
-      "../../lib/server/relay_server_environment"
+      "../lib/server/relay_server_environment"
     );
 
     return createServerEnvironment();

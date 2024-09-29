@@ -13,8 +13,8 @@ type Commander {
   name: String!
   topCuts(filters: CommanderStatsFilters): Int!
   topEntries(
+    filters: TopEntriesFilters
     sortBy: TopCommandersTopEntriesSortBy = TOP
-    timePeriod: TimePeriod = ONE_MONTH
   ): [Entry!]!
 }
 
@@ -47,7 +47,7 @@ type Entry {
   lossesSwiss: Int!
   player: Player
   standing: Int!
-  tables: [TournamentTable!]!
+  tables: [TopdeckTournamentTable!]!
   tournament: Tournament!
   winRate: Float
   wins: Int!
@@ -102,8 +102,8 @@ type Query {
   ): [Commander!]!
   player(profile: String!): Player!
   topCommanders(
-    sortBy: TopCommandersSortBy
-    timePeriod: TimePeriod
+    sortBy: TopCommandersSortBy = CONVERSION
+    timePeriod: TimePeriod = ONE_MONTH
   ): [Commander!]!
   tournament(TID: String!): Tournament!
   tournaments(
@@ -134,16 +134,44 @@ enum TopCommandersTopEntriesSortBy {
   TOP
 }
 
+input TopEntriesFilters {
+  maxStanding: Int
+  minEventSize: Int = 60
+  timePeriod: TimePeriod = ONE_MONTH
+}
+
+type TopdeckTournamentRound {
+  round: String!
+  tables: [TopdeckTournamentTable!]!
+}
+
+type TopdeckTournamentTable {
+  entries: [Entry]!
+  roundName: String!
+  table: Int!
+  winner: Entry
+  winnerSeatPosition: Int
+}
+
 type Tournament {
   TID: String!
-  entries(maxStanding: Int): [Entry!]!
+  bracketUrl: String!
+  breakdown: [TournamentBreakdownGroup!]!
+  entries(commander: String, maxStanding: Int): [Entry!]!
   id: ID!
   name: String!
-  rounds: [TournamentRound!]!
+  rounds: [TopdeckTournamentRound!]!
   size: Int!
   swissRounds: Int!
   topCut: Int!
   tournamentDate: String!
+}
+
+type TournamentBreakdownGroup {
+  commander: Commander!
+  conversionRate: Float!
+  entries: Int!
+  topCuts: Int!
 }
 
 input TournamentFilters {
@@ -152,20 +180,7 @@ input TournamentFilters {
   timePeriod: TimePeriod
 }
 
-type TournamentRound {
-  round: String!
-  tables: [TournamentTable!]!
-}
-
 enum TournamentSortBy {
   DATE
   PLAYERS
-}
-
-type TournamentTable {
-  entries: [Entry]!
-  roundName: String!
-  table: Int!
-  winner: Entry
-  winnerSeatPosition: Int
 }

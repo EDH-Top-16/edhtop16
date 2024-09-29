@@ -1,12 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  async rewrites() {
-    return [
+  images: {
+    remotePatterns: [
       {
-        source: "/v2/api/graphql",
-        destination: "/api/graphql",
+        hostname: "cards.scryfall.io",
       },
-    ];
+    ],
   },
   compiler: { relay: require("./relay.config") },
   webpack: (config, { isServer, webpack }) => {
