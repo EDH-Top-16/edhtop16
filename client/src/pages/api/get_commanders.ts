@@ -1,3 +1,4 @@
+import { requireDeprecationAcknowledgement } from "../../lib/server/deprecation";
 import { getCommandersApi } from "../../lib/server/legacy_api";
 
-export default getCommandersApi;
+export default requireDeprecationAcknowledgement(getCommandersApi);
