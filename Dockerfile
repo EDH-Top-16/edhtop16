@@ -1,12 +1,3 @@
-# Build the V1 client application.
-FROM node:20-bullseye as client_v1
-WORKDIR /app
-COPY client_v1 .
-RUN npm ci
-# Set API URL to empty string so the V1 client will fetch from the current host.
-RUN echo 'REACT_APP_uri=' > .env
-RUN npm run build
-
 # Build the V2 client application.
 FROM node:20-bullseye AS client
 WORKDIR /app
@@ -19,9 +10,6 @@ FROM unit:1.31.1-node20
 
 WORKDIR /app
 ENV NODE_ENV=production
-
-# Copy build output from client V1 stage and add to static file directory.
-COPY --from=client_v1 /app/build client_v1
 
 # Install global unit-http library
 RUN npm i -g unit-http@1.31
