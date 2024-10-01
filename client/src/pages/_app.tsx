@@ -1,3 +1,4 @@
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { QueryParamsProvider } from "@reverecre/next-query-params";
 import cn from "classnames";
 import { DefaultSeo } from "next-seo";
@@ -8,6 +9,8 @@ import { useRelayNextjs } from "relay-nextjs/app";
 import { getClientEnvironment } from "../lib/client/relay_client_environment";
 
 import "../globals.css";
+
+const GA_ID = "G-56527VG23P";
 
 const montserrat = Montserrat({
   weight: ["500", "600", "900"],
@@ -36,6 +39,10 @@ export default function EdhTop16App({ Component, pageProps }: AppProps) {
         >
           <Component {...pageProps} {...relayProps} />
         </main>
+
+        {process.env.NODE_ENV === "production" && (
+          <GoogleAnalytics gaId={GA_ID} />
+        )}
       </RelayEnvironmentProvider>
     </QueryParamsProvider>
   );
