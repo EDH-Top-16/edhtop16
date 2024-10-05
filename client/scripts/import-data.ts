@@ -195,18 +195,23 @@ async function main() {
     console.log("Creating", t.tournamentName);
 
     const startDate = new Date(t.startDate * 1000).toISOString();
-    await prisma.tournament.create({
-      data: {
-        uuid: uuidByTid.get(t.TID)!,
-        TID: t.TID,
-        name: t.tournamentName,
-        size: t.players,
-        swissRounds: t.swissRounds,
-        topCut: t.topCut,
-        tournamentDate: startDate,
-        bracketUrl: t.bracketUrl,
-      },
-    });
+    try {
+      await prisma.tournament.create({
+        data: {
+          uuid: uuidByTid.get(t.TID)!,
+          TID: t.TID,
+          name: t.tournamentName,
+          size: t.players,
+          swissRounds: t.swissRounds,
+          topCut: t.topCut,
+          tournamentDate: startDate,
+          bracketUrl: t.bracketUrl,
+        },
+      });
+    } catch (e) {
+      console.error("Could not create tournament:", e);
+      return;
+    }
 
     const entries = await getTournamentEntries(t.TID);
 
