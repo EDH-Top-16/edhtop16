@@ -73,13 +73,16 @@ jobs:
         run: |-
           echo 'ENTRIES_DB_URL="${{ secrets.ATLAS_URI }}"' > .env
           echo 'DATABASE_URL="${{ secrets.PSQL_CONN_STRING }}"' >> .env
+
       - name: Configure DigitalOcean Firewall Rules
         run: doctl databases firewalls append ${{ secrets.DIGITALOCEAN_DB_ID }} --rule ip_addr:$(curl ifconfig.me)
-      - name: Deploy 3nf db
+
+      - name: Deploy Application Database
         working-directory: edhtop16/client/
         run: |-
           npm ci
           npm run data-import -- --env-file=.env
+
       - name: Delete DigitalOcean Firewall Rules
         if: always()
         run: |-

@@ -25,23 +25,39 @@ function isNotError<T>(v: T | Error): v is T {
   return !(v instanceof Error);
 }
 
-async function getTournaments() {
-  const tournamentsSchema = z.object({
-    TID: z.string(),
-    tournamentName: z.string(),
-    size: z.number().int(),
-    date: z.date(),
-    dateCreated: z.number().int(),
-    swissNum: z.number().int(),
-    topCut: z.number().int(),
-  });
+const topdeckTournamentSchema = z.object({
+  TID: z.string(),
+  tournamentName: z.string(),
+  size: z.number().int(),
+  date: z.date(),
+  dateCreated: z.number().int(),
+  swissNum: z.number().int(),
+  topCut: z.number().int(),
+  bracketUrl: z.string().optional(),
+});
+
+const jsonImportedSchema = z.object({
+  TID: z.string(),
+  tournamentName: z.string(),
+  players: z.number().int(),
+  startDate: z.number().int(),
+  swissRounds: z.number().int(),
+  topCut: z.number().int(),
+  bracketUrl: z.string().optional(),
+});
+
+async function getTournaments(): Promise<z.infer<typeof jsonImportedSchema>[]> {
+  const tournamentSchema = z.union([
+    topdeckTournamentSchema,
+    jsonImportedSchema,
+  ]);
 
   const tournaments = mongo
     .db("cedhtop16")
     .collection("metadata")
     .find()
     .map((doc) => {
-      const result = tournamentsSchema.safeParse(doc);
+      const result = tournamentSchema.safeParse(doc);
       if (!result.success) {
         console.error(
           `Could not parse document ${doc.TID} (${doc.tournamentName}): ${result.error.message}`,
@@ -53,7 +69,19 @@ async function getTournaments() {
       return result.data;
     });
 
-  return (await tournaments.toArray()).filter(isNotFalse);
+  return (await tournaments.toArray()).filter(isNotFalse).map((t) => {
+    if ("players" in t) return t;
+
+    return {
+      TID: t.TID,
+      tournamentName: t.tournamentName,
+      bracketUrl: t.bracketUrl,
+      players: t.size,
+      startDate: t.dateCreated,
+      swissRounds: t.swissNum,
+      topCut: t.topCut,
+    };
+  });
 }
 
 async function getTournamentEntries(tournamentId: string) {
@@ -170,10 +198,11 @@ async function main() {
         uuid: uuidByTid.get(t.TID)!,
         TID: t.TID,
         name: t.tournamentName,
-        size: t.size,
-        swissRounds: t.swissNum,
+        size: t.players,
+        swissRounds: t.swissRounds,
         topCut: t.topCut,
-        tournamentDate: t.date,
+        tournamentDate: new Date(t.startDate),
+        bracketUrl: t.bracketUrl,
       },
     });
 
