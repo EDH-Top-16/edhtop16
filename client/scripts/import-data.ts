@@ -193,6 +193,8 @@ async function main() {
 
   await workerPool(tournaments, async (t) => {
     console.log("Creating", t.tournamentName);
+
+    const startDate = new Date(t.startDate * 1000).toISOString();
     await prisma.tournament.create({
       data: {
         uuid: uuidByTid.get(t.TID)!,
@@ -201,7 +203,7 @@ async function main() {
         size: t.players,
         swissRounds: t.swissRounds,
         topCut: t.topCut,
-        tournamentDate: new Date(t.startDate),
+        tournamentDate: startDate,
         bracketUrl: t.bracketUrl,
       },
     });
