@@ -197,24 +197,26 @@ function TournamentBanner(props: { tournament: TID_TournamentBanner$key }) {
   return (
     <div className="h-64 w-full bg-black/60 md:h-80">
       <div className="relative mx-auto flex h-full w-full max-w-screen-xl flex-col items-center justify-center space-y-4">
-        <div className="absolute left-0 top-0 flex h-full w-full brightness-[40%]">
-          {tournament.winner[0].commander.imageUrls.map(
-            (src, _i, { length }) => {
-              return (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  className={cn(
-                    "flex-1 object-cover object-top",
-                    length === 2 ? "w-1/2" : "w-full",
-                  )}
-                  key={src}
-                  src={src}
-                  alt={`${tournament.name} winner art`}
-                />
-              );
-            },
-          )}
-        </div>
+        {tournament.winner[0] != null && (
+          <div className="absolute left-0 top-0 flex h-full w-full brightness-[40%]">
+            {tournament.winner[0].commander.imageUrls.map(
+              (src, _i, { length }) => {
+                return (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    className={cn(
+                      "flex-1 object-cover object-top",
+                      length === 2 ? "w-1/2" : "w-full",
+                    )}
+                    key={src}
+                    src={src}
+                    alt={`${tournament.name} winner art`}
+                  />
+                );
+              },
+            )}
+          </div>
+        )}
 
         {bracketUrl && (
           <div className="absolute right-4 top-0 z-10 text-xs md:text-sm">

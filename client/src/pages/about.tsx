@@ -1,7 +1,7 @@
 import { NextSeo } from "next-seo";
+import Image from "next/image";
 import TeamImage from "../assets/images/team.jpg";
 import { Navigation } from "../components/navigation";
-import Image from "next/image";
 
 function AboutPage() {
   return (
