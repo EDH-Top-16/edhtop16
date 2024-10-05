@@ -26,6 +26,8 @@ model Tournament {
   swissRounds    Int
   /// Number of players making top cut.
   topCut         Int
+  /// Link to bracket on source site.
+  bracketUrl     String?
 
   entries Entry[]
 
