@@ -44,7 +44,9 @@ function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
     return (
       <div className="flex justify-between">
         <span>Players: {tournament.size}</span>
-        <span>Winner: {tournament.entries[0].player?.name}</span>
+        {tournament.entries[0] != null && (
+          <span>Winner: {tournament.entries[0].player?.name}</span>
+        )}
       </div>
     );
   }, [tournament]);
@@ -52,7 +54,7 @@ function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
   return (
     <Card
       bottomText={tournamentStats}
-      images={tournament.entries[0].commander.imageUrls.map((img) => ({
+      images={tournament.entries[0]?.commander.imageUrls.map((img) => ({
         src: img,
         alt: `${tournament.name} winner card art`,
       }))}
