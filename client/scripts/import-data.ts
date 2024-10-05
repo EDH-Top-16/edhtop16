@@ -209,7 +209,11 @@ async function main() {
         },
       });
     } catch (e) {
-      console.error("Could not create tournament:", e);
+      console.error(
+        `Could not create tournament ${t.tournamentName} (TID ${t.TID}):`,
+        e,
+      );
+
       return;
     }
 
