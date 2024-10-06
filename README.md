@@ -1,30 +1,40 @@
 # 🚀 Our Site is Live! https://edhtop16.com 🚀
 
-> ⚡ Our team of developers are still working hard to push out new features!
+<h1 align="center"><img src="https://github.com/EDH-Top-16/edhtop16/blob/main/public/icon.png"></h1>
 
-# 🌸 cEDH Top 16 🌸
+<p align="center">
+  <a href="https://edhtop16.com">https://edhtop16.com</a>
+</p>
 
-> Website for aggregating cEDH tournament data
+## Contributing
 
-## How to Contribute
+EDHTop16 is open-source and welcoming to new contributions! After cloning this
+repository, contact Jason or Ryan for instructions to setting up a local
+development database.
 
-After cloning this repository, contact Jason or Ryan for instructions on building the database. Becasue we rely on external APIs, our database update scripts don't work as-is. We're working on a script to pull from the EDHTop16 main database.
+Please see our [issues tab](https://github.com/EDH-Top-16/edhtop16/issues) for
+work we need help with!
 
-## Running Locally
+### Running Locally
 
-The V1 frontend is considered mostly read-only, so this section will only discuss running the V2 UI.
+EDHTop16 is written using [Next.js](https://nextjs.org/),
+[Relay](https://relay.dev/), and [Prisma](https://www.prisma.io/). To start
+local development, clone this repository and then run:
 
 ```sh
-cd client
 npm install
 npm run dev
 ```
 
-Please contact Jason or Ryan for setting up a local database for development and appropriate API keys. When submitting pull requests, please inform us if you've added any new packages and update the corresponding package lock files.
+When submitting pull requests, please inform us if you've added any new packages
+and update the corresponding package lock files.
 
-## Running locally using Docker
+### Running using Docker
 
-[Docker](https://www.docker.com/) is a simpler way of running and managing the application stack. To get this working, install [Docker Desktop](https://www.docker.com/products/docker-desktop/) on your system. To run the database, we recommend you run locally; contact Jason for a seed file.
+[Docker](https://www.docker.com/) is used to run EDHTop16 is production, and we
+recommend testing with it locally before submitting a PR. To get this working,
+install [Docker Desktop](https://www.docker.com/products/docker-desktop/) on
+your system.
 
 To build:
 
@@ -34,27 +44,11 @@ To build:
 
 To run:
 
-Mac/Windows:
-
 ```sh
-docker run -p 8000:8000 --env MONGO_URI=mongodb://host.docker.internal:27017 --env ATLAS_URI=mongodb://host.docker.internal:27017 --rm unit-app
+docker run -p 8000:8000 --env 'DATABASE_URL=<local development database>' --env 'TOPDECK_GG_API_KEY=<your topdeck api key>
 ```
 
-Linux:
-
-```sh
-docker run -p 8000:8000 --net=host --env MONGO_URI=mongodb://localhost:27017 --env ATLAS_URI=mongodb://localhost:27017 --rm unit-app
-```
-
-The server should run v1 on its current routes. v2 client pages are on `v2/*`, v2 API routes are on `api/v2/*`, GraphQL is on `api/v2/graphql`.
-
-To test:
-
-```sh
-curl -X GET -H 'Content-Type: application/json' -H 'Accept: application/json' http://localhost:8000/api/get_commanders
-```
-
-or simply visit `localhost:8000` in browser.
+To test visit http://localhost:8000
 
 ## ⌨️ Special Thanks
 
