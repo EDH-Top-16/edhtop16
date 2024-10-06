@@ -1,4 +1,3 @@
 .github/
 .vscode/
-client/node_modules/
-server_v1/node_modules
+node_modules/

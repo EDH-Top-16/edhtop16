@@ -69,7 +69,7 @@ jobs:
         run: python get_commanders.py ${{ inputs.overwrite_existing_unknown && '-u' || '' }}
 
       - name: Copy Secrets
-        working-directory: edhtop16/client/
+        working-directory: edhtop16/
         run: |-
           echo 'ENTRIES_DB_URL="${{ secrets.ATLAS_URI }}"' > .env
           echo 'DATABASE_URL="${{ secrets.PSQL_CONN_STRING }}"' >> .env
@@ -78,7 +78,7 @@ jobs:
         run: doctl databases firewalls append ${{ secrets.DIGITALOCEAN_DB_ID }} --rule ip_addr:$(curl ifconfig.me)
 
       - name: Deploy Application Database
-        working-directory: edhtop16/client/
+        working-directory: edhtop16/
         run: |-
           npm ci
           npm run data-import -- --env-file=.env
