@@ -1,10 +1,8 @@
-# 🚀 Our Site is Live! https://edhtop16.com 🚀
-
 <h1 align="center"><img src="https://github.com/EDH-Top-16/edhtop16/blob/main/public/icon.png"></h1>
 
-<p align="center">
+<h3 align="center">
   <a href="https://edhtop16.com">https://edhtop16.com</a>
-</p>
+</h3>
 
 ## Contributing
 
