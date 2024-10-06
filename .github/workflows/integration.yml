@@ -7,8 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  lint:
-    name: Lint
+  lint-client:
+    name: Lint Client
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
