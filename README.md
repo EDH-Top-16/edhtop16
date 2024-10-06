@@ -1,5 +1,6 @@
 <h1 align="center">
   <img src="https://github.com/EDH-Top-16/edhtop16/blob/main/public/icon.png">
+  <br>
   <a href="https://edhtop16.com">https://edhtop16.com</a>
 </h1>
 
