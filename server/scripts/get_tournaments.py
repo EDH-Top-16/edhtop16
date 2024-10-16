@@ -62,6 +62,7 @@ def fetch_tournaments(filters=None):
         )
     if r.status_code != 200:
         raise Exception(f"Error {r.status_code} -- {r.text}")
+
     return json.loads(r.text)
 
 
@@ -79,81 +80,47 @@ if __name__ == "__main__":
         except KeyError:
             continue
 
-    try:
-        tournaments = fetch_tournaments(
-            {"start": 0} if overwrite_tourneys else {"last": 30}
-        )
-    except Exception as e:
-        print(
-            f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while fetching tournaments from Topdeck: {e}"
-        )
-        exit()
+    timestamp = int(datetime.datetime.now().timestamp())
 
-    for tourney in tournaments:
+    while timestamp > 0:
+        print(f"Getting tournaments from {timestamp} to {timestamp - 2592000}")
         try:
-            if (not tourney["standings"]) or (not tourney["standings"][0]):
-                print(
-                    f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Warning - empty standings for '{tourney['TID']}'."
-                )
-                continue
-            if tourney["TID"] not in existing_tourneys:
-                print(f"Adding {tourney['TID']}")
-                for i, j in enumerate(tourney["standings"]):
-                    j.update({"standing": i + 1})
-                standings = [
-                    {
-                        **entry,
-                        "decklist": entry.get("decklist", None),
-                        "profile": entry.get("profile", entry.get("id", None)),
-                    }
-                    for entry in tourney["standings"]
-                ]
-                for entry in standings:
-                    entry.pop("id", None)
+            tournaments = fetch_tournaments(
+                {"end": timestamp,
+                "start": timestamp - 2592000} # 30 days
+            )
+        except Exception as e:
+            print(
+                f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while fetching tournaments from Topdeck: {e}"
+            )
+            exit()
 
-                if standings:
-                    db["metadata"].insert_one(
-                        {
-                            "TID": tourney["TID"],
-                            "tournamentName": (
-                                tourney["tournamentName"]
-                                if tourney["tournamentName"]
-                                else "Unnamed Tournament"
-                            ),
-                            "size": len(tourney["standings"]),
-                            "date": datetime.datetime.fromtimestamp(
-                                tourney.get("startDate", tourney.get("dateCreated"))
-                            ),
-                            "dateCreated": tourney.get(
-                                "startDate", tourney.get("dateCreated")
-                            ),
-                            "swissNum": tourney["swissNum"],
-                            "topCut": tourney["topCut"],
-                            "bracketUrl": f"https://topdeck.gg/bracket/{tourney['TID']}",
-                        }
+        for tourney in tournaments:
+            try:
+                if (not tourney["standings"]) or (not tourney["standings"][0]):
+                    print(
+                        f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Warning - empty standings for '{tourney['TID']}'."
                     )
-                    db[tourney["TID"]].insert_many(standings)
-            elif overwrite_tourneys:
-                print(f"Updating {tourney['TID']}")
-                # db[tourney['TID']].drop()
-                for i, j in enumerate(tourney["standings"]):
-                    j.update({"standing": i + 1})
-                standings = [
-                    {
-                        **entry,
-                        "decklist": entry.get("decklist", None),
-                        "profile": entry.get("profile", entry.get("id", None)),
-                    }
-                    for entry in tourney["standings"]
-                ]
-                for entry in standings:
-                    entry.pop("id", None)
-
-                if standings:
-                    db["metadata"].update_one(
-                        {"TID": tourney["TID"]},
+                    continue
+                if tourney["TID"] not in existing_tourneys:
+                    print(f"Adding {tourney['TID']}")
+                    for i, j in enumerate(tourney["standings"]):
+                        j.update({"standing": i + 1})
+                    standings = [
                         {
-                            "$set": {
+                            **entry,
+                            "decklist": entry.get("decklist", None),
+                            "profile": entry.get("profile", entry.get("id", None)),
+                        }
+                        for entry in tourney["standings"]
+                    ]
+                    for entry in standings:
+                        entry.pop("id", None)
+
+                    if standings:
+                        db["metadata"].insert_one(
+                            {
+                                "TID": tourney["TID"],
                                 "tournamentName": (
                                     tourney["tournamentName"]
                                     if tourney["tournamentName"]
@@ -167,32 +134,75 @@ if __name__ == "__main__":
                                     "startDate", tourney.get("dateCreated")
                                 ),
                                 "swissNum": tourney["swissNum"],
-                                "topCut": tourney.get("topCut", None),
+                                "topCut": tourney["topCut"],
                                 "bracketUrl": f"https://topdeck.gg/bracket/{tourney['TID']}",
                             }
-                        },
-                    )
-                    for i in standings:
-                        if "profile" in i.keys() and i["profile"]:
-                            db[tourney["TID"]].find_one_and_update(
-                                {"standing": i["standing"], "profile": i["profile"]},
-                                {"$set": i},
-                                upsert=True,
-                            )
-                        else:
-                            db[tourney["TID"]].find_one_and_update(
-                                {"standing": i["standing"], "name": i["name"]},
-                                {"$set": i},
-                                upsert=True,
-                            )
+                        )
+                        db[tourney["TID"]].insert_many(standings)
+                elif overwrite_tourneys:
+                    print(f"Updating {tourney['TID']}")
+                    # db[tourney['TID']].drop()
+                    for i, j in enumerate(tourney["standings"]):
+                        j.update({"standing": i + 1})
+                    standings = [
+                        {
+                            **entry,
+                            "decklist": entry.get("decklist", None),
+                            "profile": entry.get("profile", entry.get("id", None)),
+                        }
+                        for entry in tourney["standings"]
+                    ]
+                    for entry in standings:
+                        entry.pop("id", None)
 
-        except Exception as e:
-            if "TID" in tourney.keys():
-                print(
-                    f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data to collection '{tourney['TID']}'. Error: {e}"
-                )
-            else:
-                print(
-                    f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data. TID missing. received:\
-                {tourney}"
-                )
+                    if standings:
+                        db["metadata"].update_one(
+                            {"TID": tourney["TID"]},
+                            {
+                                "$set": {
+                                    "tournamentName": (
+                                        tourney["tournamentName"]
+                                        if tourney["tournamentName"]
+                                        else "Unnamed Tournament"
+                                    ),
+                                    "size": len(tourney["standings"]),
+                                    "date": datetime.datetime.fromtimestamp(
+                                        tourney.get("startDate", tourney.get("dateCreated"))
+                                    ),
+                                    "dateCreated": tourney.get(
+                                        "startDate", tourney.get("dateCreated")
+                                    ),
+                                    "swissNum": tourney["swissNum"],
+                                    "topCut": tourney.get("topCut", None),
+                                    "bracketUrl": f"https://topdeck.gg/bracket/{tourney['TID']}",
+                                }
+                            },
+                        )
+                        for i in standings:
+                            if "profile" in i.keys() and i["profile"]:
+                                db[tourney["TID"]].find_one_and_update(
+                                    {"standing": i["standing"], "profile": i["profile"]},
+                                    {"$set": i},
+                                    upsert=True,
+                                )
+                            else:
+                                db[tourney["TID"]].find_one_and_update(
+                                    {"standing": i["standing"], "name": i["name"]},
+                                    {"$set": i},
+                                    upsert=True,
+                                )
+
+            except Exception as e:
+                if "TID" in tourney.keys():
+                    print(
+                        f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data to collection '{tourney['TID']}'. Error: {e}"
+                    )
+                else:
+                    print(
+                        f"{datetime.datetime.now().strftime('%Y-%m-%d')}: Error while writing data. TID missing. received:\
+                    {tourney}"
+                    )
+        if overwrite_tourneys:
+            timestamp = timestamp - 2592000 # 30 days
+        else:
+            timestamp = 0
