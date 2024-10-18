@@ -1,2 +1,3 @@
 src/queries/__generated__/**
 .github
+prisma/seed.ts
