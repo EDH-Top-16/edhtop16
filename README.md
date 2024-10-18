@@ -8,11 +8,9 @@
 
 EDHTop16 is open-source and welcoming to new contributions! Please see our
 [issues tab](https://github.com/EDH-Top-16/edhtop16/issues) for work we need
-help with!
-
-EDHTop16 is written using [Next.js](https://nextjs.org/),
-[Relay](https://relay.dev/), and [Prisma](https://www.prisma.io/). To start
-local development, ensure the following prerequisites are installed:
+help with! The application is written using [Next.js](https://nextjs.org/),
+[Relay](https://relay.dev/), and [Prisma](https://www.prisma.io/). The following
+prerequisites are required for local development:
 
 1. Node.js
 2. Postgresql
