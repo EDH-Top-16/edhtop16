@@ -10,7 +10,7 @@
     "generate:schema": "DATABASE_URL=postgresql://localhost:5432/dummy node -r ts-node/register scripts/print-schema.ts",
     "generate:relay": "relay-compiler",
     "generate:seed": "node -r ts-node/register scripts/generate-seed-script.ts",
-    "data-import": "npx prisma migrate reset -f && node -r ts-node/register scripts/import-data.ts"
+    "data-import": "npx prisma migrate reset --force --skip-seed && node -r ts-node/register scripts/import-data.ts"
   },
   "prisma": {
     "seed": "node -r ts-node/register prisma/seed.ts"
