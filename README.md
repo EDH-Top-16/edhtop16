@@ -6,26 +6,51 @@
 
 ## Contributing
 
-EDHTop16 is open-source and welcoming to new contributions! After cloning this
-repository, contact Jason or Ryan for instructions to setting up a local
-development database.
+EDHTop16 is open-source and welcoming to new contributions! Please see our
+[issues tab](https://github.com/EDH-Top-16/edhtop16/issues) for work we need
+help with! The application is written using [Next.js](https://nextjs.org/),
+[Relay](https://relay.dev/), and [Prisma](https://www.prisma.io/). The following
+prerequisites are required for local development:
 
-Please see our [issues tab](https://github.com/EDH-Top-16/edhtop16/issues) for
-work we need help with!
+1. Node.js
+2. Postgresql
 
-### Running Locally
+### Creating a Local Database
 
-EDHTop16 is written using [Next.js](https://nextjs.org/),
-[Relay](https://relay.dev/), and [Prisma](https://www.prisma.io/). To start
-local development, clone this repository and then run:
+To set up a Postgresql instance suitable for local development:
+
+```sql
+CREATE DATABASE edhtop16;
+CREATE USER edhtop16;
+ALTER ROLE edhtop16 WITH superuser;
+```
+
+Then clone this repository and create a new file named `.env` with the following
+contents:
+
+```sh
+DATABASE_URL="postgresql://edhtop16@localhost:5432/edhtop16"
+```
+
+Finally, run the following commands to install dependencies and initialize a
+local database with some test data:
 
 ```sh
 npm install
-npm run dev
+npx prisma migrate dev
 ```
 
-When submitting pull requests, please inform us if you've added any new packages
-and update the corresponding package lock files.
+The test database should be initialized with anonymized data from a few
+tournaments, suitable for debugging and testing new features.
+
+### Running in Development
+
+After a local database has been set up, run the following to start the
+application:
+
+```sh
+npm run dev
+```
 
 ### Running using Docker
 
@@ -43,11 +68,11 @@ To build:
 To run:
 
 ```sh
-docker run -p 8000:8000 --env 'DATABASE_URL=<local development database>' --env 'TOPDECK_GG_API_KEY=<your topdeck api key>
+docker run -p 8000:8000 --env 'DATABASE_URL=postgresql://edhtop16@localhost:5432/edhtop16' --env 'TOPDECK_GG_API_KEY=<your topdeck api key>
 ```
 
 To test visit http://localhost:8000
 
-## ⌨️ Special Thanks
+## Special Thanks
 
 Made possible by @znayer and the TopDeck.gg Team

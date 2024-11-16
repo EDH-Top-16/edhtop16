@@ -9,7 +9,11 @@
     "lint": "next lint",
     "generate:schema": "DATABASE_URL=postgresql://localhost:5432/dummy node -r ts-node/register scripts/print-schema.ts",
     "generate:relay": "relay-compiler",
-    "data-import": "npx prisma migrate reset -f && node -r ts-node/register scripts/import-data.ts"
+    "generate:seed": "node -r ts-node/register scripts/generate-seed-script.ts",
+    "data-import": "npx prisma migrate reset --force --skip-seed && node -r ts-node/register scripts/import-data.ts"
+  },
+  "prisma": {
+    "seed": "node -r ts-node/register prisma/seed.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.10.0",
@@ -40,7 +44,9 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.0.3",
     "@reverecre/promise": "^0.1.0",
+    "@types/mustache": "^4.2.5",
     "@types/node": "20.3.1",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
@@ -50,12 +56,13 @@
     "babel-plugin-relay": "^16.1.0",
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.7",
+    "mustache": "^4.2.0",
     "postcss": "8.4.24",
     "prettier": "^3.0.3",
     "prettier-plugin-tailwindcss": "^0.4.1",
     "relay-compiler": "^16.1.0",
     "relay-config": "^12.0.1",
     "tailwindcss": "3.3.2",
-    "typescript": "^5.4.2"
+    "typescript": "^5.6.3"
   }
 }
