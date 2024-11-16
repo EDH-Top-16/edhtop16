@@ -1,5 +1,9 @@
 name: Update Database
 
+concurrency:
+  group: db
+  cancel-in-progress: false
+
 on:
   workflow_call:
     inputs:

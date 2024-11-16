@@ -1,5 +1,9 @@
 name: Update Database - Mondays, Overwrite
 
+concurrency:
+  group: db
+  cancel-in-progress: false
+
 on:
   workflow_dispatch:
   schedule:
