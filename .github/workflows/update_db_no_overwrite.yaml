@@ -1,8 +1,5 @@
 name: Update Database - Nightly, No Overwrite
 
-concurrency:
-  cancel-in-progress: false
-
 on:
   workflow_dispatch:
   schedule:
