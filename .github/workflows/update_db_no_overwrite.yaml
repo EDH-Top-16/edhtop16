@@ -1,7 +1,6 @@
 name: Update Database - Nightly, No Overwrite
 
 concurrency:
-  group: db
   cancel-in-progress: false
 
 on:
