@@ -203,9 +203,7 @@ function TournamentsPagePlaceholder() {
 
   return (
     <TournamentsPageShell
-      sortBy={
-        (router.query.sortBy as TournamentSortBy | undefined) ?? "PLAYERS"
-      }
+      sortBy={(router.query.sortBy as TournamentSortBy | undefined) ?? "DATE"}
       timePeriod={
         (router.query.timePeriod as TimePeriod | undefined) ?? "SIX_MONTHS"
       }
@@ -231,7 +229,7 @@ export default withRelay(TournamentsPage, TournamentsQuery, {
   variablesFromContext: (ctx) => {
     return {
       timePeriod: (ctx.query.timePeriod as TimePeriod) ?? "SIX_MONTHS",
-      sortBy: (ctx.query.sortBy as TournamentSortBy) ?? "PLAYERS",
+      sortBy: (ctx.query.sortBy as TournamentSortBy) ?? "DATE",
       minSize: Number((ctx.query.minSize as string) ?? 60),
     };
   },
