@@ -187,10 +187,17 @@ async function main() {
     });
   });
 
+  const cardScryfallIds = new Set<string>();
+  for (const entry of entries) {
+    for (const card of entry.mainDeck ?? []) {
+      cardScryfallIds.add(card);
+    }
+  }
+
   const cardLoader = createScyfallIdLoader();
-  const cards = (
-    await cardLoader.loadMany(entries.flatMap((e) => e.mainDeck ?? []))
-  ).filter(isNotError);
+  const cards = (await cardLoader.loadMany(Array.from(cardScryfallIds))).filter(
+    isNotError,
+  );
 
   // Create all cards.
   await workerPool(cards, async (card) => {
