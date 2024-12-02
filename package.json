@@ -9,7 +9,7 @@
     "lint": "next lint",
     "generate:schema": "DATABASE_URL=postgresql://localhost:5432/dummy node -r ts-node/register scripts/print-schema.ts",
     "generate:relay": "relay-compiler",
-    "generate:seed": "node -r ts-node/register -r dotenv/config scripts/generate-prisma-sql.ts --tid=TopDeckOpen24 --anonymize",
+    "generate:seed": "node -r ts-node/register -r dotenv/config scripts/generate-prisma-sql.ts --anonymize",
     "data-import": "node -r ts-node/register -r dotenv/config scripts/generate-prisma-sql.ts && npx prisma migrate reset --force"
   },
   "prisma": {
