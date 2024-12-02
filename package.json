@@ -1,6 +1,6 @@
 {
-  "name": "client",
-  "version": "0.1.0",
+  "name": "edhtop16",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,8 +9,8 @@
     "lint": "next lint",
     "generate:schema": "DATABASE_URL=postgresql://localhost:5432/dummy node -r ts-node/register scripts/print-schema.ts",
     "generate:relay": "relay-compiler",
-    "generate:seed": "node -r ts-node/register --env-file=.env scripts/generate-prisma-sql.ts --tid=TopDeckOpen24 --anonymize",
-    "data-import": "node -r ts-node/register --env-file=.env scripts/generate-prisma-sql.ts && npx prisma migrate reset --force"
+    "generate:seed": "node -r ts-node/register -r dotenv/config scripts/generate-prisma-sql.ts --tid=TopDeckOpen24 --anonymize",
+    "data-import": "node -r ts-node/register -r dotenv/config scripts/generate-prisma-sql.ts && npx prisma migrate reset --force"
   },
   "prisma": {
     "seed": "npx prisma db execute --file prisma/seed.sql"
@@ -55,6 +55,7 @@
     "@types/relay-runtime": "^14.1.21",
     "autoprefixer": "10.4.14",
     "babel-plugin-relay": "^16.1.0",
+    "dotenv": "^16.4.5",
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.7",
     "mustache": "^4.2.0",
