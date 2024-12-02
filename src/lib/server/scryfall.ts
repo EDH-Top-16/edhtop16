@@ -14,11 +14,16 @@ const scryfallCardFaceSchema = z.object({
     .optional(),
 });
 
-type ScryfallCard = z.infer<typeof scryfallCardSchema>;
-const scryfallCardSchema = scryfallCardFaceSchema.extend({
+export type ScryfallCard = z.infer<typeof scryfallCardSchema>;
+export const scryfallCardSchema = scryfallCardFaceSchema.extend({
   object: z.literal("card"),
+  id: z.string().uuid(),
+  oracle_id: z.string().uuid(),
   name: z.string(),
   card_faces: z.array(scryfallCardFaceSchema).optional(),
+  cmc: z.number(),
+  color_identity: z.array(z.string()),
+  type_line: z.string(),
 });
 
 const scryfallCardListSchema = z.object({
@@ -28,11 +33,13 @@ const scryfallCardListSchema = z.object({
   data: z.array(scryfallCardSchema),
 });
 
-async function getCardsByName(
-  cardNames: readonly string[],
-): Promise<(ScryfallCard | Error)[]> {
+async function scryfallSearch(
+  searchParams: Record<string, string>,
+): Promise<z.infer<typeof scryfallCardListSchema>> {
   const url = new URL("https://api.scryfall.com/cards/search");
-  url.searchParams.set("q", cardNames.map((c) => `!"${c}"`).join(" OR "));
+  for (const [key, value] of Object.entries(searchParams)) {
+    url.searchParams.set(key, value);
+  }
 
   const res = await fetch(url, {
     method: "GET",
@@ -46,10 +53,18 @@ async function getCardsByName(
   }
 
   const json = await res.json();
-  const cardList = scryfallCardListSchema.parse(json);
+  return scryfallCardListSchema.parse(json);
+}
+
+async function getCardsByName(
+  cardNames: readonly string[],
+): Promise<(ScryfallCard | Error)[]> {
+  const results = await scryfallSearch({
+    q: cardNames.map((c) => `!"${c}"`).join(" OR "),
+  });
 
   const cardsByName = new Map<string, ScryfallCard>();
-  for (const card of cardList.data) {
+  for (const card of results.data) {
     cardsByName.set(card.name, card);
   }
 
@@ -65,4 +80,48 @@ export function createScryfallCardLoader() {
     // To avoid being cut off we cap the batch size at around 30.
     maxBatchSize: 30,
   });
+}
+
+export function createScryfallOracleIdLoader() {
+  return new DataLoader<string, ScryfallCard>(
+    async (oracleIds) => {
+      const results = await scryfallSearch({
+        unique: "cards",
+        q: oracleIds.map((id) => `oracleid:${id}`).join(" OR "),
+      });
+
+      console.log(results);
+      return [];
+    },
+    {
+      // Scryfall's max page size is 175, but has a query character limit of 1000.
+      // To avoid being cut off we cap the batch size at around 30.
+      maxBatchSize: 30,
+    },
+  );
+}
+
+export function createScyfallIdLoader() {
+  return new DataLoader<string, ScryfallCard>(
+    async (oracleIds) => {
+      const results = await scryfallSearch({
+        unique: "cards",
+        q: oracleIds.map((id) => `scryfallid:${id}`).join(" OR "),
+      });
+
+      const cardsById = new Map<string, ScryfallCard>();
+      for (const card of results.data) {
+        cardsById.set(card.id, card);
+      }
+
+      return oracleIds.map((id) => {
+        return cardsById.get(id) ?? new Error(`Could not lookup card: ${id}`);
+      });
+    },
+    {
+      // Scryfall's max page size is 175, but has a query character limit of 1000.
+      // To avoid being cut off we cap the batch size at around 30.
+      maxBatchSize: 30,
+    },
+  );
 }

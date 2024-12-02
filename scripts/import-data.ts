@@ -3,12 +3,12 @@
  * well-shaped form specified in schema.prisma.
  */
 
-import { Commander, Player, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { workerPool } from "@reverecre/promise";
 import { randomUUID } from "crypto";
-import DataLoader from "dataloader";
 import { MongoClient } from "mongodb";
 import { z } from "zod";
+import { createScyfallIdLoader } from "../src/lib/server/scryfall";
 
 const env = z.object({ ENTRIES_DB_URL: z.string() }).parse(process.env);
 
@@ -84,21 +84,23 @@ async function getTournaments(): Promise<z.infer<typeof jsonImportedSchema>[]> {
   });
 }
 
-async function getTournamentEntries(tournamentId: string) {
-  const entrySchema = z.object({
-    name: z.string().trim(),
-    profile: z.string().nullable().optional(),
-    decklist: z.string().nullable(),
-    winsSwiss: z.number().int(),
-    winsBracket: z.number().int(),
-    draws: z.number().int(),
-    lossesSwiss: z.number().int(),
-    lossesBracket: z.number().int(),
-    standing: z.number().int(),
-    colorID: z.string(),
-    commander: z.string(),
-  });
+type Entry = z.infer<typeof entrySchema>;
+const entrySchema = z.object({
+  name: z.string().trim(),
+  profile: z.string().nullable().optional(),
+  decklist: z.string().nullable(),
+  winsSwiss: z.number().int(),
+  winsBracket: z.number().int(),
+  draws: z.number().int(),
+  lossesSwiss: z.number().int(),
+  lossesBracket: z.number().int(),
+  standing: z.number().int(),
+  colorID: z.string(),
+  commander: z.string(),
+  mainDeck: z.array(z.string()).optional(),
+});
 
+async function getTournamentEntries(tournamentId: string) {
   const entries = mongo
     .db("cedhtop16")
     .collection(tournamentId)
@@ -119,95 +121,39 @@ async function getTournamentEntries(tournamentId: string) {
   return (await entries.toArray()).filter(isNotFalse);
 }
 
-function createPlayerDataLoader() {
-  return new DataLoader<
-    Omit<Player, "uuid">,
-    [string | null, string | null],
-    string | null
-  >(
-    async (players) => {
-      const newUuidsByTopdeckProfile = new Map<string, string>();
-      for (const player of players) {
-        if (player.topdeckProfile) {
-          newUuidsByTopdeckProfile.set(player.topdeckProfile, randomUUID());
-        }
-      }
-
-      await prisma.player.createMany({
-        data: players
-          .filter((p) => p.topdeckProfile != null)
-          .map(
-            (p): Player => ({
-              uuid: newUuidsByTopdeckProfile.get(p.topdeckProfile!)!,
-              name: p.name,
-              topdeckProfile: p.topdeckProfile,
-            }),
-          ),
-      });
-
-      return players.map((p) => [
-        p.topdeckProfile,
-        newUuidsByTopdeckProfile.get(p.topdeckProfile!) ?? null,
-      ]);
-    },
-    {
-      cacheKeyFn: (player) => player.topdeckProfile,
-    },
-  );
-}
-
-function createCommanderDataLoader() {
-  return new DataLoader<Omit<Commander, "uuid">, [string, string], string>(
-    async (commanders) => {
-      const newUuidsByName = new Map<string, string>();
-      for (const commander of commanders) {
-        newUuidsByName.set(commander.name, randomUUID());
-      }
-
-      await prisma.commander.createMany({
-        data: commanders.map(
-          (c): Commander => ({
-            uuid: newUuidsByName.get(c.name)!,
-            name: c.name,
-            colorId: c.colorId,
-          }),
-        ),
-      });
-
-      return commanders.map((c) => [c.name, newUuidsByName.get(c.name)!]);
-    },
-    {
-      cacheKeyFn: (commander) => commander.name,
-    },
-  );
-}
-
-const players = createPlayerDataLoader();
-const commanders = createCommanderDataLoader();
-
 async function main() {
-  const tournaments = await getTournaments();
+  let tournaments = await getTournaments();
   console.log("Found", tournaments.length, "tournaments!");
 
-  const uuidByTid = new Map(tournaments.map((t) => [t.TID, randomUUID()]));
+  const tournamentUuidByTid = new Map<string, string>();
+  const entriesByTid = new Map<string, Entry[]>();
+  const playerUuidByTopdeckUuid = new Map<string, string>();
+  const commanderUuidByName = new Map<string, string>();
+  const cardUuidByOracleId = new Map<string, string>();
+  const cardUuidByScryfallId = new Map<string, string>();
 
+  // Create all tournament objects in database and collect entries.
   await workerPool(tournaments, async (t) => {
-    console.log("Creating", t.tournamentName);
+    console.log("Creating tournament:", t.tournamentName);
 
-    const startDate = new Date(t.startDate * 1000).toISOString();
     try {
-      await prisma.tournament.create({
+      const tournament = await prisma.tournament.create({
         data: {
-          uuid: uuidByTid.get(t.TID)!,
+          uuid: randomUUID(),
           TID: t.TID,
           name: t.tournamentName,
           size: t.players,
           swissRounds: t.swissRounds,
           topCut: t.topCut,
-          tournamentDate: startDate,
+          tournamentDate: new Date(t.startDate * 1000).toISOString(),
           bracketUrl: t.bracketUrl,
         },
       });
+
+      tournamentUuidByTid.set(tournament.TID, tournament.uuid);
+
+      const entries = await getTournamentEntries(t.TID);
+      entriesByTid.set(tournament.TID, entries);
     } catch (e) {
       console.error(
         `Could not create tournament ${t.tournamentName} (TID ${t.TID}):`,
@@ -216,53 +162,136 @@ async function main() {
 
       return;
     }
+  });
 
-    const entries = await getTournamentEntries(t.TID);
+  const entries = Array.from(entriesByTid).flatMap(([TID, entries]) => {
+    return entries.flatMap((e) => ({ ...e, TID }));
+  });
 
-    const commanderUuidByName = new Map(
-      (
-        await commanders.loadMany(
-          entries.map((e) => ({
-            name: e.commander,
-            colorId: e.colorID,
-          })),
-        )
-      ).filter(isNotError),
+  console.log("Found", entries.length, "entries!");
+
+  // Create all commanders.
+  await workerPool(entries, async (entry) => {
+    if (commanderUuidByName.has(entry.commander)) return;
+
+    console.log("Creating commander:", entry.commander);
+
+    const commanderUuid = randomUUID();
+    commanderUuidByName.set(entry.commander, commanderUuid);
+    await prisma.commander.create({
+      data: {
+        uuid: commanderUuid,
+        name: entry.commander,
+        colorId: entry.colorID,
+      },
+    });
+  });
+
+  const cardLoader = createScyfallIdLoader();
+  const cards = (
+    await cardLoader.loadMany(entries.flatMap((e) => e.mainDeck ?? []))
+  ).filter(isNotError);
+
+  // Create all cards.
+  await workerPool(cards, async (card) => {
+    if (cardUuidByOracleId.has(card.oracle_id)) {
+      if (!cardUuidByScryfallId.has(card.id)) {
+        cardUuidByScryfallId.set(
+          card.id,
+          cardUuidByOracleId.get(card.oracle_id)!,
+        );
+      }
+
+      return;
+    }
+
+    console.log("Creating card:", card.name);
+
+    const cardUuid = randomUUID();
+    cardUuidByOracleId.set(card.oracle_id, cardUuid);
+    cardUuidByScryfallId.set(card.id, cardUuid);
+
+    let colorId: string = "";
+    for (const c of ["W", "U", "B", "R", "G", "C"]) {
+      if (card.color_identity.includes(c)) colorId += c;
+    }
+
+    await prisma.card.create({
+      data: {
+        uuid: cardUuid,
+        oracleId: card.oracle_id,
+        name: card.name,
+        cmc: card.cmc,
+        colorId,
+        type: card.type_line,
+      },
+    });
+  });
+
+  // Create all entries and players.
+  await workerPool(entries, async (entry) => {
+    const tournamentUuid = tournamentUuidByTid.get(entry.TID);
+    if (tournamentUuid == null) {
+      console.error(`Could not find UUID for tournament: ${entry.TID}`);
+      return;
+    }
+
+    const commanderUuid = commanderUuidByName.get(entry.commander);
+    if (commanderUuid == null) {
+      console.error(`Could not find UUID for commander: ${entry.commander}`);
+      return;
+    }
+
+    let playerUuid: string;
+    if (entry.profile != null) {
+      if (playerUuidByTopdeckUuid.has(entry.profile)) {
+        playerUuid = playerUuidByTopdeckUuid.get(entry.profile)!;
+      } else {
+        playerUuid = randomUUID();
+        playerUuidByTopdeckUuid.set(entry.profile, playerUuid);
+
+        await prisma.player.create({
+          data: {
+            uuid: playerUuid,
+            name: entry.name,
+            topdeckProfile: entry.profile,
+          },
+        });
+      }
+    } else {
+      const player = await prisma.player.create({
+        data: { uuid: randomUUID(), name: entry.name },
+      });
+
+      playerUuid = player.uuid;
+    }
+
+    const cardUuids = new Set(
+      (entry.mainDeck ?? [])
+        .map((scryfallId) => cardUuidByScryfallId.get(scryfallId))
+        .filter((c) => c != null),
     );
 
-    const playerUuidByProfile = new Map(
-      (
-        await players.loadMany(
-          entries.map((e) => ({
-            name: e.name,
-            topdeckProfile: e.profile ?? null,
-          })),
-        )
-      ).filter(isNotError),
-    );
-
-    console.log("Creating", entries.length, "entries");
-    await prisma.entry.createMany({
-      data: entries.map((e) => {
-        const entryUuid = randomUUID();
-        const playerUuid = playerUuidByProfile.get(e.profile!);
-        const commanderUuid = commanderUuidByName.get(e.commander)!;
-        const tournamentUuid = uuidByTid.get(t.TID)!;
-
-        return {
-          uuid: entryUuid,
-          decklist: e.decklist,
-          draws: e.draws,
-          lossesBracket: e.lossesBracket,
-          lossesSwiss: e.lossesSwiss,
-          standing: e.standing,
-          winsBracket: e.winsBracket,
-          winsSwiss: e.winsSwiss,
-          playerUuid,
-          commanderUuid,
-          tournamentUuid,
-        };
-      }),
+    const entryUuid = randomUUID();
+    await prisma.entry.create({
+      data: {
+        uuid: entryUuid,
+        decklist: entry.decklist,
+        draws: entry.draws,
+        lossesBracket: entry.lossesBracket,
+        lossesSwiss: entry.lossesSwiss,
+        standing: entry.standing,
+        winsBracket: entry.winsBracket,
+        winsSwiss: entry.winsSwiss,
+        playerUuid,
+        commanderUuid,
+        tournamentUuid,
+        DecklistItem: {
+          createMany: {
+            data: Array.from(cardUuids).map((cardUuid) => ({ cardUuid })),
+          },
+        },
+      },
     });
   });
 }
