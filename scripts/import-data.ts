@@ -97,7 +97,7 @@ const entrySchema = z.object({
   standing: z.number().int(),
   colorID: z.string(),
   commander: z.string(),
-  mainDeck: z.array(z.string()).optional(),
+  mainDeck: z.array(z.string()).nullish(),
 });
 
 async function getTournamentEntries(tournamentId: string) {
