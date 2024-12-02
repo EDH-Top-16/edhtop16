@@ -122,7 +122,7 @@ async function getTournamentEntries(tournamentId: string) {
 }
 
 async function main() {
-  let tournaments = await getTournaments();
+  const tournaments = await getTournaments();
   console.log("Found", tournaments.length, "tournaments!");
 
   const tournamentUuidByTid = new Map<string, string>();
