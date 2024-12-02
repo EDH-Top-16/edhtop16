@@ -9,11 +9,11 @@
     "lint": "next lint",
     "generate:schema": "DATABASE_URL=postgresql://localhost:5432/dummy node -r ts-node/register scripts/print-schema.ts",
     "generate:relay": "relay-compiler",
-    "generate:seed": "node -r ts-node/register scripts/generate-seed-script.ts",
-    "data-import": "node -r ts-node/register --env-file=.env scripts/generate-prisma-sql.ts > data.sql && npx prisma migrate reset --force --skip-seed && npx prisma db execute --file data.sql && rm data.sql"
+    "generate:seed": "node -r ts-node/register --env-file=.env scripts/generate-prisma-sql.ts --tid=TopDeckOpen24 --anonymize",
+    "data-import": "node -r ts-node/register --env-file=.env scripts/generate-prisma-sql.ts && npx prisma migrate reset --force"
   },
   "prisma": {
-    "seed": "node -r ts-node/register prisma/seed.ts"
+    "seed": "npx prisma db execute --file prisma/seed.sql"
   },
   "dependencies": {
     "@apollo/server": "^4.10.0",

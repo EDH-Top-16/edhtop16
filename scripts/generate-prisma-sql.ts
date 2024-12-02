@@ -3,9 +3,12 @@
  * well-shaped form specified in schema.prisma.
  */
 
+import { faker } from "@faker-js/faker";
 import { workerPool } from "@reverecre/promise";
 import { randomUUID } from "crypto";
+import { createWriteStream } from "fs";
 import { MongoClient } from "mongodb";
+import { parseArgs } from "node:util";
 import { escapeLiteral } from "pg";
 import { z } from "zod";
 import { createScyfallIdLoader } from "../src/lib/server/scryfall";
@@ -15,34 +18,26 @@ const env = z.object({ ENTRIES_DB_URL: z.string() }).parse(process.env);
 // Connection to the raw entries database.
 const mongo = new MongoClient(env.ENTRIES_DB_URL);
 
-function repeat(s: string, n: number) {
-  let buf = "";
-  for (let i = 0; i < n; ++i) {
-    buf += s;
-  }
+type SafeSqlString = string & { __escaped: true };
+class SqlFileBuffer {
+  static sql(
+    strings: readonly string[],
+    ...values: (string | number | undefined | null)[]
+  ): SafeSqlString {
+    let buf = "";
+    for (let i = 0; i < strings.length - 1; ++i) {
+      buf += strings[i];
 
-  return buf;
-}
-
-function sql(
-  strings: readonly string[],
-  ...values: (string | number | undefined | null)[]
-) {
-  let buf = "";
-  for (let i = 0; i < strings.length - 1; ++i) {
-    buf += strings[i];
-
-    const value = values[i];
-    if (value == null) {
-      buf += "NULL";
-    } else {
-      buf += escapeLiteral(`${values[i]}`);
+      const value = values[i];
+      if (value == null) {
+        buf += "NULL";
+      } else {
+        buf += escapeLiteral(`${values[i]}`);
+      }
     }
-  }
 
-  buf += strings[strings.length - 1];
-  return (
-    buf
+    buf += strings[strings.length - 1];
+    return (buf
       .trim()
       .split("\n")
       .reduce(
@@ -51,13 +46,32 @@ function sql(
           if (line.startsWith(")")) parens -= 1;
 
           return {
-            sql: sql + repeat("  ", parens) + line + "\n",
+            sql: sql + SqlFileBuffer.repeat("  ", parens) + line + "\n",
             parens: line.endsWith("(") ? parens + 1 : parens,
           };
         },
         { sql: "", parens: 0 },
-      ).sql + "\n"
-  );
+      ).sql + "\n") as SafeSqlString;
+  }
+
+  private static repeat(s: string, n: number) {
+    let buf = "";
+    for (let i = 0; i < n; ++i) {
+      buf += s;
+    }
+
+    return buf;
+  }
+
+  private readonly writeStream;
+
+  constructor(path: string) {
+    this.writeStream = createWriteStream(path);
+  }
+
+  write(chunk: SafeSqlString) {
+    this.writeStream.write(chunk);
+  }
 }
 
 function isNotFalse<T>(v: T | false): v is T {
@@ -89,16 +103,23 @@ const jsonImportedSchema = z.object({
   bracketUrl: z.string().optional(),
 });
 
-async function getTournaments(): Promise<z.infer<typeof jsonImportedSchema>[]> {
+async function getTournaments(
+  tids?: string[],
+): Promise<z.infer<typeof jsonImportedSchema>[]> {
   const tournamentSchema = z.union([
     topdeckTournamentSchema,
     jsonImportedSchema,
   ]);
 
+  const metadataFilters: Record<string, unknown> = {};
+  if (tids) {
+    metadataFilters.TID = { $in: tids };
+  }
+
   const tournaments = mongo
     .db("cedhtop16")
     .collection("metadata")
-    .find()
+    .find(metadataFilters)
     .map((doc) => {
       const result = tournamentSchema.safeParse(doc);
       if (!result.success) {
@@ -165,8 +186,31 @@ async function getTournamentEntries(tournamentId: string) {
 }
 
 async function main() {
-  let tournaments = await getTournaments();
-  console.error("Found", tournaments.length, "tournaments!");
+  const {
+    values: {
+      tid: importedTids,
+      out: outputFile = "prisma/seed.sql",
+      anonymize: anonymizeNames = false,
+    },
+  } = parseArgs({
+    options: {
+      out: {
+        type: "string",
+      },
+      tid: {
+        type: "string",
+        multiple: true,
+      },
+      anonymize: {
+        type: "boolean",
+      },
+    },
+  });
+
+  const seedScript = new SqlFileBuffer(outputFile);
+
+  let tournaments = await getTournaments(importedTids);
+  console.log("Found", tournaments.length, "tournaments!");
 
   const tournamentUuidByTid = new Map<string, string>();
   const entriesByTid = new Map<string, Entry[]>();
@@ -179,9 +223,9 @@ async function main() {
   await workerPool(tournaments, async (t) => {
     const tournamentUuid = randomUUID();
 
-    console.error("Creating tournament:", t.tournamentName);
-    process.stdout.write(
-      sql`
+    console.log("Creating tournament:", t.tournamentName);
+    seedScript.write(
+      SqlFileBuffer.sql`
         INSERT INTO "Tournament"
         ("uuid", "TID", "name", "tournamentDate", "size", "swissRounds", "topCut", "bracketUrl")
         VALUES (
@@ -205,7 +249,7 @@ async function main() {
     return entries.flatMap((e) => ({ ...e, TID }));
   });
 
-  console.error("Found", entries.length, "entries!");
+  console.log("Found", entries.length, "entries!");
 
   // Create all commanders.
   for (const entry of entries) {
@@ -214,9 +258,9 @@ async function main() {
     const commanderUuid = randomUUID();
     commanderUuidByName.set(entry.commander, commanderUuid);
 
-    console.error("Creating commander:", entry.commander);
-    process.stdout.write(
-      sql`
+    console.log("Creating commander:", entry.commander);
+    seedScript.write(
+      SqlFileBuffer.sql`
         INSERT INTO "Commander"
         ("uuid", "name", "colorId")
         VALUES (
@@ -262,9 +306,9 @@ async function main() {
       if (card.color_identity.includes(c)) colorId += c;
     }
 
-    console.error("Creating card:", card.name);
-    process.stdout.write(
-      sql`
+    console.log("Creating card:", card.name);
+    seedScript.write(
+      SqlFileBuffer.sql`
         INSERT INTO "Card"
         ("uuid", "oracleId", "name", "cmc", "colorId", "type")
         VALUES (
@@ -301,27 +345,27 @@ async function main() {
         playerUuid = randomUUID();
         playerUuidByTopdeckUuid.set(entry.profile, playerUuid);
 
-        process.stdout.write(
-          sql`
+        seedScript.write(
+          SqlFileBuffer.sql`
             INSERT INTO "Player"
             ("uuid", "name", "topdeckProfile")
             VALUES (
               ${playerUuid},
-              ${entry.name},
-              ${entry.profile}
+              ${anonymizeNames ? faker.person.fullName() : entry.name},
+              ${anonymizeNames ? faker.string.nanoid() : entry.profile}
             );
           `,
         );
       }
     } else {
       playerUuid = randomUUID();
-      process.stdout.write(
-        sql`
+      seedScript.write(
+        SqlFileBuffer.sql`
           INSERT INTO "Player"
           ("uuid", "name")
           VALUES (
             ${playerUuid},
-            ${entry.name}
+            ${anonymizeNames ? faker.person.fullName() : entry.name}
           );
         `,
       );
@@ -334,8 +378,8 @@ async function main() {
     );
 
     const entryUuid = randomUUID();
-    process.stdout.write(
-      sql`
+    seedScript.write(
+      SqlFileBuffer.sql`
         INSERT INTO "Entry"
         ("uuid", "decklist", "draws", "lossesBracket", "lossesSwiss", "standing", "winsBracket", "winsSwiss", "playerUuid", "commanderUuid", "tournamentUuid")
         VALUES (
@@ -355,8 +399,8 @@ async function main() {
     );
 
     for (const cardUuid of Array.from(cardUuids)) {
-      process.stdout.write(
-        sql`
+      seedScript.write(
+        SqlFileBuffer.sql`
           INSERT INTO "DecklistItem"
           ("entryUuid", "cardUuid")
           VALUES (${entryUuid}, ${cardUuid});
