@@ -16,12 +16,12 @@ RUN npm i -g unit-http@1.31
 
 # Copy build output from build stage and install dependencies.
 COPY --from=build /app/.next client/.next
-COPY package*.json client
-COPY server.js client
-COPY next.config.js client
-COPY relay.config.js client
-COPY prisma client/prisma
-COPY public client/public
+COPY package*.json client/
+COPY server.js client/
+COPY next.config.js client/
+COPY relay.config.js client/
+COPY prisma client/prisma/
+COPY public client/public/
 RUN cd client && npm ci && npm link unit-http && npx prisma generate
 
 # Copy Nginx unit configuration file to configuration directory.
