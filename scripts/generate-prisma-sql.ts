@@ -3,10 +3,10 @@
  * well-shaped form specified in schema.prisma.
  */
 
-import { PrismaClient } from "@prisma/client";
 import { workerPool } from "@reverecre/promise";
 import { randomUUID } from "crypto";
 import { MongoClient } from "mongodb";
+import { escapeLiteral } from "pg";
 import { z } from "zod";
 import { createScyfallIdLoader } from "../src/lib/server/scryfall";
 
@@ -14,8 +14,51 @@ const env = z.object({ ENTRIES_DB_URL: z.string() }).parse(process.env);
 
 // Connection to the raw entries database.
 const mongo = new MongoClient(env.ENTRIES_DB_URL);
-// Connection to the normalized database, well typed using Prisma.
-const prisma = new PrismaClient();
+
+function repeat(s: string, n: number) {
+  let buf = "";
+  for (let i = 0; i < n; ++i) {
+    buf += s;
+  }
+
+  return buf;
+}
+
+function sql(
+  strings: readonly string[],
+  ...values: (string | number | undefined | null)[]
+) {
+  let buf = "";
+  for (let i = 0; i < strings.length - 1; ++i) {
+    buf += strings[i];
+
+    const value = values[i];
+    if (value == null) {
+      buf += "NULL";
+    } else {
+      buf += escapeLiteral(`${values[i]}`);
+    }
+  }
+
+  buf += strings[strings.length - 1];
+  return (
+    buf
+      .trim()
+      .split("\n")
+      .reduce(
+        ({ sql, parens }, line) => {
+          line = line.trim();
+          if (line.startsWith(")")) parens -= 1;
+
+          return {
+            sql: sql + repeat("  ", parens) + line + "\n",
+            parens: line.endsWith("(") ? parens + 1 : parens,
+          };
+        },
+        { sql: "", parens: 0 },
+      ).sql + "\n"
+  );
+}
 
 function isNotFalse<T>(v: T | false): v is T {
   return !!v;
@@ -122,8 +165,8 @@ async function getTournamentEntries(tournamentId: string) {
 }
 
 async function main() {
-  const tournaments = await getTournaments();
-  console.log("Found", tournaments.length, "tournaments!");
+  let tournaments = await getTournaments();
+  console.error("Found", tournaments.length, "tournaments!");
 
   const tournamentUuidByTid = new Map<string, string>();
   const entriesByTid = new Map<string, Entry[]>();
@@ -134,58 +177,56 @@ async function main() {
 
   // Create all tournament objects in database and collect entries.
   await workerPool(tournaments, async (t) => {
-    console.log("Creating tournament:", t.tournamentName);
+    const tournamentUuid = randomUUID();
 
-    try {
-      const tournament = await prisma.tournament.create({
-        data: {
-          uuid: randomUUID(),
-          TID: t.TID,
-          name: t.tournamentName,
-          size: t.players,
-          swissRounds: t.swissRounds,
-          topCut: t.topCut,
-          tournamentDate: new Date(t.startDate * 1000).toISOString(),
-          bracketUrl: t.bracketUrl,
-        },
-      });
+    console.error("Creating tournament:", t.tournamentName);
+    process.stdout.write(
+      sql`
+        INSERT INTO "Tournament"
+        ("uuid", "TID", "name", "tournamentDate", "size", "swissRounds", "topCut", "bracketUrl")
+        VALUES (
+          ${tournamentUuid},
+          ${t.TID},
+          ${t.tournamentName},
+          ${new Date(t.startDate * 1000).toISOString()},
+          ${t.players},
+          ${t.swissRounds},
+          ${t.topCut},
+          ${t.bracketUrl}
+        );
+      `,
+    );
 
-      tournamentUuidByTid.set(tournament.TID, tournament.uuid);
-
-      const entries = await getTournamentEntries(t.TID);
-      entriesByTid.set(tournament.TID, entries);
-    } catch (e) {
-      console.error(
-        `Could not create tournament ${t.tournamentName} (TID ${t.TID}):`,
-        e,
-      );
-
-      return;
-    }
+    tournamentUuidByTid.set(t.TID, tournamentUuid);
+    entriesByTid.set(t.TID, await getTournamentEntries(t.TID));
   });
 
   const entries = Array.from(entriesByTid).flatMap(([TID, entries]) => {
     return entries.flatMap((e) => ({ ...e, TID }));
   });
 
-  console.log("Found", entries.length, "entries!");
+  console.error("Found", entries.length, "entries!");
 
   // Create all commanders.
-  await workerPool(entries, async (entry) => {
-    if (commanderUuidByName.has(entry.commander)) return;
-
-    console.log("Creating commander:", entry.commander);
+  for (const entry of entries) {
+    if (commanderUuidByName.has(entry.commander)) continue;
 
     const commanderUuid = randomUUID();
     commanderUuidByName.set(entry.commander, commanderUuid);
-    await prisma.commander.create({
-      data: {
-        uuid: commanderUuid,
-        name: entry.commander,
-        colorId: entry.colorID,
-      },
-    });
-  });
+
+    console.error("Creating commander:", entry.commander);
+    process.stdout.write(
+      sql`
+        INSERT INTO "Commander"
+        ("uuid", "name", "colorId")
+        VALUES (
+          ${commanderUuid},
+          ${entry.commander},
+          ${entry.colorID}
+        );
+    `,
+    );
+  }
 
   const cardScryfallIds = new Set<string>();
   for (const entry of entries) {
@@ -200,7 +241,7 @@ async function main() {
   );
 
   // Create all cards.
-  await workerPool(cards, async (card) => {
+  for (const card of cards) {
     if (cardUuidByOracleId.has(card.oracle_id)) {
       if (!cardUuidByScryfallId.has(card.id)) {
         cardUuidByScryfallId.set(
@@ -209,10 +250,8 @@ async function main() {
         );
       }
 
-      return;
+      continue;
     }
-
-    console.log("Creating card:", card.name);
 
     const cardUuid = randomUUID();
     cardUuidByOracleId.set(card.oracle_id, cardUuid);
@@ -223,30 +262,35 @@ async function main() {
       if (card.color_identity.includes(c)) colorId += c;
     }
 
-    await prisma.card.create({
-      data: {
-        uuid: cardUuid,
-        oracleId: card.oracle_id,
-        name: card.name,
-        cmc: card.cmc,
-        colorId,
-        type: card.type_line,
-      },
-    });
-  });
+    console.error("Creating card:", card.name);
+    process.stdout.write(
+      sql`
+        INSERT INTO "Card"
+        ("uuid", "oracleId", "name", "cmc", "colorId", "type")
+        VALUES (
+          ${cardUuid},
+          ${card.oracle_id},
+          ${card.name},
+          ${card.cmc},
+          ${colorId},
+          ${card.type_line}
+        );
+    `,
+    );
+  }
 
   // Create all entries and players.
-  await workerPool(entries, async (entry) => {
+  for (const entry of entries) {
     const tournamentUuid = tournamentUuidByTid.get(entry.TID);
     if (tournamentUuid == null) {
       console.error(`Could not find UUID for tournament: ${entry.TID}`);
-      return;
+      continue;
     }
 
     const commanderUuid = commanderUuidByName.get(entry.commander);
     if (commanderUuid == null) {
       console.error(`Could not find UUID for commander: ${entry.commander}`);
-      return;
+      continue;
     }
 
     let playerUuid: string;
@@ -257,20 +301,30 @@ async function main() {
         playerUuid = randomUUID();
         playerUuidByTopdeckUuid.set(entry.profile, playerUuid);
 
-        await prisma.player.create({
-          data: {
-            uuid: playerUuid,
-            name: entry.name,
-            topdeckProfile: entry.profile,
-          },
-        });
+        process.stdout.write(
+          sql`
+            INSERT INTO "Player"
+            ("uuid", "name", "topdeckProfile")
+            VALUES (
+              ${playerUuid},
+              ${entry.name},
+              ${entry.profile}
+            );
+          `,
+        );
       }
     } else {
-      const player = await prisma.player.create({
-        data: { uuid: randomUUID(), name: entry.name },
-      });
-
-      playerUuid = player.uuid;
+      playerUuid = randomUUID();
+      process.stdout.write(
+        sql`
+          INSERT INTO "Player"
+          ("uuid", "name")
+          VALUES (
+            ${playerUuid},
+            ${entry.name}
+          );
+        `,
+      );
     }
 
     const cardUuids = new Set(
@@ -280,35 +334,44 @@ async function main() {
     );
 
     const entryUuid = randomUUID();
-    await prisma.entry.create({
-      data: {
-        uuid: entryUuid,
-        decklist: entry.decklist,
-        draws: entry.draws,
-        lossesBracket: entry.lossesBracket,
-        lossesSwiss: entry.lossesSwiss,
-        standing: entry.standing,
-        winsBracket: entry.winsBracket,
-        winsSwiss: entry.winsSwiss,
-        playerUuid,
-        commanderUuid,
-        tournamentUuid,
-        DecklistItem: {
-          createMany: {
-            data: Array.from(cardUuids).map((cardUuid) => ({ cardUuid })),
-          },
-        },
-      },
-    });
-  });
+    process.stdout.write(
+      sql`
+        INSERT INTO "Entry"
+        ("uuid", "decklist", "draws", "lossesBracket", "lossesSwiss", "standing", "winsBracket", "winsSwiss", "playerUuid", "commanderUuid", "tournamentUuid")
+        VALUES (
+          ${entryUuid},
+          ${entry.decklist},
+          ${entry.draws},
+          ${entry.lossesBracket},
+          ${entry.lossesSwiss},
+          ${entry.standing},
+          ${entry.winsBracket},
+          ${entry.winsSwiss},
+          ${playerUuid},
+          ${commanderUuid},
+          ${tournamentUuid}
+        );
+      `,
+    );
+
+    for (const cardUuid of Array.from(cardUuids)) {
+      process.stdout.write(
+        sql`
+          INSERT INTO "DecklistItem"
+          ("entryUuid", "cardUuid")
+          VALUES (${entryUuid}, ${cardUuid});
+        `,
+      );
+    }
+  }
 }
 
 main()
   .catch((e) => {
+    console.error("Error during script generation:");
     console.error(e);
     process.exit(1);
   })
   .finally(async () => {
     await mongo.close();
-    await prisma.$disconnect();
   });
