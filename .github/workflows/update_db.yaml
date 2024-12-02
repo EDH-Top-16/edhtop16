@@ -94,7 +94,7 @@ jobs:
         working-directory: edhtop16/
         run: |-
           npm ci
-          npm run data-import -- --env-file=.env
+          npm run data-import
 
       - name: Delete DigitalOcean Firewall Rules
         if: always()
