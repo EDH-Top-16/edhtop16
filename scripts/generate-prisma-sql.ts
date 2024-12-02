@@ -209,7 +209,7 @@ async function main() {
 
   const seedScript = new SqlFileBuffer(outputFile);
 
-  let tournaments = await getTournaments(importedTids);
+  const tournaments = await getTournaments(importedTids);
   console.log("Found", tournaments.length, "tournaments!");
 
   const tournamentUuidByTid = new Map<string, string>();
