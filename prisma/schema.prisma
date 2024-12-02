@@ -61,9 +61,9 @@ model Commander {
 model Entry {
   uuid String @id @db.Uuid
 
-  tournamentUuid String  @db.Uuid
-  playerUuid     String? @db.Uuid
-  commanderUuid  String  @db.Uuid
+  tournamentUuid String @db.Uuid
+  playerUuid     String @db.Uuid
+  commanderUuid  String @db.Uuid
 
   standing      Int
   decklist      String?
@@ -73,7 +73,33 @@ model Entry {
   lossesSwiss   Int
   lossesBracket Int
 
-  tournament Tournament @relation(fields: [tournamentUuid], references: [uuid])
-  player     Player?    @relation(fields: [playerUuid], references: [uuid])
-  commander  Commander  @relation(fields: [commanderUuid], references: [uuid])
+  tournament   Tournament     @relation(fields: [tournamentUuid], references: [uuid])
+  player       Player         @relation(fields: [playerUuid], references: [uuid])
+  commander    Commander      @relation(fields: [commanderUuid], references: [uuid])
+  DecklistItem DecklistItem[]
+}
+
+model Card {
+  uuid String @id @db.Uuid
+
+  /// Scryfall's Oracle ID to uniquely identify a card.
+  oracleId String @unique
+  /// Card name.
+  name     String
+
+  cmc     Int
+  colorId String
+  type    String
+
+  DecklistItem DecklistItem[]
+}
+
+model DecklistItem {
+  entryUuid String @db.Uuid
+  cardUuid  String @db.Uuid
+
+  entry Entry @relation(fields: [entryUuid], references: [uuid])
+  card  Card  @relation(fields: [cardUuid], references: [uuid])
+
+  @@id([entryUuid, cardUuid])
 }
