@@ -9,11 +9,11 @@
     "lint": "next lint",
     "generate:schema": "DATABASE_URL=postgresql://localhost:5432/dummy node -r ts-node/register scripts/print-schema.ts",
     "generate:relay": "relay-compiler",
-    "generate:seed": "node -r ts-node/register scripts/generate-seed-script.ts",
-    "data-import": "npx prisma migrate reset --force --skip-seed && node -r ts-node/register scripts/import-data.ts"
+    "generate:seed": "node -r ts-node/register --env-file=.env scripts/generate-prisma-sql.ts --tid=TopDeckOpen24 --anonymize",
+    "data-import": "node -r ts-node/register --env-file=.env scripts/generate-prisma-sql.ts && npx prisma migrate reset --force"
   },
   "prisma": {
-    "seed": "node -r ts-node/register prisma/seed.ts"
+    "seed": "npx prisma db execute --file prisma/seed.sql"
   },
   "dependencies": {
     "@apollo/server": "^4.10.0",
@@ -48,6 +48,7 @@
     "@reverecre/promise": "^0.1.0",
     "@types/mustache": "^4.2.5",
     "@types/node": "20.3.1",
+    "@types/pg": "^8.11.10",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
     "@types/react-relay": "^16.0.5",
@@ -57,6 +58,7 @@
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.7",
     "mustache": "^4.2.0",
+    "pg": "^8.13.1",
     "postcss": "8.4.24",
     "prettier": "^3.0.3",
     "prettier-plugin-tailwindcss": "^0.4.1",

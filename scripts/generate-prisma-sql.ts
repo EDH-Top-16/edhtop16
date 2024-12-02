@@ -3,10 +3,13 @@
  * well-shaped form specified in schema.prisma.
  */
 
-import { PrismaClient } from "@prisma/client";
+import { faker } from "@faker-js/faker";
 import { workerPool } from "@reverecre/promise";
 import { randomUUID } from "crypto";
+import { createWriteStream } from "fs";
 import { MongoClient } from "mongodb";
+import { parseArgs } from "node:util";
+import { escapeLiteral } from "pg";
 import { z } from "zod";
 import { createScyfallIdLoader } from "../src/lib/server/scryfall";
 
@@ -14,8 +17,62 @@ const env = z.object({ ENTRIES_DB_URL: z.string() }).parse(process.env);
 
 // Connection to the raw entries database.
 const mongo = new MongoClient(env.ENTRIES_DB_URL);
-// Connection to the normalized database, well typed using Prisma.
-const prisma = new PrismaClient();
+
+type SafeSqlString = string & { __escaped: true };
+class SqlFileBuffer {
+  static sql(
+    strings: readonly string[],
+    ...values: (string | number | undefined | null)[]
+  ): SafeSqlString {
+    let buf = "";
+    for (let i = 0; i < strings.length - 1; ++i) {
+      buf += strings[i];
+
+      const value = values[i];
+      if (value == null) {
+        buf += "NULL";
+      } else {
+        buf += escapeLiteral(`${values[i]}`);
+      }
+    }
+
+    buf += strings[strings.length - 1];
+    return (buf
+      .trim()
+      .split("\n")
+      .reduce(
+        ({ sql, parens }, line) => {
+          line = line.trim();
+          if (line.startsWith(")")) parens -= 1;
+
+          return {
+            sql: sql + SqlFileBuffer.repeat("  ", parens) + line + "\n",
+            parens: line.endsWith("(") ? parens + 1 : parens,
+          };
+        },
+        { sql: "", parens: 0 },
+      ).sql + "\n") as SafeSqlString;
+  }
+
+  private static repeat(s: string, n: number) {
+    let buf = "";
+    for (let i = 0; i < n; ++i) {
+      buf += s;
+    }
+
+    return buf;
+  }
+
+  private readonly writeStream;
+
+  constructor(path: string) {
+    this.writeStream = createWriteStream(path);
+  }
+
+  write(chunk: SafeSqlString) {
+    this.writeStream.write(chunk);
+  }
+}
 
 function isNotFalse<T>(v: T | false): v is T {
   return !!v;
@@ -46,16 +103,23 @@ const jsonImportedSchema = z.object({
   bracketUrl: z.string().optional(),
 });
 
-async function getTournaments(): Promise<z.infer<typeof jsonImportedSchema>[]> {
+async function getTournaments(
+  tids?: string[],
+): Promise<z.infer<typeof jsonImportedSchema>[]> {
   const tournamentSchema = z.union([
     topdeckTournamentSchema,
     jsonImportedSchema,
   ]);
 
+  const metadataFilters: Record<string, unknown> = {};
+  if (tids) {
+    metadataFilters.TID = { $in: tids };
+  }
+
   const tournaments = mongo
     .db("cedhtop16")
     .collection("metadata")
-    .find()
+    .find(metadataFilters)
     .map((doc) => {
       const result = tournamentSchema.safeParse(doc);
       if (!result.success) {
@@ -122,7 +186,30 @@ async function getTournamentEntries(tournamentId: string) {
 }
 
 async function main() {
-  const tournaments = await getTournaments();
+  const {
+    values: {
+      tid: importedTids,
+      out: outputFile = "prisma/seed.sql",
+      anonymize: anonymizeNames = false,
+    },
+  } = parseArgs({
+    options: {
+      out: {
+        type: "string",
+      },
+      tid: {
+        type: "string",
+        multiple: true,
+      },
+      anonymize: {
+        type: "boolean",
+      },
+    },
+  });
+
+  const seedScript = new SqlFileBuffer(outputFile);
+
+  const tournaments = await getTournaments(importedTids);
   console.log("Found", tournaments.length, "tournaments!");
 
   const tournamentUuidByTid = new Map<string, string>();
@@ -134,34 +221,28 @@ async function main() {
 
   // Create all tournament objects in database and collect entries.
   await workerPool(tournaments, async (t) => {
+    const tournamentUuid = randomUUID();
+
     console.log("Creating tournament:", t.tournamentName);
+    seedScript.write(
+      SqlFileBuffer.sql`
+        INSERT INTO "Tournament"
+        ("uuid", "TID", "name", "tournamentDate", "size", "swissRounds", "topCut", "bracketUrl")
+        VALUES (
+          ${tournamentUuid},
+          ${t.TID},
+          ${t.tournamentName},
+          ${new Date(t.startDate * 1000).toISOString()},
+          ${t.players},
+          ${t.swissRounds},
+          ${t.topCut},
+          ${t.bracketUrl}
+        );
+      `,
+    );
 
-    try {
-      const tournament = await prisma.tournament.create({
-        data: {
-          uuid: randomUUID(),
-          TID: t.TID,
-          name: t.tournamentName,
-          size: t.players,
-          swissRounds: t.swissRounds,
-          topCut: t.topCut,
-          tournamentDate: new Date(t.startDate * 1000).toISOString(),
-          bracketUrl: t.bracketUrl,
-        },
-      });
-
-      tournamentUuidByTid.set(tournament.TID, tournament.uuid);
-
-      const entries = await getTournamentEntries(t.TID);
-      entriesByTid.set(tournament.TID, entries);
-    } catch (e) {
-      console.error(
-        `Could not create tournament ${t.tournamentName} (TID ${t.TID}):`,
-        e,
-      );
-
-      return;
-    }
+    tournamentUuidByTid.set(t.TID, tournamentUuid);
+    entriesByTid.set(t.TID, await getTournamentEntries(t.TID));
   });
 
   const entries = Array.from(entriesByTid).flatMap(([TID, entries]) => {
@@ -171,21 +252,25 @@ async function main() {
   console.log("Found", entries.length, "entries!");
 
   // Create all commanders.
-  await workerPool(entries, async (entry) => {
-    if (commanderUuidByName.has(entry.commander)) return;
-
-    console.log("Creating commander:", entry.commander);
+  for (const entry of entries) {
+    if (commanderUuidByName.has(entry.commander)) continue;
 
     const commanderUuid = randomUUID();
     commanderUuidByName.set(entry.commander, commanderUuid);
-    await prisma.commander.create({
-      data: {
-        uuid: commanderUuid,
-        name: entry.commander,
-        colorId: entry.colorID,
-      },
-    });
-  });
+
+    console.log("Creating commander:", entry.commander);
+    seedScript.write(
+      SqlFileBuffer.sql`
+        INSERT INTO "Commander"
+        ("uuid", "name", "colorId")
+        VALUES (
+          ${commanderUuid},
+          ${entry.commander},
+          ${entry.colorID}
+        );
+    `,
+    );
+  }
 
   const cardScryfallIds = new Set<string>();
   for (const entry of entries) {
@@ -200,7 +285,7 @@ async function main() {
   );
 
   // Create all cards.
-  await workerPool(cards, async (card) => {
+  for (const card of cards) {
     if (cardUuidByOracleId.has(card.oracle_id)) {
       if (!cardUuidByScryfallId.has(card.id)) {
         cardUuidByScryfallId.set(
@@ -209,10 +294,8 @@ async function main() {
         );
       }
 
-      return;
+      continue;
     }
-
-    console.log("Creating card:", card.name);
 
     const cardUuid = randomUUID();
     cardUuidByOracleId.set(card.oracle_id, cardUuid);
@@ -223,30 +306,35 @@ async function main() {
       if (card.color_identity.includes(c)) colorId += c;
     }
 
-    await prisma.card.create({
-      data: {
-        uuid: cardUuid,
-        oracleId: card.oracle_id,
-        name: card.name,
-        cmc: card.cmc,
-        colorId,
-        type: card.type_line,
-      },
-    });
-  });
+    console.log("Creating card:", card.name);
+    seedScript.write(
+      SqlFileBuffer.sql`
+        INSERT INTO "Card"
+        ("uuid", "oracleId", "name", "cmc", "colorId", "type")
+        VALUES (
+          ${cardUuid},
+          ${card.oracle_id},
+          ${card.name},
+          ${card.cmc},
+          ${colorId},
+          ${card.type_line}
+        );
+    `,
+    );
+  }
 
   // Create all entries and players.
-  await workerPool(entries, async (entry) => {
+  for (const entry of entries) {
     const tournamentUuid = tournamentUuidByTid.get(entry.TID);
     if (tournamentUuid == null) {
       console.error(`Could not find UUID for tournament: ${entry.TID}`);
-      return;
+      continue;
     }
 
     const commanderUuid = commanderUuidByName.get(entry.commander);
     if (commanderUuid == null) {
       console.error(`Could not find UUID for commander: ${entry.commander}`);
-      return;
+      continue;
     }
 
     let playerUuid: string;
@@ -257,20 +345,30 @@ async function main() {
         playerUuid = randomUUID();
         playerUuidByTopdeckUuid.set(entry.profile, playerUuid);
 
-        await prisma.player.create({
-          data: {
-            uuid: playerUuid,
-            name: entry.name,
-            topdeckProfile: entry.profile,
-          },
-        });
+        seedScript.write(
+          SqlFileBuffer.sql`
+            INSERT INTO "Player"
+            ("uuid", "name", "topdeckProfile")
+            VALUES (
+              ${playerUuid},
+              ${anonymizeNames ? faker.person.fullName() : entry.name},
+              ${anonymizeNames ? faker.string.nanoid() : entry.profile}
+            );
+          `,
+        );
       }
     } else {
-      const player = await prisma.player.create({
-        data: { uuid: randomUUID(), name: entry.name },
-      });
-
-      playerUuid = player.uuid;
+      playerUuid = randomUUID();
+      seedScript.write(
+        SqlFileBuffer.sql`
+          INSERT INTO "Player"
+          ("uuid", "name")
+          VALUES (
+            ${playerUuid},
+            ${anonymizeNames ? faker.person.fullName() : entry.name}
+          );
+        `,
+      );
     }
 
     const cardUuids = new Set(
@@ -280,35 +378,44 @@ async function main() {
     );
 
     const entryUuid = randomUUID();
-    await prisma.entry.create({
-      data: {
-        uuid: entryUuid,
-        decklist: entry.decklist,
-        draws: entry.draws,
-        lossesBracket: entry.lossesBracket,
-        lossesSwiss: entry.lossesSwiss,
-        standing: entry.standing,
-        winsBracket: entry.winsBracket,
-        winsSwiss: entry.winsSwiss,
-        playerUuid,
-        commanderUuid,
-        tournamentUuid,
-        DecklistItem: {
-          createMany: {
-            data: Array.from(cardUuids).map((cardUuid) => ({ cardUuid })),
-          },
-        },
-      },
-    });
-  });
+    seedScript.write(
+      SqlFileBuffer.sql`
+        INSERT INTO "Entry"
+        ("uuid", "decklist", "draws", "lossesBracket", "lossesSwiss", "standing", "winsBracket", "winsSwiss", "playerUuid", "commanderUuid", "tournamentUuid")
+        VALUES (
+          ${entryUuid},
+          ${entry.decklist},
+          ${entry.draws},
+          ${entry.lossesBracket},
+          ${entry.lossesSwiss},
+          ${entry.standing},
+          ${entry.winsBracket},
+          ${entry.winsSwiss},
+          ${playerUuid},
+          ${commanderUuid},
+          ${tournamentUuid}
+        );
+      `,
+    );
+
+    for (const cardUuid of Array.from(cardUuids)) {
+      seedScript.write(
+        SqlFileBuffer.sql`
+          INSERT INTO "DecklistItem"
+          ("entryUuid", "cardUuid")
+          VALUES (${entryUuid}, ${cardUuid});
+        `,
+      );
+    }
+  }
 }
 
 main()
   .catch((e) => {
+    console.error("Error during script generation:");
     console.error(e);
     process.exit(1);
   })
   .finally(async () => {
     await mongo.close();
-    await prisma.$disconnect();
   });
