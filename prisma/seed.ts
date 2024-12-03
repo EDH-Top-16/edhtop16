@@ -25,7 +25,13 @@ ${fields.map(escapeIdentifier).join(", ")}
 }
 
 async function main() {
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    // Workaround for DigitalOcean managed Postgres and running on GH Actions.
+    ssl: process.env.DATABASE_URL?.includes("localhost")
+      ? undefined
+      : { rejectUnauthorized: false },
+  });
 
   console.log(pc.yellow("Connecting to database"));
   const client = await pool.connect();
