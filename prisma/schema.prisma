@@ -86,10 +86,8 @@ model Card {
   oracleId String @unique
   /// Card name.
   name     String
-
-  cmc     Int
-  colorId String
-  type    String
+  /// Scryfall card data intended to be parsed using scryfallCardSchema.
+  data     Json
 
   DecklistItem DecklistItem[]
 }

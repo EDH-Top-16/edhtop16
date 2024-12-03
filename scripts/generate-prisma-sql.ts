@@ -5,13 +5,15 @@
 
 import { faker } from "@faker-js/faker";
 import { workerPool } from "@reverecre/promise";
-import { randomUUID } from "crypto";
-import { createWriteStream } from "fs";
 import { MongoClient } from "mongodb";
+import { randomUUID } from "node:crypto";
+import { createWriteStream } from "node:fs";
+import fs from "node:fs/promises";
 import { parseArgs } from "node:util";
-import { escapeLiteral } from "pg";
+import { escapeIdentifier, escapeLiteral } from "pg";
+import * as undici from "undici";
 import { z } from "zod";
-import { createScyfallIdLoader } from "../src/lib/server/scryfall";
+import { ScryfallCard } from "../src/lib/server/scryfall";
 
 const env = z.object({ ENTRIES_DB_URL: z.string() }).parse(process.env);
 
@@ -72,14 +74,111 @@ class SqlFileBuffer {
   write(chunk: SafeSqlString) {
     this.writeStream.write(chunk);
   }
+
+  insert(
+    table: string,
+    record: Record<string, string | number | undefined | null>,
+  ) {
+    this.writeStream.write(`INSERT INTO ${escapeIdentifier(table)}
+(${Object.keys(record).map(escapeIdentifier).join(", ")})
+VALUES (
+${Object.values(record)
+  .map((value) => "  " + (value == null ? "NULL" : escapeLiteral(`${value}`)))
+  .join(",\n")}
+);
+
+`);
+  }
 }
 
-function isNotFalse<T>(v: T | false): v is T {
-  return !!v;
-}
+class ScryfallDatabase {
+  private static scryfallBulkDataSchema = z.object({
+    object: z.literal("list"),
+    data: z.array(
+      z.object({
+        object: z.literal("bulk_data"),
+        type: z.enum([
+          "oracle_cards",
+          "unique_artwork",
+          "default_cards",
+          "all_cards",
+          "rulings",
+        ]),
+        download_uri: z.string().url(),
+        content_type: z.string(),
+        content_encoding: z.string(),
+      }),
+    ),
+  });
 
-function isNotError<T>(v: T | Error): v is T {
-  return !(v instanceof Error);
+  static async create(kind: "default_cards" | "oracle_cards") {
+    const databaseFileName = `./${kind}.scryfall.json`;
+
+    try {
+      await fs.access(databaseFileName, fs.constants.F_OK);
+      console.log("Found cached Scryfall bulk database, skipping download");
+    } catch (e) {
+      console.log("Requesting Scryfall bulk data URL...");
+      const scryfallBulkDataResponse = await undici.request(
+        "https://api.scryfall.com/bulk-data",
+        { headers: { Accept: "*/*", "User-Agent": "edhtop16/2.0" } },
+      );
+
+      if (scryfallBulkDataResponse.statusCode >= 400) {
+        throw new Error(
+          "Could not load bulk data: " +
+            (await scryfallBulkDataResponse.body.text()),
+        );
+      }
+
+      const scryfallBulkDataJson = await scryfallBulkDataResponse.body.json();
+      console.log(scryfallBulkDataJson);
+      const { data: scryfallBulkData } =
+        ScryfallDatabase.scryfallBulkDataSchema.parse(scryfallBulkDataJson);
+
+      const databaseUrl = scryfallBulkData.find((d) => d.type === kind)
+        ?.download_uri;
+
+      if (!databaseUrl) {
+        throw new Error(
+          `Could not find URL for Scryfall bulk data export: ${kind}`,
+        );
+      }
+
+      console.log(`Downloading Scryfall database: ${kind}`);
+      await undici.stream(databaseUrl, { method: "GET" }, () =>
+        createWriteStream(databaseFileName),
+      );
+    }
+
+    console.log(`Loading Scryfall database JSON: ${kind}`);
+    const scryfallDatabaseJson = (
+      await fs.readFile(databaseFileName)
+    ).toString();
+
+    console.log(`Parsing Scryfall database JSON: ${kind}`);
+    return new ScryfallDatabase(JSON.parse(scryfallDatabaseJson));
+  }
+
+  readonly cardByScryfallId: ReadonlyMap<string, ScryfallCard>;
+  readonly cardByOracleId: ReadonlyMap<string, ScryfallCard>;
+  readonly cardByName: ReadonlyMap<string, ScryfallCard>;
+
+  private constructor(private readonly cards: ScryfallCard[]) {
+    const cardByScryfallId = new Map<string, ScryfallCard>();
+    const cardByOracleId = new Map<string, ScryfallCard>();
+    const cardByName = new Map<string, ScryfallCard>();
+
+    for (const card of this.cards) {
+      cardByScryfallId.set(card.id, card);
+      cardByOracleId.set(card.oracle_id, card);
+      cardByName.set(card.name, card);
+    }
+
+    this.cardByScryfallId = cardByScryfallId;
+    this.cardByOracleId = cardByOracleId;
+    this.cardByName = cardByName;
+  }
 }
 
 const topdeckTournamentSchema = z.object({
@@ -133,19 +232,21 @@ async function getTournaments(
       return result.data;
     });
 
-  return (await tournaments.toArray()).filter(isNotFalse).map((t) => {
-    if ("players" in t) return t;
+  return (await tournaments.toArray())
+    .filter((t) => t !== false)
+    .map((t) => {
+      if ("players" in t) return t;
 
-    return {
-      TID: t.TID,
-      tournamentName: t.tournamentName,
-      bracketUrl: t.bracketUrl,
-      players: t.size,
-      startDate: t.dateCreated,
-      swissRounds: t.swissNum,
-      topCut: t.topCut,
-    };
-  });
+      return {
+        TID: t.TID,
+        tournamentName: t.tournamentName,
+        bracketUrl: t.bracketUrl,
+        players: t.size,
+        startDate: t.dateCreated,
+        swissRounds: t.swissNum,
+        topCut: t.topCut,
+      };
+    });
 }
 
 type Entry = z.infer<typeof entrySchema>;
@@ -182,76 +283,49 @@ async function getTournamentEntries(tournamentId: string) {
       return result.data;
     });
 
-  return (await entries.toArray()).filter(isNotFalse);
+  return (await entries.toArray()).filter((e) => e !== false);
 }
 
-async function main() {
-  const {
-    values: {
-      tid: importedTids,
-      out: outputFile = "prisma/seed.sql",
-      anonymize: anonymizeNames = false,
-    },
-  } = parseArgs({
-    options: {
-      out: {
-        type: "string",
-      },
-      tid: {
-        type: "string",
-        multiple: true,
-      },
-      anonymize: {
-        type: "boolean",
-      },
-    },
-  });
-
-  const seedScript = new SqlFileBuffer(outputFile);
-
-  const tournaments = await getTournaments(importedTids);
+async function createTournaments(seedScript: SqlFileBuffer, tids?: string[]) {
+  const tournaments = await getTournaments(tids);
   console.log("Found", tournaments.length, "tournaments!");
 
   const tournamentUuidByTid = new Map<string, string>();
-  const entriesByTid = new Map<string, Entry[]>();
-  const playerUuidByTopdeckUuid = new Map<string, string>();
-  const commanderUuidByName = new Map<string, string>();
-  const cardUuidByOracleId = new Map<string, string>();
-  const cardUuidByScryfallId = new Map<string, string>();
-
-  // Create all tournament objects in database and collect entries.
   await workerPool(tournaments, async (t) => {
     const tournamentUuid = randomUUID();
 
     console.log("Creating tournament:", t.tournamentName);
-    seedScript.write(
-      SqlFileBuffer.sql`
-        INSERT INTO "Tournament"
-        ("uuid", "TID", "name", "tournamentDate", "size", "swissRounds", "topCut", "bracketUrl")
-        VALUES (
-          ${tournamentUuid},
-          ${t.TID},
-          ${t.tournamentName},
-          ${new Date(t.startDate * 1000).toISOString()},
-          ${t.players},
-          ${t.swissRounds},
-          ${t.topCut},
-          ${t.bracketUrl}
-        );
-      `,
-    );
+    seedScript.insert("Tournament", {
+      uuid: tournamentUuid,
+      TID: t.TID,
+      name: t.tournamentName,
+      tournamentDate: new Date(t.startDate * 1000).toISOString(),
+      size: t.players,
+      swissRounds: t.swissRounds,
+      topCut: t.topCut,
+      bracketUrl: t.bracketUrl,
+    });
 
     tournamentUuidByTid.set(t.TID, tournamentUuid);
-    entriesByTid.set(t.TID, await getTournamentEntries(t.TID));
   });
 
-  const entries = Array.from(entriesByTid).flatMap(([TID, entries]) => {
+  return tournamentUuidByTid;
+}
+
+type EntryWithTid = Entry & { TID: string };
+async function loadEntries(tids: string[]): Promise<EntryWithTid[]> {
+  const entriesByTid = new Map<string, Entry[]>();
+  await workerPool(tids, async (tid) => {
+    entriesByTid.set(tid, await getTournamentEntries(tid));
+  });
+
+  return Array.from(entriesByTid).flatMap(([TID, entries]) => {
     return entries.flatMap((e) => ({ ...e, TID }));
   });
+}
 
-  console.log("Found", entries.length, "entries!");
-
-  // Create all commanders.
+function createCommanders(seedScript: SqlFileBuffer, entries: EntryWithTid[]) {
+  const commanderUuidByName = new Map<string, string>();
   for (const entry of entries) {
     if (commanderUuidByName.has(entry.commander)) continue;
 
@@ -259,47 +333,57 @@ async function main() {
     commanderUuidByName.set(entry.commander, commanderUuid);
 
     console.log("Creating commander:", entry.commander);
-    seedScript.write(
-      SqlFileBuffer.sql`
-        INSERT INTO "Commander"
-        ("uuid", "name", "colorId")
-        VALUES (
-          ${commanderUuid},
-          ${entry.commander},
-          ${entry.colorID}
-        );
-    `,
-    );
+    seedScript.insert("Commander", {
+      uuid: commanderUuid,
+      name: entry.commander,
+      colorId: entry.colorID,
+    });
   }
 
-  const cardScryfallIds = new Set<string>();
-  for (const entry of entries) {
-    for (const card of entry.mainDeck ?? []) {
-      cardScryfallIds.add(card);
-    }
-  }
+  return commanderUuidByName;
+}
 
-  const cardLoader = createScyfallIdLoader();
-  const cards = (await cardLoader.loadMany(Array.from(cardScryfallIds))).filter(
-    isNotError,
+async function createCards(seedScript: SqlFileBuffer, entries: EntryWithTid[]) {
+  const cardUuidByOracleId = new Map<string, string>();
+  const cardUuidByScryfallId = new Map<string, string>();
+
+  const [oracleDatabase, scryfallDatabase] = await Promise.all([
+    ScryfallDatabase.create("oracle_cards"),
+    ScryfallDatabase.create("default_cards"),
+  ]);
+
+  const mainDeckCards = entries.flatMap((e) => e.mainDeck ?? []);
+  const commanderCards = entries
+    .flatMap((e) => e.commander.split(" / "))
+    .map((c) => scryfallDatabase.cardByName.get(c)?.id)
+    .filter((id) => id != null);
+
+  const defaultCommander = scryfallDatabase.cardByName.get(
+    "The Prismatic Piper",
   );
 
-  // Create all cards.
-  for (const card of cards) {
-    if (cardUuidByOracleId.has(card.oracle_id)) {
-      if (!cardUuidByScryfallId.has(card.id)) {
-        cardUuidByScryfallId.set(
-          card.id,
-          cardUuidByOracleId.get(card.oracle_id)!,
-        );
-      }
+  if (defaultCommander) commanderCards.push(defaultCommander.id);
 
-      continue;
-    }
+  const allScryfallIds = Array.from(
+    new Set([...mainDeckCards, ...commanderCards]),
+  );
+
+  const allOracleIds = Array.from(
+    new Set(
+      allScryfallIds
+        .map((id) => scryfallDatabase.cardByScryfallId.get(id)?.oracle_id)
+        .filter((id) => id != null),
+    ),
+  );
+
+  for (const oracleId of allOracleIds) {
+    if (cardUuidByOracleId.has(oracleId)) continue;
+
+    const card = oracleDatabase.cardByOracleId.get(oracleId);
+    if (card == null) continue;
 
     const cardUuid = randomUUID();
     cardUuidByOracleId.set(card.oracle_id, cardUuid);
-    cardUuidByScryfallId.set(card.id, cardUuid);
 
     let colorId: string = "";
     for (const c of ["W", "U", "B", "R", "G", "C"]) {
@@ -307,21 +391,43 @@ async function main() {
     }
 
     console.log("Creating card:", card.name);
-    seedScript.write(
-      SqlFileBuffer.sql`
-        INSERT INTO "Card"
-        ("uuid", "oracleId", "name", "cmc", "colorId", "type")
-        VALUES (
-          ${cardUuid},
-          ${card.oracle_id},
-          ${card.name},
-          ${card.cmc},
-          ${colorId},
-          ${card.type_line}
-        );
-    `,
-    );
+    seedScript.insert("Card", {
+      uuid: cardUuid,
+      oracleId: card.oracle_id,
+      name: card.name,
+      data: JSON.stringify(card),
+    });
   }
+
+  for (const scryfallId of allScryfallIds) {
+    const card = scryfallDatabase.cardByScryfallId.get(scryfallId);
+    if (card == null) continue;
+
+    const cardUuid = cardUuidByOracleId.get(card.oracle_id);
+    if (cardUuid == null) continue;
+
+    cardUuidByScryfallId.set(scryfallId, cardUuid);
+  }
+
+  return cardUuidByScryfallId;
+}
+
+async function createPlayers(
+  seedScript: SqlFileBuffer,
+  {
+    entries,
+    tournamentUuidByTid,
+    commanderUuidByName,
+    cardUuidByScryfallId,
+  }: {
+    entries: EntryWithTid[];
+    tournamentUuidByTid: Map<string, string>;
+    commanderUuidByName: Map<string, string>;
+    cardUuidByScryfallId: Map<string, string>;
+  },
+  { anonymizeNames }: { anonymizeNames: boolean },
+) {
+  const playerUuidByTopdeckUuid = new Map<string, string>();
 
   // Create all entries and players.
   for (const entry of entries) {
@@ -344,73 +450,94 @@ async function main() {
       } else {
         playerUuid = randomUUID();
         playerUuidByTopdeckUuid.set(entry.profile, playerUuid);
-
-        seedScript.write(
-          SqlFileBuffer.sql`
-            INSERT INTO "Player"
-            ("uuid", "name", "topdeckProfile")
-            VALUES (
-              ${playerUuid},
-              ${anonymizeNames ? faker.person.fullName() : entry.name},
-              ${anonymizeNames ? faker.string.nanoid() : entry.profile}
-            );
-          `,
-        );
+        seedScript.insert("Player", {
+          uuid: playerUuid,
+          name: anonymizeNames ? faker.person.fullName() : entry.name,
+          topdeckProfile: anonymizeNames
+            ? faker.string.nanoid()
+            : entry.profile,
+        });
       }
     } else {
       playerUuid = randomUUID();
-      seedScript.write(
-        SqlFileBuffer.sql`
-          INSERT INTO "Player"
-          ("uuid", "name")
-          VALUES (
-            ${playerUuid},
-            ${anonymizeNames ? faker.person.fullName() : entry.name}
-          );
-        `,
-      );
+      seedScript.insert("Player", {
+        uuid: playerUuid,
+        name: anonymizeNames ? faker.person.fullName() : entry.name,
+      });
     }
 
     const cardUuids = new Set(
       (entry.mainDeck ?? [])
-        .map((scryfallId) => cardUuidByScryfallId.get(scryfallId))
+        .map((id) => cardUuidByScryfallId.get(id))
         .filter((c) => c != null),
     );
 
     const entryUuid = randomUUID();
-    seedScript.write(
-      SqlFileBuffer.sql`
-        INSERT INTO "Entry"
-        ("uuid", "decklist", "draws", "lossesBracket", "lossesSwiss", "standing", "winsBracket", "winsSwiss", "playerUuid", "commanderUuid", "tournamentUuid")
-        VALUES (
-          ${entryUuid},
-          ${entry.decklist},
-          ${entry.draws},
-          ${entry.lossesBracket},
-          ${entry.lossesSwiss},
-          ${entry.standing},
-          ${entry.winsBracket},
-          ${entry.winsSwiss},
-          ${playerUuid},
-          ${commanderUuid},
-          ${tournamentUuid}
-        );
-      `,
-    );
+    seedScript.insert("Entry", {
+      uuid: entryUuid,
+      decklist: entry.decklist,
+      draws: entry.draws,
+      lossesBracket: entry.lossesBracket,
+      lossesSwiss: entry.lossesSwiss,
+      standing: entry.standing,
+      winsBracket: entry.winsBracket,
+      winsSwiss: entry.winsSwiss,
+      playerUuid: playerUuid,
+      commanderUuid: commanderUuid,
+      tournamentUuid: tournamentUuid,
+    });
 
     for (const cardUuid of Array.from(cardUuids)) {
-      seedScript.write(
-        SqlFileBuffer.sql`
-          INSERT INTO "DecklistItem"
-          ("entryUuid", "cardUuid")
-          VALUES (${entryUuid}, ${cardUuid});
-        `,
-      );
+      seedScript.insert("DecklistItem", {
+        entryUuid,
+        cardUuid,
+      });
     }
   }
 }
 
-main()
+async function main({
+  tid: importedTids,
+  out: outputFile = "prisma/seed.sql",
+  anonymize: anonymizeNames = false,
+}: {
+  out?: string;
+  anonymize?: boolean;
+  tid?: string[];
+}) {
+  const seedScript = new SqlFileBuffer(outputFile);
+  const tournamentUuidByTid = await createTournaments(seedScript, importedTids);
+  const entries = await loadEntries(Array.from(tournamentUuidByTid.keys()));
+  const commanderUuidByName = createCommanders(seedScript, entries);
+  const cardUuidByScryfallId = await createCards(seedScript, entries);
+  await createPlayers(
+    seedScript,
+    {
+      entries,
+      tournamentUuidByTid,
+      commanderUuidByName,
+      cardUuidByScryfallId,
+    },
+    { anonymizeNames },
+  );
+}
+
+const args = parseArgs({
+  options: {
+    out: {
+      type: "string",
+    },
+    tid: {
+      type: "string",
+      multiple: true,
+    },
+    anonymize: {
+      type: "boolean",
+    },
+  },
+});
+
+main(args.values)
   .catch((e) => {
     console.error("Error during script generation:");
     console.error(e);
