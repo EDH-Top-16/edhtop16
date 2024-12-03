@@ -67,7 +67,6 @@ class ScryfallDatabase {
       }
 
       const scryfallBulkDataJson = await scryfallBulkDataResponse.body.json();
-      console.log(scryfallBulkDataJson);
       const { data: scryfallBulkData } =
         ScryfallDatabase.scryfallBulkDataSchema.parse(scryfallBulkDataJson);
 
@@ -80,7 +79,12 @@ class ScryfallDatabase {
         );
       }
 
-      console.log(`Downloading Scryfall database: ${pc.cyan(kind)}`);
+      console.log(
+        `Downloading Scryfall database: ${pc.cyan(kind)} from ${pc.cyan(
+          databaseUrl,
+        )}`,
+      );
+
       await undici.stream(databaseUrl, { method: "GET" }, () =>
         createWriteStream(databaseFileName),
       );
