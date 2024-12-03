@@ -1,6 +1,7 @@
 import { Commander, Entry, Prisma } from "@prisma/client";
 import DataLoader from "dataloader";
 import { prisma } from "../prisma";
+import { scryfallCardSchema } from "../scryfall";
 import { builder } from "./builder";
 import { EntryFilters, EntrySortBy, EntryType } from "./entry";
 import { minDateFromTimePeriod, SortDirection, TimePeriod } from "./types";
@@ -313,18 +314,19 @@ const CommanderType = builder.prismaObject("Commander", {
       },
     }),
     imageUrls: t.stringList({
-      resolve: async (parent, _args, ctx) => {
+      resolve: async (parent, _args) => {
         const cardNames =
           parent.name === "Unknown Commander"
             ? ["The Prismatic Piper"]
             : parent.name.split(" / ");
 
-        const cards = await ctx.scryfallCardLoader.loadMany(cardNames);
+        const cards = await prisma.card.findMany({
+          where: { name: { in: cardNames } },
+        });
 
         return cards
-          .flatMap((c) =>
-            c instanceof Error ? [] : c.card_faces ? c.card_faces : [c],
-          )
+          .map((c) => scryfallCardSchema.parse(c.data))
+          .flatMap((c) => (c.card_faces ? c.card_faces : [c]))
           .map((c) => c.image_uris?.art_crop)
           .filter((c): c is string => c != null);
       },
