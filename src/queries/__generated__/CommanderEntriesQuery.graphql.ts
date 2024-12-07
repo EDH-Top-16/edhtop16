@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<157aecd64a91a5132b829627fdf24422>>
+ * @generated SignedSource<<fea752bb37c14425f7fb19804080291c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -31,7 +31,7 @@ export type CommanderEntriesQuery = {
 
 const node: ConcreteRequest = (function(){
 var v0 = {
-  "defaultValue": 24,
+  "defaultValue": 48,
   "kind": "LocalArgument",
   "name": "count"
 },
@@ -361,16 +361,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "75211e56c0d9dbee88db749d729b9de2",
+    "cacheID": "53b59a4fd9328206976cabf7f7915d47",
     "id": null,
     "metadata": {},
     "name": "CommanderEntriesQuery",
     "operationKind": "query",
-    "text": "query CommanderEntriesQuery(\n  $count: Int = 24\n  $cursor: String\n  $maxStanding: Int\n  $minEventSize: Int\n  $sortBy: EntriesSortBy\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...Commander_entries_1G22uz\n    id\n  }\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    id\n  }\n}\n\nfragment Commander_entries_1G22uz on Commander {\n  entries(first: $count, after: $cursor, sortBy: $sortBy, filters: {timePeriod: SIX_MONTHS, minEventSize: $minEventSize, maxStanding: $maxStanding}) {\n    edges {\n      node {\n        id\n        ...Commander_EntryCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
+    "text": "query CommanderEntriesQuery(\n  $count: Int = 48\n  $cursor: String\n  $maxStanding: Int\n  $minEventSize: Int\n  $sortBy: EntriesSortBy\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...Commander_entries_1G22uz\n    id\n  }\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    id\n  }\n}\n\nfragment Commander_entries_1G22uz on Commander {\n  entries(first: $count, after: $cursor, sortBy: $sortBy, filters: {timePeriod: SIX_MONTHS, minEventSize: $minEventSize, maxStanding: $maxStanding}) {\n    edges {\n      node {\n        id\n        ...Commander_EntryCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
   }
 };
 })();
 
-(node as any).hash = "268f9db7e01d94a8e6c2be13ae0cebf0";
+(node as any).hash = "0dfc402dd0752d6349288c9b0fcceb1e";
 
 export default node;

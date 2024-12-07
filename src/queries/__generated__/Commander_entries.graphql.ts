@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<057db46d7711c69378080518fe9386ff>>
+ * @generated SignedSource<<9ef013d5952f64be43560b250b806d4a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -41,7 +41,7 @@ v1 = {
 return {
   "argumentDefinitions": [
     {
-      "defaultValue": 24,
+      "defaultValue": 48,
       "kind": "LocalArgument",
       "name": "count"
     },
@@ -206,6 +206,6 @@ return {
 };
 })();
 
-(node as any).hash = "268f9db7e01d94a8e6c2be13ae0cebf0";
+(node as any).hash = "0dfc402dd0752d6349288c9b0fcceb1e";
 
 export default node;

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<ba89fbee30590fa74f68aeaa90e1712f>>
+ * @generated SignedSource<<3e15b2dcedf569309d86db6d968e0a02>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -87,7 +87,7 @@ v6 = [
   {
     "kind": "Literal",
     "name": "first",
-    "value": 24
+    "value": 48
   },
   {
     "kind": "Variable",
@@ -340,12 +340,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "da5cf2dc97f81b97532412645cc7caca",
+    "cacheID": "b4de46f86f1c5687872d83d13ad7538e",
     "id": null,
     "metadata": {},
     "name": "Commander_CommanderQuery",
     "operationKind": "query",
-    "text": "query Commander_CommanderQuery(\n  $commander: String!\n  $sortBy: EntriesSortBy!\n  $minEventSize: Int!\n  $maxStanding: Int\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    ...Commander_entries\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  imageUrls\n  colorId\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    id\n  }\n}\n\nfragment Commander_entries on Commander {\n  entries(first: 24, sortBy: $sortBy, filters: {timePeriod: SIX_MONTHS, minEventSize: $minEventSize, maxStanding: $maxStanding}) {\n    edges {\n      node {\n        id\n        ...Commander_EntryCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
+    "text": "query Commander_CommanderQuery(\n  $commander: String!\n  $sortBy: EntriesSortBy!\n  $minEventSize: Int!\n  $maxStanding: Int\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    ...Commander_entries\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  imageUrls\n  colorId\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    id\n  }\n}\n\nfragment Commander_entries on Commander {\n  entries(first: 48, sortBy: $sortBy, filters: {timePeriod: SIX_MONTHS, minEventSize: $minEventSize, maxStanding: $maxStanding}) {\n    edges {\n      node {\n        id\n        ...Commander_EntryCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
   }
 };
 })();
