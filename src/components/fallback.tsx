@@ -12,7 +12,7 @@ export function LoadingIcon({
   return (
     <div
       className={cn(
-        "flex w-full justify-center  text-white",
+        "flex w-full justify-center text-white",
         padding && "pt-24",
         className,
       )}
