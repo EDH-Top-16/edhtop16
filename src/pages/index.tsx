@@ -7,17 +7,17 @@ import { graphql, useFragment, usePreloadedQuery } from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { ColorIdentity } from "../assets/icons/colors";
 import { Card } from "../components/card";
+import { Footer } from "../components/footer";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
 import { formatPercent } from "../lib/client/format";
 import { getClientEnvironment } from "../lib/client/relay_client_environment";
 import {
+  CommandersSortBy,
   pages_CommandersQuery,
   TimePeriod,
-  TopCommandersSortBy,
 } from "../queries/__generated__/pages_CommandersQuery.graphql";
 import { pages_TopCommandersCard$key } from "../queries/__generated__/pages_TopCommandersCard.graphql";
-import { Footer } from "../components/footer";
 
 function TopCommandersCard({
   secondaryStatistic,
@@ -83,7 +83,7 @@ function CommandersPageShell({
   onUpdateQueryParam,
   children,
 }: PropsWithChildren<{
-  sortBy: TopCommandersSortBy;
+  sortBy: CommandersSortBy;
   timePeriod: TimePeriod;
   onUpdateQueryParam?: (key: string, value: string) => void;
 }>) {
@@ -127,6 +127,8 @@ function CommandersPageShell({
               <option value="ONE_MONTH">1 Month</option>
               <option value="THREE_MONTHS">3 Months</option>
               <option value="SIX_MONTHS">6 Months</option>
+              <option value="ONE_YEAR">1 Year</option>
+              <option value="ALL_TIME">All Time</option>
             </Select>
           </div>
         </div>
@@ -140,17 +142,21 @@ function CommandersPageShell({
 const CommandersQuery = graphql`
   query pages_CommandersQuery(
     $timePeriod: TimePeriod!
-    $sortBy: TopCommandersSortBy!
+    $sortBy: CommandersSortBy!
   ) {
-    topCommanders(timePeriod: $timePeriod, sortBy: $sortBy) {
-      id
-      ...pages_TopCommandersCard
+    commanders(first: 48, timePeriod: $timePeriod, sortBy: $sortBy) {
+      edges {
+        node {
+          id
+          ...pages_TopCommandersCard
+        }
+      }
     }
   }
 `;
 
 function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
-  const { topCommanders } = usePreloadedQuery(CommandersQuery, preloadedQuery);
+  const { commanders } = usePreloadedQuery(CommandersQuery, preloadedQuery);
 
   const router = useRouter();
   const setQueryVariable = useCallback(
@@ -169,10 +175,10 @@ function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
       onUpdateQueryParam={setQueryVariable}
     >
       <div className="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
-        {topCommanders.map((c) => (
+        {commanders.edges.map(({ node }) => (
           <TopCommandersCard
-            key={c.id}
-            commander={c}
+            key={node.id}
+            commander={node}
             secondaryStatistic={
               preloadedQuery.variables.sortBy === "CONVERSION"
                 ? "topCuts"
@@ -193,7 +199,7 @@ function CommandersPagePlaceholder() {
   return (
     <CommandersPageShell
       sortBy={
-        (router.query.sortBy as TopCommandersSortBy | undefined) ?? "CONVERSION"
+        (router.query.sortBy as CommandersSortBy | undefined) ?? "CONVERSION"
       }
       timePeriod={
         (router.query.timePeriod as TimePeriod | undefined) ?? "SIX_MONTHS"
@@ -219,7 +225,7 @@ export default withRelay(Commanders, CommandersQuery, {
   variablesFromContext: (ctx) => {
     return {
       timePeriod: (ctx.query.timePeriod as TimePeriod) ?? "SIX_MONTHS",
-      sortBy: (ctx.query.sortBy as TopCommandersSortBy) ?? "CONVERSION",
+      sortBy: (ctx.query.sortBy as CommandersSortBy) ?? "CONVERSION",
     };
   },
 });

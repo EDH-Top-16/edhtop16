@@ -1,9 +1,10 @@
+import { resolveOffsetConnection } from "@pothos/plugin-relay";
 import { Commander, Prisma } from "@prisma/client";
 import DataLoader from "dataloader";
 import { prisma } from "../prisma";
 import { scryfallCardSchema } from "../scryfall";
 import { builder } from "./builder";
-import { minDateFromTimePeriod, SortDirection, TimePeriod } from "./types";
+import { minDateFromTimePeriod, TimePeriod } from "./types";
 
 interface CommanderStatsQuery {
   uuid: string;
@@ -92,7 +93,7 @@ export function createCommanderStatsLoader(): CommanderStatsDataLoader {
   );
 }
 
-const TopCommandersSortBy = builder.enumType("TopCommandersSortBy", {
+const CommandersSortBy = builder.enumType("CommandersSortBy", {
   values: ["POPULARITY", "CONVERSION"] as const,
 });
 
@@ -239,104 +240,6 @@ const CommanderType = builder.prismaNode("Commander", {
   }),
 });
 
-builder.queryField("commanders", (t) =>
-  t.prismaField({
-    type: ["Commander"],
-    args: {
-      filters: t.arg({ type: FiltersInput }),
-      sortBy: t.arg({ type: CommanderSortBy, defaultValue: "TOP_CUTS" }),
-      sortDir: t.arg({ type: SortDirection, defaultValue: "DESC" }),
-    },
-    resolve: async (query, _root, args, ctx) => {
-      const topCut = args.filters?.topCut ?? 0;
-      const minEntries = args.filters?.minEntries ?? 0;
-      const maxEntries = args.filters?.maxEntries ?? Number.MAX_SAFE_INTEGER;
-      const minSize = args.filters?.minSize ?? 0;
-      const maxSize = args.filters?.maxSize ?? Number.MAX_SAFE_INTEGER;
-      const minDate = new Date(args.filters?.minDate ?? 0);
-      const maxDate = args.filters?.maxDate
-        ? new Date(args.filters.maxDate)
-        : new Date();
-      const colorIdFilter =
-        "%" +
-        (args.filters?.colorId ?? "")
-          ?.split("")
-          .filter((c) => "WUBRG".includes(c))
-          .join("%") +
-        "%";
-
-      const commanderStats = await prisma.$queryRaw<
-        (Commander & CommanderCalculatedStats)[]
-      >`
-      select
-        c.*,
-        count(c.uuid)::int as "count",
-        sum(case when e.standing <= t."topCut" then 1 else 0 end)::int as "topCuts",
-        sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e) as "conversionRate"
-      from "Commander" as c
-      left join "Entry" e on c.uuid = e."commanderUuid"
-      left join "Tournament" t on t.uuid = e."tournamentUuid"
-      where t.size >= ${minSize}
-      and t.size <= ${maxSize}
-      and t."topCut" >= ${topCut}
-      and t."tournamentDate" >= ${minDate}
-      and t."tournamentDate" <= ${maxDate}
-      and c."colorId" like ${colorIdFilter}
-      and c."name" != 'Unknown Commander'
-      group by c.uuid
-      having count(c.uuid) >= ${minEntries}
-      and count(c.uuid) <= ${maxEntries}
-      order by "topCuts" desc
-    `;
-
-      for (const { uuid, topCuts, conversionRate, count } of commanderStats) {
-        ctx.commanderStats.prime(
-          {
-            uuid,
-            topCut,
-            minSize,
-            minEntries,
-            minDate,
-            maxDate,
-            maxEntries,
-            maxSize,
-          },
-          { conversionRate, topCuts, count },
-        );
-      }
-
-      const sortOperator =
-        args.sortDir === "ASC"
-          ? (a: number, b: number) => a - b
-          : (a: number, b: number) => b - a;
-
-      if (args.sortBy === "TOP_CUTS") {
-        commanderStats.sort((a, b) => sortOperator(a.topCuts, b.topCuts));
-      } else if (args.sortBy === "ENTRIES") {
-        commanderStats.sort((a, b) => sortOperator(a.count, b.count));
-      } else if (args.sortBy === "CONVERSION") {
-        commanderStats.sort((a, b) =>
-          sortOperator(a.conversionRate, b.conversionRate),
-        );
-      } else if (args.sortBy === "NAME") {
-        commanderStats.sort((a, b) =>
-          args.sortDir === "ASC"
-            ? a.name.localeCompare(b.name, "en", {
-                sensitivity: "base",
-                usage: "sort",
-              })
-            : b.name.localeCompare(a.name, "en", {
-                sensitivity: "base",
-                usage: "sort",
-              }),
-        );
-      }
-
-      return commanderStats;
-    },
-  }),
-);
-
 builder.queryField("commander", (t) =>
   t.prismaField({
     type: "Commander",
@@ -363,43 +266,50 @@ builder.queryField("commanderNames", (t) =>
   }),
 );
 
-builder.queryField("topCommanders", (t) =>
-  t.field({
-    type: [CommanderType],
+builder.queryField("commanders", (t) =>
+  t.connection({
+    type: CommanderType,
     args: {
+      minEntries: t.arg.int(),
       timePeriod: t.arg({ type: TimePeriod, defaultValue: "ONE_MONTH" }),
-      sortBy: t.arg({ type: TopCommandersSortBy, defaultValue: "CONVERSION" }),
-      limit: t.arg({ type: "Int", defaultValue: 24 }),
+      sortBy: t.arg({ type: CommandersSortBy, defaultValue: "CONVERSION" }),
     },
-    resolve: async (_root, { timePeriod, sortBy, limit }) => {
-      const count = limit ?? 24;
-      const minDate = minDateFromTimePeriod(timePeriod ?? "ONE_MONTH");
-      const minCount =
-        timePeriod === "SIX_MONTHS"
-          ? 120
-          : timePeriod === "THREE_MONTHS"
-          ? 60
-          : 20;
+    resolve: async (_root, args) => {
+      return resolveOffsetConnection({ args }, ({ limit, offset }) => {
+        const minDate = minDateFromTimePeriod(args.timePeriod ?? "ONE_MONTH");
+        const minEntries =
+          args.minEntries ??
+          (args.timePeriod === "ALL_TIME"
+            ? 120
+            : args.timePeriod === "ONE_YEAR"
+            ? 120
+            : args.timePeriod === "SIX_MONTHS"
+            ? 120
+            : args.timePeriod === "THREE_MONTHS"
+            ? 60
+            : 20);
 
-      const orderBy =
-        sortBy === "POPULARITY"
-          ? Prisma.sql([`count(e)`])
-          : Prisma.sql([
-              `sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e)`,
-            ]);
+        const orderBy =
+          args.sortBy === "POPULARITY"
+            ? Prisma.sql([`count(e)`])
+            : Prisma.sql([
+                `sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e)`,
+              ]);
 
-      return prisma.$queryRaw<Commander[]>`
-        SELECT c.*
-        FROM "Commander" as c
-        LEFT JOIN "Entry" e on e."commanderUuid" = c.uuid
-        LEFT JOIN "Tournament" t on t.uuid = e."tournamentUuid"
-        WHERE c.name != 'Unknown Commander'
-        AND t."tournamentDate" >= ${minDate}
-        GROUP BY c.uuid
-        HAVING count(e) >= ${minCount}
-        ORDER BY ${orderBy} DESC
-        LIMIT ${count}
-      `;
+        return prisma.$queryRaw<Commander[]>`
+          SELECT c.*
+          FROM "Commander" as c
+          LEFT JOIN "Entry" e on e."commanderUuid" = c.uuid
+          LEFT JOIN "Tournament" t on t.uuid = e."tournamentUuid"
+          WHERE c.name != 'Unknown Commander'
+          AND t."tournamentDate" >= ${minDate}
+          GROUP BY c.uuid
+          HAVING count(e) >= ${minEntries}
+          ORDER BY ${orderBy} DESC
+          LIMIT ${limit}
+          OFFSET ${offset}
+        `;
+      });
     },
   }),
 );

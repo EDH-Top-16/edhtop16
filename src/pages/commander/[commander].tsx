@@ -4,7 +4,12 @@ import { NextSeo } from "next-seo";
 import { useRouter } from "next/router";
 import { PropsWithChildren, Suspense, useCallback } from "react";
 import { Tabs } from "react-aria-components";
-import { useFragment, useLazyLoadQuery, usePreloadedQuery } from "react-relay";
+import {
+  useFragment,
+  useLazyLoadQuery,
+  usePaginationFragment,
+  usePreloadedQuery,
+} from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { graphql } from "relay-runtime";
 import { ColorIdentity } from "../../assets/icons/colors";
@@ -25,6 +30,8 @@ import {
   EntriesSortBy,
 } from "../../queries/__generated__/Commander_CommanderQuery.graphql";
 import { Commander_EntryCard$key } from "../../queries/__generated__/Commander_EntryCard.graphql";
+import { Commander_entries$key } from "../../queries/__generated__/Commander_entries.graphql";
+import { CommanderEntriesQuery } from "../../queries/__generated__/CommanderEntriesQuery.graphql";
 
 function EntryCard(props: { entry: Commander_EntryCard$key }) {
   const entry = useFragment(
@@ -260,23 +267,7 @@ const CommanderQuery = graphql`
   ) {
     commander(name: $commander) {
       ...Commander_CommanderPageShell
-
-      entries(
-        first: 24
-        sortBy: $sortBy
-        filters: {
-          timePeriod: SIX_MONTHS
-          minEventSize: $minEventSize
-          maxStanding: $maxStanding
-        }
-      ) {
-        edges {
-          node {
-            id
-            ...Commander_EntryCard
-          }
-        }
-      }
+      ...Commander_entries
     }
   }
 `;
@@ -301,6 +292,39 @@ function CommanderPage({
     [router],
   );
 
+  const { data, loadNext, isLoadingNext } = usePaginationFragment<
+    CommanderEntriesQuery,
+    Commander_entries$key
+  >(
+    graphql`
+      fragment Commander_entries on Commander
+      @argumentDefinitions(
+        cursor: { type: "String" }
+        count: { type: "Int", defaultValue: 48 }
+      )
+      @refetchable(queryName: "CommanderEntriesQuery") {
+        entries(
+          first: $count
+          after: $cursor
+          sortBy: $sortBy
+          filters: {
+            timePeriod: SIX_MONTHS
+            minEventSize: $minEventSize
+            maxStanding: $maxStanding
+          }
+        ) @connection(key: "Commander_entries") {
+          edges {
+            node {
+              id
+              ...Commander_EntryCard
+            }
+          }
+        }
+      }
+    `,
+    commander,
+  );
+
   return (
     <CommanderPageShell
       commander={commander}
@@ -316,10 +340,23 @@ function CommanderPage({
           />
         )}
 
-        {commander.entries.edges.map(({ node }) => (
+        {data.entries.edges.map(({ node }) => (
           <EntryCard key={node.id} entry={node} />
         ))}
       </div>
+
+      {isLoadingNext ? (
+        <LoadingIcon padding={false} className="self-center" />
+      ) : (
+        <button
+          className="inset-shadow-sm mx-auto flex justify-center self-center rounded-md bg-[#312d5a] px-4 py-2 font-title text-sm text-white shadow-md"
+          onClick={() => {
+            loadNext(48);
+          }}
+        >
+          Load More
+        </button>
+      )}
 
       <Footer />
     </CommanderPageShell>

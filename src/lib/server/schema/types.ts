@@ -7,13 +7,23 @@ export const SortDirection = builder.enumType("SortDirection", {
 });
 
 export const TimePeriod = builder.enumType("TimePeriod", {
-  values: ["ONE_MONTH", "THREE_MONTHS", "SIX_MONTHS"] as const,
+  values: [
+    "ONE_MONTH",
+    "THREE_MONTHS",
+    "SIX_MONTHS",
+    "ONE_YEAR",
+    "ALL_TIME",
+  ] as const,
 });
 
 export function minDateFromTimePeriod(
   timePeriod: (typeof TimePeriod)["$inferType"] | null | undefined,
 ) {
-  return timePeriod === "SIX_MONTHS"
+  return timePeriod === "ALL_TIME"
+    ? new Date(0)
+    : timePeriod === "ONE_YEAR"
+    ? subMonths(new Date(), 12)
+    : timePeriod === "SIX_MONTHS"
     ? subMonths(new Date(), 6)
     : timePeriod === "THREE_MONTHS"
     ? subMonths(new Date(), 3)

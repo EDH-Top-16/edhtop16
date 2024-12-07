@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<a899d59ac5cf1e1bb66c4ed9d0d43e68>>
+ * @generated SignedSource<<3e15b2dcedf569309d86db6d968e0a02>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -19,15 +19,7 @@ export type Commander_CommanderQuery$variables = {
 };
 export type Commander_CommanderQuery$data = {
   readonly commander: {
-    readonly entries: {
-      readonly edges: ReadonlyArray<{
-        readonly node: {
-          readonly id: string;
-          readonly " $fragmentSpreads": FragmentRefs<"Commander_EntryCard">;
-        };
-      }>;
-    };
-    readonly " $fragmentSpreads": FragmentRefs<"Commander_CommanderPageShell">;
+    readonly " $fragmentSpreads": FragmentRefs<"Commander_CommanderPageShell" | "Commander_entries">;
   };
 };
 export type Commander_CommanderQuery = {
@@ -63,7 +55,14 @@ v4 = [
     "variableName": "commander"
   }
 ],
-v5 = [
+v5 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
+  "storageKey": null
+},
+v6 = [
   {
     "fields": [
       {
@@ -88,7 +87,7 @@ v5 = [
   {
     "kind": "Literal",
     "name": "first",
-    "value": 24
+    "value": 48
   },
   {
     "kind": "Variable",
@@ -96,18 +95,11 @@ v5 = [
     "variableName": "sortBy"
   }
 ],
-v6 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "id",
-  "storageKey": null
-},
 v7 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "name",
+  "name": "id",
   "storageKey": null
 };
 return {
@@ -136,43 +128,9 @@ return {
             "name": "Commander_CommanderPageShell"
           },
           {
-            "alias": null,
-            "args": (v5/*: any*/),
-            "concreteType": "CommanderEntriesConnection",
-            "kind": "LinkedField",
-            "name": "entries",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "CommanderEntriesConnectionEdge",
-                "kind": "LinkedField",
-                "name": "edges",
-                "plural": true,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "Entry",
-                    "kind": "LinkedField",
-                    "name": "node",
-                    "plural": false,
-                    "selections": [
-                      (v6/*: any*/),
-                      {
-                        "args": null,
-                        "kind": "FragmentSpread",
-                        "name": "Commander_EntryCard"
-                      }
-                    ],
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
-            ],
-            "storageKey": null
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "Commander_entries"
           }
         ],
         "storageKey": null
@@ -200,7 +158,7 @@ return {
         "name": "commander",
         "plural": false,
         "selections": [
-          (v7/*: any*/),
+          (v5/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -217,7 +175,7 @@ return {
           },
           {
             "alias": null,
-            "args": (v5/*: any*/),
+            "args": (v6/*: any*/),
             "concreteType": "CommanderEntriesConnection",
             "kind": "LinkedField",
             "name": "entries",
@@ -239,7 +197,7 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v6/*: any*/),
+                      (v7/*: any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -283,8 +241,8 @@ return {
                         "name": "player",
                         "plural": false,
                         "selections": [
-                          (v7/*: any*/),
-                          (v6/*: any*/)
+                          (v5/*: any*/),
+                          (v7/*: any*/)
                         ],
                         "storageKey": null
                       },
@@ -296,7 +254,7 @@ return {
                         "name": "tournament",
                         "plural": false,
                         "selections": [
-                          (v7/*: any*/),
+                          (v5/*: any*/),
                           {
                             "alias": null,
                             "args": null,
@@ -311,11 +269,50 @@ return {
                             "name": "tournamentDate",
                             "storageKey": null
                           },
-                          (v6/*: any*/)
+                          (v7/*: any*/)
                         ],
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "__typename",
                         "storageKey": null
                       }
                     ],
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "cursor",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "PageInfo",
+                "kind": "LinkedField",
+                "name": "pageInfo",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "endCursor",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "hasNextPage",
                     "storageKey": null
                   }
                 ],
@@ -324,23 +321,35 @@ return {
             ],
             "storageKey": null
           },
-          (v6/*: any*/)
+          {
+            "alias": null,
+            "args": (v6/*: any*/),
+            "filters": [
+              "sortBy",
+              "filters"
+            ],
+            "handle": "connection",
+            "key": "Commander_entries",
+            "kind": "LinkedHandle",
+            "name": "entries"
+          },
+          (v7/*: any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "cacheID": "4d00660ce600318210d0816692458b55",
+    "cacheID": "b4de46f86f1c5687872d83d13ad7538e",
     "id": null,
     "metadata": {},
     "name": "Commander_CommanderQuery",
     "operationKind": "query",
-    "text": "query Commander_CommanderQuery(\n  $commander: String!\n  $sortBy: EntriesSortBy!\n  $minEventSize: Int!\n  $maxStanding: Int\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    entries(first: 24, sortBy: $sortBy, filters: {timePeriod: SIX_MONTHS, minEventSize: $minEventSize, maxStanding: $maxStanding}) {\n      edges {\n        node {\n          id\n          ...Commander_EntryCard\n        }\n      }\n    }\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  imageUrls\n  colorId\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    id\n  }\n}\n"
+    "text": "query Commander_CommanderQuery(\n  $commander: String!\n  $sortBy: EntriesSortBy!\n  $minEventSize: Int!\n  $maxStanding: Int\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    ...Commander_entries\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  imageUrls\n  colorId\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    id\n  }\n}\n\nfragment Commander_entries on Commander {\n  entries(first: 48, sortBy: $sortBy, filters: {timePeriod: SIX_MONTHS, minEventSize: $minEventSize, maxStanding: $maxStanding}) {\n    edges {\n      node {\n        id\n        ...Commander_EntryCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
   }
 };
 })();
 
-(node as any).hash = "90d8451d70d1a74b2a39a6d67e2504cb";
+(node as any).hash = "62443f235644239a92d5f77b7b5996a5";
 
 export default node;
