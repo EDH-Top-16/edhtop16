@@ -7,6 +7,19 @@ const nextConfig = {
       },
     ],
   },
+  headers: async () => {
+    return [
+      {
+        source: "/api/:path*",
+        headers: [
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*",
+          },
+        ],
+      },
+    ];
+  },
   compiler: { relay: require("./relay.config") },
   webpack: (config, { isServer, webpack }) => {
     if (!isServer) {
