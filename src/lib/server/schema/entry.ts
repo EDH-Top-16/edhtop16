@@ -3,6 +3,7 @@ import { prisma } from "../prisma";
 import { builder } from "./builder";
 import { Entry, Prisma } from "@prisma/client";
 import { TopdeckTournamentTableType } from "./types";
+import { scryfallCardSchema } from "../scryfall";
 
 export type EntryDataLoader = DataLoader<
   { TID: string; topdeckProfile: string },
@@ -113,6 +114,49 @@ export const EntryType = builder.prismaObject("Entry", {
               .map((r) => ({ ...r, TID, roundName: `${round.round}` })),
           ) ?? []
         );
+      },
+    }),
+    maindeck: t.field({
+      type: t.listRef(Card),
+      resolve: async (parent) => {
+        const decklistItems = await prisma.decklistItem.findMany({
+          where: { entryUuid: parent.uuid },
+          include: { card: true },
+        });
+
+        return decklistItems.map((item) => item.card);
+      },
+    }),
+  }),
+});
+
+export const Card = builder.prismaObject("Card", {
+  fields: (t) => ({
+    id: t.exposeID("uuid"),
+    name: t.exposeString("name"),
+    oracleId: t.exposeString("oracleId"),
+    cmc: t.int({
+      resolve: (parent) => {
+        return scryfallCardSchema.parse(parent.data).cmc;
+      },
+    }),
+    colorId: t.string({
+      resolve: (parent) => {
+        const colorIdentity = new Set(
+          scryfallCardSchema.parse(parent.data).color_identity,
+        );
+
+        let colorId: string = "";
+        for (const c of ["W", "U", "B", "R", "G", "C"]) {
+          if (colorIdentity.has(c)) colorId += c;
+        }
+
+        return colorId || "C";
+      },
+    }),
+    type: t.string({
+      resolve: (parent) => {
+        return scryfallCardSchema.parse(parent.data).type_line;
       },
     }),
   }),
