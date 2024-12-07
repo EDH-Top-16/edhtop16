@@ -71,6 +71,11 @@ input CommanderStatsFilters {
   topCut: Int
 }
 
+enum CommandersSortBy {
+  CONVERSION
+  POPULARITY
+}
+
 input EntriesFilter {
   maxStanding: Int
   minEventSize: Int = 60
@@ -161,18 +166,17 @@ type Query {
   commander(name: String!): Commander!
   commanderNames: [String!]!
   commanders(
-    filters: CommanderStatsFilters
-    sortBy: CommanderSortBy = TOP_CUTS
-    sortDir: SortDirection = DESC
-  ): [Commander!]!
+    after: String
+    before: String
+    first: Int
+    last: Int
+    minEntries: Int
+    sortBy: CommandersSortBy = CONVERSION
+    timePeriod: TimePeriod = ONE_MONTH
+  ): QueryCommandersConnection!
   node(id: ID!): Node
   nodes(ids: [ID!]!): [Node]!
   player(profile: String!): Player!
-  topCommanders(
-    limit: Int = 24
-    sortBy: TopCommandersSortBy = CONVERSION
-    timePeriod: TimePeriod = ONE_MONTH
-  ): [Commander!]!
   tournament(TID: String!): Tournament!
   tournaments(
     filters: TournamentFilters
@@ -181,20 +185,27 @@ type Query {
   ): [Tournament!]!
 }
 
+type QueryCommandersConnection {
+  edges: [QueryCommandersConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryCommandersConnectionEdge {
+  cursor: String!
+  node: Commander!
+}
+
 enum SortDirection {
   ASC
   DESC
 }
 
 enum TimePeriod {
+  ALL_TIME
   ONE_MONTH
+  ONE_YEAR
   SIX_MONTHS
   THREE_MONTHS
-}
-
-enum TopCommandersSortBy {
-  CONVERSION
-  POPULARITY
 }
 
 type TopdeckTournamentRound {
