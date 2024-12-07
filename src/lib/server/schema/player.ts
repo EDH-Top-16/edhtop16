@@ -1,9 +1,9 @@
 import { prisma } from "../prisma";
 import { builder } from "./builder";
 
-const PlayerType = builder.prismaObject("Player", {
+export const PlayerType = builder.prismaNode("Player", {
+  id: { field: "uuid" },
   fields: (t) => ({
-    id: t.exposeID("uuid"),
     name: t.exposeString("name"),
     topdeckProfile: t.exposeString("topdeckProfile", { nullable: true }),
     entries: t.relation("entries"),
@@ -21,7 +21,7 @@ const PlayerType = builder.prismaObject("Player", {
       },
     }),
     losses: t.int({
-      resolve: async (parent, _args, ctx) => {
+      resolve: async (parent, _args) => {
         const aggregateLosses = await prisma.entry.aggregate({
           _sum: { lossesBracket: true, lossesSwiss: true },
           where: { playerUuid: parent.uuid },
