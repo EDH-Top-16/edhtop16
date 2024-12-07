@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<1a4b2c670a278f975a073284c1c5ce66>>
+ * @generated SignedSource<<a899d59ac5cf1e1bb66c4ed9d0d43e68>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,19 +10,23 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type TopCommandersTopEntriesSortBy = "NEW" | "TOP" | "%future added value";
+export type EntriesSortBy = "NEW" | "TOP" | "%future added value";
 export type Commander_CommanderQuery$variables = {
   commander: string;
   maxStanding?: number | null | undefined;
   minEventSize: number;
-  sortBy: TopCommandersTopEntriesSortBy;
+  sortBy: EntriesSortBy;
 };
 export type Commander_CommanderQuery$data = {
   readonly commander: {
-    readonly topEntries: ReadonlyArray<{
-      readonly id: string;
-      readonly " $fragmentSpreads": FragmentRefs<"Commander_EntryCard">;
-    }>;
+    readonly entries: {
+      readonly edges: ReadonlyArray<{
+        readonly node: {
+          readonly id: string;
+          readonly " $fragmentSpreads": FragmentRefs<"Commander_EntryCard">;
+        };
+      }>;
+    };
     readonly " $fragmentSpreads": FragmentRefs<"Commander_CommanderPageShell">;
   };
 };
@@ -82,6 +86,11 @@ v5 = [
     "name": "filters"
   },
   {
+    "kind": "Literal",
+    "name": "first",
+    "value": 24
+  },
+  {
     "kind": "Variable",
     "name": "sortBy",
     "variableName": "sortBy"
@@ -129,16 +138,38 @@ return {
           {
             "alias": null,
             "args": (v5/*: any*/),
-            "concreteType": "Entry",
+            "concreteType": "CommanderEntriesConnection",
             "kind": "LinkedField",
-            "name": "topEntries",
-            "plural": true,
+            "name": "entries",
+            "plural": false,
             "selections": [
-              (v6/*: any*/),
               {
+                "alias": null,
                 "args": null,
-                "kind": "FragmentSpread",
-                "name": "Commander_EntryCard"
+                "concreteType": "CommanderEntriesConnectionEdge",
+                "kind": "LinkedField",
+                "name": "edges",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "Entry",
+                    "kind": "LinkedField",
+                    "name": "node",
+                    "plural": false,
+                    "selections": [
+                      (v6/*: any*/),
+                      {
+                        "args": null,
+                        "kind": "FragmentSpread",
+                        "name": "Commander_EntryCard"
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
               }
             ],
             "storageKey": null
@@ -187,84 +218,106 @@ return {
           {
             "alias": null,
             "args": (v5/*: any*/),
-            "concreteType": "Entry",
+            "concreteType": "CommanderEntriesConnection",
             "kind": "LinkedField",
-            "name": "topEntries",
-            "plural": true,
+            "name": "entries",
+            "plural": false,
             "selections": [
-              (v6/*: any*/),
               {
                 "alias": null,
                 "args": null,
-                "kind": "ScalarField",
-                "name": "standing",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "wins",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "losses",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "draws",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "decklist",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "Player",
+                "concreteType": "CommanderEntriesConnectionEdge",
                 "kind": "LinkedField",
-                "name": "player",
-                "plural": false,
+                "name": "edges",
+                "plural": true,
                 "selections": [
-                  (v7/*: any*/),
-                  (v6/*: any*/)
-                ],
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "Tournament",
-                "kind": "LinkedField",
-                "name": "tournament",
-                "plural": false,
-                "selections": [
-                  (v7/*: any*/),
                   {
                     "alias": null,
                     "args": null,
-                    "kind": "ScalarField",
-                    "name": "size",
+                    "concreteType": "Entry",
+                    "kind": "LinkedField",
+                    "name": "node",
+                    "plural": false,
+                    "selections": [
+                      (v6/*: any*/),
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "standing",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "wins",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "losses",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "draws",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "decklist",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "Player",
+                        "kind": "LinkedField",
+                        "name": "player",
+                        "plural": false,
+                        "selections": [
+                          (v7/*: any*/),
+                          (v6/*: any*/)
+                        ],
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "Tournament",
+                        "kind": "LinkedField",
+                        "name": "tournament",
+                        "plural": false,
+                        "selections": [
+                          (v7/*: any*/),
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "size",
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "tournamentDate",
+                            "storageKey": null
+                          },
+                          (v6/*: any*/)
+                        ],
+                        "storageKey": null
+                      }
+                    ],
                     "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "tournamentDate",
-                    "storageKey": null
-                  },
-                  (v6/*: any*/)
+                  }
                 ],
                 "storageKey": null
               }
@@ -278,16 +331,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "18b3051490f113c9c538b2bfa1de8d1a",
+    "cacheID": "4d00660ce600318210d0816692458b55",
     "id": null,
     "metadata": {},
     "name": "Commander_CommanderQuery",
     "operationKind": "query",
-    "text": "query Commander_CommanderQuery(\n  $commander: String!\n  $sortBy: TopCommandersTopEntriesSortBy!\n  $minEventSize: Int!\n  $maxStanding: Int\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    topEntries(sortBy: $sortBy, filters: {timePeriod: SIX_MONTHS, minEventSize: $minEventSize, maxStanding: $maxStanding}) {\n      id\n      ...Commander_EntryCard\n    }\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  imageUrls\n  colorId\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    id\n  }\n}\n"
+    "text": "query Commander_CommanderQuery(\n  $commander: String!\n  $sortBy: EntriesSortBy!\n  $minEventSize: Int!\n  $maxStanding: Int\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    entries(first: 24, sortBy: $sortBy, filters: {timePeriod: SIX_MONTHS, minEventSize: $minEventSize, maxStanding: $maxStanding}) {\n      edges {\n        node {\n          id\n          ...Commander_EntryCard\n        }\n      }\n    }\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  imageUrls\n  colorId\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    id\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "3ac217cf66c763611c0826634bb48dbb";
+(node as any).hash = "90d8451d70d1a74b2a39a6d67e2504cb";
 
 export default node;

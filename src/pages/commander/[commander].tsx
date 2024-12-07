@@ -22,7 +22,7 @@ import { Commander_CommanderPageFallbackQuery } from "../../queries/__generated_
 import { Commander_CommanderPageShell$key } from "../../queries/__generated__/Commander_CommanderPageShell.graphql";
 import {
   Commander_CommanderQuery,
-  TopCommandersTopEntriesSortBy,
+  EntriesSortBy,
 } from "../../queries/__generated__/Commander_CommanderQuery.graphql";
 import { Commander_EntryCard$key } from "../../queries/__generated__/Commander_EntryCard.graphql";
 
@@ -163,7 +163,7 @@ function CommanderPageShell({
   children,
   ...props
 }: PropsWithChildren<{
-  sortBy: TopCommandersTopEntriesSortBy;
+  sortBy: EntriesSortBy;
   commander: Commander_CommanderPageShell$key;
   onUpdateQueryParam?: (key: string, value: string) => void;
 }>) {
@@ -254,14 +254,15 @@ function RecentEntriesFilterCard({
 const CommanderQuery = graphql`
   query Commander_CommanderQuery(
     $commander: String!
-    $sortBy: TopCommandersTopEntriesSortBy!
+    $sortBy: EntriesSortBy!
     $minEventSize: Int!
     $maxStanding: Int
   ) {
     commander(name: $commander) {
       ...Commander_CommanderPageShell
 
-      topEntries(
+      entries(
+        first: 24
         sortBy: $sortBy
         filters: {
           timePeriod: SIX_MONTHS
@@ -269,8 +270,12 @@ const CommanderQuery = graphql`
           maxStanding: $maxStanding
         }
       ) {
-        id
-        ...Commander_EntryCard
+        edges {
+          node {
+            id
+            ...Commander_EntryCard
+          }
+        }
       }
     }
   }
@@ -279,8 +284,6 @@ const CommanderQuery = graphql`
 function CommanderPage({
   preloadedQuery,
 }: RelayProps<{}, Commander_CommanderQuery>) {
-  // return <CommanderPageFallback />;
-
   const { commander } = usePreloadedQuery(CommanderQuery, preloadedQuery);
 
   const router = useRouter();
@@ -313,8 +316,8 @@ function CommanderPage({
           />
         )}
 
-        {commander.topEntries.map((entry) => (
-          <EntryCard key={entry.id} entry={entry} />
+        {commander.entries.edges.map(({ node }) => (
+          <EntryCard key={node.id} entry={node} />
         ))}
       </div>
 
@@ -341,7 +344,7 @@ function CommanderPageFallback() {
   return (
     <CommanderPageShell
       commander={commander}
-      sortBy={router.query.sortBy as TopCommandersTopEntriesSortBy}
+      sortBy={router.query.sortBy as EntriesSortBy}
     >
       {router.query.sortBy === "NEW" ? (
         <div className="mx-auto flex grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
@@ -379,7 +382,7 @@ export default withRelay(CommanderPage, CommanderQuery, {
   variablesFromContext: (ctx) => {
     return {
       commander: ctx.query.commander as string,
-      sortBy: (ctx.query.sortBy ?? "TOP") as TopCommandersTopEntriesSortBy,
+      sortBy: (ctx.query.sortBy ?? "TOP") as EntriesSortBy,
       minEventSize:
         ctx.query.sortBy === "TOP"
           ? 60

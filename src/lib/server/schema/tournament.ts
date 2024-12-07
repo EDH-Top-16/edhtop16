@@ -92,9 +92,9 @@ TournamentBreakdownGroupType.implement({
   }),
 });
 
-export const TournamentType = builder.prismaObject("Tournament", {
+export const TournamentType = builder.prismaNode("Tournament", {
+  id: { field: "uuid" },
   fields: (t) => ({
-    id: t.exposeID("uuid"),
     TID: t.exposeString("TID"),
     name: t.exposeString("name"),
     size: t.exposeInt("size"),

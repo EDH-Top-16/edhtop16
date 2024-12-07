@@ -60,9 +60,9 @@ export const EntrySortBy = builder.enumType("EntrySortBy", {
   values: ["STANDING", "WINS", "LOSSES", "DRAWS", "WINRATE", "DATE"] as const,
 });
 
-export const EntryType = builder.prismaObject("Entry", {
+export const EntryType = builder.prismaNode("Entry", {
+  id: { field: "uuid" },
   fields: (t) => ({
-    id: t.exposeID("uuid"),
     standing: t.exposeInt("standing"),
     decklist: t.exposeString("decklist", { nullable: true }),
     winsSwiss: t.exposeInt("winsSwiss"),
@@ -130,9 +130,9 @@ export const EntryType = builder.prismaObject("Entry", {
   }),
 });
 
-export const Card = builder.prismaObject("Card", {
+export const Card = builder.prismaNode("Card", {
+  id: { field: "uuid" },
   fields: (t) => ({
-    id: t.exposeID("uuid"),
     name: t.exposeString("name"),
     oracleId: t.exposeString("oracleId"),
     cmc: t.int({
