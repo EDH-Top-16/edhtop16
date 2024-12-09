@@ -32,10 +32,12 @@ function TopCommandersCard({
         name
         colorId
         imageUrls
-        conversionRate(filters: { timePeriod: $timePeriod })
-        topCuts(filters: { timePeriod: $timePeriod })
-        count(filters: { timePeriod: $timePeriod })
         breakdownUrl
+        stats(filters: { timePeriod: $timePeriod }) {
+          conversionRate
+          topCuts
+          count
+        }
       }
     `,
     props.commander,
@@ -43,13 +45,13 @@ function TopCommandersCard({
 
   const commanderStats = useMemo(() => {
     const stats = [
-      `Conversion Rate: ${formatPercent(commander.conversionRate)}`,
+      `Conversion Rate: ${formatPercent(commander.stats.conversionRate)}`,
     ];
 
     if (secondaryStatistic === "count") {
-      stats.push(`Entries: ${commander.count}`);
+      stats.push(`Entries: ${commander.stats.count}`);
     } else if (secondaryStatistic === "topCuts") {
-      stats.push(`Top Cuts: ${commander.topCuts}`);
+      stats.push(`Top Cuts: ${commander.stats.topCuts}`);
     }
 
     return stats.join(" / ");

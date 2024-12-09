@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<7f61eb405c4f8bacaa0ae1f2fbe37990>>
+ * @generated SignedSource<<d2de474dd2e7c6b34a946691533f39f6>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -66,16 +66,7 @@ v4 = {
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
-},
-v5 = [
-  {
-    "fields": [
-      (v2/*: any*/)
-    ],
-    "kind": "ObjectValue",
-    "name": "filters"
-  }
-];
+};
 return {
   "fragment": {
     "argumentDefinitions": [
@@ -186,30 +177,49 @@ return {
                   },
                   {
                     "alias": null,
-                    "args": (v5/*: any*/),
-                    "kind": "ScalarField",
-                    "name": "conversionRate",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": (v5/*: any*/),
-                    "kind": "ScalarField",
-                    "name": "topCuts",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": (v5/*: any*/),
-                    "kind": "ScalarField",
-                    "name": "count",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
                     "args": null,
                     "kind": "ScalarField",
                     "name": "breakdownUrl",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": [
+                      {
+                        "fields": [
+                          (v2/*: any*/)
+                        ],
+                        "kind": "ObjectValue",
+                        "name": "filters"
+                      }
+                    ],
+                    "concreteType": "CommanderStats",
+                    "kind": "LinkedField",
+                    "name": "stats",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "conversionRate",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "topCuts",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "count",
+                        "storageKey": null
+                      }
+                    ],
                     "storageKey": null
                   }
                 ],
@@ -224,12 +234,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "39a3f27dd9b914f832557a4559041123",
+    "cacheID": "3bccec020fbdd82cc53e2b57d1123d01",
     "id": null,
     "metadata": {},
     "name": "pages_CommandersQuery",
     "operationKind": "query",
-    "text": "query pages_CommandersQuery(\n  $timePeriod: TimePeriod!\n  $sortBy: CommandersSortBy!\n) {\n  commanders(first: 48, timePeriod: $timePeriod, sortBy: $sortBy) {\n    edges {\n      node {\n        id\n        ...pages_TopCommandersCard\n      }\n    }\n  }\n}\n\nfragment pages_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  conversionRate(filters: {timePeriod: $timePeriod})\n  topCuts(filters: {timePeriod: $timePeriod})\n  count(filters: {timePeriod: $timePeriod})\n  breakdownUrl\n}\n"
+    "text": "query pages_CommandersQuery(\n  $timePeriod: TimePeriod!\n  $sortBy: CommandersSortBy!\n) {\n  commanders(first: 48, timePeriod: $timePeriod, sortBy: $sortBy) {\n    edges {\n      node {\n        id\n        ...pages_TopCommandersCard\n      }\n    }\n  }\n}\n\nfragment pages_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  breakdownUrl\n  stats(filters: {timePeriod: $timePeriod}) {\n    conversionRate\n    topCuts\n    count\n  }\n}\n"
   }
 };
 })();

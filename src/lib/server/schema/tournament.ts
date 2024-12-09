@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Entry, Prisma } from "@prisma/client";
 import { prisma } from "../prisma";
 import { builder } from "./builder";
 import { EntryType } from "./entry";
@@ -14,17 +14,27 @@ TopdeckTournamentTableType.implement({
   fields: (t) => ({
     table: t.exposeInt("table"),
     roundName: t.exposeString("roundName"),
-    entries: t.field({
-      type: t.listRef(EntryType, { nullable: true }),
-      resolve: async (parent, args, ctx) => {
-        const entries = await ctx.entries.loadMany(
-          parent.players.map((p) => ({
-            TID: parent.TID,
-            topdeckProfile: p.id,
-          })),
-        );
+    entries: t.loadable({
+      type: [EntryType],
+      resolve: (parent) => {
+        return parent.players.map((p) => ({
+          TID: parent.TID,
+          profile: p.id,
+        }));
+      },
+      load: async (keys: { TID: string; profile: string }[]) => {
+        const entries = await prisma.$queryRaw<(Entry & { key: string })[]>`
+        select e.*, t."TID" || ':' || p."topdeckProfile" as key
+        from "Entry" as e
+        left join "Tournament" t on t.uuid = e."tournamentUuid"
+        left join "Player" p on p.uuid = e."playerUuid"
+        where t."TID" || ':' || p."topdeckProfile" in (${Prisma.join(
+          keys.map((e) => `${e.TID}:${e.profile}`),
+        )})
+      `;
 
-        return entries.map((e) => (e instanceof Error ? undefined : e));
+        const entriesByKey = new Map(entries.map((e) => [e.key, e]));
+        return keys.map((e) => entriesByKey.get(`${e.TID}:${e.profile}`)!);
       },
     }),
     winnerSeatPosition: t.int({
@@ -41,16 +51,20 @@ TopdeckTournamentTableType.implement({
     winner: t.field({
       type: EntryType,
       nullable: true,
-      resolve: async (parent, _args, ctx) => {
+      resolve: (parent) => {
         const winnerPlayer = parent.players.find(
           (p) => p.name === parent.winner,
         );
 
-        if (winnerPlayer == null) return null;
+        if (winnerPlayer == null) {
+          return null;
+        }
 
-        return await ctx.entries.load({
-          TID: parent.TID,
-          topdeckProfile: winnerPlayer.id,
+        return prisma.entry.findFirst({
+          where: {
+            tournament: { TID: parent.TID },
+            player: { topdeckProfile: winnerPlayer.id },
+          },
         });
       },
     }),
