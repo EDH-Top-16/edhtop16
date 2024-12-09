@@ -6,99 +6,8 @@ import { scryfallCardSchema } from "../scryfall";
 import { builder } from "./builder";
 import { minDateFromTimePeriod, TimePeriod } from "./types";
 
-interface CommanderStatsQuery {
-  uuid: string;
-  topCut: number;
-  minSize: number;
-  minEntries: number;
-  minDate: Date;
-  maxSize: number;
-  maxEntries: number;
-  maxDate: Date;
-}
-
-interface CommanderCalculatedStats {
-  count: number;
-  topCuts: number;
-  conversionRate: number;
-}
-
-export type CommanderStatsDataLoader = DataLoader<
-  CommanderStatsQuery,
-  CommanderCalculatedStats,
-  string
->;
-
-export function createCommanderStatsLoader(): CommanderStatsDataLoader {
-  return new DataLoader<CommanderStatsQuery, CommanderCalculatedStats, string>(
-    async (commanders) => {
-      const stats = await Promise.all(
-        commanders.map(
-          async ({
-            uuid,
-            topCut,
-            minSize,
-            minEntries,
-            minDate,
-            maxDate,
-            maxEntries,
-            maxSize,
-          }) => {
-            return prisma.$queryRaw<(Commander & CommanderCalculatedStats)[]>`
-              select
-                c.*,
-                count(c.uuid)::int as "count",
-                sum(case when e.standing <= t."topCut" then 1 else 0 end)::int as "topCuts",
-                sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e) as "conversionRate"
-              from "Commander" as c
-              left join "Entry" e on c.uuid = e."commanderUuid"
-              left join "Tournament" t on t.uuid = e."tournamentUuid"
-              where t.size >= ${minSize}
-              and t.size <= ${maxSize}
-              and t."topCut" >= ${topCut}
-              and t."tournamentDate" >= ${minDate}
-              and t."tournamentDate" <= ${maxDate}
-              and c.uuid = ${uuid}::uuid
-              group by c.uuid
-              having count(c.uuid) >= ${minEntries}
-              and count(c.uuid) <= ${maxEntries}
-            `;
-          },
-        ),
-      );
-
-      const statsByCommanderUuid = new Map<string, CommanderCalculatedStats>();
-
-      for (const { uuid, conversionRate, count, topCuts } of stats.flat()) {
-        statsByCommanderUuid.set(uuid, {
-          conversionRate,
-          count,
-          topCuts,
-        });
-      }
-
-      return commanders.map(
-        ({ uuid }) =>
-          statsByCommanderUuid.get(uuid) ?? {
-            topCuts: 0,
-            conversionRate: 0,
-            count: 0,
-          },
-      );
-    },
-    {
-      cacheKeyFn: ({ uuid, topCut, minSize, minEntries, minDate }) =>
-        [uuid, topCut, minSize, minEntries, minDate.getTime()].join(":"),
-    },
-  );
-}
-
 const CommandersSortBy = builder.enumType("CommandersSortBy", {
   values: ["POPULARITY", "CONVERSION"] as const,
-});
-
-const CommanderSortBy = builder.enumType("CommanderSortBy", {
-  values: ["ENTRIES", "TOP_CUTS", "NAME", "CONVERSION"] as const,
 });
 
 const EntriesSortBy = builder.enumType("EntriesSortBy", {
@@ -119,25 +28,6 @@ const FiltersInput = builder.inputType("CommanderStatsFilters", {
   }),
 });
 
-function commanderStatsQueryFromFilters(
-  filters: (typeof FiltersInput)["$inferInput"] | null | undefined,
-): Omit<CommanderStatsQuery, "uuid"> {
-  const minDate =
-    filters?.minDate != null
-      ? new Date(filters?.minDate ?? 0)
-      : minDateFromTimePeriod(filters?.timePeriod);
-
-  return {
-    topCut: filters?.topCut ?? 0,
-    minSize: filters?.minSize ?? 0,
-    minEntries: filters?.minEntries ?? 0,
-    minDate,
-    maxSize: filters?.maxSize ?? Number.MAX_SAFE_INTEGER,
-    maxEntries: filters?.maxEntries ?? Number.MAX_SAFE_INTEGER,
-    maxDate: filters?.maxDate ? new Date(filters.maxDate) : new Date(),
-  };
-}
-
 const EntriesFilter = builder.inputType("EntriesFilter", {
   fields: (t) => ({
     timePeriod: t.field({ type: TimePeriod, defaultValue: "ONE_MONTH" }),
@@ -153,39 +43,6 @@ const CommanderType = builder.prismaNode("Commander", {
     colorId: t.exposeString("colorId"),
     breakdownUrl: t.string({
       resolve: (parent) => `/commander/${encodeURIComponent(parent.name)}`,
-    }),
-    count: t.int({
-      args: { filters: t.arg({ type: FiltersInput }) },
-      resolve: async (parent, { filters }, ctx) => {
-        const { count } = await ctx.commanderStats.load({
-          uuid: parent.uuid,
-          ...commanderStatsQueryFromFilters(filters),
-        });
-
-        return count;
-      },
-    }),
-    topCuts: t.int({
-      args: { filters: t.arg({ type: FiltersInput }) },
-      resolve: async (parent, { filters }, ctx) => {
-        const { topCuts } = await ctx.commanderStats.load({
-          uuid: parent.uuid,
-          ...commanderStatsQueryFromFilters(filters),
-        });
-
-        return topCuts;
-      },
-    }),
-    conversionRate: t.float({
-      args: { filters: t.arg({ type: FiltersInput }) },
-      resolve: async (parent, { filters }, ctx) => {
-        const { conversionRate } = await ctx.commanderStats.load({
-          uuid: parent.uuid,
-          ...commanderStatsQueryFromFilters(filters),
-        });
-
-        return conversionRate;
-      },
     }),
     entries: t.relatedConnection("entries", {
       cursor: "uuid",
@@ -310,6 +167,99 @@ builder.queryField("commanders", (t) =>
           OFFSET ${offset}
         `;
       });
+    },
+  }),
+);
+
+interface CommanderCalculatedStats {
+  count: number;
+  topCuts: number;
+  conversionRate: number;
+  metaShare: number;
+}
+
+const CommanderStats = builder
+  .objectRef<CommanderCalculatedStats>("CommanderStats")
+  .implement({
+    fields: (t) => ({
+      count: t.exposeInt("count"),
+      topCuts: t.exposeInt("topCuts"),
+      conversionRate: t.exposeFloat("conversionRate"),
+      metaShare: t.exposeFloat("metaShare"),
+    }),
+  });
+
+builder.objectField(CommanderType, "stats", (t) =>
+  t.loadable({
+    type: CommanderStats,
+    byPath: true,
+    args: { filters: t.arg({ type: FiltersInput }) },
+    resolve: (parent) => parent.uuid,
+    load: async (commanderUuids: string[], _ctx, { filters }) => {
+      const topCut = filters?.topCut ?? 0;
+      const minSize = filters?.minSize ?? 0;
+      const minEntries = filters?.minEntries ?? 0;
+      const maxSize = filters?.maxSize ?? Number.MAX_SAFE_INTEGER;
+      const maxEntries = filters?.maxEntries ?? Number.MAX_SAFE_INTEGER;
+      const maxDate = filters?.maxDate ? new Date(filters.maxDate) : new Date();
+      const minDate =
+        filters?.minDate != null
+          ? new Date(filters?.minDate ?? 0)
+          : minDateFromTimePeriod(filters?.timePeriod);
+
+      const [entriesQuery, statsQuery] = await Promise.all([
+        prisma.$queryRaw<{ totalEntries: number }[]>`
+          select count(*) as "totalEntries"
+          from "Entry" as e
+          left join "Tournament" t on t.uuid = e."tournamentUuid"
+          where t.size >= ${minSize}
+          and t.size <= ${maxSize}
+          and t."topCut" >= ${topCut}
+          and t."tournamentDate" >= ${minDate}
+          and t."tournamentDate" <= ${maxDate}
+        `,
+        prisma.$queryRaw<
+          (Commander & Omit<CommanderCalculatedStats, "metaShare">)[]
+        >`
+          select
+            c.*,
+            count(c.uuid)::int as "count",
+            sum(case when e.standing <= t."topCut" then 1 else 0 end)::int as "topCuts",
+            sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e) as "conversionRate"
+          from "Commander" as c
+          left join "Entry" e on c.uuid = e."commanderUuid"
+          left join "Tournament" t on t.uuid = e."tournamentUuid"
+          where t.size >= ${minSize}
+          and t.size <= ${maxSize}
+          and t."topCut" >= ${topCut}
+          and t."tournamentDate" >= ${minDate}
+          and t."tournamentDate" <= ${maxDate}
+          and c.uuid::text in (${Prisma.join(commanderUuids)})
+          group by c.uuid
+          having count(c.uuid) >= ${minEntries}
+          and count(c.uuid) <= ${maxEntries}
+        `,
+      ]);
+
+      console.log();
+      const totalEntries = entriesQuery[0]?.totalEntries ?? 1;
+      const statsByCommanderUuid = new Map<string, CommanderCalculatedStats>();
+      for (const { uuid, ...stats } of statsQuery) {
+        statsByCommanderUuid.set(uuid, {
+          ...stats,
+          metaShare: stats.count / Number(totalEntries),
+        });
+      }
+
+      return commanderUuids.map(
+        (uuid) =>
+          statsByCommanderUuid.get(uuid) ?? {
+            topCuts: 0,
+            conversionRate: 0,
+            count: 0,
+            metaShare: 0,
+          },
+      );
     },
   }),
 );

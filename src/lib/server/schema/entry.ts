@@ -1,43 +1,7 @@
-import DataLoader from "dataloader";
 import { prisma } from "../prisma";
 import { builder } from "./builder";
-import { Entry, Prisma } from "@prisma/client";
+import { Card } from "./card";
 import { TopdeckTournamentTableType } from "./types";
-import { scryfallCardSchema } from "../scryfall";
-
-export type EntryDataLoader = DataLoader<
-  { TID: string; topdeckProfile: string },
-  Entry | undefined,
-  string
->;
-
-export function createEntryLoader(): EntryDataLoader {
-  return new DataLoader<
-    { TID: string; topdeckProfile: string },
-    Entry | undefined,
-    string
-  >(
-    async (entryKeys) => {
-      const entries = await prisma.$queryRaw<(Entry & { key: string })[]>`
-        select e.*, t."TID" || ':' || p."topdeckProfile" as key
-        from "Entry" as e
-        left join "Tournament" t on t.uuid = e."tournamentUuid"
-        left join "Player" p on p.uuid = e."playerUuid"
-        where t."TID" || ':' || p."topdeckProfile" in (${Prisma.join(
-          entryKeys.map((e) => `${e.TID}:${e.topdeckProfile}`),
-        )})
-      `;
-
-      const entriesByKey = new Map(entries.map((e) => [e.key, e]));
-      return entryKeys.map((e) =>
-        entriesByKey.get(`${e.TID}:${e.topdeckProfile}`),
-      );
-    },
-    {
-      cacheKeyFn: (e) => `${e.TID}:${e.topdeckProfile}`,
-    },
-  );
-}
 
 export const EntryFilters = builder.inputType("EntryFilters", {
   fields: (t) => ({
@@ -125,38 +89,6 @@ export const EntryType = builder.prismaNode("Entry", {
         });
 
         return decklistItems.map((item) => item.card);
-      },
-    }),
-  }),
-});
-
-export const Card = builder.prismaNode("Card", {
-  id: { field: "uuid" },
-  fields: (t) => ({
-    name: t.exposeString("name"),
-    oracleId: t.exposeString("oracleId"),
-    cmc: t.int({
-      resolve: (parent) => {
-        return scryfallCardSchema.parse(parent.data).cmc;
-      },
-    }),
-    colorId: t.string({
-      resolve: (parent) => {
-        const colorIdentity = new Set(
-          scryfallCardSchema.parse(parent.data).color_identity,
-        );
-
-        let colorId: string = "";
-        for (const c of ["W", "U", "B", "R", "G", "C"]) {
-          if (colorIdentity.has(c)) colorId += c;
-        }
-
-        return colorId || "C";
-      },
-    }),
-    type: t.string({
-      resolve: (parent) => {
-        return scryfallCardSchema.parse(parent.data).type_line;
       },
     }),
   }),

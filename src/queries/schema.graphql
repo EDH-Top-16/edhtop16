@@ -22,8 +22,6 @@ type Commander implements Node {
   Color identity, e.g RUG.
   """
   colorId: String!
-  conversionRate(filters: CommanderStatsFilters): Float!
-  count(filters: CommanderStatsFilters): Int!
   entries(
     after: String
     before: String
@@ -39,7 +37,7 @@ type Commander implements Node {
   Name of the commander, or commanders.
   """
   name: String!
-  topCuts(filters: CommanderStatsFilters): Int!
+  stats(filters: CommanderStatsFilters): CommanderStats!
 }
 
 type CommanderEntriesConnection {
@@ -52,11 +50,10 @@ type CommanderEntriesConnectionEdge {
   node: Entry!
 }
 
-enum CommanderSortBy {
-  CONVERSION
-  ENTRIES
-  NAME
-  TOP_CUTS
+type CommanderStats {
+  conversionRate: Float!
+  count: Float!
+  topCuts: Float!
 }
 
 input CommanderStatsFilters {

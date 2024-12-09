@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<a687cbf0a57435c38d200409c81bfb7d>>
+ * @generated SignedSource<<5bb138f6f0f93fae86dc7171dff30f48>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -13,11 +13,13 @@ import { FragmentRefs } from "relay-runtime";
 export type pages_TopCommandersCard$data = {
   readonly breakdownUrl: string;
   readonly colorId: string;
-  readonly conversionRate: number;
-  readonly count: number;
   readonly imageUrls: ReadonlyArray<string>;
   readonly name: string;
-  readonly topCuts: number;
+  readonly stats: {
+    readonly conversionRate: number;
+    readonly count: number;
+    readonly topCuts: number;
+  };
   readonly " $fragmentType": "pages_TopCommandersCard";
 };
 export type pages_TopCommandersCard$key = {
@@ -25,21 +27,7 @@ export type pages_TopCommandersCard$key = {
   readonly " $fragmentSpreads": FragmentRefs<"pages_TopCommandersCard">;
 };
 
-const node: ReaderFragment = (function(){
-var v0 = [
-  {
-    "fields": [
-      {
-        "kind": "Variable",
-        "name": "timePeriod",
-        "variableName": "timePeriod"
-      }
-    ],
-    "kind": "ObjectValue",
-    "name": "filters"
-  }
-];
-return {
+const node: ReaderFragment = {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
@@ -73,38 +61,60 @@ return {
     },
     {
       "alias": null,
-      "args": (v0/*: any*/),
-      "kind": "ScalarField",
-      "name": "conversionRate",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": (v0/*: any*/),
-      "kind": "ScalarField",
-      "name": "topCuts",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": (v0/*: any*/),
-      "kind": "ScalarField",
-      "name": "count",
-      "storageKey": null
-    },
-    {
-      "alias": null,
       "args": null,
       "kind": "ScalarField",
       "name": "breakdownUrl",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "fields": [
+            {
+              "kind": "Variable",
+              "name": "timePeriod",
+              "variableName": "timePeriod"
+            }
+          ],
+          "kind": "ObjectValue",
+          "name": "filters"
+        }
+      ],
+      "concreteType": "CommanderStats",
+      "kind": "LinkedField",
+      "name": "stats",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "conversionRate",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "topCuts",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "count",
+          "storageKey": null
+        }
+      ],
       "storageKey": null
     }
   ],
   "type": "Commander",
   "abstractKey": null
 };
-})();
 
-(node as any).hash = "a8dea811c830457828eca4b9c745ea90";
+(node as any).hash = "1a43db4ca10bac8758572621ac984674";
 
 export default node;
