@@ -292,7 +292,7 @@ function CommanderPage({
     [router],
   );
 
-  const { data, loadNext, isLoadingNext } = usePaginationFragment<
+  const { data, loadNext, isLoadingNext, hasNext } = usePaginationFragment<
     CommanderEntriesQuery,
     Commander_entries$key
   >(
@@ -347,7 +347,7 @@ function CommanderPage({
 
       {isLoadingNext ? (
         <LoadingIcon padding={false} className="self-center" />
-      ) : (
+      ) : hasNext ? (
         <button
           className="inset-shadow-sm mx-auto flex justify-center self-center rounded-md bg-[#312d5a] px-4 py-2 font-title text-sm text-white shadow-md"
           onClick={() => {
@@ -356,7 +356,7 @@ function CommanderPage({
         >
           Load More
         </button>
-      )}
+      ) : null}
 
       <Footer />
     </CommanderPageShell>
