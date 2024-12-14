@@ -13,6 +13,7 @@ import {
 import { RelayProps, withRelay } from "relay-nextjs";
 import { Card } from "../components/card";
 import { Footer } from "../components/footer";
+import { LoadMoreButton } from "../components/load_more";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
 import { getClientEnvironment } from "../lib/client/relay_client_environment";
@@ -24,7 +25,6 @@ import {
   tournaments_TournamentsQuery,
   TournamentSortBy,
 } from "../queries/__generated__/tournaments_TournamentsQuery.graphql";
-import { LoadingIcon } from "../components/fallback";
 
 function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
   const tournament = useFragment(
@@ -226,18 +226,11 @@ function TournamentsPage({
         ))}
       </div>
 
-      {isLoadingNext ? (
-        <LoadingIcon padding={false} className="self-center" />
-      ) : hasNext ? (
-        <button
-          className="inset-shadow-sm mx-auto flex justify-center self-center rounded-md bg-[#312d5a] px-4 py-2 font-title text-sm text-white shadow-md"
-          onClick={() => {
-            loadNext(48);
-          }}
-        >
-          Load More
-        </button>
-      ) : null}
+      <LoadMoreButton
+        hasNext={hasNext}
+        isLoadingNext={isLoadingNext}
+        loadNext={loadNext}
+      />
 
       <Footer />
     </TournamentsPageShell>

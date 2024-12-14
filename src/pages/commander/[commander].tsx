@@ -16,6 +16,7 @@ import { ColorIdentity } from "../../assets/icons/colors";
 import { Card } from "../../components/card";
 import { Edhtop16Fallback, LoadingIcon } from "../../components/fallback";
 import { Footer } from "../../components/footer";
+import { LoadMoreButton } from "../../components/load_more";
 import { Navigation } from "../../components/navigation";
 import { Select } from "../../components/select";
 import { Tab, TabList } from "../../components/tabs";
@@ -29,8 +30,8 @@ import {
   Commander_CommanderQuery,
   EntriesSortBy,
 } from "../../queries/__generated__/Commander_CommanderQuery.graphql";
-import { Commander_EntryCard$key } from "../../queries/__generated__/Commander_EntryCard.graphql";
 import { Commander_entries$key } from "../../queries/__generated__/Commander_entries.graphql";
+import { Commander_EntryCard$key } from "../../queries/__generated__/Commander_EntryCard.graphql";
 import { CommanderEntriesQuery } from "../../queries/__generated__/CommanderEntriesQuery.graphql";
 
 function EntryCard(props: { entry: Commander_EntryCard$key }) {
@@ -341,18 +342,11 @@ function CommanderPage({
         ))}
       </div>
 
-      {isLoadingNext ? (
-        <LoadingIcon padding={false} className="self-center" />
-      ) : hasNext ? (
-        <button
-          className="inset-shadow-sm mx-auto flex justify-center self-center rounded-md bg-[#312d5a] px-4 py-2 font-title text-sm text-white shadow-md"
-          onClick={() => {
-            loadNext(48);
-          }}
-        >
-          Load More
-        </button>
-      ) : null}
+      <LoadMoreButton
+        hasNext={hasNext}
+        isLoadingNext={isLoadingNext}
+        loadNext={loadNext}
+      />
 
       <Footer />
     </CommanderPageShell>
