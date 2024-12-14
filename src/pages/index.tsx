@@ -158,7 +158,7 @@ function CommandersPageShell({
 
       <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
         <div className="flex w-full items-baseline gap-4">
-          <h1 className="flex-1 font-title text-5xl font-extrabold text-white md:mb-0">
+          <h1 className="mb-8 flex-1 font-title text-5xl font-extrabold text-white lg:mb-0">
             cEDH Metagame Breakdown
           </h1>
 
@@ -171,7 +171,7 @@ function CommandersPageShell({
           </button>
         </div>
 
-        <div className="mb-8 flex flex-col items-start space-y-4 md:flex-row md:items-end">
+        <div className="mb-8 flex flex-col items-start space-y-4 lg:flex-row lg:items-end">
           <div className="flex-1">
             <ColorSelection
               selected={colorId}
@@ -181,7 +181,7 @@ function CommandersPageShell({
             />
           </div>
 
-          <div className="flex flex-wrap gap-x-4 gap-y-2 md:flex-nowrap">
+          <div className="flex flex-wrap gap-x-4 gap-y-2 lg:flex-nowrap">
             <Select
               id="commanders-sort-by"
               label="Sort By"
