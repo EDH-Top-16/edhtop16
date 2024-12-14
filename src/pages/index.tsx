@@ -1,7 +1,12 @@
 import FireIcon from "@heroicons/react/24/solid/FireIcon";
+import RectangleStackIcon from "@heroicons/react/24/solid/RectangleStackIcon";
+import TableCellsIcon from "@heroicons/react/24/solid/TableCellsIcon";
+import { QueryParamKind, useQueryParams } from "@reverecre/next-query-params";
+import cn from "classnames";
 import { NextSeo } from "next-seo";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import type { ParsedUrlQuery } from "querystring";
 import { PropsWithChildren, useCallback, useMemo } from "react";
 import {
   graphql,
@@ -13,6 +18,7 @@ import { RelayProps, withRelay } from "relay-nextjs";
 import { ColorIdentity } from "../assets/icons/colors";
 import { Card } from "../components/card";
 import { ColorSelection } from "../components/color_selection";
+import { LoadingIcon } from "../components/fallback";
 import { Footer } from "../components/footer";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
@@ -23,15 +29,16 @@ import {
   pages_CommandersQuery,
   TimePeriod,
 } from "../queries/__generated__/pages_CommandersQuery.graphql";
-import { pages_TopCommandersCard$key } from "../queries/__generated__/pages_TopCommandersCard.graphql";
 import { pages_topCommanders$key } from "../queries/__generated__/pages_topCommanders.graphql";
+import { pages_TopCommandersCard$key } from "../queries/__generated__/pages_TopCommandersCard.graphql";
 import { TopCommandersQuery } from "../queries/__generated__/TopCommandersQuery.graphql";
-import { LoadingIcon } from "../components/fallback";
 
 function TopCommandersCard({
+  display = "card",
   secondaryStatistic,
   ...props
 }: {
+  display?: "table" | "card";
   secondaryStatistic: "topCuts" | "count";
   commander: pages_TopCommandersCard$key;
 }) {
@@ -71,6 +78,36 @@ function TopCommandersCard({
     return stats.join(" / ");
   }, [commander, secondaryStatistic]);
 
+  if (display === "table") {
+    return (
+      <div className="grid w-full grid-cols-[130px_1fr] items-center gap-x-2 overflow-x-hidden rounded bg-[#312d5a]/50 p-4 text-white shadow-md lg:grid-cols-[130px_minmax(350px,_1fr)_100px_100px_100px_100px]">
+        <div>
+          <ColorIdentity identity={commander.colorId} />
+        </div>
+
+        <a
+          href={commander.breakdownUrl}
+          className="mb-2 font-title text-xl underline lg:mb-0 lg:font-sans lg:text-base"
+        >
+          {commander.name}
+        </a>
+
+        <div className="text-sm opacity-75 lg:hidden">Entries:</div>
+        <div className="text-sm">{commander.stats.count}</div>
+        <div className="text-sm opacity-75 lg:hidden">Meta Share:</div>
+        <div className="text-sm">
+          {formatPercent(commander.stats.metaShare)}
+        </div>
+        <div className="text-sm opacity-75 lg:hidden">Top Cuts:</div>
+        <div className="text-sm">{commander.stats.topCuts}</div>
+        <div className="text-sm opacity-75 lg:hidden">Conversion Rate:</div>
+        <div className="text-sm">
+          {formatPercent(commander.stats.conversionRate)}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Card
       bottomText={commanderStats}
@@ -107,6 +144,8 @@ function CommandersPageShell({
   timePeriod: TimePeriod;
   onUpdateQueryParam?: (key: string, value: string | null) => void;
 }>) {
+  const [display, toggleDisplay] = useCommandersDisplay();
+
   return (
     <>
       <Navigation />
@@ -116,9 +155,19 @@ function CommandersPageShell({
       />
 
       <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
-        <h1 className="mb-8 flex-1 font-title text-5xl font-extrabold text-white md:mb-0">
-          cEDH Metagame Breakdown
-        </h1>
+        <div className="flex w-full gap-4">
+          <h1 className="mb-8 flex-1 font-title text-5xl font-extrabold text-white md:mb-0">
+            cEDH Metagame Breakdown
+          </h1>
+
+          <button className="hidden md:block" onClick={toggleDisplay}>
+            {display === "card" ? (
+              <TableCellsIcon className="h-6 w-6 text-white" />
+            ) : (
+              <RectangleStackIcon className="h-6 w-6 text-white" />
+            )}
+          </button>
+        </div>
 
         <div className="mb-8 flex flex-col items-center space-y-4 md:flex-row md:items-end">
           <div className="flex-1">
@@ -183,6 +232,63 @@ function CommandersPageShell({
   );
 }
 
+function useCommandersDisplay() {
+  const [{ display }, setParams] = useQueryParams({
+    display: QueryParamKind.STRING,
+  });
+
+  const toggleDisplay = useCallback(() => {
+    setParams({ display: display === "table" ? "card" : "table" });
+  }, [display, setParams]);
+
+  return useMemo(() => {
+    return [display === "table" ? "table" : "card", toggleDisplay] as const;
+  }, [display, toggleDisplay]);
+}
+
+function useSetQueryVariable() {
+  const router = useRouter();
+  return useCallback(
+    (key: string, value: string | null) => {
+      const nextUrl = new URL(window.location.href);
+      if (value == null) {
+        nextUrl.searchParams.delete(key);
+      } else {
+        nextUrl.searchParams.set(key, value);
+      }
+      router.replace(nextUrl, undefined, { shallow: true, scroll: false });
+    },
+    [router],
+  );
+}
+
+function queryVariablesFromParsedUrlQuery(query: ParsedUrlQuery) {
+  function defaultMinEntriesForTimePeriod(timePeriod: TimePeriod): number {
+    switch (timePeriod) {
+      case "ALL_TIME":
+        return 120;
+      case "ONE_YEAR":
+        return 120;
+      case "SIX_MONTHS":
+        return 120;
+      case "THREE_MONTHS":
+        return 60;
+      default:
+        return 20;
+    }
+  }
+
+  const timePeriod = (query.timePeriod as TimePeriod) ?? "SIX_MONTHS";
+  const sortBy = (query.sortBy as CommandersSortBy) ?? "CONVERSION";
+  const colorId = query.colorId as string | undefined;
+  const minEntries =
+    typeof query.minEntries === "string"
+      ? Number(query.minEntries)
+      : defaultMinEntriesForTimePeriod(timePeriod);
+
+  return { timePeriod, sortBy, colorId, minEntries };
+}
+
 const CommandersQuery = graphql`
   query pages_CommandersQuery(
     $timePeriod: TimePeriod!
@@ -196,20 +302,8 @@ const CommandersQuery = graphql`
 
 function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
   const query = usePreloadedQuery(CommandersQuery, preloadedQuery);
-
-  const router = useRouter();
-  const setQueryVariable = useCallback(
-    (key: string, value: string | null) => {
-      const nextUrl = new URL(window.location.href);
-      if (value == null) {
-        nextUrl.searchParams.delete(key);
-      } else {
-        nextUrl.searchParams.set(key, value);
-      }
-      router.replace(nextUrl, undefined, { shallow: true, scroll: false });
-    },
-    [router],
-  );
+  const setQueryVariable = useSetQueryVariable();
+  const [display] = useCommandersDisplay();
 
   const { data, loadNext, isLoadingNext, hasNext } = usePaginationFragment<
     TopCommandersQuery,
@@ -250,10 +344,29 @@ function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
       minEntries={preloadedQuery.variables.minEntries}
       onUpdateQueryParam={setQueryVariable}
     >
-      <div className="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
+      <div
+        className={cn(
+          "mx-auto grid pb-4",
+          display === "table"
+            ? "w-full grid-cols-1 gap-2"
+            : "w-fit gap-4 md:grid-cols-2 xl:grid-cols-3",
+        )}
+      >
+        {display === "table" && (
+          <div className="sticky top-[68px] hidden w-full grid-cols-[130px_minmax(350px,_1fr)_100px_100px_100px_100px] items-center gap-x-2 overflow-x-hidden bg-[#514f86] p-4 text-sm text-white lg:grid">
+            <div>Color</div>
+            <div>Commander</div>
+            <div>Entries</div>
+            <div>Meta %</div>
+            <div>Top Cuts</div>
+            <div>Cnvr. %</div>
+          </div>
+        )}
+
         {data.commanders.edges.map(({ node }) => (
           <TopCommandersCard
             key={node.id}
+            display={display}
             commander={node}
             secondaryStatistic={
               preloadedQuery.variables.sortBy === "CONVERSION"
@@ -283,35 +396,16 @@ function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
 }
 
 function CommandersPagePlaceholder() {
+  const setQueryVariable = useSetQueryVariable();
   const router = useRouter();
-  const setQueryVariable = useCallback(
-    (key: string, value: string | null) => {
-      const nextUrl = new URL(window.location.href);
-      if (value == null) {
-        nextUrl.searchParams.delete(key);
-      } else {
-        nextUrl.searchParams.set(key, value);
-      }
-      router.replace(nextUrl, undefined, { shallow: true, scroll: false });
-    },
-    [router],
-  );
-
-  const sortBy =
-    (router.query.sortBy as CommandersSortBy | undefined) ?? "CONVERSION";
-  const timePeriod =
-    (router.query.timePeriod as TimePeriod | undefined) ?? "SIX_MONTHS";
-  const colorId = (router.query.colorId as string | undefined) || "";
-  const minEntries =
-    typeof router.query.minEntries === "string"
-      ? Number(router.query.minEntries)
-      : defaultMinEntriesForTimePeriod(timePeriod);
+  const { sortBy, colorId, minEntries, timePeriod } =
+    queryVariablesFromParsedUrlQuery(router.query);
 
   return (
     <CommandersPageShell
       sortBy={sortBy}
       timePeriod={timePeriod}
-      colorId={colorId}
+      colorId={colorId ?? ""}
       minEntries={minEntries}
       onUpdateQueryParam={setQueryVariable}
     >
@@ -320,21 +414,6 @@ function CommandersPagePlaceholder() {
       </div>
     </CommandersPageShell>
   );
-}
-
-function defaultMinEntriesForTimePeriod(timePeriod: TimePeriod): number {
-  switch (timePeriod) {
-    case "ALL_TIME":
-      return 120;
-    case "ONE_YEAR":
-      return 120;
-    case "SIX_MONTHS":
-      return 120;
-    case "THREE_MONTHS":
-      return 60;
-    default:
-      return 20;
-  }
 }
 
 export default withRelay(Commanders, CommandersQuery, {
@@ -348,14 +427,6 @@ export default withRelay(Commanders, CommandersQuery, {
     return createServerEnvironment();
   },
   variablesFromContext: (ctx) => {
-    const timePeriod = (ctx.query.timePeriod as TimePeriod) ?? "SIX_MONTHS";
-    const sortBy = (ctx.query.sortBy as CommandersSortBy) ?? "CONVERSION";
-    const colorId = ctx.query.colorId as string | undefined;
-    const minEntries =
-      typeof ctx.query.minEntries === "string"
-        ? Number(ctx.query.minEntries)
-        : defaultMinEntriesForTimePeriod(timePeriod);
-
-    return { timePeriod, sortBy, colorId, minEntries };
+    return queryVariablesFromParsedUrlQuery(ctx.query);
   },
 });
