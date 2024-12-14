@@ -116,7 +116,7 @@ function CommandersPageShell({
       />
 
       <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
-        <h1 className="mb-8 flex-1 text-center font-title text-5xl font-extrabold text-white md:mb-0 md:text-left">
+        <h1 className="mb-8 flex-1 font-title text-5xl font-extrabold text-white md:mb-0">
           cEDH Metagame Breakdown
         </h1>
 
@@ -130,7 +130,7 @@ function CommandersPageShell({
             />
           </div>
 
-          <div className="flex space-x-4">
+          <div className="flex flex-wrap gap-x-4 gap-y-2 md:flex-nowrap">
             <Select
               id="commanders-sort-by"
               label="Sort By"
