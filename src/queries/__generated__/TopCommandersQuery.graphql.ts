@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<3405ceb44d7f0fb5b0c03a22a293ea90>>
+ * @generated SignedSource<<268cf0550d2d270e00f1b6369f3d7d7f>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -12,56 +12,75 @@ import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type CommandersSortBy = "COLOR" | "CONVERSION" | "POPULARITY" | "%future added value";
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
-export type pages_CommandersQuery$variables = {
+export type TopCommandersQuery$variables = {
   colorId?: string | null | undefined;
-  minEntries: number;
-  sortBy: CommandersSortBy;
-  timePeriod: TimePeriod;
+  count?: number | null | undefined;
+  cursor?: string | null | undefined;
+  minEntries?: number | null | undefined;
+  sortBy?: CommandersSortBy | null | undefined;
+  timePeriod?: TimePeriod | null | undefined;
 };
-export type pages_CommandersQuery$data = {
+export type TopCommandersQuery$data = {
   readonly " $fragmentSpreads": FragmentRefs<"pages_topCommanders">;
 };
-export type pages_CommandersQuery = {
-  response: pages_CommandersQuery$data;
-  variables: pages_CommandersQuery$variables;
+export type TopCommandersQuery = {
+  response: TopCommandersQuery$data;
+  variables: TopCommandersQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "colorId"
-},
+var v0 = [
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "colorId"
+  },
+  {
+    "defaultValue": 48,
+    "kind": "LocalArgument",
+    "name": "count"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "cursor"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "minEntries"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "sortBy"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "timePeriod"
+  }
+],
 v1 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "minEntries"
-},
-v2 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "sortBy"
-},
-v3 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "timePeriod"
-},
-v4 = {
   "kind": "Variable",
   "name": "timePeriod",
   "variableName": "timePeriod"
 },
-v5 = [
+v2 = [
+  {
+    "kind": "Variable",
+    "name": "after",
+    "variableName": "cursor"
+  },
   {
     "kind": "Variable",
     "name": "colorId",
     "variableName": "colorId"
   },
   {
-    "kind": "Literal",
+    "kind": "Variable",
     "name": "first",
-    "value": 48
+    "variableName": "count"
   },
   {
     "kind": "Variable",
@@ -73,22 +92,28 @@ v5 = [
     "name": "sortBy",
     "variableName": "sortBy"
   },
-  (v4/*: any*/)
+  (v1/*: any*/)
 ];
 return {
   "fragment": {
-    "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/)
-    ],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "pages_CommandersQuery",
+    "name": "TopCommandersQuery",
     "selections": [
       {
-        "args": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "count",
+            "variableName": "count"
+          },
+          {
+            "kind": "Variable",
+            "name": "cursor",
+            "variableName": "cursor"
+          }
+        ],
         "kind": "FragmentSpread",
         "name": "pages_topCommanders"
       }
@@ -98,18 +123,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": [
-      (v3/*: any*/),
-      (v2/*: any*/),
-      (v1/*: any*/),
-      (v0/*: any*/)
-    ],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "pages_CommandersQuery",
+    "name": "TopCommandersQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v2/*: any*/),
         "concreteType": "QueryCommandersConnection",
         "kind": "LinkedField",
         "name": "commanders",
@@ -171,7 +191,7 @@ return {
                     "args": [
                       {
                         "fields": [
-                          (v4/*: any*/)
+                          (v1/*: any*/)
                         ],
                         "kind": "ObjectValue",
                         "name": "filters"
@@ -263,7 +283,7 @@ return {
       },
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v2/*: any*/),
         "filters": [
           "timePeriod",
           "sortBy",
@@ -278,16 +298,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "cd439d050cd65d07c218ed8b8ef4653e",
+    "cacheID": "5551dd3a803ce7d957f7f3ac7bda7158",
     "id": null,
     "metadata": {},
-    "name": "pages_CommandersQuery",
+    "name": "TopCommandersQuery",
     "operationKind": "query",
-    "text": "query pages_CommandersQuery(\n  $timePeriod: TimePeriod!\n  $sortBy: CommandersSortBy!\n  $minEntries: Int!\n  $colorId: String\n) {\n  ...pages_topCommanders\n}\n\nfragment pages_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  breakdownUrl\n  stats(filters: {timePeriod: $timePeriod}) {\n    conversionRate\n    topCuts\n    count\n    metaShare\n  }\n}\n\nfragment pages_topCommanders on Query {\n  commanders(first: 48, timePeriod: $timePeriod, sortBy: $sortBy, colorId: $colorId, minEntries: $minEntries) {\n    edges {\n      node {\n        id\n        ...pages_TopCommandersCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
+    "text": "query TopCommandersQuery(\n  $colorId: String\n  $count: Int = 48\n  $cursor: String\n  $minEntries: Int\n  $sortBy: CommandersSortBy\n  $timePeriod: TimePeriod\n) {\n  ...pages_topCommanders_1G22uz\n}\n\nfragment pages_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  breakdownUrl\n  stats(filters: {timePeriod: $timePeriod}) {\n    conversionRate\n    topCuts\n    count\n    metaShare\n  }\n}\n\nfragment pages_topCommanders_1G22uz on Query {\n  commanders(first: $count, after: $cursor, timePeriod: $timePeriod, sortBy: $sortBy, colorId: $colorId, minEntries: $minEntries) {\n    edges {\n      node {\n        id\n        ...pages_TopCommandersCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "0f395951a5a63350cadf095e261dbeb3";
+(node as any).hash = "3a755f3e75cd3ab6cc32d809c07f957a";
 
 export default node;

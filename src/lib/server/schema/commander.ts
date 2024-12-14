@@ -1,6 +1,5 @@
 import { resolveOffsetConnection } from "@pothos/plugin-relay";
 import { Commander, Prisma } from "@prisma/client";
-import DataLoader from "dataloader";
 import { prisma } from "../prisma";
 import { scryfallCardSchema } from "../scryfall";
 import { builder } from "./builder";
@@ -130,22 +129,12 @@ builder.queryField("commanders", (t) =>
       minEntries: t.arg.int(),
       timePeriod: t.arg({ type: TimePeriod, defaultValue: "ONE_MONTH" }),
       sortBy: t.arg({ type: CommandersSortBy, defaultValue: "CONVERSION" }),
+      colorId: t.arg.string(),
     },
     resolve: async (_root, args) => {
       return resolveOffsetConnection({ args }, ({ limit, offset }) => {
         const minDate = minDateFromTimePeriod(args.timePeriod ?? "ONE_MONTH");
-        const minEntries =
-          args.minEntries ??
-          (args.timePeriod === "ALL_TIME"
-            ? 120
-            : args.timePeriod === "ONE_YEAR"
-            ? 120
-            : args.timePeriod === "SIX_MONTHS"
-            ? 120
-            : args.timePeriod === "THREE_MONTHS"
-            ? 60
-            : 20);
-
+        const minEntries = args.minEntries || 0;
         const orderBy =
           args.sortBy === "POPULARITY"
             ? Prisma.sql([`count(e)`])
@@ -153,13 +142,28 @@ builder.queryField("commanders", (t) =>
                 `sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e)`,
               ]);
 
+        let colorId = "";
+        if (args.colorId) {
+          for (const color of ["W", "U", "B", "R", "G"]) {
+            if (args.colorId?.includes(color)) {
+              colorId += color;
+            } else {
+              colorId += "%";
+            }
+          }
+        } else {
+          colorId = "%";
+        }
+
         return prisma.$queryRaw<Commander[]>`
           SELECT c.*
           FROM "Commander" as c
           LEFT JOIN "Entry" e on e."commanderUuid" = c.uuid
           LEFT JOIN "Tournament" t on t.uuid = e."tournamentUuid"
           WHERE c.name != 'Unknown Commander'
+          AND c.name != 'Nadu, Winged Wisdom'
           AND t."tournamentDate" >= ${minDate}
+          and c."colorId" like ${colorId}
           GROUP BY c.uuid
           HAVING count(e) >= ${minEntries}
           ORDER BY ${orderBy} DESC
@@ -241,7 +245,6 @@ builder.objectField(CommanderType, "stats", (t) =>
         `,
       ]);
 
-      console.log();
       const totalEntries = entriesQuery[0]?.totalEntries ?? 1;
       const statsByCommanderUuid = new Map<string, CommanderCalculatedStats>();
       for (const { uuid, ...stats } of statsQuery) {
