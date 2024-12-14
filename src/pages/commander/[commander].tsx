@@ -307,11 +307,7 @@ function CommanderPage({
           first: $count
           after: $cursor
           sortBy: $sortBy
-          filters: {
-            timePeriod: SIX_MONTHS
-            minEventSize: $minEventSize
-            maxStanding: $maxStanding
-          }
+          filters: { minEventSize: $minEventSize, maxStanding: $maxStanding }
         ) @connection(key: "Commander_entries") {
           edges {
             node {
