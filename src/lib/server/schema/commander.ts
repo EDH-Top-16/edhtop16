@@ -113,6 +113,7 @@ builder.queryField("commanders", (t) =>
     type: CommanderType,
     args: {
       minEntries: t.arg.int(),
+      minTournamentSize: t.arg.int(),
       timePeriod: t.arg({ type: TimePeriod, defaultValue: "ONE_MONTH" }),
       sortBy: t.arg({ type: CommandersSortBy, defaultValue: "CONVERSION" }),
       colorId: t.arg.string(),
@@ -120,6 +121,7 @@ builder.queryField("commanders", (t) =>
     resolve: async (_root, args) => {
       return resolveOffsetConnection({ args }, ({ limit, offset }) => {
         const minDate = minDateFromTimePeriod(args.timePeriod ?? "ONE_MONTH");
+        const minTournamentSize = args.minTournamentSize || 0;
         const minEntries = args.minEntries || 0;
         const orderBy =
           args.sortBy === "POPULARITY"
@@ -130,7 +132,7 @@ builder.queryField("commanders", (t) =>
 
         let colorId = "";
         if (args.colorId) {
-          for (const color of ["W", "U", "B", "R", "G"]) {
+          for (const color of ["W", "U", "B", "R", "G", "C"]) {
             if (args.colorId?.includes(color)) {
               colorId += color;
             } else {
@@ -149,7 +151,8 @@ builder.queryField("commanders", (t) =>
           WHERE c.name != 'Unknown Commander'
           AND c.name != 'Nadu, Winged Wisdom'
           AND t."tournamentDate" >= ${minDate}
-          and c."colorId" like ${colorId}
+          AND t."size" >= ${minTournamentSize}
+          AND c."colorId" LIKE ${colorId}
           GROUP BY c.uuid
           HAVING count(e) >= ${minEntries}
           ORDER BY ${orderBy} DESC

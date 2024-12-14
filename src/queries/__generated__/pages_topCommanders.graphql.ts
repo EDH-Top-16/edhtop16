@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<286c12ea382bdf3cfcc61caa4dacb393>>
+ * @generated SignedSource<<8c963432ff25b2cf13eb926bf7d2824d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -52,6 +52,10 @@ return {
     },
     {
       "kind": "RootArgument",
+      "name": "minTournamentSize"
+    },
+    {
+      "kind": "RootArgument",
       "name": "sortBy"
     },
     {
@@ -96,6 +100,11 @@ return {
           "kind": "Variable",
           "name": "minEntries",
           "variableName": "minEntries"
+        },
+        {
+          "kind": "Variable",
+          "name": "minTournamentSize",
+          "variableName": "minTournamentSize"
         },
         {
           "kind": "Variable",
@@ -195,6 +204,6 @@ return {
 };
 })();
 
-(node as any).hash = "3a755f3e75cd3ab6cc32d809c07f957a";
+(node as any).hash = "b5a6c24d9b40c399fa950a403034faa7";
 
 export default node;

@@ -169,6 +169,7 @@ type Query {
     first: Int
     last: Int
     minEntries: Int
+    minTournamentSize: Int
     sortBy: CommandersSortBy = CONVERSION
     timePeriod: TimePeriod = ONE_MONTH
   ): QueryCommandersConnection!

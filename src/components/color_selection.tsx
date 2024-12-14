@@ -37,10 +37,8 @@ export function ColorSelection({ selected, onChange }: ColorSelectionProps) {
           role="button"
           onClick={() => handleSelect(color)}
           className={cn(
-            "aspect-square w-12 rounded-full border-2 transition-all duration-200 md:w-10",
-            !selected.includes(color)
-              ? "border-transparent brightness-50"
-              : "border-highlight",
+            "aspect-square w-10 rounded-full transition-all duration-200",
+            !selected.includes(color) && "brightness-50",
           )}
         >
           <ColorIcon color={color} height="100%" width="100%" />
