@@ -1,12 +1,16 @@
 import cn from "classnames";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
 import { useSearch } from "../lib/client/search";
 import { ServerSafeSuspense } from "../lib/client/suspense";
 import { searchbar_CommanderNamesQuery } from "../queries/__generated__/searchbar_CommanderNamesQuery.graphql";
 
-export function Searchbar() {
+export function Searchbar({
+  searchType = "commander",
+}: {
+  searchType?: "commander" | "tournament";
+}) {
   const [searchTerm, setSearchTerm] = useState("");
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -36,7 +40,7 @@ export function Searchbar() {
             ref={suggestionsRef}
             className="absolute w-full rounded-b-xl bg-white"
           >
-            <Suggestions search={searchTerm} />
+            <Suggestions searchTerm={searchTerm} searchType={searchType} />
           </ul>
         )}
       </ServerSafeSuspense>
@@ -44,18 +48,34 @@ export function Searchbar() {
   );
 }
 
-function Suggestions({ search }: { search: string }) {
-  const { commanderNames } = useLazyLoadQuery<searchbar_CommanderNamesQuery>(
+function Suggestions({
+  searchTerm,
+  searchType,
+}: {
+  searchTerm: string;
+  searchType: "commander" | "tournament";
+}) {
+  const searchTypes = useMemo(() => {
+    if (searchType === "commander") {
+      return ["COMMANDER"] as const;
+    } else {
+      return ["TOURNAMENT"] as const;
+    }
+  }, [searchType]);
+
+  const { searchResults } = useLazyLoadQuery<searchbar_CommanderNamesQuery>(
     graphql`
-      query searchbar_CommanderNamesQuery {
-        commanderNames
+      query searchbar_CommanderNamesQuery($searchTypes: [SearchResultType!]!) {
+        searchResults(types: $searchTypes) {
+          name
+          url
+        }
       }
     `,
-    {},
+    { searchTypes },
   );
 
-  const suggestions = useSearch(commanderNames, search);
-
+  const suggestions = useSearch(searchResults, searchTerm);
   if (suggestions.length === 0) {
     return (
       <li className="rounded-b-xl px-4 py-1 text-black">No results found.</li>
@@ -65,18 +85,14 @@ function Suggestions({ search }: { search: string }) {
   return (
     <>
       {suggestions.slice(0, 20).map((suggestion, i, { length }) => (
-        <Link
-          key={suggestion}
-          href={`/commander/${encodeURIComponent(suggestion)}`}
-        >
+        <Link key={suggestion.name} href={suggestion.url}>
           <li
             className={cn(
               "px-4 py-1 text-black hover:bg-gray-300",
               i === length - 1 && "rounded-b-xl",
             )}
-            key={suggestion}
           >
-            {suggestion}
+            {suggestion.name}
           </li>
         </Link>
       ))}
