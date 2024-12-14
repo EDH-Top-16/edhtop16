@@ -4,19 +4,27 @@ import { NextSeo } from "next-seo";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { PropsWithChildren, useCallback, useMemo } from "react";
-import { graphql, useFragment, usePreloadedQuery } from "react-relay";
+import {
+  graphql,
+  useFragment,
+  usePaginationFragment,
+  usePreloadedQuery,
+} from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { Card } from "../components/card";
 import { Footer } from "../components/footer";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
 import { getClientEnvironment } from "../lib/client/relay_client_environment";
+import { AllTournamentsQuery } from "../queries/__generated__/AllTournamentsQuery.graphql";
 import { tournaments_TournamentCard$key } from "../queries/__generated__/tournaments_TournamentCard.graphql";
+import { tournaments_Tournaments$key } from "../queries/__generated__/tournaments_Tournaments.graphql";
 import {
   TimePeriod,
   tournaments_TournamentsQuery,
   TournamentSortBy,
 } from "../queries/__generated__/tournaments_TournamentsQuery.graphql";
+import { LoadingIcon } from "../components/fallback";
 
 function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
   const tournament = useFragment(
@@ -139,6 +147,8 @@ function TournamentsPageShell({
               <option value="ONE_MONTH">1 Month</option>
               <option value="THREE_MONTHS">3 Months</option>
               <option value="SIX_MONTHS">6 Months</option>
+              <option value="ONE_YEAR">1 Year</option>
+              <option value="ALL_TIME">All Time</option>
             </Select>
           </div>
         </div>
@@ -155,20 +165,14 @@ const TournamentsQuery = graphql`
     $sortBy: TournamentSortBy!
     $minSize: Int!
   ) {
-    tournaments(
-      filters: { timePeriod: $timePeriod, minSize: $minSize }
-      sortBy: $sortBy
-    ) {
-      id
-      ...tournaments_TournamentCard
-    }
+    ...tournaments_Tournaments
   }
 `;
 
 function TournamentsPage({
   preloadedQuery,
 }: RelayProps<{}, tournaments_TournamentsQuery>) {
-  const { tournaments } = usePreloadedQuery(TournamentsQuery, preloadedQuery);
+  const query = usePreloadedQuery(TournamentsQuery, preloadedQuery);
 
   const router = useRouter();
   const setQueryVariable = useCallback(
@@ -180,6 +184,35 @@ function TournamentsPage({
     [router],
   );
 
+  const { data, loadNext, isLoadingNext, hasNext } = usePaginationFragment<
+    AllTournamentsQuery,
+    tournaments_Tournaments$key
+  >(
+    graphql`
+      fragment tournaments_Tournaments on Query
+      @argumentDefinitions(
+        cursor: { type: "String" }
+        count: { type: "Int", defaultValue: 100 }
+      )
+      @refetchable(queryName: "AllTournamentsQuery") {
+        tournaments(
+          first: $count
+          after: $cursor
+          filters: { timePeriod: $timePeriod, minSize: $minSize }
+          sortBy: $sortBy
+        ) @connection(key: "tournaments__tournaments") {
+          edges {
+            node {
+              id
+              ...tournaments_TournamentCard
+            }
+          }
+        }
+      }
+    `,
+    query,
+  );
+
   return (
     <TournamentsPageShell
       sortBy={preloadedQuery.variables.sortBy}
@@ -188,10 +221,23 @@ function TournamentsPage({
       onUpdateQueryParam={setQueryVariable}
     >
       <div className="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
-        {tournaments.map((c) => (
-          <TournamentCard key={c.id} commander={c} />
+        {data.tournaments.edges.map((edge) => (
+          <TournamentCard key={edge.node.id} commander={edge.node} />
         ))}
       </div>
+
+      {isLoadingNext ? (
+        <LoadingIcon padding={false} className="self-center" />
+      ) : hasNext ? (
+        <button
+          className="inset-shadow-sm mx-auto flex justify-center self-center rounded-md bg-[#312d5a] px-4 py-2 font-title text-sm text-white shadow-md"
+          onClick={() => {
+            loadNext(48);
+          }}
+        >
+          Load More
+        </button>
+      ) : null}
 
       <Footer />
     </TournamentsPageShell>

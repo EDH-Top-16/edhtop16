@@ -183,8 +183,9 @@ const TournamentFiltersInput = builder.inputType("TournamentFilters", {
 });
 
 builder.queryField("tournaments", (t) =>
-  t.prismaField({
-    type: ["Tournament"],
+  t.prismaConnection({
+    type: TournamentType,
+    cursor: "TID",
     args: {
       search: t.arg.string(),
       filters: t.arg({ type: TournamentFiltersInput }),
