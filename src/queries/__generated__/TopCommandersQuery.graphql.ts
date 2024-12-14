@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<3c5dc167bff21868d6a75aafb652e17e>>
+ * @generated SignedSource<<da061323cb72e9152f5584938b2a2b6c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -17,6 +17,7 @@ export type TopCommandersQuery$variables = {
   count?: number | null | undefined;
   cursor?: string | null | undefined;
   minEntries?: number | null | undefined;
+  minTournamentSize?: number | null | undefined;
   sortBy?: CommandersSortBy | null | undefined;
   timePeriod?: TimePeriod | null | undefined;
 };
@@ -49,6 +50,11 @@ var v0 = [
     "defaultValue": null,
     "kind": "LocalArgument",
     "name": "minEntries"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "minTournamentSize"
   },
   {
     "defaultValue": null,
@@ -86,6 +92,11 @@ v2 = [
     "kind": "Variable",
     "name": "minEntries",
     "variableName": "minEntries"
+  },
+  {
+    "kind": "Variable",
+    "name": "minTournamentSize",
+    "variableName": "minTournamentSize"
   },
   {
     "kind": "Variable",
@@ -288,7 +299,8 @@ return {
           "timePeriod",
           "sortBy",
           "colorId",
-          "minEntries"
+          "minEntries",
+          "minTournamentSize"
         ],
         "handle": "connection",
         "key": "pages__commanders",
@@ -298,16 +310,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "5551dd3a803ce7d957f7f3ac7bda7158",
+    "cacheID": "6c947d040f098c59abd8b1cd21696b91",
     "id": null,
     "metadata": {},
     "name": "TopCommandersQuery",
     "operationKind": "query",
-    "text": "query TopCommandersQuery(\n  $colorId: String\n  $count: Int = 48\n  $cursor: String\n  $minEntries: Int\n  $sortBy: CommandersSortBy\n  $timePeriod: TimePeriod\n) {\n  ...pages_topCommanders_1G22uz\n}\n\nfragment pages_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  breakdownUrl\n  stats(filters: {timePeriod: $timePeriod}) {\n    conversionRate\n    topCuts\n    count\n    metaShare\n  }\n}\n\nfragment pages_topCommanders_1G22uz on Query {\n  commanders(first: $count, after: $cursor, timePeriod: $timePeriod, sortBy: $sortBy, colorId: $colorId, minEntries: $minEntries) {\n    edges {\n      node {\n        id\n        ...pages_TopCommandersCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
+    "text": "query TopCommandersQuery(\n  $colorId: String\n  $count: Int = 48\n  $cursor: String\n  $minEntries: Int\n  $minTournamentSize: Int\n  $sortBy: CommandersSortBy\n  $timePeriod: TimePeriod\n) {\n  ...pages_topCommanders_1G22uz\n}\n\nfragment pages_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  breakdownUrl\n  stats(filters: {timePeriod: $timePeriod}) {\n    conversionRate\n    topCuts\n    count\n    metaShare\n  }\n}\n\nfragment pages_topCommanders_1G22uz on Query {\n  commanders(first: $count, after: $cursor, timePeriod: $timePeriod, sortBy: $sortBy, colorId: $colorId, minEntries: $minEntries, minTournamentSize: $minTournamentSize) {\n    edges {\n      node {\n        id\n        ...pages_TopCommandersCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "3a755f3e75cd3ab6cc32d809c07f957a";
+(node as any).hash = "b5a6c24d9b40c399fa950a403034faa7";
 
 export default node;

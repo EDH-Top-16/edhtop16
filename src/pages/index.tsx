@@ -135,11 +135,13 @@ function CommandersPageShell({
   timePeriod,
   colorId,
   minEntries,
+  minTournamentSize,
   onUpdateQueryParam,
   children,
 }: PropsWithChildren<{
   colorId: string;
   minEntries: number;
+  minTournamentSize: number;
   sortBy: CommandersSortBy;
   timePeriod: TimePeriod;
   onUpdateQueryParam?: (key: string, value: string | null) => void;
@@ -155,12 +157,12 @@ function CommandersPageShell({
       />
 
       <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
-        <div className="flex w-full gap-4">
-          <h1 className="mb-8 flex-1 font-title text-5xl font-extrabold text-white md:mb-0">
+        <div className="flex w-full items-baseline gap-4">
+          <h1 className="flex-1 pb-8 font-title text-5xl font-extrabold text-white md:mb-0">
             cEDH Metagame Breakdown
           </h1>
 
-          <button className="hidden md:block" onClick={toggleDisplay}>
+          <button className="" onClick={toggleDisplay}>
             {display === "card" ? (
               <TableCellsIcon className="h-6 w-6 text-white" />
             ) : (
@@ -169,7 +171,7 @@ function CommandersPageShell({
           </button>
         </div>
 
-        <div className="mb-8 flex flex-col items-center space-y-4 md:flex-row md:items-end">
+        <div className="mb-8 flex flex-col items-start space-y-4 md:flex-row md:items-end">
           <div className="flex-1">
             <ColorSelection
               selected={colorId}
@@ -222,6 +224,20 @@ function CommandersPageShell({
               <option value="20">20+</option>
               <option value="60">60+</option>
               <option value="120">120+</option>
+            </Select>
+
+            <Select
+              id="commanders-min-size"
+              label="Min. Size"
+              value={`${minTournamentSize}`}
+              disabled={onUpdateQueryParam == null}
+              onChange={(value) => {
+                onUpdateQueryParam?.("minSize", value);
+              }}
+            >
+              <option value="0">All Tournaments</option>
+              <option value="60">60+ Players</option>
+              <option value="100">100+ Players</option>
             </Select>
           </div>
         </div>
@@ -285,8 +301,10 @@ function queryVariablesFromParsedUrlQuery(query: ParsedUrlQuery) {
     typeof query.minEntries === "string"
       ? Number(query.minEntries)
       : defaultMinEntriesForTimePeriod(timePeriod);
+  const minTournamentSize =
+    typeof query.minSize === "string" ? Number(query.minSize) : 0;
 
-  return { timePeriod, sortBy, colorId, minEntries };
+  return { timePeriod, sortBy, colorId, minEntries, minTournamentSize };
 }
 
 const CommandersQuery = graphql`
@@ -294,6 +312,7 @@ const CommandersQuery = graphql`
     $timePeriod: TimePeriod!
     $sortBy: CommandersSortBy!
     $minEntries: Int!
+    $minTournamentSize: Int!
     $colorId: String
   ) {
     ...pages_topCommanders
@@ -323,6 +342,7 @@ function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
           sortBy: $sortBy
           colorId: $colorId
           minEntries: $minEntries
+          minTournamentSize: $minTournamentSize
         ) @connection(key: "pages__commanders") {
           edges {
             node {
@@ -342,6 +362,7 @@ function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
       timePeriod={preloadedQuery.variables.timePeriod}
       colorId={preloadedQuery.variables.colorId || ""}
       minEntries={preloadedQuery.variables.minEntries}
+      minTournamentSize={preloadedQuery.variables.minTournamentSize}
       onUpdateQueryParam={setQueryVariable}
     >
       <div
@@ -398,7 +419,7 @@ function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
 function CommandersPagePlaceholder() {
   const setQueryVariable = useSetQueryVariable();
   const router = useRouter();
-  const { sortBy, colorId, minEntries, timePeriod } =
+  const { sortBy, colorId, minEntries, timePeriod, minTournamentSize } =
     queryVariablesFromParsedUrlQuery(router.query);
 
   return (
@@ -407,6 +428,7 @@ function CommandersPagePlaceholder() {
       timePeriod={timePeriod}
       colorId={colorId ?? ""}
       minEntries={minEntries}
+      minTournamentSize={minTournamentSize}
       onUpdateQueryParam={setQueryVariable}
     >
       <div className="flex w-full justify-center pt-24 text-white">

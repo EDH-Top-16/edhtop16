@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<96d8117e15a73ed6ffbf58191659cbc8>>
+ * @generated SignedSource<<b57ca0b534bcd90e7008e42e2a4085d8>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -15,6 +15,7 @@ export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "SIX_MONTHS" | 
 export type pages_CommandersQuery$variables = {
   colorId?: string | null | undefined;
   minEntries: number;
+  minTournamentSize: number;
   sortBy: CommandersSortBy;
   timePeriod: TimePeriod;
 };
@@ -40,19 +41,24 @@ v1 = {
 v2 = {
   "defaultValue": null,
   "kind": "LocalArgument",
-  "name": "sortBy"
+  "name": "minTournamentSize"
 },
 v3 = {
   "defaultValue": null,
   "kind": "LocalArgument",
-  "name": "timePeriod"
+  "name": "sortBy"
 },
 v4 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "timePeriod"
+},
+v5 = {
   "kind": "Variable",
   "name": "timePeriod",
   "variableName": "timePeriod"
 },
-v5 = [
+v6 = [
   {
     "kind": "Variable",
     "name": "colorId",
@@ -70,10 +76,15 @@ v5 = [
   },
   {
     "kind": "Variable",
+    "name": "minTournamentSize",
+    "variableName": "minTournamentSize"
+  },
+  {
+    "kind": "Variable",
     "name": "sortBy",
     "variableName": "sortBy"
   },
-  (v4/*: any*/)
+  (v5/*: any*/)
 ];
 return {
   "fragment": {
@@ -81,7 +92,8 @@ return {
       (v0/*: any*/),
       (v1/*: any*/),
       (v2/*: any*/),
-      (v3/*: any*/)
+      (v3/*: any*/),
+      (v4/*: any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -99,9 +111,10 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
+      (v4/*: any*/),
       (v3/*: any*/),
-      (v2/*: any*/),
       (v1/*: any*/),
+      (v2/*: any*/),
       (v0/*: any*/)
     ],
     "kind": "Operation",
@@ -109,7 +122,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v6/*: any*/),
         "concreteType": "QueryCommandersConnection",
         "kind": "LinkedField",
         "name": "commanders",
@@ -171,7 +184,7 @@ return {
                     "args": [
                       {
                         "fields": [
-                          (v4/*: any*/)
+                          (v5/*: any*/)
                         ],
                         "kind": "ObjectValue",
                         "name": "filters"
@@ -263,12 +276,13 @@ return {
       },
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v6/*: any*/),
         "filters": [
           "timePeriod",
           "sortBy",
           "colorId",
-          "minEntries"
+          "minEntries",
+          "minTournamentSize"
         ],
         "handle": "connection",
         "key": "pages__commanders",
@@ -278,16 +292,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "cd439d050cd65d07c218ed8b8ef4653e",
+    "cacheID": "cff0235f33ba8ea1e366dd21816c1b22",
     "id": null,
     "metadata": {},
     "name": "pages_CommandersQuery",
     "operationKind": "query",
-    "text": "query pages_CommandersQuery(\n  $timePeriod: TimePeriod!\n  $sortBy: CommandersSortBy!\n  $minEntries: Int!\n  $colorId: String\n) {\n  ...pages_topCommanders\n}\n\nfragment pages_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  breakdownUrl\n  stats(filters: {timePeriod: $timePeriod}) {\n    conversionRate\n    topCuts\n    count\n    metaShare\n  }\n}\n\nfragment pages_topCommanders on Query {\n  commanders(first: 48, timePeriod: $timePeriod, sortBy: $sortBy, colorId: $colorId, minEntries: $minEntries) {\n    edges {\n      node {\n        id\n        ...pages_TopCommandersCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
+    "text": "query pages_CommandersQuery(\n  $timePeriod: TimePeriod!\n  $sortBy: CommandersSortBy!\n  $minEntries: Int!\n  $minTournamentSize: Int!\n  $colorId: String\n) {\n  ...pages_topCommanders\n}\n\nfragment pages_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  breakdownUrl\n  stats(filters: {timePeriod: $timePeriod}) {\n    conversionRate\n    topCuts\n    count\n    metaShare\n  }\n}\n\nfragment pages_topCommanders on Query {\n  commanders(first: 48, timePeriod: $timePeriod, sortBy: $sortBy, colorId: $colorId, minEntries: $minEntries, minTournamentSize: $minTournamentSize) {\n    edges {\n      node {\n        id\n        ...pages_TopCommandersCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "0f395951a5a63350cadf095e261dbeb3";
+(node as any).hash = "c1fa5916a049524edba4b690aacf4c50";
 
 export default node;
