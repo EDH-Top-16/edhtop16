@@ -52,8 +52,9 @@ type CommanderEntriesConnectionEdge {
 
 type CommanderStats {
   conversionRate: Float!
-  count: Float!
-  topCuts: Float!
+  count: Int!
+  metaShare: Float!
+  topCuts: Int!
 }
 
 input CommanderStatsFilters {
@@ -69,6 +70,7 @@ input CommanderStatsFilters {
 }
 
 enum CommandersSortBy {
+  COLOR
   CONVERSION
   POPULARITY
 }
@@ -165,6 +167,7 @@ type Query {
   commanders(
     after: String
     before: String
+    colorId: String
     first: Int
     last: Int
     minEntries: Int
@@ -211,7 +214,7 @@ type TopdeckTournamentRound {
 }
 
 type TopdeckTournamentTable {
-  entries: [Entry]!
+  entries: [Entry!]!
   roundName: String!
   table: Int!
   winner: Entry
