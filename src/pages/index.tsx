@@ -158,7 +158,7 @@ function CommandersPageShell({
 
       <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
         <div className="flex w-full items-baseline gap-4">
-          <h1 className="flex-1 pb-8 font-title text-5xl font-extrabold text-white md:mb-0">
+          <h1 className="flex-1 font-title text-5xl font-extrabold text-white md:mb-0">
             cEDH Metagame Breakdown
           </h1>
 
