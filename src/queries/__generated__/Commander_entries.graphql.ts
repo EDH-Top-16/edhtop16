@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<9ef013d5952f64be43560b250b806d4a>>
+ * @generated SignedSource<<8d15f04fe88d736b3ec9d39fb4d8fcf4>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -108,11 +108,6 @@ return {
               "kind": "Variable",
               "name": "minEventSize",
               "variableName": "minEventSize"
-            },
-            {
-              "kind": "Literal",
-              "name": "timePeriod",
-              "value": "SIX_MONTHS"
             }
           ],
           "kind": "ObjectValue",
@@ -206,6 +201,6 @@ return {
 };
 })();
 
-(node as any).hash = "0dfc402dd0752d6349288c9b0fcceb1e";
+(node as any).hash = "876e1bd441cae57fe6a8ed9f662d6100";
 
 export default node;
