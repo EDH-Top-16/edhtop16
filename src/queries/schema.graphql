@@ -70,7 +70,6 @@ input CommanderStatsFilters {
 }
 
 enum CommandersSortBy {
-  COLOR
   CONVERSION
   POPULARITY
 }
@@ -163,7 +162,6 @@ type Player implements Node {
 
 type Query {
   commander(name: String!): Commander!
-  commanderNames: [String!]!
   commanders(
     after: String
     before: String
@@ -177,6 +175,7 @@ type Query {
   node(id: ID!): Node
   nodes(ids: [ID!]!): [Node]!
   player(profile: String!): Player!
+  searchResults(types: [SearchResultType!]): [SearchResult!]!
   tournament(TID: String!): Tournament!
   tournaments(
     filters: TournamentFilters
@@ -193,6 +192,16 @@ type QueryCommandersConnection {
 type QueryCommandersConnectionEdge {
   cursor: String!
   node: Commander!
+}
+
+type SearchResult {
+  name: String!
+  url: String!
+}
+
+enum SearchResultType {
+  COMMANDER
+  TOURNAMENT
 }
 
 enum SortDirection {

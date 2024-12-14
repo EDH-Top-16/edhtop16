@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<3405ceb44d7f0fb5b0c03a22a293ea90>>
+ * @generated SignedSource<<96d8117e15a73ed6ffbf58191659cbc8>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type CommandersSortBy = "COLOR" | "CONVERSION" | "POPULARITY" | "%future added value";
+export type CommandersSortBy = "CONVERSION" | "POPULARITY" | "%future added value";
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type pages_CommandersQuery$variables = {
   colorId?: string | null | undefined;

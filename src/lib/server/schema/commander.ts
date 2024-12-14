@@ -108,20 +108,6 @@ builder.queryField("commander", (t) =>
   }),
 );
 
-builder.queryField("commanderNames", (t) =>
-  t.stringList({
-    resolve: async () => {
-      const commanders = await prisma.commander.findMany({
-        select: { name: true },
-        where: { name: { not: "Unknown Commander" } },
-        orderBy: { entries: { _count: "desc" } },
-      });
-
-      return commanders.map((c) => c.name);
-    },
-  }),
-);
-
 builder.queryField("commanders", (t) =>
   t.connection({
     type: CommanderType,

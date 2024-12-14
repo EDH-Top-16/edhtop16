@@ -87,7 +87,7 @@ function TournamentsPageShell({
 }>) {
   return (
     <>
-      <Navigation />
+      <Navigation searchType="tournament" />
       <NextSeo
         title="cEDH Tournaments"
         description="Discover top and recent cEDH tournaments!"
