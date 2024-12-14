@@ -18,8 +18,8 @@ import { RelayProps, withRelay } from "relay-nextjs";
 import { ColorIdentity } from "../assets/icons/colors";
 import { Card } from "../components/card";
 import { ColorSelection } from "../components/color_selection";
-import { LoadingIcon } from "../components/fallback";
 import { Footer } from "../components/footer";
+import { LoadMoreButton } from "../components/load_more";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
 import { formatPercent } from "../lib/client/format";
@@ -398,18 +398,11 @@ function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
         ))}
       </div>
 
-      {isLoadingNext ? (
-        <LoadingIcon padding={false} className="self-center" />
-      ) : hasNext ? (
-        <button
-          className="inset-shadow-sm mx-auto flex justify-center self-center rounded-md bg-[#312d5a] px-4 py-2 font-title text-sm text-white shadow-md"
-          onClick={() => {
-            loadNext(48);
-          }}
-        >
-          Load More
-        </button>
-      ) : null}
+      <LoadMoreButton
+        hasNext={hasNext}
+        isLoadingNext={isLoadingNext}
+        loadNext={loadNext}
+      />
 
       <Footer />
     </CommandersPageShell>

@@ -178,10 +178,14 @@ type Query {
   searchResults(types: [SearchResultType!]): [SearchResult!]!
   tournament(TID: String!): Tournament!
   tournaments(
+    after: String
+    before: String
     filters: TournamentFilters
+    first: Int
+    last: Int
     search: String
     sortBy: TournamentSortBy = DATE
-  ): [Tournament!]!
+  ): QueryTournamentsConnection!
 }
 
 type QueryCommandersConnection {
@@ -192,6 +196,16 @@ type QueryCommandersConnection {
 type QueryCommandersConnectionEdge {
   cursor: String!
   node: Commander!
+}
+
+type QueryTournamentsConnection {
+  edges: [QueryTournamentsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryTournamentsConnectionEdge {
+  cursor: String!
+  node: Tournament!
 }
 
 type SearchResult {
