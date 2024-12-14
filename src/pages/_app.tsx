@@ -19,6 +19,17 @@ const montserrat = Montserrat({
 });
 
 export default function EdhTop16App({ Component, pageProps }: AppProps) {
+  return (
+    <div
+      className={cn(
+        montserrat.variable,
+        "font-lg flex h-screen w-screen items-center justify-center bg-black font-title text-4xl text-white",
+      )}
+    >
+      #FreeDockside
+    </div>
+  );
+
   const { env, ...relayProps } = useRelayNextjs(pageProps, {
     createClientEnvironment: () => getClientEnvironment()!,
   });
