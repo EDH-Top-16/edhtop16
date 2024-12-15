@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<4dfbe3e3bf85ec9bc041602de40f3dce>>
+ * @generated SignedSource<<1293e6582123a2f030d312c965f8d82c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -106,8 +106,20 @@ v9 = {
 v10 = {
   "alias": null,
   "args": null,
-  "kind": "ScalarField",
-  "name": "imageUrls",
+  "concreteType": "Card",
+  "kind": "LinkedField",
+  "name": "cards",
+  "plural": true,
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "imageUrls",
+      "storageKey": null
+    },
+    (v6/*: any*/)
+  ],
   "storageKey": null
 },
 v11 = {
@@ -176,8 +188,8 @@ v12 = [
     "plural": false,
     "selections": [
       (v9/*: any*/),
-      (v10/*: any*/),
       (v11/*: any*/),
+      (v10/*: any*/),
       (v6/*: any*/)
     ],
     "storageKey": null
@@ -398,7 +410,6 @@ return {
                     "selections": [
                       (v6/*: any*/),
                       (v9/*: any*/),
-                      (v10/*: any*/),
                       (v11/*: any*/),
                       {
                         "alias": null,
@@ -406,7 +417,8 @@ return {
                         "kind": "ScalarField",
                         "name": "colorId",
                         "storageKey": null
-                      }
+                      },
+                      (v10/*: any*/)
                     ],
                     "storageKey": null
                   },
@@ -460,12 +472,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "8cd9062263970c4ebf6d605c11b6d335",
+    "cacheID": "b78c587c90ab03832c3af274955dffdf",
     "id": null,
     "metadata": {},
     "name": "TID_TournamentQuery",
     "operationKind": "query",
-    "text": "query TID_TournamentQuery(\n  $TID: String!\n  $commander: String\n  $showStandings: Boolean!\n  $showBreakdown: Boolean!\n  $showBreakdownCommander: Boolean!\n) {\n  tournament(TID: $TID) {\n    ...TID_TournamentPageShell\n    entries @include(if: $showStandings) {\n      id\n      ...TID_EntryCard\n    }\n    breakdown @include(if: $showBreakdown) {\n      commander {\n        id\n      }\n      ...TID_BreakdownGroupCard\n    }\n    breakdownEntries: entries(commander: $commander) @include(if: $showBreakdownCommander) {\n      id\n      ...TID_EntryCard\n    }\n    id\n  }\n}\n\nfragment TID_BreakdownGroupCard on TournamentBreakdownGroup {\n  commander {\n    name\n    imageUrls\n    breakdownUrl\n    colorId\n    id\n  }\n  entries\n  topCuts\n  conversionRate\n}\n\nfragment TID_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  commander {\n    name\n    imageUrls\n    breakdownUrl\n    id\n  }\n}\n\nfragment TID_TournamentBanner on Tournament {\n  name\n  size\n  tournamentDate\n  bracketUrl\n  winner: entries(maxStanding: 1) {\n    commander {\n      imageUrls\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentMeta on Tournament {\n  name\n}\n\nfragment TID_TournamentPageShell on Tournament {\n  ...TID_TournamentBanner\n  ...TID_TournamentMeta\n}\n"
+    "text": "query TID_TournamentQuery(\n  $TID: String!\n  $commander: String\n  $showStandings: Boolean!\n  $showBreakdown: Boolean!\n  $showBreakdownCommander: Boolean!\n) {\n  tournament(TID: $TID) {\n    ...TID_TournamentPageShell\n    entries @include(if: $showStandings) {\n      id\n      ...TID_EntryCard\n    }\n    breakdown @include(if: $showBreakdown) {\n      commander {\n        id\n      }\n      ...TID_BreakdownGroupCard\n    }\n    breakdownEntries: entries(commander: $commander) @include(if: $showBreakdownCommander) {\n      id\n      ...TID_EntryCard\n    }\n    id\n  }\n}\n\nfragment TID_BreakdownGroupCard on TournamentBreakdownGroup {\n  commander {\n    name\n    breakdownUrl\n    colorId\n    cards {\n      imageUrls\n      id\n    }\n    id\n  }\n  entries\n  topCuts\n  conversionRate\n}\n\nfragment TID_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  commander {\n    name\n    breakdownUrl\n    cards {\n      imageUrls\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentBanner on Tournament {\n  name\n  size\n  tournamentDate\n  bracketUrl\n  winner: entries(maxStanding: 1) {\n    commander {\n      cards {\n        imageUrls\n        id\n      }\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentMeta on Tournament {\n  name\n}\n\nfragment TID_TournamentPageShell on Tournament {\n  ...TID_TournamentBanner\n  ...TID_TournamentMeta\n}\n"
   }
 };
 })();

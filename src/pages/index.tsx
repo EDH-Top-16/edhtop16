@@ -47,13 +47,15 @@ function TopCommandersCard({
       fragment pages_TopCommandersCard on Commander {
         name
         colorId
-        imageUrls
         breakdownUrl
         stats(filters: { timePeriod: $timePeriod }) {
           conversionRate
           topCuts
           count
           metaShare
+        }
+        cards {
+          imageUrls
         }
       }
     `,
@@ -111,10 +113,12 @@ function TopCommandersCard({
   return (
     <Card
       bottomText={commanderStats}
-      images={commander.imageUrls.map((img) => ({
-        src: img,
-        alt: `${commander.name} card art`,
-      }))}
+      images={commander.cards
+        .flatMap((c) => c.imageUrls)
+        .map((img) => ({
+          src: img,
+          alt: `${commander.name} card art`,
+        }))}
     >
       <div className="flex h-32 flex-col space-y-2">
         <Link

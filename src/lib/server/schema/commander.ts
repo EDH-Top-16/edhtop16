@@ -1,8 +1,8 @@
 import { resolveOffsetConnection } from "@pothos/plugin-relay";
-import { Commander, Prisma } from "@prisma/client";
+import { Commander, Prisma, Card as PrismaCard } from "@prisma/client";
 import { prisma } from "../prisma";
-import { scryfallCardSchema } from "../scryfall";
 import { builder } from "./builder";
+import { Card } from "./card";
 import { minDateFromTimePeriod, TimePeriod } from "./types";
 
 const CommandersSortBy = builder.enumType("CommandersSortBy", {
@@ -13,7 +13,7 @@ const EntriesSortBy = builder.enumType("EntriesSortBy", {
   values: ["NEW", "TOP"] as const,
 });
 
-const FiltersInput = builder.inputType("CommanderStatsFilters", {
+const CommanderStatsFilters = builder.inputType("CommanderStatsFilters", {
   fields: (t) => ({
     topCut: t.int(),
     colorId: t.string(),
@@ -70,23 +70,22 @@ const CommanderType = builder.prismaNode("Commander", {
         };
       },
     }),
-    imageUrls: t.stringList({
-      resolve: async (parent, _args) => {
-        const cardNames =
-          parent.name === "Unknown Commander"
-            ? ["The Prismatic Piper"]
-            : parent.name.split(" / ");
-
+    cards: t.loadable({
+      type: [Card],
+      load: async (names: string[]) => {
         const cards = await prisma.card.findMany({
-          where: { name: { in: cardNames } },
+          where: { name: { in: names } },
         });
 
-        return cards
-          .map((c) => scryfallCardSchema.parse(c.data))
-          .flatMap((c) => (c.card_faces ? c.card_faces : [c]))
-          .map((c) => c.image_uris?.art_crop)
-          .filter((c): c is string => c != null);
+        const cardByName = new Map<string, PrismaCard>();
+        for (const card of cards) cardByName.set(card.name, card);
+
+        return names.map(
+          (n) => cardByName.get(n) ?? new Error(`Could not find card: ${n}`),
+        );
       },
+      resolve: (parent) =>
+        parent.name === "Unknown Commander" ? [] : parent.name.split(" / "),
     }),
   }),
 });
@@ -181,7 +180,7 @@ builder.objectField(CommanderType, "stats", (t) =>
   t.loadable({
     type: CommanderStats,
     byPath: true,
-    args: { filters: t.arg({ type: FiltersInput }) },
+    args: { filters: t.arg({ type: CommanderStatsFilters }) },
     resolve: (parent) => parent.uuid,
     load: async (commanderUuids: string[], _ctx, { filters }) => {
       const topCut = filters?.topCut ?? 0;

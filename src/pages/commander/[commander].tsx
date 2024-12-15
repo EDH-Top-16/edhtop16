@@ -109,8 +109,10 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
     graphql`
       fragment Commander_CommanderBanner on Commander {
         name
-        imageUrls
         colorId
+        cards {
+          imageUrls
+        }
       }
     `,
     props.commander,
@@ -120,20 +122,22 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
     <div className="h-64 w-full bg-black/60 md:h-80">
       <div className="relative mx-auto flex h-full w-full max-w-screen-xl flex-col items-center justify-center space-y-4">
         <div className="absolute left-0 top-0 flex h-full w-full brightness-[40%]">
-          {commander.imageUrls.map((src, _i, { length }) => {
-            return (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                className={cn(
-                  "flex-1 object-cover object-top",
-                  length === 2 ? "w-1/2" : "w-full",
-                )}
-                key={src}
-                src={src}
-                alt={`${commander.name} art`}
-              />
-            );
-          })}
+          {commander.cards
+            .flatMap((c) => c.imageUrls)
+            .map((src, _i, { length }) => {
+              return (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  className={cn(
+                    "flex-1 object-cover object-top",
+                    length === 2 ? "w-1/2" : "w-full",
+                  )}
+                  key={src}
+                  src={src}
+                  alt={`${commander.name} art`}
+                />
+              );
+            })}
         </div>
 
         <h1 className="relative text-center font-title font-title text-2xl font-semibold text-white md:text-4xl lg:text-5xl">

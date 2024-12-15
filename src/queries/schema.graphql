@@ -2,6 +2,7 @@ type Card implements Node {
   cmc: Int!
   colorId: String!
   id: ID!
+  imageUrls: [String!]!
 
   """
   Card name.
@@ -17,6 +18,7 @@ type Card implements Node {
 
 type Commander implements Node {
   breakdownUrl: String!
+  cards: [Card!]!
 
   """
   Color identity, e.g RUG.
@@ -31,7 +33,6 @@ type Commander implements Node {
     sortBy: EntriesSortBy = TOP
   ): CommanderEntriesConnection!
   id: ID!
-  imageUrls: [String!]!
 
   """
   Name of the commander, or commanders.
@@ -286,6 +287,7 @@ type TournamentBreakdownGroup {
 
 input TournamentFilters {
   maxSize: Int
+  minDate: String
   minSize: Int
   timePeriod: TimePeriod
 }

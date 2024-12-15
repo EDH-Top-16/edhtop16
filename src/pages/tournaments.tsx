@@ -40,7 +40,9 @@ function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
           }
 
           commander {
-            imageUrls
+            cards {
+              imageUrls
+            }
           }
         }
       }
@@ -62,10 +64,12 @@ function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
   return (
     <Card
       bottomText={tournamentStats}
-      images={tournament.entries[0]?.commander.imageUrls.map((img) => ({
-        src: img,
-        alt: `${tournament.name} winner card art`,
-      }))}
+      images={tournament.entries[0]?.commander.cards
+        .flatMap((c) => c.imageUrls)
+        .map((img) => ({
+          src: img,
+          alt: `${tournament.name} winner card art`,
+        }))}
     >
       <div className="flex h-32 flex-col space-y-2">
         <Link
