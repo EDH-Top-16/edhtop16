@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<a74fed6bc9ee2ef8e23fee7a60ad4c7a>>
+ * @generated SignedSource<<176c1403362776a9bc2f1bfac6545817>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -198,8 +198,20 @@ return {
                           {
                             "alias": null,
                             "args": null,
-                            "kind": "ScalarField",
-                            "name": "imageUrls",
+                            "concreteType": "Card",
+                            "kind": "LinkedField",
+                            "name": "cards",
+                            "plural": true,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "imageUrls",
+                                "storageKey": null
+                              },
+                              (v4/*: any*/)
+                            ],
                             "storageKey": null
                           },
                           (v4/*: any*/)
@@ -273,12 +285,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "3649d6eb63b9d9d49fb4b47e1b06ee07",
+    "cacheID": "3a51f41e3bf477628d97c7d880dbc6fc",
     "id": null,
     "metadata": {},
     "name": "tournaments_TournamentsQuery",
     "operationKind": "query",
-    "text": "query tournaments_TournamentsQuery(\n  $timePeriod: TimePeriod!\n  $sortBy: TournamentSortBy!\n  $minSize: Int!\n) {\n  ...tournaments_Tournaments\n}\n\nfragment tournaments_TournamentCard on Tournament {\n  TID\n  name\n  size\n  tournamentDate\n  entries(maxStanding: 1) {\n    player {\n      name\n      id\n    }\n    commander {\n      imageUrls\n      id\n    }\n    id\n  }\n}\n\nfragment tournaments_Tournaments on Query {\n  tournaments(first: 100, filters: {timePeriod: $timePeriod, minSize: $minSize}, sortBy: $sortBy) {\n    edges {\n      node {\n        id\n        ...tournaments_TournamentCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
+    "text": "query tournaments_TournamentsQuery(\n  $timePeriod: TimePeriod!\n  $sortBy: TournamentSortBy!\n  $minSize: Int!\n) {\n  ...tournaments_Tournaments\n}\n\nfragment tournaments_TournamentCard on Tournament {\n  TID\n  name\n  size\n  tournamentDate\n  entries(maxStanding: 1) {\n    player {\n      name\n      id\n    }\n    commander {\n      cards {\n        imageUrls\n        id\n      }\n      id\n    }\n    id\n  }\n}\n\nfragment tournaments_Tournaments on Query {\n  tournaments(first: 100, filters: {timePeriod: $timePeriod, minSize: $minSize}, sortBy: $sortBy) {\n    edges {\n      node {\n        id\n        ...tournaments_TournamentCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
   }
 };
 })();

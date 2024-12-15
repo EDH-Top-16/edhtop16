@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b57ca0b534bcd90e7008e42e2a4085d8>>
+ * @generated SignedSource<<d0c85079328c1260c271d01741ad69f3>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -85,7 +85,14 @@ v6 = [
     "variableName": "sortBy"
   },
   (v5/*: any*/)
-];
+],
+v7 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": [
@@ -144,13 +151,7 @@ return {
                 "name": "node",
                 "plural": false,
                 "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "id",
-                    "storageKey": null
-                  },
+                  (v7/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -163,13 +164,6 @@ return {
                     "args": null,
                     "kind": "ScalarField",
                     "name": "colorId",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "imageUrls",
                     "storageKey": null
                   },
                   {
@@ -223,6 +217,25 @@ return {
                         "name": "metaShare",
                         "storageKey": null
                       }
+                    ],
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "Card",
+                    "kind": "LinkedField",
+                    "name": "cards",
+                    "plural": true,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "imageUrls",
+                        "storageKey": null
+                      },
+                      (v7/*: any*/)
                     ],
                     "storageKey": null
                   },
@@ -292,12 +305,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "cff0235f33ba8ea1e366dd21816c1b22",
+    "cacheID": "03321d5e5a74c869e88861867fe1f54f",
     "id": null,
     "metadata": {},
     "name": "pages_CommandersQuery",
     "operationKind": "query",
-    "text": "query pages_CommandersQuery(\n  $timePeriod: TimePeriod!\n  $sortBy: CommandersSortBy!\n  $minEntries: Int!\n  $minTournamentSize: Int!\n  $colorId: String\n) {\n  ...pages_topCommanders\n}\n\nfragment pages_TopCommandersCard on Commander {\n  name\n  colorId\n  imageUrls\n  breakdownUrl\n  stats(filters: {timePeriod: $timePeriod}) {\n    conversionRate\n    topCuts\n    count\n    metaShare\n  }\n}\n\nfragment pages_topCommanders on Query {\n  commanders(first: 48, timePeriod: $timePeriod, sortBy: $sortBy, colorId: $colorId, minEntries: $minEntries, minTournamentSize: $minTournamentSize) {\n    edges {\n      node {\n        id\n        ...pages_TopCommandersCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
+    "text": "query pages_CommandersQuery(\n  $timePeriod: TimePeriod!\n  $sortBy: CommandersSortBy!\n  $minEntries: Int!\n  $minTournamentSize: Int!\n  $colorId: String\n) {\n  ...pages_topCommanders\n}\n\nfragment pages_TopCommandersCard on Commander {\n  name\n  colorId\n  breakdownUrl\n  stats(filters: {timePeriod: $timePeriod}) {\n    conversionRate\n    topCuts\n    count\n    metaShare\n  }\n  cards {\n    imageUrls\n    id\n  }\n}\n\nfragment pages_topCommanders on Query {\n  commanders(first: 48, timePeriod: $timePeriod, sortBy: $sortBy, colorId: $colorId, minEntries: $minEntries, minTournamentSize: $minTournamentSize) {\n    edges {\n      node {\n        id\n        ...pages_TopCommandersCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
   }
 };
 })();

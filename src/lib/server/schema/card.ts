@@ -30,5 +30,14 @@ export const Card = builder.prismaNode("Card", {
         return scryfallCardSchema.parse(parent.data).type_line;
       },
     }),
+    imageUrls: t.stringList({
+      resolve: (parent) => {
+        const card = scryfallCardSchema.parse(parent.data);
+        const cardFaces = card.card_faces ? card.card_faces : [card];
+        return cardFaces
+          .map((c) => c.image_uris?.art_crop)
+          .filter((c): c is string => c != null);
+      },
+    }),
   }),
 });

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<3a75e0bfe2a256ea17771d392c5f0769>>
+ * @generated SignedSource<<b334128011dabc90670064d824fb3269>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -14,7 +14,9 @@ export type tournaments_TournamentCard$data = {
   readonly TID: string;
   readonly entries: ReadonlyArray<{
     readonly commander: {
-      readonly imageUrls: ReadonlyArray<string>;
+      readonly cards: ReadonlyArray<{
+        readonly imageUrls: ReadonlyArray<string>;
+      }>;
     };
     readonly player: {
       readonly name: string;
@@ -103,8 +105,19 @@ return {
             {
               "alias": null,
               "args": null,
-              "kind": "ScalarField",
-              "name": "imageUrls",
+              "concreteType": "Card",
+              "kind": "LinkedField",
+              "name": "cards",
+              "plural": true,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "imageUrls",
+                  "storageKey": null
+                }
+              ],
               "storageKey": null
             }
           ],
@@ -119,6 +132,6 @@ return {
 };
 })();
 
-(node as any).hash = "0770d12017acb7ba389c1d21eee166aa";
+(node as any).hash = "3069c5ecd9ab738c24b7c22d13ba7b37";
 
 export default node;

@@ -177,6 +177,7 @@ const TournamentSortBy = builder.enumType("TournamentSortBy", {
 const TournamentFiltersInput = builder.inputType("TournamentFilters", {
   fields: (t) => ({
     timePeriod: t.field({ type: TimePeriod }),
+    minDate: t.string(),
     minSize: t.int(),
     maxSize: t.int(),
   }),
@@ -208,8 +209,12 @@ builder.queryField("tournaments", (t) =>
         where.push({ size: { lte: args.filters.maxSize } });
       }
 
-      if (args.filters?.timePeriod) {
-        const minDate = minDateFromTimePeriod(args.filters.timePeriod);
+      if (args.filters?.timePeriod || args.filters?.minDate) {
+        const minDate =
+          args.filters?.minDate != null
+            ? new Date(args.filters?.minDate ?? 0)
+            : minDateFromTimePeriod(args.filters?.timePeriod);
+
         where.push({ tournamentDate: { gte: minDate } });
       }
 
