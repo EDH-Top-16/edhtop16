@@ -78,6 +78,7 @@ enum CommandersSortBy {
 input EntriesFilter {
   maxStanding: Int
   minEventSize: Int = 60
+  timePeriod: TimePeriod = ALL_TIME
 }
 
 enum EntriesSortBy {
