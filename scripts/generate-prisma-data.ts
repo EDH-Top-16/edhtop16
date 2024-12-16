@@ -5,50 +5,22 @@
 
 import { faker } from "@faker-js/faker";
 import { workerPool } from "@reverecre/promise";
+import { stringify } from "csv-stringify";
 import { MongoClient } from "mongodb";
 import { randomUUID } from "node:crypto";
 import { createWriteStream } from "node:fs";
 import fs from "node:fs/promises";
-import { parseArgs, promisify } from "node:util";
+import { finished } from "node:stream/promises";
+import { parseArgs } from "node:util";
 import pc from "picocolors";
-import sqlite3 from "sqlite3";
 import * as undici from "undici";
 import { z } from "zod";
 import { ScryfallCard } from "../src/lib/server/scryfall";
 
-const args = parseArgs({
-  options: {
-    tid: {
-      type: "string",
-      multiple: true,
-    },
-    anonymize: {
-      type: "boolean",
-    },
-    "entries-db-url": {
-      type: "string",
-    },
-  },
-});
+const env = z.object({ ENTRIES_DB_URL: z.string() }).parse(process.env);
 
-if (!args.values["entries-db-url"]) {
-  console.log(
-    pc.red("Could not generate database!\nMust provide --entries-db-url flag"),
-  );
-
-  process.exit(1);
-}
-
-/** Connection to the raw entries database. */
-const mongo = new MongoClient(args.values["entries-db-url"]);
-
-/** Connection to local SQLite database seeded from data warehouse. */
-const db = new sqlite3.Database("prisma/edhtop16.db");
-
-// Turn off journalizing and start a transaction for faster inserts.
-console.log(pc.green(`Connected to local SQLite database!`));
-db.exec("PRAGMA journal_mode = OFF");
-db.exec("BEGIN");
+// Connection to the raw entries database.
+const mongo = new MongoClient(env.ENTRIES_DB_URL);
 
 class ScryfallDatabase {
   private static scryfallBulkDataSchema = z.object({
@@ -254,11 +226,22 @@ async function getTournamentEntries(tournamentId: string) {
 }
 
 async function createTournaments(tids?: string[]) {
-  const insertTournament = db.prepare(`
-    INSERT INTO "Tournament"
-    ("uuid", "TID", "name", "tournamentDate", "size", "swissRounds", "topCut", "bracketUrl")
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `);
+  const tournamentsCsv = createWriteStream("prisma/data/tournaments.seed.csv");
+  const tournamentsWriter = stringify({
+    header: true,
+    columns: [
+      "uuid",
+      "TID",
+      "name",
+      "tournamentDate",
+      "size",
+      "swissRounds",
+      "topCut",
+      "bracketUrl",
+    ],
+  });
+
+  tournamentsWriter.pipe(tournamentsCsv);
 
   const tournaments = await getTournaments(tids);
   console.log(
@@ -269,27 +252,23 @@ async function createTournaments(tids?: string[]) {
   await workerPool(tournaments, async (t) => {
     const tournamentUuid = randomUUID();
 
-    console.log(
-      `Creating tournament: ${pc.cyan(t.tournamentName)} ${pc.dim(
-        `[${t.TID}]`,
-      )}`,
-    );
-
-    insertTournament.run(
-      tournamentUuid,
-      t.TID,
-      t.tournamentName,
-      new Date(t.startDate * 1000).toISOString(),
-      t.players,
-      t.swissRounds,
-      t.topCut,
-      t.bracketUrl,
-    );
+    console.log(`Creating tournament: ${pc.cyan(t.tournamentName)}`);
+    tournamentsWriter.write({
+      uuid: tournamentUuid,
+      TID: t.TID,
+      name: t.tournamentName,
+      tournamentDate: new Date(t.startDate * 1000).toISOString(),
+      size: t.players,
+      swissRounds: t.swissRounds,
+      topCut: t.topCut,
+      bracketUrl: t.bracketUrl,
+    });
 
     tournamentUuidByTid.set(t.TID, tournamentUuid);
   });
 
-  insertTournament.finalize();
+  tournamentsWriter.end();
+  await finished(tournamentsCsv);
 
   return tournamentUuidByTid;
 }
@@ -307,11 +286,13 @@ async function loadEntries(tids: string[]): Promise<EntryWithTid[]> {
 }
 
 async function createCommanders(entries: EntryWithTid[]) {
-  const insertCommander = db.prepare(`
-    INSERT INTO "Commander"
-    ("uuid", "name", "colorId")
-    VALUES (?, ?, ?)
-  `);
+  const commandersCsv = createWriteStream("prisma/data/commanders.seed.csv");
+  const commandersWriter = stringify({
+    header: true,
+    columns: ["uuid", "name", "colorId"],
+  });
+
+  commandersWriter.pipe(commandersCsv);
 
   const commanderUuidByName = new Map<string, string>();
   for (const entry of entries) {
@@ -321,20 +302,27 @@ async function createCommanders(entries: EntryWithTid[]) {
     commanderUuidByName.set(entry.commander, commanderUuid);
 
     console.log(`Creating commander: ${pc.cyan(entry.commander)}`);
-    insertCommander.run(commanderUuid, entry.commander, entry.colorID);
+    commandersWriter.write({
+      uuid: commanderUuid,
+      name: entry.commander,
+      colorId: entry.colorID,
+    });
   }
 
-  insertCommander.finalize();
+  commandersWriter.end();
+  await finished(commandersCsv);
 
   return commanderUuidByName;
 }
 
 async function createCards(entries: EntryWithTid[]) {
-  const insertCard = db.prepare(`
-    INSERT INTO "Card"
-    ("uuid", "oracleId", "name", "data")
-    VALUES (?, ?, ?, ?)
-  `);
+  const cardsCsv = createWriteStream("prisma/data/cards.seed.csv");
+  const cardsWriter = stringify({
+    header: true,
+    columns: ["uuid", "oracleId", "name", "data"],
+  });
+
+  cardsWriter.pipe(cardsCsv);
 
   const cardUuidByOracleId = new Map<string, string>();
   const cardUuidByScryfallId = new Map<string, string>();
@@ -386,7 +374,12 @@ async function createCards(entries: EntryWithTid[]) {
       if (card.color_identity.includes(c)) colorId += c;
     }
 
-    insertCard.run(cardUuid, card.oracle_id, card.name, JSON.stringify(card));
+    cardsWriter.write({
+      uuid: cardUuid,
+      oracleId: card.oracle_id,
+      name: card.name,
+      data: JSON.stringify(card),
+    });
   }
 
   for (const scryfallId of allScryfallIds) {
@@ -399,7 +392,8 @@ async function createCards(entries: EntryWithTid[]) {
     cardUuidByScryfallId.set(scryfallId, cardUuid);
   }
 
-  insertCard.finalize();
+  cardsWriter.end();
+  await finished(cardsCsv);
 
   return cardUuidByScryfallId;
 }
@@ -418,23 +412,41 @@ async function createPlayers(
   },
   { anonymizeNames }: { anonymizeNames: boolean },
 ) {
-  const insertPlayer = db.prepare(`
-    INSERT INTO "Player"
-    ("uuid", "name", "topdeckProfile")
-    VALUES (?, ?, ?)
-  `);
+  const playersCsv = createWriteStream("prisma/data/players.seed.csv");
+  const playersWriter = stringify({
+    header: true,
+    columns: ["uuid", "topdeckProfile", "name"],
+  });
 
-  const insertEntry = db.prepare(`
-    INSERT INTO "Entry"
-    ("uuid", "decklist", "draws", "lossesBracket", "lossesSwiss", "standing", "winsBracket", "winsSwiss", "playerUuid", "commanderUuid", "tournamentUuid")
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
+  playersWriter.pipe(playersCsv);
 
-  const insertDecklistItem = db.prepare(`
-    INSERT INTO "DecklistItem"
-    ("entryUuid", "cardUuid")
-    VALUES (?, ?)
-  `);
+  const entriesCsv = createWriteStream("prisma/data/entries.seed.csv");
+  const entriesWriter = stringify({
+    header: true,
+    columns: [
+      "uuid",
+      "decklist",
+      "draws",
+      "lossesBracket",
+      "lossesSwiss",
+      "standing",
+      "winsBracket",
+      "winsSwiss",
+      "playerUuid",
+      "commanderUuid",
+      "tournamentUuid",
+    ],
+  });
+
+  entriesWriter.pipe(entriesCsv);
+
+  const decklistCsv = createWriteStream("prisma/data/decklist.seed.csv");
+  const decklistWriter = stringify({
+    header: true,
+    columns: ["entryUuid", "cardUuid"],
+  });
+
+  decklistWriter.pipe(decklistCsv);
 
   console.log(pc.yellow(`Creating players from entries...`));
 
@@ -460,23 +472,24 @@ async function createPlayers(
       } else {
         playerUuid = randomUUID();
         playerUuidByTopdeckUuid.set(entry.profile, playerUuid);
-        insertPlayer.run(
-          playerUuid,
-          anonymizeNames
+        playersWriter.write({
+          uuid: playerUuid,
+          name: anonymizeNames
             ? faker.person.fullName()
             : entry.name || "Unknown Player",
-          anonymizeNames ? faker.string.nanoid() : entry.profile,
-        );
+          topdeckProfile: anonymizeNames
+            ? faker.string.nanoid()
+            : entry.profile,
+        });
       }
     } else {
       playerUuid = randomUUID();
-      insertPlayer.run(
-        playerUuid,
-        anonymizeNames
+      playersWriter.write({
+        uuid: playerUuid,
+        name: anonymizeNames
           ? faker.person.fullName()
           : entry.name || "Unknown Player",
-        null,
-      );
+      });
     }
 
     const cardUuids = new Set(
@@ -486,28 +499,36 @@ async function createPlayers(
     );
 
     const entryUuid = randomUUID();
-    insertEntry.run(
-      entryUuid,
-      entry.decklist,
-      entry.draws,
-      entry.lossesBracket,
-      entry.lossesSwiss,
-      entry.standing,
-      entry.winsBracket,
-      entry.winsSwiss,
-      playerUuid,
-      commanderUuid,
-      tournamentUuid,
-    );
+    entriesWriter.write({
+      uuid: entryUuid,
+      decklist: entry.decklist,
+      draws: entry.draws,
+      lossesBracket: entry.lossesBracket,
+      lossesSwiss: entry.lossesSwiss,
+      standing: entry.standing,
+      winsBracket: entry.winsBracket,
+      winsSwiss: entry.winsSwiss,
+      playerUuid: playerUuid,
+      commanderUuid: commanderUuid,
+      tournamentUuid: tournamentUuid,
+    });
 
     for (const cardUuid of Array.from(cardUuids)) {
-      insertDecklistItem.run(entryUuid, cardUuid);
+      decklistWriter.write({
+        entryUuid,
+        cardUuid,
+      });
     }
   }
 
-  insertPlayer.finalize();
-  insertEntry.finalize();
-  insertDecklistItem.finalize();
+  playersWriter.end();
+  await finished(playersCsv);
+
+  entriesWriter.end();
+  await finished(entriesCsv);
+
+  decklistWriter.end();
+  await finished(decklistCsv);
 
   console.log(pc.green(`Finished creating players and entries!`));
 }
@@ -534,6 +555,18 @@ async function main({
   );
 }
 
+const args = parseArgs({
+  options: {
+    tid: {
+      type: "string",
+      multiple: true,
+    },
+    anonymize: {
+      type: "boolean",
+    },
+  },
+});
+
 main(args.values)
   .catch((e) => {
     console.error("Error during script generation:");
@@ -542,11 +575,4 @@ main(args.values)
   })
   .finally(async () => {
     await mongo.close();
-
-    console.log(pc.yellow("Commiting database transaction..."));
-    db.exec("COMMIT");
-    console.log(pc.yellow("Closing database connection..."));
-    await promisify(db.close.bind(db))();
-
-    console.log(pc.green("Database creation succeeded!"));
   });

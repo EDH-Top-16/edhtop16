@@ -23,19 +23,15 @@ TopdeckTournamentTableType.implement({
         }));
       },
       load: async (keys: { TID: string; profile: string }[]) => {
-        const keysSet = Array.from(
-          new Set(keys.map((e) => `${e.TID}:${e.profile}`)),
-        );
-
         const entries = await prisma.$queryRaw<(Entry & { key: string })[]>`
-          select e.*, t."TID" || ':' || p."topdeckProfile" as key
-          from "Entry" as e
-          left join "Tournament" t on t.uuid = e."tournamentUuid"
-          left join "Player" p on p.uuid = e."playerUuid"
-          where (t."TID" || ':' || p."topdeckProfile") in (${Prisma.join(
-            keysSet,
-          )})
-        `;
+        select e.*, t."TID" || ':' || p."topdeckProfile" as key
+        from "Entry" as e
+        left join "Tournament" t on t.uuid = e."tournamentUuid"
+        left join "Player" p on p.uuid = e."playerUuid"
+        where t."TID" || ':' || p."topdeckProfile" in (${Prisma.join(
+          keys.map((e) => `${e.TID}:${e.profile}`),
+        )})
+      `;
 
         const entriesByKey = new Map(entries.map((e) => [e.key, e]));
         return keys.map((e) => entriesByKey.get(`${e.TID}:${e.profile}`)!);
@@ -156,13 +152,13 @@ export const TournamentType = builder.prismaNode("Tournament", {
         const groups = await prisma.$queryRaw<Group[]>`
           select
             e."commanderUuid",
-            cast(count(e."commanderUuid") as float) as entries,
-            cast(sum(case when e.standing <= t."topCut" then 1 else 0 end) as float) as "topCuts",
-            cast(sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count("Entry") as float) as "conversionRate"
+            count(e."commanderUuid")::int as entries,
+            sum(case when e.standing <= t."topCut" then 1 else 0 end)::int as "topCuts",
+            sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e) as "conversionRate"
           from "Entry" as e
           left join "Tournament" t on t.uuid = e."tournamentUuid"
           left join "Commander" c on c.uuid = e."commanderUuid"
-          where t."uuid" = ${parent.uuid}
+          where t."uuid"::text = ${parent.uuid}
           and c.name != 'Unknown Commander'
           group by e."commanderUuid"
           order by "topCuts" desc, entries desc
@@ -192,11 +188,18 @@ builder.queryField("tournaments", (t) =>
     type: TournamentType,
     cursor: "TID",
     args: {
+      search: t.arg.string(),
       filters: t.arg({ type: TournamentFiltersInput }),
       sortBy: t.arg({ type: TournamentSortBy, defaultValue: "DATE" }),
     },
     resolve: async (query, _root, args, _ctx, _info) => {
       const where: Prisma.TournamentWhereInput[] = [];
+
+      if (args.search) {
+        where.push({
+          name: { contains: args.search, mode: "insensitive" },
+        });
+      }
 
       if (args.filters?.minSize) {
         where.push({ size: { gte: args.filters.minSize } });
