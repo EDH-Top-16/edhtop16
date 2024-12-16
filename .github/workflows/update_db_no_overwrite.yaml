@@ -10,5 +10,4 @@ jobs:
     uses: ./.github/workflows/update_db.yaml
     with:
       overwrite_existing_unknown: false
-      update_entries: true
     secrets: inherit

@@ -19,6 +19,7 @@
 .DS_Store
 *.pem
 *.scryfall.json
+*.db-journal
 
 # debug
 npm-debug.log*
