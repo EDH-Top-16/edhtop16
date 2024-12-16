@@ -184,7 +184,6 @@ type Query {
     filters: TournamentFilters
     first: Int
     last: Int
-    search: String
     sortBy: TournamentSortBy = DATE
   ): QueryTournamentsConnection!
 }
