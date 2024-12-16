@@ -29,6 +29,7 @@ const CommanderStatsFilters = builder.inputType("CommanderStatsFilters", {
 
 const EntriesFilter = builder.inputType("EntriesFilter", {
   fields: (t) => ({
+    timePeriod: t.field({ type: TimePeriod, defaultValue: "ALL_TIME" }),
     minEventSize: t.int({ defaultValue: 60 }),
     maxStanding: t.int(),
   }),
@@ -54,6 +55,10 @@ const CommanderType = builder.prismaNode("Commander", {
       query: ({ filters, sortBy }) => {
         const minEventSize = filters?.minEventSize ?? 60;
         const maxStanding = filters?.maxStanding;
+        const minDate = minDateFromTimePeriod(
+          filters?.timePeriod ?? "ALL_TIME",
+        );
+
         const orderBy: Prisma.EntryOrderByWithRelationInput[] =
           sortBy === "NEW"
             ? [{ tournament: { tournamentDate: "desc" } }]
@@ -63,6 +68,7 @@ const CommanderType = builder.prismaNode("Commander", {
           where: {
             standing: { lte: maxStanding ?? undefined },
             tournament: {
+              tournamentDate: { gte: minDate },
               size: { gte: minEventSize },
             },
           },
