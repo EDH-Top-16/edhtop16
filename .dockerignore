@@ -1,6 +1,3 @@
 .github/
 .vscode/
-.next/
 node_modules/
-prisma/edhtop16.db
-prisma/edhtop16.db-journal

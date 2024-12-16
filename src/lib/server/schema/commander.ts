@@ -119,9 +119,9 @@ builder.queryField("commanders", (t) =>
         const minEntries = args.minEntries || 0;
         const orderBy =
           args.sortBy === "POPULARITY"
-            ? Prisma.sql([`count("Entry")`])
+            ? Prisma.sql([`count(e)`])
             : Prisma.sql([
-                `sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count("Entry")`,
+                `sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e)`,
               ]);
 
         let colorId = "";
@@ -140,15 +140,15 @@ builder.queryField("commanders", (t) =>
         return prisma.$queryRaw<Commander[]>`
           SELECT c.*
           FROM "Commander" as c
-          LEFT JOIN "Entry" as e on e."commanderUuid" = c.uuid
-          LEFT JOIN "Tournament" as t on t.uuid = e."tournamentUuid"
+          LEFT JOIN "Entry" e on e."commanderUuid" = c.uuid
+          LEFT JOIN "Tournament" t on t.uuid = e."tournamentUuid"
           WHERE c.name != 'Unknown Commander'
           AND c.name != 'Nadu, Winged Wisdom'
-          AND t."tournamentDate" >= ${minDate.toISOString()}
+          AND t."tournamentDate" >= ${minDate}
           AND t."size" >= ${minTournamentSize}
           AND c."colorId" LIKE ${colorId}
           GROUP BY c.uuid
-          HAVING count("Entry") >= ${minEntries}
+          HAVING count(e) >= ${minEntries}
           ORDER BY ${orderBy} DESC
           LIMIT ${limit}
           OFFSET ${offset}
@@ -196,37 +196,36 @@ builder.objectField(CommanderType, "stats", (t) =>
 
       const [entriesQuery, statsQuery] = await Promise.all([
         prisma.$queryRaw<{ totalEntries: number }[]>`
-          select
-            cast(count(*) as float) as "totalEntries"
+          select count(*) as "totalEntries"
           from "Entry" as e
           left join "Tournament" t on t.uuid = e."tournamentUuid"
           where t.size >= ${minSize}
           and t.size <= ${maxSize}
           and t."topCut" >= ${topCut}
-          and t."tournamentDate" >= ${minDate.toISOString()}
-          and t."tournamentDate" <= ${maxDate.toISOString()}
+          and t."tournamentDate" >= ${minDate}
+          and t."tournamentDate" <= ${maxDate}
         `,
         prisma.$queryRaw<
           (Commander & Omit<CommanderCalculatedStats, "metaShare">)[]
         >`
           select
             c.*,
-            cast(count(c.uuid) AS float) as "count",
-            cast(1.0 * sum(case when e.standing <= t."topCut" then 1 else 0 end) as float) as "topCuts",
-            sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count("Entry") as "conversionRate"
+            count(c.uuid)::int as "count",
+            sum(case when e.standing <= t."topCut" then 1 else 0 end)::int as "topCuts",
+            sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e) as "conversionRate"
           from "Commander" as c
           left join "Entry" e on c.uuid = e."commanderUuid"
           left join "Tournament" t on t.uuid = e."tournamentUuid"
           where t.size >= ${minSize}
           and t.size <= ${maxSize}
           and t."topCut" >= ${topCut}
-          and c.uuid in (${Prisma.join(commanderUuids)})
-          and t."tournamentDate" >= ${minDate.toISOString()}
-          and t."tournamentDate" <= ${maxDate.toISOString()}
+          and t."tournamentDate" >= ${minDate}
+          and t."tournamentDate" <= ${maxDate}
+          and c.uuid::text in (${Prisma.join(commanderUuids)})
           group by c.uuid
           having count(c.uuid) >= ${minEntries}
           and count(c.uuid) <= ${maxEntries}
-          `,
+        `,
       ]);
 
       const totalEntries = entriesQuery[0]?.totalEntries ?? 1;

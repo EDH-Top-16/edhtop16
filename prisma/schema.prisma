@@ -7,12 +7,12 @@ generator pothos {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:edhtop16.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Tournament {
-  uuid String @id
+  uuid String @id @db.Uuid
 
   /// ID of the tournament as tracked by topdeck.
   TID            String   @unique
@@ -35,7 +35,7 @@ model Tournament {
 }
 
 model Player {
-  uuid String @id
+  uuid String @id @db.Uuid
 
   /// Unique topdeck profile ID.
   topdeckProfile String? @unique
@@ -48,7 +48,7 @@ model Player {
 }
 
 model Commander {
-  uuid String @id
+  uuid String @id @db.Uuid
 
   /// Name of the commander, or commanders.
   name    String
@@ -59,11 +59,11 @@ model Commander {
 }
 
 model Entry {
-  uuid String @id
+  uuid String @id @db.Uuid
 
-  tournamentUuid String
-  playerUuid     String
-  commanderUuid  String
+  tournamentUuid String @db.Uuid
+  playerUuid     String @db.Uuid
+  commanderUuid  String @db.Uuid
 
   standing      Int
   decklist      String?
@@ -80,21 +80,21 @@ model Entry {
 }
 
 model Card {
-  uuid String @id
+  uuid String @id @db.Uuid
 
   /// Scryfall's Oracle ID to uniquely identify a card.
   oracleId String @unique
   /// Card name.
   name     String
   /// Scryfall card data intended to be parsed using scryfallCardSchema.
-  data     String
+  data     Json
 
   DecklistItem DecklistItem[]
 }
 
 model DecklistItem {
-  entryUuid String
-  cardUuid  String
+  entryUuid String @db.Uuid
+  cardUuid  String @db.Uuid
 
   entry Entry @relation(fields: [entryUuid], references: [uuid])
   card  Card  @relation(fields: [cardUuid], references: [uuid])
