@@ -206,6 +206,7 @@ enum TimePeriod {
   ONE_YEAR
   SIX_MONTHS
   THREE_MONTHS
+  POST_BAN
 }
 
 type TopdeckTournamentRound {

@@ -13,23 +13,22 @@ export const TimePeriod = builder.enumType("TimePeriod", {
     "SIX_MONTHS",
     "ONE_YEAR",
     "ALL_TIME",
+    "POST_BAN"
   ] as const,
 });
 
 export function minDateFromTimePeriod(
   timePeriod: (typeof TimePeriod)["$inferType"] | null | undefined,
 ) {
-  return timePeriod === "ALL_TIME"
-    ? new Date(0)
-    : timePeriod === "ONE_YEAR"
-    ? subMonths(new Date(), 12)
-    : timePeriod === "SIX_MONTHS"
-    ? subMonths(new Date(), 6)
-    : timePeriod === "THREE_MONTHS"
-    ? subMonths(new Date(), 3)
-    : timePeriod === "ONE_MONTH"
-    ? subMonths(new Date(), 1)
-    : new Date(0);
+  return timePeriod === "SIX_MONTHS"
+  ? subMonths(new Date(), 6)
+  : timePeriod === "THREE_MONTHS"
+  ? subMonths(new Date(), 3)
+  : timePeriod === "ONE_MONTH"
+  ? subMonths(new Date(), 1)
+  : timePeriod === "POST_BAN"
+  ? new Date('2024-09-23')
+  : new Date(0);
 }
 
 export const TopdeckTournamentRoundType = builder.objectRef<

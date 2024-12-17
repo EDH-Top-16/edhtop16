@@ -129,6 +129,7 @@ function CommandersPageShell({
               <option value="SIX_MONTHS">6 Months</option>
               <option value="ONE_YEAR">1 Year</option>
               <option value="ALL_TIME">All Time</option>
+              <option value="POST_BAN">Post Ban</option>
             </Select>
           </div>
         </div>

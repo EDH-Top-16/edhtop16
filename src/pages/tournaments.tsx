@@ -139,6 +139,7 @@ function TournamentsPageShell({
               <option value="ONE_MONTH">1 Month</option>
               <option value="THREE_MONTHS">3 Months</option>
               <option value="SIX_MONTHS">6 Months</option>
+              <option value="POST_BAN">Post Ban</option>
             </Select>
           </div>
         </div>
