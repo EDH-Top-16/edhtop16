@@ -11,7 +11,7 @@
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type CommandersSortBy = "CONVERSION" | "POPULARITY" | "%future added value";
-export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
+export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "SIX_MONTHS" | "THREE_MONTHS" | "POST_BAN";
 export type pages_CommandersQuery$variables = {
   sortBy: CommandersSortBy;
   timePeriod: TimePeriod;
