@@ -4,14 +4,22 @@ import { NextSeo } from "next-seo";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { PropsWithChildren, useCallback, useMemo } from "react";
-import { graphql, useFragment, usePreloadedQuery } from "react-relay";
+import {
+  graphql,
+  useFragment,
+  usePaginationFragment,
+  usePreloadedQuery,
+} from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { Card } from "../components/card";
 import { Footer } from "../components/footer";
+import { LoadMoreButton } from "../components/load_more";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
 import { getClientEnvironment } from "../lib/client/relay_client_environment";
+import { AllTournamentsQuery } from "../queries/__generated__/AllTournamentsQuery.graphql";
 import { tournaments_TournamentCard$key } from "../queries/__generated__/tournaments_TournamentCard.graphql";
+import { tournaments_Tournaments$key } from "../queries/__generated__/tournaments_Tournaments.graphql";
 import {
   TimePeriod,
   tournaments_TournamentsQuery,
@@ -32,7 +40,9 @@ function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
           }
 
           commander {
-            imageUrls
+            cards {
+              imageUrls
+            }
           }
         }
       }
@@ -54,10 +64,12 @@ function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
   return (
     <Card
       bottomText={tournamentStats}
-      images={tournament.entries[0]?.commander.imageUrls.map((img) => ({
-        src: img,
-        alt: `${tournament.name} winner card art`,
-      }))}
+      images={tournament.entries[0]?.commander.cards
+        .flatMap((c) => c.imageUrls)
+        .map((img) => ({
+          src: img,
+          alt: `${tournament.name} winner card art`,
+        }))}
     >
       <div className="flex h-32 flex-col space-y-2">
         <Link
@@ -87,7 +99,7 @@ function TournamentsPageShell({
 }>) {
   return (
     <>
-      <Navigation />
+      <Navigation searchType="tournament" />
       <NextSeo
         title="cEDH Tournaments"
         description="Discover top and recent cEDH tournaments!"
@@ -140,6 +152,8 @@ function TournamentsPageShell({
               <option value="THREE_MONTHS">3 Months</option>
               <option value="SIX_MONTHS">6 Months</option>
               <option value="POST_BAN">Post Ban</option>
+              <option value="ONE_YEAR">1 Year</option>
+              <option value="ALL_TIME">All Time</option>
             </Select>
           </div>
         </div>
@@ -156,20 +170,14 @@ const TournamentsQuery = graphql`
     $sortBy: TournamentSortBy!
     $minSize: Int!
   ) {
-    tournaments(
-      filters: { timePeriod: $timePeriod, minSize: $minSize }
-      sortBy: $sortBy
-    ) {
-      id
-      ...tournaments_TournamentCard
-    }
+    ...tournaments_Tournaments
   }
 `;
 
 function TournamentsPage({
   preloadedQuery,
 }: RelayProps<{}, tournaments_TournamentsQuery>) {
-  const { tournaments } = usePreloadedQuery(TournamentsQuery, preloadedQuery);
+  const query = usePreloadedQuery(TournamentsQuery, preloadedQuery);
 
   const router = useRouter();
   const setQueryVariable = useCallback(
@@ -181,6 +189,35 @@ function TournamentsPage({
     [router],
   );
 
+  const { data, loadNext, isLoadingNext, hasNext } = usePaginationFragment<
+    AllTournamentsQuery,
+    tournaments_Tournaments$key
+  >(
+    graphql`
+      fragment tournaments_Tournaments on Query
+      @argumentDefinitions(
+        cursor: { type: "String" }
+        count: { type: "Int", defaultValue: 100 }
+      )
+      @refetchable(queryName: "AllTournamentsQuery") {
+        tournaments(
+          first: $count
+          after: $cursor
+          filters: { timePeriod: $timePeriod, minSize: $minSize }
+          sortBy: $sortBy
+        ) @connection(key: "tournaments__tournaments") {
+          edges {
+            node {
+              id
+              ...tournaments_TournamentCard
+            }
+          }
+        }
+      }
+    `,
+    query,
+  );
+
   return (
     <TournamentsPageShell
       sortBy={preloadedQuery.variables.sortBy}
@@ -189,10 +226,16 @@ function TournamentsPage({
       onUpdateQueryParam={setQueryVariable}
     >
       <div className="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
-        {tournaments.map((c) => (
-          <TournamentCard key={c.id} commander={c} />
+        {data.tournaments.edges.map((edge) => (
+          <TournamentCard key={edge.node.id} commander={edge.node} />
         ))}
       </div>
+
+      <LoadMoreButton
+        hasNext={hasNext}
+        isLoadingNext={isLoadingNext}
+        loadNext={loadNext}
+      />
 
       <Footer />
     </TournamentsPageShell>

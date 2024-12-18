@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<8d15f04fe88d736b3ec9d39fb4d8fcf4>>
+ * @generated SignedSource<<39c1943e6cd9d10cb85c5b3d9c5efc42>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,38 +10,30 @@
 
 import { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type Commander_entries$data = {
-  readonly entries: {
+export type tournaments_Tournaments$data = {
+  readonly tournaments: {
     readonly edges: ReadonlyArray<{
       readonly node: {
         readonly id: string;
-        readonly " $fragmentSpreads": FragmentRefs<"Commander_EntryCard">;
+        readonly " $fragmentSpreads": FragmentRefs<"tournaments_TournamentCard">;
       };
     }>;
   };
-  readonly id: string;
-  readonly " $fragmentType": "Commander_entries";
+  readonly " $fragmentType": "tournaments_Tournaments";
 };
-export type Commander_entries$key = {
-  readonly " $data"?: Commander_entries$data;
-  readonly " $fragmentSpreads": FragmentRefs<"Commander_entries">;
+export type tournaments_Tournaments$key = {
+  readonly " $data"?: tournaments_Tournaments$data;
+  readonly " $fragmentSpreads": FragmentRefs<"tournaments_Tournaments">;
 };
 
 const node: ReaderFragment = (function(){
 var v0 = [
-  "entries"
-],
-v1 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "id",
-  "storageKey": null
-};
+  "tournaments"
+];
 return {
   "argumentDefinitions": [
     {
-      "defaultValue": 48,
+      "defaultValue": 100,
       "kind": "LocalArgument",
       "name": "count"
     },
@@ -52,15 +44,15 @@ return {
     },
     {
       "kind": "RootArgument",
-      "name": "maxStanding"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "minEventSize"
+      "name": "minSize"
     },
     {
       "kind": "RootArgument",
       "name": "sortBy"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "timePeriod"
     }
   ],
   "kind": "Fragment",
@@ -82,32 +74,26 @@ return {
         "backward": null,
         "path": (v0/*: any*/)
       },
-      "fragmentPathInResult": [
-        "node"
-      ],
-      "operation": require('./CommanderEntriesQuery.graphql'),
-      "identifierInfo": {
-        "identifierField": "id",
-        "identifierQueryVariableName": "id"
-      }
+      "fragmentPathInResult": [],
+      "operation": require('./AllTournamentsQuery.graphql')
     }
   },
-  "name": "Commander_entries",
+  "name": "tournaments_Tournaments",
   "selections": [
     {
-      "alias": "entries",
+      "alias": "tournaments",
       "args": [
         {
           "fields": [
             {
               "kind": "Variable",
-              "name": "maxStanding",
-              "variableName": "maxStanding"
+              "name": "minSize",
+              "variableName": "minSize"
             },
             {
               "kind": "Variable",
-              "name": "minEventSize",
-              "variableName": "minEventSize"
+              "name": "timePeriod",
+              "variableName": "timePeriod"
             }
           ],
           "kind": "ObjectValue",
@@ -119,15 +105,15 @@ return {
           "variableName": "sortBy"
         }
       ],
-      "concreteType": "CommanderEntriesConnection",
+      "concreteType": "QueryTournamentsConnection",
       "kind": "LinkedField",
-      "name": "__Commander_entries_connection",
+      "name": "__tournaments__tournaments_connection",
       "plural": false,
       "selections": [
         {
           "alias": null,
           "args": null,
-          "concreteType": "CommanderEntriesConnectionEdge",
+          "concreteType": "QueryTournamentsConnectionEdge",
           "kind": "LinkedField",
           "name": "edges",
           "plural": true,
@@ -135,16 +121,22 @@ return {
             {
               "alias": null,
               "args": null,
-              "concreteType": "Entry",
+              "concreteType": "Tournament",
               "kind": "LinkedField",
               "name": "node",
               "plural": false,
               "selections": [
-                (v1/*: any*/),
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "id",
+                  "storageKey": null
+                },
                 {
                   "args": null,
                   "kind": "FragmentSpread",
-                  "name": "Commander_EntryCard"
+                  "name": "tournaments_TournamentCard"
                 },
                 {
                   "alias": null,
@@ -193,14 +185,13 @@ return {
         }
       ],
       "storageKey": null
-    },
-    (v1/*: any*/)
+    }
   ],
-  "type": "Commander",
+  "type": "Query",
   "abstractKey": null
 };
 })();
 
-(node as any).hash = "876e1bd441cae57fe6a8ed9f662d6100";
+(node as any).hash = "d5c3a374eefad4c17b87ab36ba1755c4";
 
 export default node;

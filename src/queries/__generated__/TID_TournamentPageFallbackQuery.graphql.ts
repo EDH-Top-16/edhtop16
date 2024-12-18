@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<1960116ea69505121df32c9a3fe27ca8>>
+ * @generated SignedSource<<cb3b4a3685d730a69255aade1de42608>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -139,8 +139,20 @@ return {
                   {
                     "alias": null,
                     "args": null,
-                    "kind": "ScalarField",
-                    "name": "imageUrls",
+                    "concreteType": "Card",
+                    "kind": "LinkedField",
+                    "name": "cards",
+                    "plural": true,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "imageUrls",
+                        "storageKey": null
+                      },
+                      (v2/*: any*/)
+                    ],
                     "storageKey": null
                   },
                   (v2/*: any*/)
@@ -158,12 +170,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "cfd40731878c0e5420eeb4c590e1bdb5",
+    "cacheID": "8a27904e5920131034252b852748756f",
     "id": null,
     "metadata": {},
     "name": "TID_TournamentPageFallbackQuery",
     "operationKind": "query",
-    "text": "query TID_TournamentPageFallbackQuery(\n  $TID: String!\n) {\n  tournament(TID: $TID) {\n    ...TID_TournamentPageShell\n    id\n  }\n}\n\nfragment TID_TournamentBanner on Tournament {\n  name\n  size\n  tournamentDate\n  bracketUrl\n  winner: entries(maxStanding: 1) {\n    commander {\n      imageUrls\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentMeta on Tournament {\n  name\n}\n\nfragment TID_TournamentPageShell on Tournament {\n  ...TID_TournamentBanner\n  ...TID_TournamentMeta\n}\n"
+    "text": "query TID_TournamentPageFallbackQuery(\n  $TID: String!\n) {\n  tournament(TID: $TID) {\n    ...TID_TournamentPageShell\n    id\n  }\n}\n\nfragment TID_TournamentBanner on Tournament {\n  name\n  size\n  tournamentDate\n  bracketUrl\n  winner: entries(maxStanding: 1) {\n    commander {\n      cards {\n        imageUrls\n        id\n      }\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentMeta on Tournament {\n  name\n}\n\nfragment TID_TournamentPageShell on Tournament {\n  ...TID_TournamentBanner\n  ...TID_TournamentMeta\n}\n"
   }
 };
 })();

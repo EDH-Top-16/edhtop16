@@ -2,6 +2,7 @@ type Card implements Node {
   cmc: Int!
   colorId: String!
   id: ID!
+  imageUrls: [String!]!
 
   """
   Card name.
@@ -17,13 +18,12 @@ type Card implements Node {
 
 type Commander implements Node {
   breakdownUrl: String!
+  cards: [Card!]!
 
   """
   Color identity, e.g RUG.
   """
   colorId: String!
-  conversionRate(filters: CommanderStatsFilters): Float!
-  count(filters: CommanderStatsFilters): Int!
   entries(
     after: String
     before: String
@@ -33,13 +33,12 @@ type Commander implements Node {
     sortBy: EntriesSortBy = TOP
   ): CommanderEntriesConnection!
   id: ID!
-  imageUrls: [String!]!
 
   """
   Name of the commander, or commanders.
   """
   name: String!
-  topCuts(filters: CommanderStatsFilters): Int!
+  stats(filters: CommanderStatsFilters): CommanderStats!
 }
 
 type CommanderEntriesConnection {
@@ -52,11 +51,11 @@ type CommanderEntriesConnectionEdge {
   node: Entry!
 }
 
-enum CommanderSortBy {
-  CONVERSION
-  ENTRIES
-  NAME
-  TOP_CUTS
+type CommanderStats {
+  conversionRate: Float!
+  count: Int!
+  metaShare: Float!
+  topCuts: Int!
 }
 
 input CommanderStatsFilters {
@@ -79,7 +78,7 @@ enum CommandersSortBy {
 input EntriesFilter {
   maxStanding: Int
   minEventSize: Int = 60
-  timePeriod: TimePeriod = ONE_MONTH
+  timePeriod: TimePeriod = ALL_TIME
 }
 
 enum EntriesSortBy {
@@ -164,25 +163,31 @@ type Player implements Node {
 
 type Query {
   commander(name: String!): Commander!
-  commanderNames: [String!]!
   commanders(
     after: String
     before: String
+    colorId: String
     first: Int
     last: Int
     minEntries: Int
+    minTournamentSize: Int
     sortBy: CommandersSortBy = CONVERSION
     timePeriod: TimePeriod = ONE_MONTH
   ): QueryCommandersConnection!
   node(id: ID!): Node
   nodes(ids: [ID!]!): [Node]!
   player(profile: String!): Player!
+  searchResults(types: [SearchResultType!]): [SearchResult!]!
   tournament(TID: String!): Tournament!
   tournaments(
+    after: String
+    before: String
     filters: TournamentFilters
+    first: Int
+    last: Int
     search: String
     sortBy: TournamentSortBy = DATE
-  ): [Tournament!]!
+  ): QueryTournamentsConnection!
 }
 
 type QueryCommandersConnection {
@@ -193,6 +198,26 @@ type QueryCommandersConnection {
 type QueryCommandersConnectionEdge {
   cursor: String!
   node: Commander!
+}
+
+type QueryTournamentsConnection {
+  edges: [QueryTournamentsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryTournamentsConnectionEdge {
+  cursor: String!
+  node: Tournament!
+}
+
+type SearchResult {
+  name: String!
+  url: String!
+}
+
+enum SearchResultType {
+  COMMANDER
+  TOURNAMENT
 }
 
 enum SortDirection {
@@ -215,7 +240,7 @@ type TopdeckTournamentRound {
 }
 
 type TopdeckTournamentTable {
-  entries: [Entry]!
+  entries: [Entry!]!
   roundName: String!
   table: Int!
   winner: Entry
@@ -264,6 +289,7 @@ type TournamentBreakdownGroup {
 
 input TournamentFilters {
   maxSize: Int
+  minDate: String
   minSize: Int
   timePeriod: TimePeriod
 }

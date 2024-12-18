@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d0c85079328c1260c271d01741ad69f3>>
+ * @generated SignedSource<<895227c474ad21b15a880e29de071a19>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,63 +11,82 @@
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type CommandersSortBy = "CONVERSION" | "POPULARITY" | "%future added value";
-export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "SIX_MONTHS" | "THREE_MONTHS" | "POST_BAN";
-export type pages_CommandersQuery$variables = {
+export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
+export type TopCommandersQuery$variables = {
   colorId?: string | null | undefined;
-  minEntries: number;
-  minTournamentSize: number;
-  sortBy: CommandersSortBy;
-  timePeriod: TimePeriod;
+  count?: number | null | undefined;
+  cursor?: string | null | undefined;
+  minEntries?: number | null | undefined;
+  minTournamentSize?: number | null | undefined;
+  sortBy?: CommandersSortBy | null | undefined;
+  timePeriod?: TimePeriod | null | undefined;
 };
-export type pages_CommandersQuery$data = {
+export type TopCommandersQuery$data = {
   readonly " $fragmentSpreads": FragmentRefs<"pages_topCommanders">;
 };
-export type pages_CommandersQuery = {
-  response: pages_CommandersQuery$data;
-  variables: pages_CommandersQuery$variables;
+export type TopCommandersQuery = {
+  response: TopCommandersQuery$data;
+  variables: TopCommandersQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "colorId"
-},
+var v0 = [
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "colorId"
+  },
+  {
+    "defaultValue": 48,
+    "kind": "LocalArgument",
+    "name": "count"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "cursor"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "minEntries"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "minTournamentSize"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "sortBy"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "timePeriod"
+  }
+],
 v1 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "minEntries"
-},
-v2 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "minTournamentSize"
-},
-v3 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "sortBy"
-},
-v4 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "timePeriod"
-},
-v5 = {
   "kind": "Variable",
   "name": "timePeriod",
   "variableName": "timePeriod"
 },
-v6 = [
+v2 = [
+  {
+    "kind": "Variable",
+    "name": "after",
+    "variableName": "cursor"
+  },
   {
     "kind": "Variable",
     "name": "colorId",
     "variableName": "colorId"
   },
   {
-    "kind": "Literal",
+    "kind": "Variable",
     "name": "first",
-    "value": 48
+    "variableName": "count"
   },
   {
     "kind": "Variable",
@@ -84,9 +103,9 @@ v6 = [
     "name": "sortBy",
     "variableName": "sortBy"
   },
-  (v5/*: any*/)
+  (v1/*: any*/)
 ],
-v7 = {
+v3 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -95,19 +114,24 @@ v7 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/),
-      (v4/*: any*/)
-    ],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "pages_CommandersQuery",
+    "name": "TopCommandersQuery",
     "selections": [
       {
-        "args": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "count",
+            "variableName": "count"
+          },
+          {
+            "kind": "Variable",
+            "name": "cursor",
+            "variableName": "cursor"
+          }
+        ],
         "kind": "FragmentSpread",
         "name": "pages_topCommanders"
       }
@@ -117,19 +141,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": [
-      (v4/*: any*/),
-      (v3/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v0/*: any*/)
-    ],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "pages_CommandersQuery",
+    "name": "TopCommandersQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v6/*: any*/),
+        "args": (v2/*: any*/),
         "concreteType": "QueryCommandersConnection",
         "kind": "LinkedField",
         "name": "commanders",
@@ -151,7 +169,7 @@ return {
                 "name": "node",
                 "plural": false,
                 "selections": [
-                  (v7/*: any*/),
+                  (v3/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -178,7 +196,7 @@ return {
                     "args": [
                       {
                         "fields": [
-                          (v5/*: any*/)
+                          (v1/*: any*/)
                         ],
                         "kind": "ObjectValue",
                         "name": "filters"
@@ -235,7 +253,7 @@ return {
                         "name": "imageUrls",
                         "storageKey": null
                       },
-                      (v7/*: any*/)
+                      (v3/*: any*/)
                     ],
                     "storageKey": null
                   },
@@ -289,7 +307,7 @@ return {
       },
       {
         "alias": null,
-        "args": (v6/*: any*/),
+        "args": (v2/*: any*/),
         "filters": [
           "timePeriod",
           "sortBy",
@@ -305,16 +323,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "03321d5e5a74c869e88861867fe1f54f",
+    "cacheID": "0f1c0a0cad9fd59ba3b63b719fc1b209",
     "id": null,
     "metadata": {},
-    "name": "pages_CommandersQuery",
+    "name": "TopCommandersQuery",
     "operationKind": "query",
-    "text": "query pages_CommandersQuery(\n  $timePeriod: TimePeriod!\n  $sortBy: CommandersSortBy!\n  $minEntries: Int!\n  $minTournamentSize: Int!\n  $colorId: String\n) {\n  ...pages_topCommanders\n}\n\nfragment pages_TopCommandersCard on Commander {\n  name\n  colorId\n  breakdownUrl\n  stats(filters: {timePeriod: $timePeriod}) {\n    conversionRate\n    topCuts\n    count\n    metaShare\n  }\n  cards {\n    imageUrls\n    id\n  }\n}\n\nfragment pages_topCommanders on Query {\n  commanders(first: 48, timePeriod: $timePeriod, sortBy: $sortBy, colorId: $colorId, minEntries: $minEntries, minTournamentSize: $minTournamentSize) {\n    edges {\n      node {\n        id\n        ...pages_TopCommandersCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
+    "text": "query TopCommandersQuery(\n  $colorId: String\n  $count: Int = 48\n  $cursor: String\n  $minEntries: Int\n  $minTournamentSize: Int\n  $sortBy: CommandersSortBy\n  $timePeriod: TimePeriod\n) {\n  ...pages_topCommanders_1G22uz\n}\n\nfragment pages_TopCommandersCard on Commander {\n  name\n  colorId\n  breakdownUrl\n  stats(filters: {timePeriod: $timePeriod}) {\n    conversionRate\n    topCuts\n    count\n    metaShare\n  }\n  cards {\n    imageUrls\n    id\n  }\n}\n\nfragment pages_topCommanders_1G22uz on Query {\n  commanders(first: $count, after: $cursor, timePeriod: $timePeriod, sortBy: $sortBy, colorId: $colorId, minEntries: $minEntries, minTournamentSize: $minTournamentSize) {\n    edges {\n      node {\n        id\n        ...pages_TopCommandersCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "c1fa5916a049524edba4b690aacf4c50";
+(node as any).hash = "b5a6c24d9b40c399fa950a403034faa7";
 
 export default node;

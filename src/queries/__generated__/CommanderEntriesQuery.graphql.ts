@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<fea752bb37c14425f7fb19804080291c>>
+ * @generated SignedSource<<55187a683c673eed14881112edd46fcb>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -98,11 +98,6 @@ v9 = [
         "kind": "Variable",
         "name": "minEventSize",
         "variableName": "minEventSize"
-      },
-      {
-        "kind": "Literal",
-        "name": "timePeriod",
-        "value": "SIX_MONTHS"
       }
     ],
     "kind": "ObjectValue",
@@ -361,16 +356,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "53b59a4fd9328206976cabf7f7915d47",
+    "cacheID": "8241b22920a7f93ada81d0846523e6bf",
     "id": null,
     "metadata": {},
     "name": "CommanderEntriesQuery",
     "operationKind": "query",
-    "text": "query CommanderEntriesQuery(\n  $count: Int = 48\n  $cursor: String\n  $maxStanding: Int\n  $minEventSize: Int\n  $sortBy: EntriesSortBy\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...Commander_entries_1G22uz\n    id\n  }\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    id\n  }\n}\n\nfragment Commander_entries_1G22uz on Commander {\n  entries(first: $count, after: $cursor, sortBy: $sortBy, filters: {timePeriod: SIX_MONTHS, minEventSize: $minEventSize, maxStanding: $maxStanding}) {\n    edges {\n      node {\n        id\n        ...Commander_EntryCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
+    "text": "query CommanderEntriesQuery(\n  $count: Int = 48\n  $cursor: String\n  $maxStanding: Int\n  $minEventSize: Int\n  $sortBy: EntriesSortBy\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...Commander_entries_1G22uz\n    id\n  }\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    id\n  }\n}\n\nfragment Commander_entries_1G22uz on Commander {\n  entries(first: $count, after: $cursor, sortBy: $sortBy, filters: {minEventSize: $minEventSize, maxStanding: $maxStanding}) {\n    edges {\n      node {\n        id\n        ...Commander_EntryCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
   }
 };
 })();
 
-(node as any).hash = "0dfc402dd0752d6349288c9b0fcceb1e";
+(node as any).hash = "876e1bd441cae57fe6a8ed9f662d6100";
 
 export default node;

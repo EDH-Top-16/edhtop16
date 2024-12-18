@@ -16,6 +16,7 @@ import { ColorIdentity } from "../../assets/icons/colors";
 import { Card } from "../../components/card";
 import { Edhtop16Fallback, LoadingIcon } from "../../components/fallback";
 import { Footer } from "../../components/footer";
+import { LoadMoreButton } from "../../components/load_more";
 import { Navigation } from "../../components/navigation";
 import { Select } from "../../components/select";
 import { Tab, TabList } from "../../components/tabs";
@@ -29,8 +30,8 @@ import {
   Commander_CommanderQuery,
   EntriesSortBy,
 } from "../../queries/__generated__/Commander_CommanderQuery.graphql";
-import { Commander_EntryCard$key } from "../../queries/__generated__/Commander_EntryCard.graphql";
 import { Commander_entries$key } from "../../queries/__generated__/Commander_entries.graphql";
+import { Commander_EntryCard$key } from "../../queries/__generated__/Commander_EntryCard.graphql";
 import { CommanderEntriesQuery } from "../../queries/__generated__/CommanderEntriesQuery.graphql";
 
 function EntryCard(props: { entry: Commander_EntryCard$key }) {
@@ -108,8 +109,10 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
     graphql`
       fragment Commander_CommanderBanner on Commander {
         name
-        imageUrls
         colorId
+        cards {
+          imageUrls
+        }
       }
     `,
     props.commander,
@@ -119,20 +122,22 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
     <div className="h-64 w-full bg-black/60 md:h-80">
       <div className="relative mx-auto flex h-full w-full max-w-screen-xl flex-col items-center justify-center space-y-4">
         <div className="absolute left-0 top-0 flex h-full w-full brightness-[40%]">
-          {commander.imageUrls.map((src, _i, { length }) => {
-            return (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                className={cn(
-                  "flex-1 object-cover object-top",
-                  length === 2 ? "w-1/2" : "w-full",
-                )}
-                key={src}
-                src={src}
-                alt={`${commander.name} art`}
-              />
-            );
-          })}
+          {commander.cards
+            .flatMap((c) => c.imageUrls)
+            .map((src, _i, { length }) => {
+              return (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  className={cn(
+                    "flex-1 object-cover object-top",
+                    length === 2 ? "w-1/2" : "w-full",
+                  )}
+                  key={src}
+                  src={src}
+                  alt={`${commander.name} art`}
+                />
+              );
+            })}
         </div>
 
         <h1 className="relative text-center font-title font-title text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
@@ -292,7 +297,7 @@ function CommanderPage({
     [router],
   );
 
-  const { data, loadNext, isLoadingNext } = usePaginationFragment<
+  const { data, loadNext, isLoadingNext, hasNext } = usePaginationFragment<
     CommanderEntriesQuery,
     Commander_entries$key
   >(
@@ -307,11 +312,7 @@ function CommanderPage({
           first: $count
           after: $cursor
           sortBy: $sortBy
-          filters: {
-            timePeriod: SIX_MONTHS
-            minEventSize: $minEventSize
-            maxStanding: $maxStanding
-          }
+          filters: { minEventSize: $minEventSize, maxStanding: $maxStanding }
         ) @connection(key: "Commander_entries") {
           edges {
             node {
@@ -345,18 +346,11 @@ function CommanderPage({
         ))}
       </div>
 
-      {isLoadingNext ? (
-        <LoadingIcon padding={false} className="self-center" />
-      ) : (
-        <button
-          className="inset-shadow-sm mx-auto flex justify-center self-center rounded-md bg-[#312d5a] px-4 py-2 font-title text-sm text-white shadow-md"
-          onClick={() => {
-            loadNext(48);
-          }}
-        >
-          Load More
-        </button>
-      )}
+      <LoadMoreButton
+        hasNext={hasNext}
+        isLoadingNext={isLoadingNext}
+        loadNext={loadNext}
+      />
 
       <Footer />
     </CommanderPageShell>
