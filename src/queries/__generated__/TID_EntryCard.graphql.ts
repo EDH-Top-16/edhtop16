@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<6698680894600c29da8ef309b7799677>>
+ * @generated SignedSource<<f00995617d34a2824f334ca48a28437b>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -13,7 +13,9 @@ import { FragmentRefs } from "relay-runtime";
 export type TID_EntryCard$data = {
   readonly commander: {
     readonly breakdownUrl: string;
-    readonly imageUrls: ReadonlyArray<string>;
+    readonly cards: ReadonlyArray<{
+      readonly imageUrls: ReadonlyArray<string>;
+    }>;
     readonly name: string;
   };
   readonly decklist: string | null | undefined;
@@ -105,14 +107,25 @@ return {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "imageUrls",
+          "name": "breakdownUrl",
           "storageKey": null
         },
         {
           "alias": null,
           "args": null,
-          "kind": "ScalarField",
-          "name": "breakdownUrl",
+          "concreteType": "Card",
+          "kind": "LinkedField",
+          "name": "cards",
+          "plural": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "imageUrls",
+              "storageKey": null
+            }
+          ],
           "storageKey": null
         }
       ],
@@ -124,6 +137,6 @@ return {
 };
 })();
 
-(node as any).hash = "f618f992bc35145041c57281245284a3";
+(node as any).hash = "4f4928b6b478227ae474d99b692d460b";
 
 export default node;

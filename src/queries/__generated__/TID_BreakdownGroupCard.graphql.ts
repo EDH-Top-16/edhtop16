@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<130377c6b8a31b37ac30a88e558a3e00>>
+ * @generated SignedSource<<58515fadd07de8cca15fc3f726502441>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -13,8 +13,10 @@ import { FragmentRefs } from "relay-runtime";
 export type TID_BreakdownGroupCard$data = {
   readonly commander: {
     readonly breakdownUrl: string;
+    readonly cards: ReadonlyArray<{
+      readonly imageUrls: ReadonlyArray<string>;
+    }>;
     readonly colorId: string;
-    readonly imageUrls: ReadonlyArray<string>;
     readonly name: string;
   };
   readonly conversionRate: number;
@@ -52,13 +54,6 @@ const node: ReaderFragment = {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "imageUrls",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
           "name": "breakdownUrl",
           "storageKey": null
         },
@@ -67,6 +62,24 @@ const node: ReaderFragment = {
           "args": null,
           "kind": "ScalarField",
           "name": "colorId",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "Card",
+          "kind": "LinkedField",
+          "name": "cards",
+          "plural": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "imageUrls",
+              "storageKey": null
+            }
+          ],
           "storageKey": null
         }
       ],
@@ -98,6 +111,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "2b71a671226cc3cb7f1a91a95a364e60";
+(node as any).hash = "19b52b92f2c615da9d95f00b486b5250";
 
 export default node;

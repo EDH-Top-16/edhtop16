@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d16f49928eaec4d83c903ffec20e462a>>
+ * @generated SignedSource<<b9353766c31adf36932f4afa4d727e93>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -17,7 +17,9 @@ export type TID_TournamentBanner$data = {
   readonly tournamentDate: string;
   readonly winner: ReadonlyArray<{
     readonly commander: {
-      readonly imageUrls: ReadonlyArray<string>;
+      readonly cards: ReadonlyArray<{
+        readonly imageUrls: ReadonlyArray<string>;
+      }>;
     };
   }>;
   readonly " $fragmentType": "TID_TournamentBanner";
@@ -86,8 +88,19 @@ const node: ReaderFragment = {
             {
               "alias": null,
               "args": null,
-              "kind": "ScalarField",
-              "name": "imageUrls",
+              "concreteType": "Card",
+              "kind": "LinkedField",
+              "name": "cards",
+              "plural": true,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "imageUrls",
+                  "storageKey": null
+                }
+              ],
               "storageKey": null
             }
           ],
@@ -101,6 +114,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "98f206b7413a8dd8d66330c1000c326f";
+(node as any).hash = "ef7b4750f82b28002be8207fafe048e4";
 
 export default node;

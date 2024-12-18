@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<8d15f04fe88d736b3ec9d39fb4d8fcf4>>
+ * @generated SignedSource<<8c963432ff25b2cf13eb926bf7d2824d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,36 +10,32 @@
 
 import { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type Commander_entries$data = {
-  readonly entries: {
+export type pages_topCommanders$data = {
+  readonly commanders: {
     readonly edges: ReadonlyArray<{
       readonly node: {
         readonly id: string;
-        readonly " $fragmentSpreads": FragmentRefs<"Commander_EntryCard">;
+        readonly " $fragmentSpreads": FragmentRefs<"pages_TopCommandersCard">;
       };
     }>;
   };
-  readonly id: string;
-  readonly " $fragmentType": "Commander_entries";
+  readonly " $fragmentType": "pages_topCommanders";
 };
-export type Commander_entries$key = {
-  readonly " $data"?: Commander_entries$data;
-  readonly " $fragmentSpreads": FragmentRefs<"Commander_entries">;
+export type pages_topCommanders$key = {
+  readonly " $data"?: pages_topCommanders$data;
+  readonly " $fragmentSpreads": FragmentRefs<"pages_topCommanders">;
 };
 
 const node: ReaderFragment = (function(){
 var v0 = [
-  "entries"
-],
-v1 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "id",
-  "storageKey": null
-};
+  "commanders"
+];
 return {
   "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "colorId"
+    },
     {
       "defaultValue": 48,
       "kind": "LocalArgument",
@@ -52,15 +48,19 @@ return {
     },
     {
       "kind": "RootArgument",
-      "name": "maxStanding"
+      "name": "minEntries"
     },
     {
       "kind": "RootArgument",
-      "name": "minEventSize"
+      "name": "minTournamentSize"
     },
     {
       "kind": "RootArgument",
       "name": "sortBy"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "timePeriod"
     }
   ],
   "kind": "Fragment",
@@ -82,52 +82,50 @@ return {
         "backward": null,
         "path": (v0/*: any*/)
       },
-      "fragmentPathInResult": [
-        "node"
-      ],
-      "operation": require('./CommanderEntriesQuery.graphql'),
-      "identifierInfo": {
-        "identifierField": "id",
-        "identifierQueryVariableName": "id"
-      }
+      "fragmentPathInResult": [],
+      "operation": require('./TopCommandersQuery.graphql')
     }
   },
-  "name": "Commander_entries",
+  "name": "pages_topCommanders",
   "selections": [
     {
-      "alias": "entries",
+      "alias": "commanders",
       "args": [
         {
-          "fields": [
-            {
-              "kind": "Variable",
-              "name": "maxStanding",
-              "variableName": "maxStanding"
-            },
-            {
-              "kind": "Variable",
-              "name": "minEventSize",
-              "variableName": "minEventSize"
-            }
-          ],
-          "kind": "ObjectValue",
-          "name": "filters"
+          "kind": "Variable",
+          "name": "colorId",
+          "variableName": "colorId"
+        },
+        {
+          "kind": "Variable",
+          "name": "minEntries",
+          "variableName": "minEntries"
+        },
+        {
+          "kind": "Variable",
+          "name": "minTournamentSize",
+          "variableName": "minTournamentSize"
         },
         {
           "kind": "Variable",
           "name": "sortBy",
           "variableName": "sortBy"
+        },
+        {
+          "kind": "Variable",
+          "name": "timePeriod",
+          "variableName": "timePeriod"
         }
       ],
-      "concreteType": "CommanderEntriesConnection",
+      "concreteType": "QueryCommandersConnection",
       "kind": "LinkedField",
-      "name": "__Commander_entries_connection",
+      "name": "__pages__commanders_connection",
       "plural": false,
       "selections": [
         {
           "alias": null,
           "args": null,
-          "concreteType": "CommanderEntriesConnectionEdge",
+          "concreteType": "QueryCommandersConnectionEdge",
           "kind": "LinkedField",
           "name": "edges",
           "plural": true,
@@ -135,16 +133,22 @@ return {
             {
               "alias": null,
               "args": null,
-              "concreteType": "Entry",
+              "concreteType": "Commander",
               "kind": "LinkedField",
               "name": "node",
               "plural": false,
               "selections": [
-                (v1/*: any*/),
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "id",
+                  "storageKey": null
+                },
                 {
                   "args": null,
                   "kind": "FragmentSpread",
-                  "name": "Commander_EntryCard"
+                  "name": "pages_TopCommandersCard"
                 },
                 {
                   "alias": null,
@@ -193,14 +197,13 @@ return {
         }
       ],
       "storageKey": null
-    },
-    (v1/*: any*/)
+    }
   ],
-  "type": "Commander",
+  "type": "Query",
   "abstractKey": null
 };
 })();
 
-(node as any).hash = "876e1bd441cae57fe6a8ed9f662d6100";
+(node as any).hash = "b5a6c24d9b40c399fa950a403034faa7";
 
 export default node;

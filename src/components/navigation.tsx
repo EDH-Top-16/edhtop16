@@ -5,7 +5,11 @@ import Link from "next/link";
 import { useCallback, useState } from "react";
 import { Searchbar } from "./searchbar";
 
-export function Navigation() {
+export function Navigation({
+  searchType,
+}: {
+  searchType?: "commander" | "tournament";
+}) {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const toggleSearch = useCallback(() => {
     setMobileSearchOpen((open) => !open);
@@ -48,7 +52,7 @@ export function Navigation() {
           mobileSearchOpen ? "flex" : "hidden",
         )}
       >
-        <Searchbar />
+        <Searchbar searchType={searchType} />
       </div>
     </nav>
   );

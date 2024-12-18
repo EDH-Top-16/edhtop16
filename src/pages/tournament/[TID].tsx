@@ -47,8 +47,10 @@ function EntryCard({
 
         commander {
           name
-          imageUrls
           breakdownUrl
+          cards {
+            imageUrls
+          }
         }
       }
     `,
@@ -81,10 +83,12 @@ function EntryCard({
           "first:md:col-span-2 lg:max-w-3xl first:lg:col-span-3 first:lg:w-full first:lg:justify-self-center",
       )}
       bottomText={bottomText}
-      images={entry.commander.imageUrls.map((img) => ({
-        src: img,
-        alt: `${entry.commander.name} art`,
-      }))}
+      images={entry.commander.cards
+        .flatMap((c) => c.imageUrls)
+        .map((img) => ({
+          src: img,
+          alt: `${entry.commander.name} art`,
+        }))}
     >
       <div className="flex h-32 flex-col space-y-2 group-first:lg:h-40">
         {entry.decklist ? (
@@ -122,9 +126,11 @@ function BreakdownGroupCard({
       fragment TID_BreakdownGroupCard on TournamentBreakdownGroup {
         commander {
           name
-          imageUrls
           breakdownUrl
           colorId
+          cards {
+            imageUrls
+          }
         }
 
         entries
@@ -144,10 +150,12 @@ function BreakdownGroupCard({
           <span>Conversion: {formatPercent(conversionRate)}</span>
         </div>
       }
-      images={commander.imageUrls.map((img) => ({
-        src: img,
-        alt: `${commander.name} art`,
-      }))}
+      images={commander.cards
+        .flatMap((c) => c.imageUrls)
+        .map((img) => ({
+          src: img,
+          alt: `${commander.name} art`,
+        }))}
     >
       <div className="flex h-32 flex-col space-y-2">
         <button
@@ -177,7 +185,9 @@ function TournamentBanner(props: { tournament: TID_TournamentBanner$key }) {
 
         winner: entries(maxStanding: 1) {
           commander {
-            imageUrls
+            cards {
+              imageUrls
+            }
           }
         }
       }
@@ -199,8 +209,9 @@ function TournamentBanner(props: { tournament: TID_TournamentBanner$key }) {
       <div className="relative mx-auto flex h-full w-full max-w-screen-xl flex-col items-center justify-center space-y-4">
         {tournament.winner[0] != null && (
           <div className="absolute left-0 top-0 flex h-full w-full brightness-[40%]">
-            {tournament.winner[0].commander.imageUrls.map(
-              (src, _i, { length }) => {
+            {tournament.winner[0].commander.cards
+              .flatMap((c) => c.imageUrls)
+              .map((src, _i, { length }) => {
                 return (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -213,8 +224,7 @@ function TournamentBanner(props: { tournament: TID_TournamentBanner$key }) {
                     alt={`${tournament.name} winner art`}
                   />
                 );
-              },
-            )}
+              })}
           </div>
         )}
 

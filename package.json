@@ -21,6 +21,7 @@
     "@heroicons/react": "^2.1.5",
     "@next/third-parties": "^14.2.14",
     "@pothos/core": "^4.3.0",
+    "@pothos/plugin-dataloader": "^4.3.0",
     "@pothos/plugin-prisma": "^4.4.0",
     "@pothos/plugin-relay": "^4.3.0",
     "@prisma/client": "^5.9.1",
