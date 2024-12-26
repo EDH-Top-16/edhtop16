@@ -61,9 +61,8 @@ function AboutPage() {
           If you would like to see a tournament added to our site, please
           contact us! We wish to grow our dataset and have the most complete and
           accurate view of tournament EDH possible. Do note, all Command Tower
-          events are automatically added. You can contact us directly on Discord
-          by sending a message to <span className="font-mono">ryan.html</span>{" "}
-          or <span className="font-mono">jqiu21</span>.
+          events are automatically added. You can contact us in our [Discord
+          server](https://discord.gg/gPDbashJvj) for further questions.
         </p>
 
         <h1 className="flex-1 font-title text-5xl font-extrabold text-white">
