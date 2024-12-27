@@ -48,12 +48,15 @@ function TopCommandersCard({
         name
         colorId
         breakdownUrl
-        stats(filters: { timePeriod: $timePeriod }) {
+        stats(
+          filters: { timePeriod: $timePeriod, minSize: $minTournamentSize }
+        ) {
           conversionRate
           topCuts
           count
           metaShare
         }
+
         cards {
           imageUrls
         }

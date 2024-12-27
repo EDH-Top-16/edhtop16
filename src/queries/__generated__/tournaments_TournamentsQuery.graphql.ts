@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<176c1403362776a9bc2f1bfac6545817>>
+ * @generated SignedSource<<a2d3ec6e4a5ee31deeab0e90fcedd563>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
+export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type TournamentSortBy = "DATE" | "PLAYERS" | "%future added value";
 export type tournaments_TournamentsQuery$variables = {
   minSize: number;

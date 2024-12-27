@@ -61,13 +61,10 @@ type CommanderStats {
 input CommanderStatsFilters {
   colorId: String
   maxDate: String
-  maxEntries: Int
   maxSize: Int
   minDate: String
-  minEntries: Int
   minSize: Int
   timePeriod: TimePeriod
-  topCut: Int
 }
 
 enum CommandersSortBy {
@@ -229,9 +226,9 @@ enum TimePeriod {
   ALL_TIME
   ONE_MONTH
   ONE_YEAR
+  POST_BAN
   SIX_MONTHS
   THREE_MONTHS
-  POST_BAN
 }
 
 type TopdeckTournamentRound {

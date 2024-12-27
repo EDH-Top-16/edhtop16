@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<cd2e2989241f567abf35e15b60e14c97>>
+ * @generated SignedSource<<f0a72d8e2ef3f718615b326c6e430a38>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -32,6 +32,10 @@ export type pages_TopCommandersCard$key = {
 
 const node: ReaderFragment = {
   "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "minTournamentSize"
+    },
     {
       "kind": "RootArgument",
       "name": "timePeriod"
@@ -67,6 +71,11 @@ const node: ReaderFragment = {
       "args": [
         {
           "fields": [
+            {
+              "kind": "Variable",
+              "name": "minSize",
+              "variableName": "minTournamentSize"
+            },
             {
               "kind": "Variable",
               "name": "timePeriod",
@@ -136,6 +145,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "64f6e7a9542188b0b2e6d8decc1d4a0c";
+(node as any).hash = "b689ba146c56ee09971ba19ce0438834";
 
 export default node;
