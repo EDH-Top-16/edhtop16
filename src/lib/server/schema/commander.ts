@@ -15,13 +15,10 @@ const EntriesSortBy = builder.enumType("EntriesSortBy", {
 
 const CommanderStatsFilters = builder.inputType("CommanderStatsFilters", {
   fields: (t) => ({
-    topCut: t.int(),
     colorId: t.string(),
     minSize: t.int(),
-    minEntries: t.int(),
     minDate: t.string(),
     maxSize: t.int(),
-    maxEntries: t.int(),
     maxDate: t.string(),
     timePeriod: t.field({ type: TimePeriod }),
   }),
@@ -119,7 +116,7 @@ builder.queryField("commanders", (t) =>
       colorId: t.arg.string(),
     },
     resolve: async (_root, args) => {
-      return resolveOffsetConnection({ args }, ({ limit, offset }) => {
+      return resolveOffsetConnection({ args }, async ({ limit, offset }) => {
         const minDate = minDateFromTimePeriod(args.timePeriod ?? "ONE_MONTH");
         const minTournamentSize = args.minTournamentSize || 0;
         const minEntries = args.minEntries || 0;
@@ -189,11 +186,8 @@ builder.objectField(CommanderType, "stats", (t) =>
     args: { filters: t.arg({ type: CommanderStatsFilters }) },
     resolve: (parent) => parent.uuid,
     load: async (commanderUuids: string[], _ctx, { filters }) => {
-      const topCut = filters?.topCut ?? 0;
       const minSize = filters?.minSize ?? 0;
-      const minEntries = filters?.minEntries ?? 0;
-      const maxSize = filters?.maxSize ?? Number.MAX_SAFE_INTEGER;
-      const maxEntries = filters?.maxEntries ?? Number.MAX_SAFE_INTEGER;
+      const maxSize = filters?.maxSize ?? 1_000_000;
       const maxDate = filters?.maxDate ? new Date(filters.maxDate) : new Date();
       const minDate =
         filters?.minDate != null
@@ -207,7 +201,6 @@ builder.objectField(CommanderType, "stats", (t) =>
           left join "Tournament" t on t.uuid = e."tournamentUuid"
           where t.size >= ${minSize}
           and t.size <= ${maxSize}
-          and t."topCut" >= ${topCut}
           and t."tournamentDate" >= ${minDate}
           and t."tournamentDate" <= ${maxDate}
         `,
@@ -224,13 +217,10 @@ builder.objectField(CommanderType, "stats", (t) =>
           left join "Tournament" t on t.uuid = e."tournamentUuid"
           where t.size >= ${minSize}
           and t.size <= ${maxSize}
-          and t."topCut" >= ${topCut}
           and t."tournamentDate" >= ${minDate}
           and t."tournamentDate" <= ${maxDate}
           and c.uuid::text in (${Prisma.join(commanderUuids)})
           group by c.uuid
-          having count(c.uuid) >= ${minEntries}
-          and count(c.uuid) <= ${maxEntries}
         `,
       ]);
 
