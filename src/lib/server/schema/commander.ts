@@ -73,22 +73,25 @@ const CommanderType = builder.prismaNode("Commander", {
         };
       },
     }),
-    cards: t.loadable({
-      type: [Card],
-      load: async (names: string[]) => {
+    cards: t.loadableList({
+      type: Card,
+      load: async (commanders: string[]) => {
+        const names = commanders.map((c) =>
+          c === "Unknown Commander" ? [] : c.split(" / "),
+        );
+
         const cards = await prisma.card.findMany({
-          where: { name: { in: names } },
+          where: { name: { in: names.flat() } },
         });
 
         const cardByName = new Map<string, PrismaCard>();
         for (const card of cards) cardByName.set(card.name, card);
 
-        return names.map(
-          (n) => cardByName.get(n) ?? new Error(`Could not find card: ${n}`),
+        return names.map((ns) =>
+          ns.map((n) => cardByName.get(n)!).filter(Boolean),
         );
       },
-      resolve: (parent) =>
-        parent.name === "Unknown Commander" ? [] : parent.name.split(" / "),
+      resolve: (parent) => parent.name,
     }),
   }),
 });
