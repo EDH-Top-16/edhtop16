@@ -3,15 +3,7 @@ type Card implements Node {
   colorId: String!
   id: ID!
   imageUrls: [String!]!
-
-  """
-  Card name.
-  """
   name: String!
-
-  """
-  Scryfall's Oracle ID to uniquely identify a card.
-  """
   oracleId: String!
   type: String!
 }
@@ -19,10 +11,6 @@ type Card implements Node {
 type Commander implements Node {
   breakdownUrl: String!
   cards: [Card!]!
-
-  """
-  Color identity, e.g RUG.
-  """
   colorId: String!
   entries(
     after: String
@@ -33,10 +21,6 @@ type Commander implements Node {
     sortBy: EntriesSortBy = TOP
   ): CommanderEntriesConnection!
   id: ID!
-
-  """
-  Name of the commander, or commanders.
-  """
   name: String!
   stats(filters: CommanderStatsFilters): CommanderStats!
 }
@@ -143,16 +127,8 @@ type Player implements Node {
   entries: [Entry!]!
   id: ID!
   losses: Int!
-
-  """
-  Name of this player, as found in their most recent tournament.
-  """
   name: String!
   topCuts: Int!
-
-  """
-  Unique topdeck profile ID.
-  """
   topdeckProfile: String
   winRate: Float!
   wins: Int!
@@ -245,34 +221,15 @@ type TopdeckTournamentTable {
 }
 
 type Tournament implements Node {
-  """
-  ID of the tournament as tracked by topdeck.
-  """
   TID: String!
   bracketUrl: String!
   breakdown: [TournamentBreakdownGroup!]!
   entries(commander: String, maxStanding: Int): [Entry!]!
   id: ID!
-
-  """
-  Display name of the tournament.
-  """
   name: String!
   rounds: [TopdeckTournamentRound!]!
-
-  """
-  Number of players.
-  """
   size: Int!
-
-  """
-  Number of swiss rounds.
-  """
   swissRounds: Int!
-
-  """
-  Number of players making top cut.
-  """
   topCut: Int!
   tournamentDate: String!
 }

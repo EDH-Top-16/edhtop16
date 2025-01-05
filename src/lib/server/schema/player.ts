@@ -1,110 +1,175 @@
-import { prisma } from "../prisma";
+import { db } from "../db";
 import { builder } from "./builder";
+import { Entry } from "./entry";
 
-export const PlayerType = builder.prismaNode("Player", {
-  id: { field: "uuid" },
+export const Player = builder.loadableNodeRef("Player", {
+  id: { resolve: (parent) => parent.uuid },
+  load: async (ids: string[]) => {
+    const nodes = await db
+      .selectFrom("Player")
+      .selectAll()
+      .where("uuid", "in", ids)
+      .execute();
+
+    const nodesByUuid = new Map<string, (typeof nodes)[number]>();
+    for (const node of nodes) nodesByUuid.set(node.uuid, node);
+
+    return ids.map((id) => nodesByUuid.get(id)!);
+  },
+});
+
+Player.implement({
   fields: (t) => ({
     name: t.exposeString("name"),
     topdeckProfile: t.exposeString("topdeckProfile", { nullable: true }),
-    entries: t.relation("entries"),
+    entries: t.field({
+      type: [Entry],
+      resolve: (parent) => {
+        return db
+          .selectFrom("Entry")
+          .selectAll()
+          .where("Entry.playerUuid", "=", parent.uuid)
+          .execute();
+      },
+    }),
     wins: t.int({
       resolve: async (parent) => {
-        const aggregateWins = await prisma.entry.aggregate({
-          _sum: { winsBracket: true, winsSwiss: true },
-          where: { playerUuid: parent.uuid },
-        });
+        const { wins } = await db
+          .selectFrom("Entry")
+          .select((eb) =>
+            eb(
+              eb.fn.sum<number>("winsBracket"),
+              "+",
+              eb.fn.sum<number>("winsSwiss"),
+            ).as("wins"),
+          )
+          .where("playerUuid", "=", parent.uuid)
+          .executeTakeFirstOrThrow();
 
-        return (
-          (aggregateWins._sum.winsBracket ?? 0) +
-          (aggregateWins._sum.winsSwiss ?? 0)
-        );
+        return wins;
       },
     }),
     losses: t.int({
       resolve: async (parent, _args) => {
-        const aggregateLosses = await prisma.entry.aggregate({
-          _sum: { lossesBracket: true, lossesSwiss: true },
-          where: { playerUuid: parent.uuid },
-        });
+        const { losses } = await db
+          .selectFrom("Entry")
+          .select((eb) =>
+            eb(
+              eb.fn.sum<number>("lossesBracket"),
+              "+",
+              eb.fn.sum<number>("lossesSwiss"),
+            ).as("losses"),
+          )
+          .where("playerUuid", "=", parent.uuid)
+          .executeTakeFirstOrThrow();
 
-        return (
-          (aggregateLosses._sum.lossesBracket ?? 0) +
-          (aggregateLosses._sum.lossesSwiss ?? 0)
-        );
+        return losses;
       },
     }),
     draws: t.int({
       resolve: async (parent) => {
-        const aggregateDraws = await prisma.entry.aggregate({
-          _sum: { draws: true },
-          where: { playerUuid: parent.uuid },
-        });
+        const { draws } = await db
+          .selectFrom("Entry")
+          .select((eb) => eb.fn.sum<number>("draws").as("draws"))
+          .where("playerUuid", "=", parent.uuid)
+          .executeTakeFirstOrThrow();
 
-        return aggregateDraws._sum.draws ?? 0;
+        return draws;
       },
     }),
     topCuts: t.int({
       resolve: async (parent) => {
-        const entries = await prisma.entry.findMany({
-          where: { playerUuid: parent.uuid },
-          select: { standing: true, tournament: { select: { topCut: true } } },
-        });
+        const { topCuts } = await db
+          .selectFrom("Entry")
+          .select((eb) => eb.fn.count<number>("Entry.uuid").as("topCuts"))
+          .leftJoin("Tournament", "Tournament.uuid", "Entry.tournamentUuid")
+          .where("Entry.playerUuid", "=", parent.uuid)
+          .where((eb) =>
+            eb("Entry.standing", "<=", eb.ref("Tournament.topCut")),
+          )
+          .executeTakeFirstOrThrow();
 
-        return entries.filter((e) => e.standing <= e.tournament.topCut).length;
+        return topCuts;
       },
     }),
     winRate: t.float({
       resolve: async (parent) => {
-        const {
-          _sum: { draws, winsBracket, lossesBracket, lossesSwiss, winsSwiss },
-        } = await prisma.entry.aggregate({
-          _sum: {
-            draws: true,
-            winsBracket: true,
-            winsSwiss: true,
-            lossesBracket: true,
-            lossesSwiss: true,
-          },
-          where: { playerUuid: parent.uuid },
-        });
+        const { winRate } = await db
+          .selectFrom("Entry")
+          .select((eb) =>
+            eb(
+              eb(
+                eb.fn.sum<number>("winsBracket"),
+                "+",
+                eb.fn.sum<number>("winsSwiss"),
+              ),
+              "/",
+              eb(
+                eb.fn.sum<number>("winsBracket"),
+                "+",
+                eb(
+                  eb.fn.sum<number>("winsSwiss"),
+                  "+",
+                  eb(
+                    eb.fn.sum<number>("lossesBracket"),
+                    "+",
+                    eb(
+                      eb.fn.sum<number>("lossesSwiss"),
+                      "+",
+                      eb.fn.sum<number>("draws"),
+                    ),
+                  ),
+                ),
+              ),
+            ).as("winRate"),
+          )
+          .where("Entry.playerUuid", "=", parent.uuid)
+          .executeTakeFirstOrThrow();
 
-        const totalWins = (winsBracket ?? 0) + (winsSwiss ?? 0);
-        const totalGames =
-          (draws ?? 0) +
-          (winsBracket ?? 0) +
-          (lossesBracket ?? 0) +
-          (lossesSwiss ?? 0) +
-          (winsSwiss ?? 0);
-
-        if (totalGames === 0) return 0;
-        return totalWins / totalGames;
+        return winRate;
       },
     }),
     conversionRate: t.float({
       resolve: async (parent) => {
-        const entries = await prisma.entry.findMany({
-          where: { playerUuid: parent.uuid },
-          select: { standing: true, tournament: { select: { topCut: true } } },
-        });
+        const { conversionRate } = await db
+          .selectFrom("Entry")
+          .leftJoin("Tournament", "Tournament.uuid", "Entry.tournamentUuid")
+          .select((eb) =>
+            eb(
+              eb.cast<number>(
+                eb.fn.sum<number>(
+                  eb
+                    .case()
+                    .when("Entry.standing", "<=", eb.ref("Tournament.topCut"))
+                    .then(1)
+                    .else(0)
+                    .end(),
+                ),
+                "real",
+              ),
+              "/",
+              eb.fn.count<number>("Entry.uuid"),
+            ).as("conversionRate"),
+          )
+          .where("Entry.playerUuid", "=", parent.uuid)
+          .executeTakeFirstOrThrow();
 
-        if (entries.length === 0) return 0;
-        return (
-          entries.filter((e) => e.standing <= e.tournament.topCut).length /
-          entries.length
-        );
+        return conversionRate;
       },
     }),
   }),
 });
 
 builder.queryField("player", (t) =>
-  t.prismaField({
-    type: "Player",
+  t.field({
+    type: Player,
     args: { profile: t.arg.string({ required: true }) },
-    resolve: async (query, _root, args, _ctx, _info) =>
-      prisma.player.findFirstOrThrow({
-        ...query,
-        where: { topdeckProfile: args.profile },
-      }),
+    resolve: async (_root, args) => {
+      return db
+        .selectFrom("Player")
+        .selectAll()
+        .where("topdeckProfile", "=", args.profile)
+        .executeTakeFirstOrThrow();
+    },
   }),
 );

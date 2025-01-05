@@ -1,4 +1,5 @@
-import { prisma } from "../prisma";
+import { sql } from "kysely";
+import { db } from "../db";
 import { builder } from "./builder";
 
 const SearchResult = builder
@@ -19,35 +20,41 @@ builder.queryField("searchResults", (t) =>
     type: t.listRef(SearchResult),
     args: { types: t.arg({ type: [SearchResultType] }) },
     resolve: async (_root, { types }) => {
-      const results: (typeof SearchResult)["$inferType"][] = [];
+      const commandersQuery = db
+        .selectFrom("Commander")
+        .select((eb) => [
+          eb.ref("Commander.name").as("name"),
+          sql.lit("/commander/").as("prefix"),
+          eb.ref("Commander.name").as("suffix"),
+        ]);
+
+      const tournamentsQuery = db
+        .selectFrom("Tournament")
+        .select((eb) => [
+          eb.ref("Tournament.name").as("name"),
+          sql.lit("/tournament/").as("prefix"),
+          eb.ref("Tournament.TID").as("suffix"),
+        ]);
+
+      const queryParts: (typeof commandersQuery | typeof tournamentsQuery)[] =
+        [];
 
       if (types == null || types.includes("COMMANDER")) {
-        const commanders = await prisma.commander.findMany({
-          select: { name: true },
-        });
-
-        for (const commander of commanders) {
-          results.push({
-            name: commander.name,
-            url: `/commander/${encodeURIComponent(commander.name)}`,
-          });
-        }
+        queryParts.push(commandersQuery);
       }
 
       if (types == null || types.includes("TOURNAMENT")) {
-        const tournaments = await prisma.tournament.findMany({
-          select: { name: true, TID: true },
-        });
-
-        for (const tournament of tournaments) {
-          results.push({
-            name: tournament.name,
-            url: `/tournament/${encodeURIComponent(tournament.TID)}`,
-          });
-        }
+        queryParts.push(tournamentsQuery);
       }
 
-      return results;
+      const results = await queryParts
+        .reduce((acc, q) => acc.unionAll(q))
+        .execute();
+
+      return results.map((r) => ({
+        name: r.name,
+        url: r.prefix + encodeURIComponent(r.suffix),
+      }));
     },
   }),
 );

@@ -1,6 +1,9 @@
-import { prisma } from "../prisma";
+import { db } from "../db";
 import { builder } from "./builder";
 import { Card } from "./card";
+import { Commander } from "./commander";
+import { Player } from "./player";
+import { Tournament } from "./tournament";
 import { TopdeckTournamentTableType } from "./types";
 
 export const EntryFilters = builder.inputType("EntryFilters", {
@@ -24,8 +27,23 @@ export const EntrySortBy = builder.enumType("EntrySortBy", {
   values: ["STANDING", "WINS", "LOSSES", "DRAWS", "WINRATE", "DATE"] as const,
 });
 
-export const EntryType = builder.prismaNode("Entry", {
-  id: { field: "uuid" },
+export const Entry = builder.loadableNodeRef("Entry", {
+  id: { resolve: (parent) => parent.uuid },
+  load: async (ids: string[]) => {
+    const nodes = await db
+      .selectFrom("Entry")
+      .selectAll()
+      .where("uuid", "in", ids)
+      .execute();
+
+    const nodesByUuid = new Map<string, (typeof nodes)[number]>();
+    for (const node of nodes) nodesByUuid.set(node.uuid, node);
+
+    return ids.map((id) => nodesByUuid.get(id)!);
+  },
+});
+
+Entry.implement({
   fields: (t) => ({
     standing: t.exposeInt("standing"),
     decklist: t.exposeString("decklist", { nullable: true }),
@@ -34,9 +52,28 @@ export const EntryType = builder.prismaNode("Entry", {
     draws: t.exposeInt("draws"),
     lossesSwiss: t.exposeInt("lossesSwiss"),
     lossesBracket: t.exposeInt("lossesBracket"),
-    commander: t.relation("commander"),
-    player: t.relation("player", { nullable: true }),
-    tournament: t.relation("tournament"),
+    commander: t.field({
+      type: Commander,
+      resolve: (parent, _args, ctx) =>
+        Commander.getDataloader(ctx).load(parent.commanderUuid),
+    }),
+    player: t.field({
+      type: Player,
+      nullable: true,
+      resolve: (parent) => {
+        return db
+          .selectFrom("Player")
+          .selectAll()
+          .where("Player.uuid", "=", parent.playerUuid)
+          .executeTakeFirst();
+      },
+    }),
+    tournament: t.field({
+      type: Tournament,
+      resolve: (parent, _args, ctx) => {
+        return Tournament.getDataloader(ctx).load(parent.tournamentUuid);
+      },
+    }),
     wins: t.int({
       resolve: (parent) => parent.winsBracket + parent.winsSwiss,
     }),
@@ -59,15 +96,17 @@ export const EntryType = builder.prismaNode("Entry", {
       resolve: async (parent, _args, ctx) => {
         if (!parent.playerUuid) return [];
 
-        const { TID } = await prisma.tournament.findUniqueOrThrow({
-          where: { uuid: parent.tournamentUuid },
-          select: { TID: true },
-        });
+        const { TID } = await db
+          .selectFrom("Tournament")
+          .select("TID")
+          .where("uuid", "=", parent.tournamentUuid)
+          .executeTakeFirstOrThrow();
 
-        const { topdeckProfile } = await prisma.player.findUniqueOrThrow({
-          where: { uuid: parent.playerUuid },
-          select: { topdeckProfile: true },
-        });
+        const { topdeckProfile } = await db
+          .selectFrom("Player")
+          .select("topdeckProfile")
+          .where("uuid", "=", parent.playerUuid)
+          .executeTakeFirstOrThrow();
 
         const roundsData = await ctx.topdeckClient.loadRoundsData(TID);
 
@@ -83,12 +122,12 @@ export const EntryType = builder.prismaNode("Entry", {
     maindeck: t.field({
       type: t.listRef(Card),
       resolve: async (parent) => {
-        const decklistItems = await prisma.decklistItem.findMany({
-          where: { entryUuid: parent.uuid },
-          include: { card: true },
-        });
-
-        return decklistItems.map((item) => item.card);
+        return db
+          .selectFrom("DecklistItem")
+          .innerJoin("Card", "Card.uuid", "DecklistItem.cardUuid")
+          .selectAll("Card")
+          .where("DecklistItem.entryUuid", "=", parent.uuid)
+          .execute();
       },
     }),
   }),

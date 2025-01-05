@@ -1,8 +1,13 @@
-import { resolveOffsetConnection } from "@pothos/plugin-relay";
-import { Commander, Prisma, Card as PrismaCard } from "@prisma/client";
-import { prisma } from "../prisma";
+import {
+  resolveCursorConnection,
+  ResolveCursorConnectionArgs,
+  resolveOffsetConnection,
+} from "@pothos/plugin-relay";
+import { db } from "../db";
+import { DB } from "../db/__generated__/types";
 import { builder } from "./builder";
 import { Card } from "./card";
+import { Entry } from "./entry";
 import { minDateFromTimePeriod, TimePeriod } from "./types";
 
 const CommandersSortBy = builder.enumType("CommandersSortBy", {
@@ -32,16 +37,31 @@ const EntriesFilter = builder.inputType("EntriesFilter", {
   }),
 });
 
-const CommanderType = builder.prismaNode("Commander", {
-  id: { field: "uuid" },
+export const Commander = builder.loadableNodeRef<DB["Commander"]>("Commander", {
+  id: { resolve: (parent) => parent.uuid },
+  load: async (ids: string[]) => {
+    const nodes = await db
+      .selectFrom("Commander")
+      .selectAll()
+      .where("uuid", "in", ids)
+      .execute();
+
+    const nodesByUuid = new Map<string, (typeof nodes)[number]>();
+    for (const node of nodes) nodesByUuid.set(node.uuid, node);
+
+    return ids.map((id) => nodesByUuid.get(id)!);
+  },
+});
+
+Commander.implement({
   fields: (t) => ({
     name: t.exposeString("name"),
     colorId: t.exposeString("colorId"),
     breakdownUrl: t.string({
       resolve: (parent) => `/commander/${encodeURIComponent(parent.name)}`,
     }),
-    entries: t.relatedConnection("entries", {
-      cursor: "uuid",
+    entries: t.connection({
+      type: Entry,
       args: {
         filters: t.arg({ type: EntriesFilter }),
         sortBy: t.arg({
@@ -49,42 +69,49 @@ const CommanderType = builder.prismaNode("Commander", {
           defaultValue: "TOP",
         }),
       },
-      query: ({ filters, sortBy }) => {
-        const minEventSize = filters?.minEventSize ?? 60;
-        const maxStanding = filters?.maxStanding;
-        const minDate = minDateFromTimePeriod(
-          filters?.timePeriod ?? "ALL_TIME",
-        );
+      resolve: (parent, args) =>
+        resolveOffsetConnection({ args }, ({ limit, offset }) => {
+          const minEventSize = args.filters?.minEventSize ?? 60;
+          const maxStanding =
+            args.filters?.maxStanding ?? Number.MAX_SAFE_INTEGER;
+          const minDate = minDateFromTimePeriod(
+            args.filters?.timePeriod ?? "ALL_TIME",
+          );
 
-        const orderBy: Prisma.EntryOrderByWithRelationInput[] =
-          sortBy === "NEW"
-            ? [{ tournament: { tournamentDate: "desc" } }]
-            : [{ standing: "asc" }, { tournament: { size: "desc" } }];
-
-        return {
-          where: {
-            standing: { lte: maxStanding ?? undefined },
-            tournament: {
-              tournamentDate: { gte: minDate },
-              size: { gte: minEventSize },
-            },
-          },
-          orderBy,
-        };
-      },
+          return db
+            .selectFrom("Entry")
+            .selectAll("Entry")
+            .leftJoin("Tournament", "Tournament.uuid", "Entry.tournamentUuid")
+            .where("Entry.commanderUuid", "=", parent.uuid)
+            .where("standing", "<=", maxStanding)
+            .where("Tournament.tournamentDate", ">=", minDate.toISOString())
+            .where("Tournament.size", ">=", minEventSize)
+            .orderBy(
+              args.sortBy === "NEW"
+                ? ["Tournament.tournamentDate desc"]
+                : ["Entry.standing asc", "Tournament.size desc"],
+            )
+            .limit(limit)
+            .offset(offset)
+            .execute();
+        }),
     }),
     cards: t.loadableList({
       type: Card,
       load: async (commanders: string[]) => {
+        if (commanders.length === 0) return [];
+
         const names = commanders.map((c) =>
           c === "Unknown Commander" ? [] : c.split(" / "),
         );
 
-        const cards = await prisma.card.findMany({
-          where: { name: { in: names.flat() } },
-        });
+        const cards = await db
+          .selectFrom("Card")
+          .selectAll()
+          .where("name", "in", names.flat())
+          .execute();
 
-        const cardByName = new Map<string, PrismaCard>();
+        const cardByName = new Map<string, DB["Card"]>();
         for (const card of cards) cardByName.set(card.name, card);
 
         return names.map((ns) =>
@@ -97,20 +124,21 @@ const CommanderType = builder.prismaNode("Commander", {
 });
 
 builder.queryField("commander", (t) =>
-  t.prismaField({
-    type: "Commander",
+  t.field({
+    type: Commander,
     args: { name: t.arg.string({ required: true }) },
-    resolve: async (query, _root, args, _ctx, _info) =>
-      prisma.commander.findFirstOrThrow({
-        ...query,
-        where: { name: args.name },
-      }),
+    resolve: async (_root, args, _ctx, _info) =>
+      db
+        .selectFrom("Commander")
+        .selectAll()
+        .where("name", "=", args.name)
+        .executeTakeFirstOrThrow(),
   }),
 );
 
 builder.queryField("commanders", (t) =>
   t.connection({
-    type: CommanderType,
+    type: Commander,
     args: {
       minEntries: t.arg.int(),
       minTournamentSize: t.arg.int(),
@@ -119,47 +147,86 @@ builder.queryField("commanders", (t) =>
       colorId: t.arg.string(),
     },
     resolve: async (_root, args) => {
-      return resolveOffsetConnection({ args }, async ({ limit, offset }) => {
-        const minDate = minDateFromTimePeriod(args.timePeriod ?? "ONE_MONTH");
-        const minTournamentSize = args.minTournamentSize || 0;
-        const minEntries = args.minEntries || 0;
-        const orderBy =
-          args.sortBy === "POPULARITY"
-            ? Prisma.sql([`count(e)`])
-            : Prisma.sql([
-                `sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e)`,
-              ]);
+      return resolveCursorConnection(
+        { args, toCursor: (parent) => parent.uuid },
+        async ({
+          before,
+          after,
+          limit,
+          inverted,
+        }: ResolveCursorConnectionArgs) => {
+          const minDate = minDateFromTimePeriod(args.timePeriod ?? "ONE_MONTH");
+          const minTournamentSize = args.minTournamentSize || 0;
+          const minEntries = args.minEntries || 0;
 
-        let colorId = "";
-        if (args.colorId) {
-          for (const color of ["W", "U", "B", "R", "G", "C"]) {
-            if (args.colorId?.includes(color)) {
-              colorId += color;
-            } else {
-              colorId += "%";
+          let colorId = "";
+          if (args.colorId) {
+            for (const color of ["W", "U", "B", "R", "G", "C"]) {
+              if (args.colorId?.includes(color)) {
+                colorId += color;
+              } else {
+                colorId += "%";
+              }
             }
+          } else {
+            colorId = "%";
           }
-        } else {
-          colorId = "%";
-        }
 
-        return prisma.$queryRaw<Commander[]>`
-          SELECT c.*
-          FROM "Commander" as c
-          LEFT JOIN "Entry" e on e."commanderUuid" = c.uuid
-          LEFT JOIN "Tournament" t on t.uuid = e."tournamentUuid"
-          WHERE c.name != 'Unknown Commander'
-          AND c.name != 'Nadu, Winged Wisdom'
-          AND t."tournamentDate" >= ${minDate}
-          AND t."size" >= ${minTournamentSize}
-          AND c."colorId" LIKE ${colorId}
-          GROUP BY c.uuid
-          HAVING count(e) >= ${minEntries}
-          ORDER BY ${orderBy} DESC
-          LIMIT ${limit}
-          OFFSET ${offset}
-        `;
-      });
+          let query = db
+            .selectFrom("Commander")
+            .selectAll("Commander")
+            .leftJoin("Entry", "Entry.commanderUuid", "Commander.uuid")
+            .leftJoin("Tournament", "Tournament.uuid", "Entry.tournamentUuid")
+            .where("Commander.name", "!=", "Unknown Commander")
+            .where("Commander.name", "!=", "Nadu, Winged Wisdom")
+            .where("Tournament.tournamentDate", ">=", minDate.toISOString())
+            .where("Tournament.size", ">=", minTournamentSize)
+            .where("Commander.colorId", "like", colorId);
+
+          if (before) {
+            query = query.where("Commander.uuid", "<=", before);
+          }
+          if (after) {
+            query = query.where("Commander.uuid", ">=", after);
+          }
+
+          query = query
+            .groupBy("Commander.uuid")
+            .having((eb) => eb.fn.count("Entry.uuid"), ">=", minEntries)
+            .orderBy(
+              (eb) => {
+                if (args.sortBy === "POPULARITY") {
+                  return eb.fn.count("Entry.uuid");
+                } else {
+                  return eb(
+                    eb.cast(
+                      eb.fn.sum(
+                        eb
+                          .case()
+                          .when(
+                            "Entry.standing",
+                            "<=",
+                            eb.ref("Tournament.topCut"),
+                          )
+                          .then(1)
+                          .else(0)
+                          .end(),
+                      ),
+                      "real",
+                    ),
+                    "/",
+                    eb.fn.count("Entry.uuid"),
+                  );
+                }
+              },
+              inverted ? "asc" : "desc",
+            )
+            .orderBy("Commander.uuid", inverted ? "desc" : "asc")
+            .limit(limit);
+
+          return query.execute();
+        },
+      );
     },
   }),
 );
@@ -182,7 +249,7 @@ const CommanderStats = builder
     }),
   });
 
-builder.objectField(CommanderType, "stats", (t) =>
+builder.objectField(Commander, "stats", (t) =>
   t.loadable({
     type: CommanderStats,
     byPath: true,
@@ -198,41 +265,67 @@ builder.objectField(CommanderType, "stats", (t) =>
           : minDateFromTimePeriod(filters?.timePeriod);
 
       const [entriesQuery, statsQuery] = await Promise.all([
-        prisma.$queryRaw<{ totalEntries: number }[]>`
-          select count(*) as "totalEntries"
-          from "Entry" as e
-          left join "Tournament" t on t.uuid = e."tournamentUuid"
-          where t.size >= ${minSize}
-          and t.size <= ${maxSize}
-          and t."tournamentDate" >= ${minDate}
-          and t."tournamentDate" <= ${maxDate}
-        `,
-        prisma.$queryRaw<
-          (Commander & Omit<CommanderCalculatedStats, "metaShare">)[]
-        >`
-          select
-            c.*,
-            count(c.uuid)::int as "count",
-            sum(case when e.standing <= t."topCut" then 1 else 0 end)::int as "topCuts",
-            sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e) as "conversionRate"
-          from "Commander" as c
-          left join "Entry" e on c.uuid = e."commanderUuid"
-          left join "Tournament" t on t.uuid = e."tournamentUuid"
-          where t.size >= ${minSize}
-          and t.size <= ${maxSize}
-          and t."tournamentDate" >= ${minDate}
-          and t."tournamentDate" <= ${maxDate}
-          and c.uuid::text in (${Prisma.join(commanderUuids)})
-          group by c.uuid
-        `,
+        db
+          .selectFrom("Entry")
+          .select((eb) => eb.fn.countAll<number>().as("totalEntries"))
+          .leftJoin("Tournament", "Tournament.uuid", "Entry.tournamentUuid")
+          .where("Tournament.size", ">=", minSize)
+          .where("Tournament.size", "<=", maxSize)
+          .where("Tournament.tournamentDate", ">=", minDate.toISOString())
+          .where("Tournament.tournamentDate", "<=", maxDate.toISOString())
+          .executeTakeFirstOrThrow(),
+        db
+          .selectFrom("Commander")
+          .leftJoin("Entry", "Entry.commanderUuid", "Commander.uuid")
+          .leftJoin("Tournament", "Tournament.uuid", "Entry.tournamentUuid")
+          .select([
+            "Commander.uuid",
+            "Commander.name",
+            "Commander.colorId",
+            (eb) => eb.fn.count<number>("Commander.uuid").as("count"),
+            (eb) =>
+              eb.fn
+                .sum<number>(
+                  eb
+                    .case()
+                    .when("Entry.standing", "<=", eb.ref("Tournament.topCut"))
+                    .then(1)
+                    .else(0)
+                    .end(),
+                )
+                .as("topCuts"),
+            (eb) =>
+              eb(
+                eb.cast<number>(
+                  eb.fn.sum<number>(
+                    eb
+                      .case()
+                      .when("Entry.standing", "<=", eb.ref("Tournament.topCut"))
+                      .then(1)
+                      .else(0)
+                      .end(),
+                  ),
+                  "real",
+                ),
+                "/",
+                eb.fn.count<number>("Entry.uuid"),
+              ).as("conversionRate"),
+          ])
+          .where("Tournament.size", ">=", minSize)
+          .where("Tournament.size", "<=", maxSize)
+          .where("Tournament.tournamentDate", ">=", minDate.toISOString())
+          .where("Tournament.tournamentDate", "<=", maxDate.toISOString())
+          .where("Commander.uuid", "in", commanderUuids)
+          .groupBy("Commander.uuid")
+          .execute(),
       ]);
 
-      const totalEntries = entriesQuery[0]?.totalEntries ?? 1;
+      const totalEntries = entriesQuery.totalEntries ?? 1;
       const statsByCommanderUuid = new Map<string, CommanderCalculatedStats>();
       for (const { uuid, ...stats } of statsQuery) {
         statsByCommanderUuid.set(uuid, {
           ...stats,
-          metaShare: stats.count / Number(totalEntries),
+          metaShare: stats.count / totalEntries,
         });
       }
 
