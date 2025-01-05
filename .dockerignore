@@ -1,3 +1,6 @@
 .github/
 .vscode/
+.next/
 node_modules/
+data/edhtop16.db
+data/edhtop16.db-journal

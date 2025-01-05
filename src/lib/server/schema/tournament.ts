@@ -1,7 +1,10 @@
-import { Entry, Prisma } from "@prisma/client";
-import { prisma } from "../prisma";
+import { resolveOffsetConnection } from "@pothos/plugin-relay";
+import { sql } from "kysely";
+import { db } from "../db";
+import { DB } from "../db/__generated__/types";
 import { builder } from "./builder";
-import { EntryType } from "./entry";
+import { Commander } from "./commander";
+import { Entry } from "./entry";
 import {
   minDateFromTimePeriod,
   TimePeriod,
@@ -15,7 +18,7 @@ TopdeckTournamentTableType.implement({
     table: t.exposeInt("table"),
     roundName: t.exposeString("roundName"),
     entries: t.loadable({
-      type: [EntryType],
+      type: [Entry],
       resolve: (parent) => {
         return parent.players.map((p) => ({
           TID: parent.TID,
@@ -23,17 +26,17 @@ TopdeckTournamentTableType.implement({
         }));
       },
       load: async (keys: { TID: string; profile: string }[]) => {
-        const entries = await prisma.$queryRaw<(Entry & { key: string })[]>`
-        select e.*, t."TID" || ':' || p."topdeckProfile" as key
-        from "Entry" as e
-        left join "Tournament" t on t.uuid = e."tournamentUuid"
-        left join "Player" p on p.uuid = e."playerUuid"
-        where t."TID" || ':' || p."topdeckProfile" in (${Prisma.join(
-          keys.map((e) => `${e.TID}:${e.profile}`),
-        )})
-      `;
+        const entries = await sql<DB["Entry"] & { key: string }>`
+          select e.*, t."TID" || ':' || p."topdeckProfile" as key
+          from "Entry" as e
+          left join "Tournament" t on t.uuid = e."tournamentUuid"
+          left join "Player" p on p.uuid = e."playerUuid"
+          where t."TID" || ':' || p."topdeckProfile" in (${sql.join(
+            keys.map((e) => `${e.TID}:${e.profile}`),
+          )})
+        `.execute(db);
 
-        const entriesByKey = new Map(entries.map((e) => [e.key, e]));
+        const entriesByKey = new Map(entries.rows.map((e) => [e.key, e]));
         return keys.map((e) => entriesByKey.get(`${e.TID}:${e.profile}`)!);
       },
     }),
@@ -49,7 +52,7 @@ TopdeckTournamentTableType.implement({
       },
     }),
     winner: t.field({
-      type: EntryType,
+      type: Entry,
       nullable: true,
       resolve: (parent) => {
         const winnerPlayer = parent.players.find(
@@ -60,12 +63,14 @@ TopdeckTournamentTableType.implement({
           return null;
         }
 
-        return prisma.entry.findFirst({
-          where: {
-            tournament: { TID: parent.TID },
-            player: { topdeckProfile: winnerPlayer.id },
-          },
-        });
+        return db
+          .selectFrom("Entry")
+          .leftJoin("Tournament", "Tournament.uuid", "Entry.tournamentUuid")
+          .leftJoin("Player", "Player.uuid", "Entry.playerUuid")
+          .selectAll("Entry")
+          .where("Tournament.TID", "=", parent.TID)
+          .where("Player.topdeckProfile", "=", winnerPlayer.id)
+          .executeTakeFirst();
       },
     }),
   }),
@@ -94,20 +99,32 @@ TournamentBreakdownGroupType.implement({
     topCuts: t.exposeInt("topCuts"),
     entries: t.exposeInt("entries"),
     conversionRate: t.exposeFloat("conversionRate"),
-    commander: t.prismaField({
-      type: "Commander",
-      resolve: (query, parent) => {
-        return prisma.commander.findUniqueOrThrow({
-          ...query,
-          where: { uuid: parent.commanderUuid },
-        });
+    commander: t.field({
+      type: Commander,
+      resolve: (parent, _args, ctx) => {
+        return Commander.getDataloader(ctx).load(parent.commanderUuid);
       },
     }),
   }),
 });
 
-export const TournamentType = builder.prismaNode("Tournament", {
-  id: { field: "uuid" },
+export const Tournament = builder.loadableNodeRef("Tournament", {
+  id: { resolve: (parent) => parent.uuid },
+  load: async (ids: string[]) => {
+    const nodes = await db
+      .selectFrom("Tournament")
+      .selectAll()
+      .where("uuid", "in", ids)
+      .execute();
+
+    const nodesByUuid = new Map<string, (typeof nodes)[number]>();
+    for (const node of nodes) nodesByUuid.set(node.uuid, node);
+
+    return ids.map((id) => nodesByUuid.get(id)!);
+  },
+});
+
+Tournament.implement({
   fields: (t) => ({
     TID: t.exposeString("TID"),
     name: t.exposeString("name"),
@@ -115,17 +132,27 @@ export const TournamentType = builder.prismaNode("Tournament", {
     swissRounds: t.exposeInt("swissRounds"),
     topCut: t.exposeInt("topCut"),
     tournamentDate: t.string({
-      resolve: (tournament) => tournament.tournamentDate.toISOString(),
+      resolve: (tournament) => tournament.tournamentDate,
     }),
-    entries: t.relation("entries", {
+    entries: t.field({
+      type: [Entry],
       args: { maxStanding: t.arg.int(), commander: t.arg.string() },
-      query: (args) => ({
-        where: {
-          standing: { lte: args.maxStanding ?? undefined },
-          commander: { name: args.commander ?? undefined },
-        },
-        orderBy: { standing: "asc" },
-      }),
+      resolve: (parent, args) => {
+        let query = db
+          .selectFrom("Entry")
+          .leftJoin("Commander", "Commander.uuid", "Entry.commanderUuid")
+          .selectAll("Entry")
+          .where("Entry.tournamentUuid", "=", parent.uuid);
+
+        if (args.maxStanding) {
+          query = query.where("Entry.standing", "<=", args.maxStanding);
+        }
+        if (args.commander) {
+          query = query.where("Commander.name", "=", args.commander);
+        }
+
+        return query.orderBy("standing asc").execute();
+      },
     }),
     rounds: t.field({
       type: t.listRef(TopdeckTournamentRoundType),
@@ -149,22 +176,22 @@ export const TournamentType = builder.prismaNode("Tournament", {
       type: t.listRef(TournamentBreakdownGroupType),
       resolve: async (parent) => {
         type Group = (typeof TournamentBreakdownGroupType)["$inferType"];
-        const groups = await prisma.$queryRaw<Group[]>`
+        const groups = await sql<Group>`
           select
             e."commanderUuid",
-            count(e."commanderUuid")::int as entries,
-            sum(case when e.standing <= t."topCut" then 1 else 0 end)::int as "topCuts",
-            sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e) as "conversionRate"
+            count(e."commanderUuid") as entries,
+            sum(case when e.standing <= t."topCut" then 1 else 0 end) as "topCuts",
+            sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e.uuid) as "conversionRate"
           from "Entry" as e
           left join "Tournament" t on t.uuid = e."tournamentUuid"
           left join "Commander" c on c.uuid = e."commanderUuid"
-          where t."uuid"::text = ${parent.uuid}
+          where t."uuid" = ${parent.uuid}
           and c.name != 'Unknown Commander'
           group by e."commanderUuid"
           order by "topCuts" desc, entries desc
-        `;
+        `.execute(db);
 
-        return groups;
+        return groups.rows;
       },
     }),
   }),
@@ -184,62 +211,56 @@ const TournamentFiltersInput = builder.inputType("TournamentFilters", {
 });
 
 builder.queryField("tournaments", (t) =>
-  t.prismaConnection({
-    type: TournamentType,
-    cursor: "TID",
+  t.connection({
+    type: Tournament,
     args: {
       search: t.arg.string(),
       filters: t.arg({ type: TournamentFiltersInput }),
       sortBy: t.arg({ type: TournamentSortBy, defaultValue: "DATE" }),
     },
-    resolve: async (query, _root, args, _ctx, _info) => {
-      const where: Prisma.TournamentWhereInput[] = [];
+    resolve: async (_, args) =>
+      resolveOffsetConnection({ args }, ({ limit, offset }) => {
+        let query = db.selectFrom("Tournament").selectAll();
 
-      if (args.search) {
-        where.push({
-          name: { contains: args.search, mode: "insensitive" },
-        });
-      }
+        if (args.search) {
+          query = query.where("name", "like", `%${args.search}%`);
+        }
+        if (args.filters?.minSize) {
+          query = query.where("size", ">=", args.filters.minSize);
+        }
+        if (args.filters?.maxSize) {
+          query = query.where("size", "<=", args.filters.maxSize);
+        }
+        if (args.filters?.timePeriod || args.filters?.minDate) {
+          const minDate =
+            args.filters?.minDate != null
+              ? new Date(args.filters?.minDate ?? 0)
+              : minDateFromTimePeriod(args.filters?.timePeriod);
 
-      if (args.filters?.minSize) {
-        where.push({ size: { gte: args.filters.minSize } });
-      }
+          query = query.where("tournamentDate", ">=", minDate.toISOString());
+        }
 
-      if (args.filters?.maxSize) {
-        where.push({ size: { lte: args.filters.maxSize } });
-      }
+        if (args.sortBy === "PLAYERS") {
+          query = query.orderBy(["size desc", "tournamentDate desc"]);
+        } else {
+          query = query.orderBy(["tournamentDate desc", "size desc"]);
+        }
 
-      if (args.filters?.timePeriod || args.filters?.minDate) {
-        const minDate =
-          args.filters?.minDate != null
-            ? new Date(args.filters?.minDate ?? 0)
-            : minDateFromTimePeriod(args.filters?.timePeriod);
-
-        where.push({ tournamentDate: { gte: minDate } });
-      }
-
-      const orderBy: Prisma.TournamentOrderByWithRelationInput[] =
-        args.sortBy === "PLAYERS"
-          ? [{ size: "desc" }, { tournamentDate: "desc" }]
-          : [{ tournamentDate: "desc" }, { size: "desc" }];
-
-      return prisma.tournament.findMany({
-        ...query,
-        orderBy,
-        where: { AND: where },
-      });
-    },
+        return query.limit(limit).offset(offset).execute();
+      }),
   }),
 );
 
 builder.queryField("tournament", (t) =>
-  t.prismaField({
-    type: "Tournament",
+  t.field({
+    type: Tournament,
     args: { TID: t.arg.string({ required: true }) },
-    resolve: async (query, _root, args, _ctx, _info) =>
-      prisma.tournament.findUniqueOrThrow({
-        ...query,
-        where: { TID: args.TID },
-      }),
+    resolve: async (_root, args) => {
+      return db
+        .selectFrom("Tournament")
+        .selectAll()
+        .where("TID", "=", args.TID)
+        .executeTakeFirstOrThrow();
+    },
   }),
 );

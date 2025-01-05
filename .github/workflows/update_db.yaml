@@ -11,17 +11,13 @@ on:
         type: boolean
         default: false
         description: Overwrite existing tournaments with what topdeck gives, and re-query 'Unknown Commander' values when assigning commanders
-      update_entries:
-        type: boolean
-        default: false
-        description: Run scripts to update the entries database, our MongoDB warehouse of unstructured tournament data
     secrets:
       MTG_API_PAT:
       DIGITALOCEAN_ACCESS_TOKEN:
       TOPDECK_API_KEY:
       ATLAS_URI:
       DIGITALOCEAN_DB_ID:
-      PSQL_CONN_STRING:
+      DIGITALOCEAN_APP_ID:
 
 jobs:
   update_db:
@@ -60,24 +56,16 @@ jobs:
         working-directory: edhtop16/server/scripts/
         run: pip install -r requirements.txt
 
-      - name: Copy Secrets
-        working-directory: edhtop16/server/scripts/
-        run: |-
-          echo "${{ secrets.TOPDECK_API_KEY }}" > eminence_api_key.txt
-          echo "ATLAS_URI=${{ secrets.ATLAS_URI }}" > config.env
-
       - name: Run get_tournaments.py
-        if: ${{ inputs.update_entries }}
         working-directory: edhtop16/server/scripts/
         run: python get_tournaments.py ${{ inputs.overwrite_existing_unknown && '-o' || '' }}
 
       - name: Run get_jsonl.py
-        if: ${{ inputs.update_entries && inputs.overwrite_existing_unknown }}
+        if: ${{ inputs.overwrite_existing_unknown }}
         working-directory: edhtop16/server/scripts/
         run: python get_jsonl.py
 
       - name: Run get_commanders.py
-        if: ${{ inputs.update_entries }}
         working-directory: edhtop16/server/scripts/
         run: python get_commanders.py ${{ inputs.overwrite_existing_unknown && '-u' || '' }}
 
@@ -87,18 +75,6 @@ jobs:
           echo 'ENTRIES_DB_URL="${{ secrets.ATLAS_URI }}"' > .env
           echo 'DATABASE_URL="${{ secrets.PSQL_CONN_STRING }}"' >> .env
 
-      - name: Configure DigitalOcean Firewall Rules
-        run: doctl databases firewalls append ${{ secrets.DIGITALOCEAN_DB_ID }} --rule ip_addr:$(curl ifconfig.me)
-
       - name: Deploy Application Database
         working-directory: edhtop16/
-        run: |-
-          npm ci
-          npm run data-import
-
-      - name: Delete DigitalOcean Firewall Rules
-        if: always()
-        run: |-
-          doctl database firewalls remove \
-            ${{ secrets.DIGITALOCEAN_DB_ID }} \
-            --uuid $(doctl database firewalls list ${{ secrets.DIGITALOCEAN_DB_ID }} | grep $(curl ifconfig.me) | awk '{print $1}')
+        run: doctl apps create-deployment ${{ secrets.DIGITALOCEAN_APP_ID }} --force-rebuild

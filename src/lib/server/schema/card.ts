@@ -1,14 +1,27 @@
+import { db } from "../db";
 import { scryfallCardSchema } from "../scryfall";
 import { builder } from "./builder";
 
-export const Card = builder.prismaNode("Card", {
-  id: { field: "uuid" },
+export const Card = builder.loadableNode("Card", {
+  id: { resolve: (parent) => parent.uuid },
+  load: async (ids: string[]) => {
+    const nodes = await db
+      .selectFrom("Card")
+      .selectAll()
+      .where("uuid", "in", ids)
+      .execute();
+
+    const nodesByUuid = new Map<string, (typeof nodes)[number]>();
+    for (const node of nodes) nodesByUuid.set(node.uuid, node);
+
+    return ids.map((id) => nodesByUuid.get(id)!);
+  },
   fields: (t) => ({
     name: t.exposeString("name"),
     oracleId: t.exposeString("oracleId"),
     cmc: t.int({
       resolve: (parent) => {
-        return scryfallCardSchema.parse(parent.data).cmc;
+        return scryfallCardSchema.parse(JSON.parse(parent.data)).cmc;
       },
     }),
     colorId: t.string({
@@ -27,12 +40,12 @@ export const Card = builder.prismaNode("Card", {
     }),
     type: t.string({
       resolve: (parent) => {
-        return scryfallCardSchema.parse(parent.data).type_line;
+        return scryfallCardSchema.parse(JSON.parse(parent.data)).type_line;
       },
     }),
     imageUrls: t.stringList({
       resolve: (parent) => {
-        const card = scryfallCardSchema.parse(parent.data);
+        const card = scryfallCardSchema.parse(JSON.parse(parent.data));
         const cardFaces = card.card_faces ? card.card_faces : [card];
         return cardFaces
           .map((c) => c.image_uris?.art_crop)
