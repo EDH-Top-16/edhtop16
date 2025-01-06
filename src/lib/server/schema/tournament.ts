@@ -205,6 +205,7 @@ const TournamentFiltersInput = builder.inputType("TournamentFilters", {
   fields: (t) => ({
     timePeriod: t.field({ type: TimePeriod }),
     minDate: t.string(),
+    maxDate: t.string(),
     minSize: t.int(),
     maxSize: t.int(),
   }),
@@ -238,6 +239,10 @@ builder.queryField("tournaments", (t) =>
               : minDateFromTimePeriod(args.filters?.timePeriod);
 
           query = query.where("tournamentDate", ">=", minDate.toISOString());
+        }
+        if (args.filters?.maxDate) {
+          const maxDate = new Date(args.filters.maxDate);
+          query = query.where("tournamentDate", "<=", maxDate.toISOString());
         }
 
         if (args.sortBy === "PLAYERS") {
