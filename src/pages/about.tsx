@@ -62,7 +62,7 @@ function AboutPage() {
           contact us! We wish to grow our dataset and have the most complete and
           accurate view of tournament EDH possible. Do note, all Command Tower
           events are automatically added. You can contact us in our{" "}
-          <a href="https://discord.gg/gPDbashJv" className="underline">
+          <a href="https://discord.gg/UwbA42nruw" className="underline">
             Discord server
           </a>{" "}
           for further questions.
