@@ -29,8 +29,8 @@ TopdeckTournamentTableType.implement({
         const entries = await sql<DB["Entry"] & { key: string }>`
           select e.*, t."TID" || ':' || p."topdeckProfile" as key
           from "Entry" as e
-          left join "Tournament" t on t.uuid = e."tournamentUuid"
-          left join "Player" p on p.uuid = e."playerUuid"
+          left join "Tournament" t on t.id = e."tournamentId"
+          left join "Player" p on p.id = e."playerId"
           where t."TID" || ':' || p."topdeckProfile" in (${sql.join(
             keys.map((e) => `${e.TID}:${e.profile}`),
           )})
@@ -65,8 +65,8 @@ TopdeckTournamentTableType.implement({
 
         return db
           .selectFrom("Entry")
-          .leftJoin("Tournament", "Tournament.uuid", "Entry.tournamentUuid")
-          .leftJoin("Player", "Player.uuid", "Entry.playerUuid")
+          .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
+          .leftJoin("Player", "Player.id", "Entry.playerId")
           .selectAll("Entry")
           .where("Tournament.TID", "=", parent.TID)
           .where("Player.topdeckProfile", "=", winnerPlayer.id)
@@ -102,25 +102,25 @@ TournamentBreakdownGroupType.implement({
     commander: t.field({
       type: Commander,
       resolve: (parent, _args, ctx) => {
-        return Commander.getDataloader(ctx).load(parent.commanderUuid);
+        return Commander.getDataloader(ctx).load(parent.commanderId);
       },
     }),
   }),
 });
 
 export const Tournament = builder.loadableNodeRef("Tournament", {
-  id: { resolve: (parent) => parent.uuid },
-  load: async (ids: string[]) => {
+  id: { resolve: (parent) => parent.id },
+  load: async (ids: number[]) => {
     const nodes = await db
       .selectFrom("Tournament")
       .selectAll()
-      .where("uuid", "in", ids)
+      .where("id", "in", ids)
       .execute();
 
-    const nodesByUuid = new Map<string, (typeof nodes)[number]>();
-    for (const node of nodes) nodesByUuid.set(node.uuid, node);
+    const nodesById = new Map<number, (typeof nodes)[number]>();
+    for (const node of nodes) nodesById.set(node.id, node);
 
-    return ids.map((id) => nodesByUuid.get(id)!);
+    return ids.map((id) => nodesById.get(id)!);
   },
 });
 
@@ -140,9 +140,9 @@ Tournament.implement({
       resolve: (parent, args) => {
         let query = db
           .selectFrom("Entry")
-          .leftJoin("Commander", "Commander.uuid", "Entry.commanderUuid")
+          .leftJoin("Commander", "Commander.id", "Entry.commanderId")
           .selectAll("Entry")
-          .where("Entry.tournamentUuid", "=", parent.uuid);
+          .where("Entry.tournamentId", "=", parent.id);
 
         if (args.maxStanding) {
           query = query.where("Entry.standing", "<=", args.maxStanding);
@@ -178,16 +178,16 @@ Tournament.implement({
         type Group = (typeof TournamentBreakdownGroupType)["$inferType"];
         const groups = await sql<Group>`
           select
-            e."commanderUuid",
-            count(e."commanderUuid") as entries,
+            e."commanderId",
+            count(e."commanderId") as entries,
             sum(case when e.standing <= t."topCut" then 1 else 0 end) as "topCuts",
-            sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e.uuid) as "conversionRate"
+            sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e.id) as "conversionRate"
           from "Entry" as e
-          left join "Tournament" t on t.uuid = e."tournamentUuid"
-          left join "Commander" c on c.uuid = e."commanderUuid"
-          where t."uuid" = ${parent.uuid}
+          left join "Tournament" t on t.id = e."tournamentId"
+          left join "Commander" c on c.id = e."commanderId"
+          where t."id" = ${parent.id}
           and c.name != 'Unknown Commander'
-          group by e."commanderUuid"
+          group by e."commanderId"
           order by "topCuts" desc, entries desc
         `.execute(db);
 

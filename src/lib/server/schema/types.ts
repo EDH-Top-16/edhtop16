@@ -40,7 +40,7 @@ export const TopdeckTournamentTableType = builder.objectRef<
 >("TopdeckTournamentTable");
 
 export const TournamentBreakdownGroupType = builder.objectRef<{
-  commanderUuid: string;
+  commanderId: number;
   topCuts: number;
   entries: number;
   conversionRate: number;

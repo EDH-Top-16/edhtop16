@@ -242,6 +242,7 @@ type TournamentBreakdownGroup {
 }
 
 input TournamentFilters {
+  maxDate: String
   maxSize: Int
   minDate: String
   minSize: Int

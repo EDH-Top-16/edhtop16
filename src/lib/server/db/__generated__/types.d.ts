@@ -5,51 +5,51 @@
 
 export interface Card {
   data: string;
+  id: number;
   name: string;
   oracleId: string;
-  uuid: string;
 }
 
 export interface Commander {
   colorId: string;
+  id: number;
   name: string;
-  uuid: string;
 }
 
 export interface DecklistItem {
-  cardUuid: string;
-  entryUuid: string;
+  cardId: number;
+  entryId: number;
 }
 
 export interface Entry {
-  commanderUuid: string;
+  commanderId: number;
   decklist: string | null;
   draws: number;
+  id: number;
   lossesBracket: number;
   lossesSwiss: number;
-  playerUuid: string;
+  playerId: number;
   standing: number;
-  tournamentUuid: string;
-  uuid: string;
+  tournamentId: number;
   winsBracket: number;
   winsSwiss: number;
 }
 
 export interface Player {
+  id: number;
   name: string;
   topdeckProfile: string | null;
-  uuid: string;
 }
 
 export interface Tournament {
   bracketUrl: string | null;
+  id: number;
   name: string;
   size: number;
   swissRounds: number;
   TID: string;
   topCut: number;
   tournamentDate: string;
-  uuid: string;
 }
 
 export interface DB {

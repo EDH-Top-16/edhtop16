@@ -28,18 +28,18 @@ export const EntrySortBy = builder.enumType("EntrySortBy", {
 });
 
 export const Entry = builder.loadableNodeRef("Entry", {
-  id: { resolve: (parent) => parent.uuid },
-  load: async (ids: string[]) => {
+  id: { resolve: (parent) => parent.id },
+  load: async (ids: number[]) => {
     const nodes = await db
       .selectFrom("Entry")
       .selectAll()
-      .where("uuid", "in", ids)
+      .where("id", "in", ids)
       .execute();
 
-    const nodesByUuid = new Map<string, (typeof nodes)[number]>();
-    for (const node of nodes) nodesByUuid.set(node.uuid, node);
+    const nodesById = new Map<number, (typeof nodes)[number]>();
+    for (const node of nodes) nodesById.set(node.id, node);
 
-    return ids.map((id) => nodesByUuid.get(id)!);
+    return ids.map((id) => nodesById.get(id)!);
   },
 });
 
@@ -55,7 +55,7 @@ Entry.implement({
     commander: t.field({
       type: Commander,
       resolve: (parent, _args, ctx) =>
-        Commander.getDataloader(ctx).load(parent.commanderUuid),
+        Commander.getDataloader(ctx).load(parent.commanderId),
     }),
     player: t.field({
       type: Player,
@@ -64,14 +64,14 @@ Entry.implement({
         return db
           .selectFrom("Player")
           .selectAll()
-          .where("Player.uuid", "=", parent.playerUuid)
+          .where("Player.id", "=", parent.playerId)
           .executeTakeFirst();
       },
     }),
     tournament: t.field({
       type: Tournament,
       resolve: (parent, _args, ctx) => {
-        return Tournament.getDataloader(ctx).load(parent.tournamentUuid);
+        return Tournament.getDataloader(ctx).load(parent.tournamentId);
       },
     }),
     wins: t.int({
@@ -94,18 +94,18 @@ Entry.implement({
     tables: t.field({
       type: t.listRef(TopdeckTournamentTableType),
       resolve: async (parent, _args, ctx) => {
-        if (!parent.playerUuid) return [];
+        if (!parent.playerId) return [];
 
         const { TID } = await db
           .selectFrom("Tournament")
           .select("TID")
-          .where("uuid", "=", parent.tournamentUuid)
+          .where("id", "=", parent.tournamentId)
           .executeTakeFirstOrThrow();
 
         const { topdeckProfile } = await db
           .selectFrom("Player")
           .select("topdeckProfile")
-          .where("uuid", "=", parent.playerUuid)
+          .where("id", "=", parent.playerId)
           .executeTakeFirstOrThrow();
 
         const roundsData = await ctx.topdeckClient.loadRoundsData(TID);
@@ -124,9 +124,9 @@ Entry.implement({
       resolve: async (parent) => {
         return db
           .selectFrom("DecklistItem")
-          .innerJoin("Card", "Card.uuid", "DecklistItem.cardUuid")
+          .innerJoin("Card", "Card.id", "DecklistItem.cardId")
           .selectAll("Card")
-          .where("DecklistItem.entryUuid", "=", parent.uuid)
+          .where("DecklistItem.entryId", "=", parent.id)
           .execute();
       },
     }),

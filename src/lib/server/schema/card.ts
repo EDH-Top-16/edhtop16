@@ -3,18 +3,18 @@ import { scryfallCardSchema } from "../scryfall";
 import { builder } from "./builder";
 
 export const Card = builder.loadableNode("Card", {
-  id: { resolve: (parent) => parent.uuid },
-  load: async (ids: string[]) => {
+  id: { resolve: (parent) => parent.id },
+  load: async (ids: number[]) => {
     const nodes = await db
       .selectFrom("Card")
       .selectAll()
-      .where("uuid", "in", ids)
+      .where("id", "in", ids)
       .execute();
 
-    const nodesByUuid = new Map<string, (typeof nodes)[number]>();
-    for (const node of nodes) nodesByUuid.set(node.uuid, node);
+    const nodesById = new Map<number, (typeof nodes)[number]>();
+    for (const node of nodes) nodesById.set(node.id, node);
 
-    return ids.map((id) => nodesByUuid.get(id)!);
+    return ids.map((id) => nodesById.get(id)!);
   },
   fields: (t) => ({
     name: t.exposeString("name"),
