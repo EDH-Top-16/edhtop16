@@ -7,7 +7,6 @@ import { faker } from "@faker-js/faker";
 import { workerPool } from "@reverecre/promise";
 import Database from "better-sqlite3";
 import { MongoClient } from "mongodb";
-import { randomUUID } from "node:crypto";
 import { createWriteStream } from "node:fs";
 import fs from "node:fs/promises";
 import { parseArgs } from "node:util";
@@ -259,8 +258,8 @@ async function getTournamentEntries(tournamentId: string) {
 async function createTournaments(tids?: string[]) {
   const insertTournament = db.prepare(`
     INSERT INTO "Tournament"
-    ("uuid", "TID", "name", "tournamentDate", "size", "swissRounds", "topCut", "bracketUrl")
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ("TID", "name", "tournamentDate", "size", "swissRounds", "topCut", "bracketUrl")
+    VALUES (?, ?, ?, ?, ?, ?, ?);
   `);
 
   const tournaments = await getTournaments(tids);
@@ -268,20 +267,17 @@ async function createTournaments(tids?: string[]) {
     pc.yellow(`Importing ${pc.cyan(tournaments.length)} tournaments!`),
   );
 
-  const tournamentUuidByTid = new Map<string, string>();
+  const tournamentIdByTid = new Map<string, number>();
 
   db.transaction(() => {
     for (const t of tournaments) {
-      const tournamentUuid = randomUUID();
-
       console.log(
         `Creating tournament: ${pc.cyan(t.tournamentName)} ${pc.dim(
           `[${t.TID}]`,
         )}`,
       );
 
-      insertTournament.run(
-        tournamentUuid,
+      const { lastInsertRowid } = insertTournament.run(
         t.TID,
         t.tournamentName,
         new Date(t.startDate * 1000).toISOString(),
@@ -291,11 +287,11 @@ async function createTournaments(tids?: string[]) {
         t.bracketUrl,
       );
 
-      tournamentUuidByTid.set(t.TID, tournamentUuid);
+      tournamentIdByTid.set(t.TID, lastInsertRowid as number);
     }
   })();
 
-  return tournamentUuidByTid;
+  return tournamentIdByTid;
 }
 
 type EntryWithTid = Entry & { TID: string };
@@ -313,35 +309,37 @@ async function loadEntries(tids: string[]): Promise<EntryWithTid[]> {
 async function createCommanders(entries: EntryWithTid[]) {
   const insertCommander = db.prepare(`
     INSERT INTO "Commander"
-    ("uuid", "name", "colorId")
-    VALUES (?, ?, ?)
+    ("name", "colorId")
+    VALUES (?, ?)
   `);
 
-  const commanderUuidByName = new Map<string, string>();
+  const commanderIdByName = new Map<string, number>();
   db.transaction(() => {
     for (const entry of entries) {
-      if (commanderUuidByName.has(entry.commander)) continue;
-
-      const commanderUuid = randomUUID();
-      commanderUuidByName.set(entry.commander, commanderUuid);
+      if (commanderIdByName.has(entry.commander)) continue;
 
       console.log(`Creating commander: ${pc.cyan(entry.commander)}`);
-      insertCommander.run(commanderUuid, entry.commander, entry.colorID);
+      const { lastInsertRowid } = insertCommander.run(
+        entry.commander,
+        entry.colorID,
+      );
+
+      commanderIdByName.set(entry.commander, lastInsertRowid as number);
     }
   })();
 
-  return commanderUuidByName;
+  return commanderIdByName;
 }
 
 async function createCards(entries: EntryWithTid[]) {
   const insertCard = db.prepare(`
     INSERT INTO "Card"
-    ("uuid", "oracleId", "name", "data")
-    VALUES (?, ?, ?, ?)
+    ("oracleId", "name", "data")
+    VALUES (?, ?, ?)
   `);
 
-  const cardUuidByOracleId = new Map<string, string>();
-  const cardUuidByScryfallId = new Map<string, string>();
+  const cardIdByOracleId = new Map<string, number>();
+  const cardIdByScryfallId = new Map<string, number>();
 
   const [oracleDatabase, scryfallDatabase] = await Promise.all([
     ScryfallDatabase.create("oracle_cards"),
@@ -378,20 +376,23 @@ async function createCards(entries: EntryWithTid[]) {
 
   db.transaction(() => {
     for (const oracleId of allOracleIds) {
-      if (cardUuidByOracleId.has(oracleId)) continue;
+      if (cardIdByOracleId.has(oracleId)) continue;
 
       const card = oracleDatabase.cardByOracleId.get(oracleId);
       if (card == null) continue;
-
-      const cardUuid = randomUUID();
-      cardUuidByOracleId.set(card.oracle_id, cardUuid);
 
       let colorId: string = "";
       for (const c of ["W", "U", "B", "R", "G", "C"]) {
         if (card.color_identity.includes(c)) colorId += c;
       }
 
-      insertCard.run(cardUuid, card.oracle_id, card.name, JSON.stringify(card));
+      const { lastInsertRowid } = insertCard.run(
+        card.oracle_id,
+        card.name,
+        JSON.stringify(card),
+      );
+
+      cardIdByOracleId.set(card.oracle_id, lastInsertRowid as number);
     }
   })();
 
@@ -399,100 +400,98 @@ async function createCards(entries: EntryWithTid[]) {
     const card = scryfallDatabase.cardByScryfallId.get(scryfallId);
     if (card == null) continue;
 
-    const cardUuid = cardUuidByOracleId.get(card.oracle_id);
-    if (cardUuid == null) continue;
+    const cardId = cardIdByOracleId.get(card.oracle_id);
+    if (cardId == null) continue;
 
-    cardUuidByScryfallId.set(scryfallId, cardUuid);
+    cardIdByScryfallId.set(scryfallId, cardId);
   }
 
-  return cardUuidByScryfallId;
+  return cardIdByScryfallId;
 }
 
 async function createPlayers(
   {
     entries,
-    tournamentUuidByTid,
-    commanderUuidByName,
-    cardUuidByScryfallId,
+    tournamentIdByTid,
+    commanderIdByName,
+    cardIdByScryfallId,
   }: {
     entries: EntryWithTid[];
-    tournamentUuidByTid: Map<string, string>;
-    commanderUuidByName: Map<string, string>;
-    cardUuidByScryfallId: Map<string, string>;
+    tournamentIdByTid: Map<string, number>;
+    commanderIdByName: Map<string, number>;
+    cardIdByScryfallId: Map<string, number>;
   },
   { anonymizeNames }: { anonymizeNames: boolean },
 ) {
   const insertPlayer = db.prepare(`
     INSERT INTO "Player"
-    ("uuid", "name", "topdeckProfile")
-    VALUES (?, ?, ?)
+    ("name", "topdeckProfile")
+    VALUES (?, ?)
   `);
 
   const insertEntry = db.prepare(`
     INSERT INTO "Entry"
-    ("uuid", "decklist", "draws", "lossesBracket", "lossesSwiss", "standing", "winsBracket", "winsSwiss", "playerUuid", "commanderUuid", "tournamentUuid")
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ("decklist", "draws", "lossesBracket", "lossesSwiss", "standing", "winsBracket", "winsSwiss", "playerId", "commanderId", "tournamentId")
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const insertDecklistItem = db.prepare(`
     INSERT INTO "DecklistItem"
-    ("entryUuid", "cardUuid")
+    ("entryId", "cardId")
     VALUES (?, ?)
   `);
 
   console.log(pc.yellow(`Creating players from entries...`));
 
-  const playerUuidByTopdeckUuid = new Map<string, string>();
+  const playerIdByTopdeckId = new Map<string, number>();
 
   db.transaction(() => {
     for (const entry of entries) {
-      const tournamentUuid = tournamentUuidByTid.get(entry.TID);
-      if (tournamentUuid == null) {
-        console.error(`Could not find UUID for tournament: ${entry.TID}`);
+      const tournamentId = tournamentIdByTid.get(entry.TID);
+      if (tournamentId == null) {
+        console.error(`Could not find ID for tournament: ${entry.TID}`);
         continue;
       }
 
-      const commanderUuid = commanderUuidByName.get(entry.commander);
-      if (commanderUuid == null) {
-        console.error(`Could not find UUID for commander: ${entry.commander}`);
+      const commanderId = commanderIdByName.get(entry.commander);
+      if (commanderId == null) {
+        console.error(`Could not find ID for commander: ${entry.commander}`);
         continue;
       }
 
-      let playerUuid: string;
+      let playerId: number;
       if (entry.profile != null) {
-        if (playerUuidByTopdeckUuid.has(entry.profile)) {
-          playerUuid = playerUuidByTopdeckUuid.get(entry.profile)!;
+        if (playerIdByTopdeckId.has(entry.profile)) {
+          playerId = playerIdByTopdeckId.get(entry.profile)!;
         } else {
-          playerUuid = randomUUID();
-          playerUuidByTopdeckUuid.set(entry.profile, playerUuid);
-          insertPlayer.run(
-            playerUuid,
+          const { lastInsertRowid } = insertPlayer.run(
             anonymizeNames
               ? faker.person.fullName()
               : entry.name || "Unknown Player",
             anonymizeNames ? faker.string.nanoid() : entry.profile,
           );
+
+          playerId = lastInsertRowid as number;
+          playerIdByTopdeckId.set(entry.profile, lastInsertRowid as number);
         }
       } else {
-        playerUuid = randomUUID();
-        insertPlayer.run(
-          playerUuid,
+        const { lastInsertRowid } = insertPlayer.run(
           anonymizeNames
             ? faker.person.fullName()
             : entry.name || "Unknown Player",
           null,
         );
+
+        playerId = lastInsertRowid as number;
       }
 
-      const cardUuids = new Set(
+      const cardIds = new Set(
         (entry.mainDeck ?? [])
-          .map((id) => cardUuidByScryfallId.get(id))
+          .map((id) => cardIdByScryfallId.get(id))
           .filter((c) => c != null),
       );
 
-      const entryUuid = randomUUID();
-      insertEntry.run(
-        entryUuid,
+      const { lastInsertRowid } = insertEntry.run(
         entry.decklist,
         entry.draws,
         entry.lossesBracket,
@@ -500,13 +499,13 @@ async function createPlayers(
         entry.standing,
         entry.winsBracket,
         entry.winsSwiss,
-        playerUuid,
-        commanderUuid,
-        tournamentUuid,
+        playerId,
+        commanderId,
+        tournamentId,
       );
 
-      for (const cardUuid of Array.from(cardUuids)) {
-        insertDecklistItem.run(entryUuid, cardUuid);
+      for (const cardId of Array.from(cardIds)) {
+        insertDecklistItem.run(lastInsertRowid, cardId);
       }
     }
   })();
@@ -517,7 +516,7 @@ async function createPlayers(
 function createSchema() {
   db.exec(`
 CREATE TABLE "Tournament" (
-    "uuid" TEXT NOT NULL PRIMARY KEY,
+    "id" INTEGER NOT NULL PRIMARY KEY ASC,
     "TID" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "tournamentDate" DATETIME NOT NULL,
@@ -528,22 +527,22 @@ CREATE TABLE "Tournament" (
 );
 
 CREATE TABLE "Player" (
-    "uuid" TEXT NOT NULL PRIMARY KEY,
+    "id" INTEGER NOT NULL PRIMARY KEY ASC,
     "topdeckProfile" TEXT,
     "name" TEXT NOT NULL
 );
 
 CREATE TABLE "Commander" (
-    "uuid" TEXT NOT NULL PRIMARY KEY,
+    "id" INTEGER NOT NULL PRIMARY KEY ASC,
     "name" TEXT NOT NULL,
     "colorId" TEXT NOT NULL
 );
 
 CREATE TABLE "Entry" (
-    "uuid" TEXT NOT NULL PRIMARY KEY,
-    "tournamentUuid" TEXT NOT NULL,
-    "playerUuid" TEXT NOT NULL,
-    "commanderUuid" TEXT NOT NULL,
+    "id" INTEGER NOT NULL PRIMARY KEY ASC,
+    "tournamentId" INTEGER NOT NULL,
+    "playerId" INTEGER NOT NULL,
+    "commanderId" INTEGER NOT NULL,
     "standing" INTEGER NOT NULL,
     "decklist" TEXT,
     "winsSwiss" INTEGER NOT NULL,
@@ -551,25 +550,25 @@ CREATE TABLE "Entry" (
     "draws" INTEGER NOT NULL,
     "lossesSwiss" INTEGER NOT NULL,
     "lossesBracket" INTEGER NOT NULL,
-    CONSTRAINT "Entry_tournamentUuid_fkey" FOREIGN KEY ("tournamentUuid") REFERENCES "Tournament" ("uuid"),
-    CONSTRAINT "Entry_playerUuid_fkey" FOREIGN KEY ("playerUuid") REFERENCES "Player" ("uuid"),
-    CONSTRAINT "Entry_commanderUuid_fkey" FOREIGN KEY ("commanderUuid") REFERENCES "Commander" ("uuid")
+    CONSTRAINT "Entry_tournamentId_fkey" FOREIGN KEY ("tournamentId") REFERENCES "Tournament" ("id"),
+    CONSTRAINT "Entry_playerId_fkey" FOREIGN KEY ("playerId") REFERENCES "Player" ("id"),
+    CONSTRAINT "Entry_commanderId_fkey" FOREIGN KEY ("commanderId") REFERENCES "Commander" ("id")
 );
 
 CREATE TABLE "Card" (
-    "uuid" TEXT NOT NULL PRIMARY KEY,
+    "id" INTEGER NOT NULL PRIMARY KEY ASC,
     "oracleId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "data" TEXT NOT NULL
 );
 
 CREATE TABLE "DecklistItem" (
-    "entryUuid" TEXT NOT NULL,
-    "cardUuid" TEXT NOT NULL,
+    "entryId" INTEGER NOT NULL,
+    "cardId" INTEGER NOT NULL,
 
-    PRIMARY KEY ("entryUuid", "cardUuid"),
-    CONSTRAINT "DecklistItem_entryUuid_fkey" FOREIGN KEY ("entryUuid") REFERENCES "Entry" ("uuid"),
-    CONSTRAINT "DecklistItem_cardUuid_fkey" FOREIGN KEY ("cardUuid") REFERENCES "Card" ("uuid")
+    PRIMARY KEY ("entryId", "cardId"),
+    CONSTRAINT "DecklistItem_entryId_fkey" FOREIGN KEY ("entryId") REFERENCES "Entry" ("id"),
+    CONSTRAINT "DecklistItem_cardId_fkey" FOREIGN KEY ("cardId") REFERENCES "Card" ("id")
 );
 `);
 }
@@ -582,12 +581,12 @@ function createIndexes() {
     CREATE INDEX "Player_topdeckProfile_idx" ON "Player"("topdeckProfile");
     CREATE UNIQUE INDEX "Card_oracleId_key" ON "Card"("oracleId");
 
-    CREATE INDEX "Entry_tournamentUuid_idx" on "Entry"("tournamentUuid");
-    CREATE INDEX "Entry_playerUuid_idx" on "Entry"("playerUuid");
-    CREATE INDEX "Entry_commanderUuid_idx" on "Entry"("commanderUuid");
+    CREATE INDEX "Entry_tournamentId_idx" on "Entry"("tournamentId");
+    CREATE INDEX "Entry_playerId_idx" on "Entry"("playerId");
+    CREATE INDEX "Entry_commanderId_idx" on "Entry"("commanderId");
 
-    CREATE INDEX "DecklistItem_cardUuid_idx" on "DecklistItem"("cardUuid");
-    CREATE INDEX "DecklistItem_entryUuid_idx" on "DecklistItem"("entryUuid");
+    CREATE INDEX "DecklistItem_cardId_idx" on "DecklistItem"("cardId");
+    CREATE INDEX "DecklistItem_entryId_idx" on "DecklistItem"("entryId");
   `);
 }
 
@@ -600,16 +599,16 @@ async function main({
 }) {
   createSchema();
 
-  const tournamentUuidByTid = await createTournaments(importedTids);
-  const entries = await loadEntries(Array.from(tournamentUuidByTid.keys()));
-  const commanderUuidByName = await createCommanders(entries);
-  const cardUuidByScryfallId = await createCards(entries);
+  const tournamentIdByTid = await createTournaments(importedTids);
+  const entries = await loadEntries(Array.from(tournamentIdByTid.keys()));
+  const commanderIdByName = await createCommanders(entries);
+  const cardIdByScryfallId = await createCards(entries);
   await createPlayers(
     {
       entries,
-      tournamentUuidByTid,
-      commanderUuidByName,
-      cardUuidByScryfallId,
+      tournamentIdByTid,
+      commanderIdByName,
+      cardIdByScryfallId,
     },
     { anonymizeNames },
   );

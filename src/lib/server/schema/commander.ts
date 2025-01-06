@@ -37,19 +37,19 @@ const EntriesFilter = builder.inputType("EntriesFilter", {
   }),
 });
 
-export const Commander = builder.loadableNodeRef<DB["Commander"]>("Commander", {
-  id: { resolve: (parent) => parent.uuid },
-  load: async (ids: string[]) => {
+export const Commander = builder.loadableNodeRef("Commander", {
+  id: { resolve: (parent) => parent.id },
+  load: async (ids: number[]) => {
     const nodes = await db
       .selectFrom("Commander")
       .selectAll()
-      .where("uuid", "in", ids)
+      .where("id", "in", ids)
       .execute();
 
-    const nodesByUuid = new Map<string, (typeof nodes)[number]>();
-    for (const node of nodes) nodesByUuid.set(node.uuid, node);
+    const nodesById = new Map<number, (typeof nodes)[number]>();
+    for (const node of nodes) nodesById.set(node.id, node);
 
-    return ids.map((id) => nodesByUuid.get(id)!);
+    return ids.map((id) => nodesById.get(id)!);
   },
 });
 
@@ -81,8 +81,8 @@ Commander.implement({
           return db
             .selectFrom("Entry")
             .selectAll("Entry")
-            .leftJoin("Tournament", "Tournament.uuid", "Entry.tournamentUuid")
-            .where("Entry.commanderUuid", "=", parent.uuid)
+            .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
+            .where("Entry.commanderId", "=", parent.id)
             .where("standing", "<=", maxStanding)
             .where("Tournament.tournamentDate", ">=", minDate.toISOString())
             .where("Tournament.size", ">=", minEventSize)
@@ -127,12 +127,13 @@ builder.queryField("commander", (t) =>
   t.field({
     type: Commander,
     args: { name: t.arg.string({ required: true }) },
-    resolve: async (_root, args, _ctx, _info) =>
-      db
+    resolve: async (_root, args) => {
+      return db
         .selectFrom("Commander")
         .selectAll()
         .where("name", "=", args.name)
-        .executeTakeFirstOrThrow(),
+        .executeTakeFirstOrThrow();
+    },
   }),
 );
 
@@ -148,7 +149,7 @@ builder.queryField("commanders", (t) =>
     },
     resolve: async (_root, args) => {
       return resolveCursorConnection(
-        { args, toCursor: (parent) => parent.uuid },
+        { args, toCursor: (parent) => `${parent.id}` },
         async ({
           before,
           after,
@@ -175,8 +176,8 @@ builder.queryField("commanders", (t) =>
           let query = db
             .selectFrom("Commander")
             .selectAll("Commander")
-            .leftJoin("Entry", "Entry.commanderUuid", "Commander.uuid")
-            .leftJoin("Tournament", "Tournament.uuid", "Entry.tournamentUuid")
+            .leftJoin("Entry", "Entry.commanderId", "Commander.id")
+            .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
             .where("Commander.name", "!=", "Unknown Commander")
             .where("Commander.name", "!=", "Nadu, Winged Wisdom")
             .where("Tournament.tournamentDate", ">=", minDate.toISOString())
@@ -184,19 +185,19 @@ builder.queryField("commanders", (t) =>
             .where("Commander.colorId", "like", colorId);
 
           if (before) {
-            query = query.where("Commander.uuid", "<=", before);
+            query = query.where("Commander.id", "<=", Number(before));
           }
           if (after) {
-            query = query.where("Commander.uuid", ">=", after);
+            query = query.where("Commander.id", ">=", Number(after));
           }
 
           query = query
-            .groupBy("Commander.uuid")
-            .having((eb) => eb.fn.count("Entry.uuid"), ">=", minEntries)
+            .groupBy("Commander.id")
+            .having((eb) => eb.fn.count("Entry.id"), ">=", minEntries)
             .orderBy(
               (eb) => {
                 if (args.sortBy === "POPULARITY") {
-                  return eb.fn.count("Entry.uuid");
+                  return eb.fn.count("Entry.id");
                 } else {
                   return eb(
                     eb.cast(
@@ -215,13 +216,13 @@ builder.queryField("commanders", (t) =>
                       "real",
                     ),
                     "/",
-                    eb.fn.count("Entry.uuid"),
+                    eb.fn.count("Entry.id"),
                   );
                 }
               },
               inverted ? "asc" : "desc",
             )
-            .orderBy("Commander.uuid", inverted ? "desc" : "asc")
+            .orderBy("Commander.id", inverted ? "desc" : "asc")
             .limit(limit);
 
           return query.execute();
@@ -254,8 +255,8 @@ builder.objectField(Commander, "stats", (t) =>
     type: CommanderStats,
     byPath: true,
     args: { filters: t.arg({ type: CommanderStatsFilters }) },
-    resolve: (parent) => parent.uuid,
-    load: async (commanderUuids: string[], _ctx, { filters }) => {
+    resolve: (parent) => parent.id,
+    load: async (commanderIds: number[], _ctx, { filters }) => {
       const minSize = filters?.minSize ?? 0;
       const maxSize = filters?.maxSize ?? 1_000_000;
       const maxDate = filters?.maxDate ? new Date(filters.maxDate) : new Date();
@@ -268,7 +269,7 @@ builder.objectField(Commander, "stats", (t) =>
         db
           .selectFrom("Entry")
           .select((eb) => eb.fn.countAll<number>().as("totalEntries"))
-          .leftJoin("Tournament", "Tournament.uuid", "Entry.tournamentUuid")
+          .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
           .where("Tournament.size", ">=", minSize)
           .where("Tournament.size", "<=", maxSize)
           .where("Tournament.tournamentDate", ">=", minDate.toISOString())
@@ -276,13 +277,13 @@ builder.objectField(Commander, "stats", (t) =>
           .executeTakeFirstOrThrow(),
         db
           .selectFrom("Commander")
-          .leftJoin("Entry", "Entry.commanderUuid", "Commander.uuid")
-          .leftJoin("Tournament", "Tournament.uuid", "Entry.tournamentUuid")
+          .leftJoin("Entry", "Entry.commanderId", "Commander.id")
+          .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
           .select([
-            "Commander.uuid",
+            "Commander.id",
             "Commander.name",
             "Commander.colorId",
-            (eb) => eb.fn.count<number>("Commander.uuid").as("count"),
+            (eb) => eb.fn.count<number>("Commander.id").as("count"),
             (eb) =>
               eb.fn
                 .sum<number>(
@@ -308,30 +309,30 @@ builder.objectField(Commander, "stats", (t) =>
                   "real",
                 ),
                 "/",
-                eb.fn.count<number>("Entry.uuid"),
+                eb.fn.count<number>("Entry.id"),
               ).as("conversionRate"),
           ])
           .where("Tournament.size", ">=", minSize)
           .where("Tournament.size", "<=", maxSize)
           .where("Tournament.tournamentDate", ">=", minDate.toISOString())
           .where("Tournament.tournamentDate", "<=", maxDate.toISOString())
-          .where("Commander.uuid", "in", commanderUuids)
-          .groupBy("Commander.uuid")
+          .where("Commander.id", "in", commanderIds)
+          .groupBy("Commander.id")
           .execute(),
       ]);
 
       const totalEntries = entriesQuery.totalEntries ?? 1;
-      const statsByCommanderUuid = new Map<string, CommanderCalculatedStats>();
-      for (const { uuid, ...stats } of statsQuery) {
-        statsByCommanderUuid.set(uuid, {
+      const statsByCommanderId = new Map<number, CommanderCalculatedStats>();
+      for (const { id, ...stats } of statsQuery) {
+        statsByCommanderId.set(id, {
           ...stats,
           metaShare: stats.count / totalEntries,
         });
       }
 
-      return commanderUuids.map(
-        (uuid) =>
-          statsByCommanderUuid.get(uuid) ?? {
+      return commanderIds.map(
+        (id) =>
+          statsByCommanderId.get(id) ?? {
             topCuts: 0,
             conversionRate: 0,
             count: 0,

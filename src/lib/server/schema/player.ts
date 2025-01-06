@@ -3,18 +3,18 @@ import { builder } from "./builder";
 import { Entry } from "./entry";
 
 export const Player = builder.loadableNodeRef("Player", {
-  id: { resolve: (parent) => parent.uuid },
-  load: async (ids: string[]) => {
+  id: { resolve: (parent) => parent.id },
+  load: async (ids: number[]) => {
     const nodes = await db
       .selectFrom("Player")
       .selectAll()
-      .where("uuid", "in", ids)
+      .where("id", "in", ids)
       .execute();
 
-    const nodesByUuid = new Map<string, (typeof nodes)[number]>();
-    for (const node of nodes) nodesByUuid.set(node.uuid, node);
+    const nodesById = new Map<number, (typeof nodes)[number]>();
+    for (const node of nodes) nodesById.set(node.id, node);
 
-    return ids.map((id) => nodesByUuid.get(id)!);
+    return ids.map((id) => nodesById.get(id)!);
   },
 });
 
@@ -28,7 +28,7 @@ Player.implement({
         return db
           .selectFrom("Entry")
           .selectAll()
-          .where("Entry.playerUuid", "=", parent.uuid)
+          .where("Entry.playerId", "=", parent.id)
           .execute();
       },
     }),
@@ -43,7 +43,7 @@ Player.implement({
               eb.fn.sum<number>("winsSwiss"),
             ).as("wins"),
           )
-          .where("playerUuid", "=", parent.uuid)
+          .where("playerId", "=", parent.id)
           .executeTakeFirstOrThrow();
 
         return wins;
@@ -60,7 +60,7 @@ Player.implement({
               eb.fn.sum<number>("lossesSwiss"),
             ).as("losses"),
           )
-          .where("playerUuid", "=", parent.uuid)
+          .where("playerId", "=", parent.id)
           .executeTakeFirstOrThrow();
 
         return losses;
@@ -71,7 +71,7 @@ Player.implement({
         const { draws } = await db
           .selectFrom("Entry")
           .select((eb) => eb.fn.sum<number>("draws").as("draws"))
-          .where("playerUuid", "=", parent.uuid)
+          .where("playerId", "=", parent.id)
           .executeTakeFirstOrThrow();
 
         return draws;
@@ -81,9 +81,9 @@ Player.implement({
       resolve: async (parent) => {
         const { topCuts } = await db
           .selectFrom("Entry")
-          .select((eb) => eb.fn.count<number>("Entry.uuid").as("topCuts"))
-          .leftJoin("Tournament", "Tournament.uuid", "Entry.tournamentUuid")
-          .where("Entry.playerUuid", "=", parent.uuid)
+          .select((eb) => eb.fn.count<number>("Entry.id").as("topCuts"))
+          .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
+          .where("Entry.playerId", "=", parent.id)
           .where((eb) =>
             eb("Entry.standing", "<=", eb.ref("Tournament.topCut")),
           )
@@ -123,7 +123,7 @@ Player.implement({
               ),
             ).as("winRate"),
           )
-          .where("Entry.playerUuid", "=", parent.uuid)
+          .where("Entry.playerId", "=", parent.id)
           .executeTakeFirstOrThrow();
 
         return winRate;
@@ -133,7 +133,7 @@ Player.implement({
       resolve: async (parent) => {
         const { conversionRate } = await db
           .selectFrom("Entry")
-          .leftJoin("Tournament", "Tournament.uuid", "Entry.tournamentUuid")
+          .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
           .select((eb) =>
             eb(
               eb.cast<number>(
@@ -148,10 +148,10 @@ Player.implement({
                 "real",
               ),
               "/",
-              eb.fn.count<number>("Entry.uuid"),
+              eb.fn.count<number>("Entry.id"),
             ).as("conversionRate"),
           )
-          .where("Entry.playerUuid", "=", parent.uuid)
+          .where("Entry.playerId", "=", parent.id)
           .executeTakeFirstOrThrow();
 
         return conversionRate;
