@@ -38,7 +38,7 @@ const EntriesFilter = builder.inputType("EntriesFilter", {
 });
 
 export const Commander = builder.loadableNodeRef("Commander", {
-  id: { resolve: (parent) => parent.id },
+  id: { parse: (id) => Number(id), resolve: (parent) => parent.id },
   load: async (ids: number[]) => {
     const nodes = await db
       .selectFrom("Commander")
@@ -160,19 +160,6 @@ builder.queryField("commanders", (t) =>
           const minTournamentSize = args.minTournamentSize || 0;
           const minEntries = args.minEntries || 0;
 
-          let colorId = "";
-          if (args.colorId) {
-            for (const color of ["W", "U", "B", "R", "G", "C"]) {
-              if (args.colorId?.includes(color)) {
-                colorId += color;
-              } else {
-                colorId += "%";
-              }
-            }
-          } else {
-            colorId = "%";
-          }
-
           let query = db
             .selectFrom("Commander")
             .selectAll("Commander")
@@ -181,8 +168,11 @@ builder.queryField("commanders", (t) =>
             .where("Commander.name", "!=", "Unknown Commander")
             .where("Commander.name", "!=", "Nadu, Winged Wisdom")
             .where("Tournament.tournamentDate", ">=", minDate.toISOString())
-            .where("Tournament.size", ">=", minTournamentSize)
-            .where("Commander.colorId", "like", colorId);
+            .where("Tournament.size", ">=", minTournamentSize);
+
+          if (args.colorId) {
+            query = query.where("Commander.colorId", "=", args.colorId);
+          }
 
           if (before) {
             query = query.where("Commander.id", "<=", Number(before));

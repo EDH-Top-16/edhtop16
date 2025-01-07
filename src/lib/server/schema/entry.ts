@@ -28,7 +28,7 @@ export const EntrySortBy = builder.enumType("EntrySortBy", {
 });
 
 export const Entry = builder.loadableNodeRef("Entry", {
-  id: { resolve: (parent) => parent.id },
+  id: { parse: (id) => Number(id), resolve: (parent) => parent.id },
   load: async (ids: number[]) => {
     const nodes = await db
       .selectFrom("Entry")

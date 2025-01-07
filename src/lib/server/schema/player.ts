@@ -3,7 +3,7 @@ import { builder } from "./builder";
 import { Entry } from "./entry";
 
 export const Player = builder.loadableNodeRef("Player", {
-  id: { resolve: (parent) => parent.id },
+  id: { parse: (id) => Number(id), resolve: (parent) => parent.id },
   load: async (ids: number[]) => {
     const nodes = await db
       .selectFrom("Player")

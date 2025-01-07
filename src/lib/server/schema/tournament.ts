@@ -109,7 +109,7 @@ TournamentBreakdownGroupType.implement({
 });
 
 export const Tournament = builder.loadableNodeRef("Tournament", {
-  id: { resolve: (parent) => parent.id },
+  id: { parse: (id) => Number(id), resolve: (parent) => parent.id },
   load: async (ids: number[]) => {
     const nodes = await db
       .selectFrom("Tournament")
