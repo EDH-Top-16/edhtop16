@@ -3,7 +3,7 @@ import { scryfallCardSchema } from "../scryfall";
 import { builder } from "./builder";
 
 export const Card = builder.loadableNode("Card", {
-  id: { resolve: (parent) => parent.id },
+  id: { parse: (id) => Number(id), resolve: (parent) => parent.id },
   load: async (ids: number[]) => {
     const nodes = await db
       .selectFrom("Card")

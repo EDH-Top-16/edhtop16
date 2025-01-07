@@ -229,14 +229,14 @@ function CommandersPageShell({
               }}
             >
               <option value="0">All Commanders</option>
-              <option value="20">20+</option>
-              <option value="60">60+</option>
-              <option value="120">120+</option>
+              <option value="20">20+ Entries</option>
+              <option value="60">60+ Entries</option>
+              <option value="120">120+ Entries</option>
             </Select>
 
             <Select
               id="commanders-min-size"
-              label="Min. Size"
+              label="Tournament Size"
               value={`${minTournamentSize}`}
               disabled={onUpdateQueryParam == null}
               onChange={(value) => {
@@ -287,30 +287,13 @@ function useSetQueryVariable() {
 }
 
 function queryVariablesFromParsedUrlQuery(query: ParsedUrlQuery) {
-  function defaultMinEntriesForTimePeriod(timePeriod: TimePeriod): number {
-    switch (timePeriod) {
-      case "ALL_TIME":
-        return 120;
-      case "ONE_YEAR":
-        return 120;
-      case "SIX_MONTHS":
-        return 120;
-      case "THREE_MONTHS":
-        return 60;
-      default:
-        return 20;
-    }
-  }
-
   const timePeriod = (query.timePeriod as TimePeriod) ?? "SIX_MONTHS";
-  const sortBy = (query.sortBy as CommandersSortBy) ?? "CONVERSION";
+  const sortBy = (query.sortBy as CommandersSortBy) ?? "POPULARITY";
   const colorId = query.colorId as string | undefined;
   const minEntries =
-    typeof query.minEntries === "string"
-      ? Number(query.minEntries)
-      : defaultMinEntriesForTimePeriod(timePeriod);
+    typeof query.minEntries === "string" ? Number(query.minEntries) : 20;
   const minTournamentSize =
-    typeof query.minSize === "string" ? Number(query.minSize) : 0;
+    typeof query.minSize === "string" ? Number(query.minSize) : 60;
 
   return { timePeriod, sortBy, colorId, minEntries, minTournamentSize };
 }
@@ -375,7 +358,7 @@ function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
     >
       <div
         className={cn(
-          "mx-auto grid pb-4",
+          "mx-auto grid w-full pb-4",
           display === "table"
             ? "w-full grid-cols-1 gap-2"
             : "w-fit gap-4 md:grid-cols-2 xl:grid-cols-3",
