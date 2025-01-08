@@ -8,6 +8,7 @@ export interface Card {
   id: number;
   name: string;
   oracleId: string;
+  playRateLastYear: number | null;
 }
 
 export interface Commander {
