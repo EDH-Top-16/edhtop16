@@ -1,7 +1,3 @@
-import {
-  resolveCursorConnection,
-  ResolveCursorConnectionArgs,
-} from "@pothos/plugin-relay";
 import { db } from "../db";
 import { scryfallCardSchema } from "../scryfall";
 import { builder } from "./builder";
