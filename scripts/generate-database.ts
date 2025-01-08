@@ -6,6 +6,7 @@
 import { faker } from "@faker-js/faker";
 import { workerPool } from "@reverecre/promise";
 import Database from "better-sqlite3";
+import { subYears } from "date-fns";
 import { MongoClient } from "mongodb";
 import { createWriteStream } from "node:fs";
 import fs from "node:fs/promises";
@@ -13,7 +14,7 @@ import { parseArgs } from "node:util";
 import pc from "picocolors";
 import * as undici from "undici";
 import { z } from "zod";
-import { ScryfallCard } from "../src/lib/server/scryfall";
+import { ScryfallCard, scryfallCardSchema } from "../src/lib/server/scryfall";
 
 const args = parseArgs({
   options: {
@@ -590,6 +591,81 @@ function createIndexes() {
   `);
 }
 
+function addCardPlayRates(cardIds: number[]) {
+  console.log(pc.yellow(`Adding column "playRateLastYear" on Card`));
+  db.exec(`ALTER TABLE "Card" ADD COLUMN "playRateLastYear" REAL;`);
+
+  const getCard = db.prepare<
+    [number],
+    { id: number; name: string; data: string }
+  >(`SELECT * FROM "Card" WHERE "id" = ?`);
+
+  const setCardPlayRate = db.prepare<[number, number]>(
+    `UPDATE "Card" set "playRateLastYear" = ? where "id" = ?`,
+  );
+
+  const getEntriesForColorId = db.prepare<[string, string], { total: number }>(`
+    SELECT COUNT(*) AS total
+    FROM "Entry" AS e
+    LEFT JOIN "Commander" c on c.id = e."commanderId"
+    LEFT JOIN "Tournament" t on t.id = e."tournamentId"
+    WHERE c."colorId" like ?
+    AND c."colorId" != 'N/A'
+    AND t."tournamentDate" >= ?
+  `);
+
+  const getEntriesForCard = db.prepare<[number, string], { total: number }>(`
+    SELECT COUNT(*) AS total
+    FROM "DecklistItem" di
+    LEFT JOIN "Entry" e on e.id = di."entryId"
+    LEFT JOIN "Tournament" t on t.id = e."tournamentId"
+    WHERE "cardId" = ?
+    AND t."tournamentDate" >= ?
+  `);
+
+  const memoEntriesForColorId = new Map<string, number>();
+  const oneYearAgo = subYears(new Date(), 1).toISOString();
+
+  console.log(`Calculating play rate for ${pc.cyan(cardIds.length)} cards`);
+  for (const cardId of cardIds) {
+    const card = getCard.get(cardId);
+    if (card == null) continue;
+
+    const colorId = scryfallCardSchema
+      .parse(JSON.parse(card.data))
+      .color_identity.join("");
+
+    if (!memoEntriesForColorId.has(colorId)) {
+      let colorIdMatch = "";
+      if (colorId && colorId !== "C") {
+        for (const color of ["W", "U", "B", "R", "G"]) {
+          if (colorId.includes(color)) {
+            colorIdMatch += color;
+          } else {
+            colorIdMatch += "%";
+          }
+        }
+      } else {
+        colorIdMatch = "%";
+      }
+
+      const totalForColorId = getEntriesForColorId.get(colorIdMatch, oneYearAgo)
+        ?.total;
+
+      if (totalForColorId) memoEntriesForColorId.set(colorId, totalForColorId);
+    }
+
+    const totalEntriesForCard = getEntriesForCard.get(card.id, oneYearAgo)
+      ?.total;
+    const totalPossibleEntries = memoEntriesForColorId.get(colorId);
+    if (totalPossibleEntries == null || totalEntriesForCard == null) return;
+
+    setCardPlayRate.run(totalEntriesForCard / totalPossibleEntries, card.id);
+  }
+
+  console.log(`Finished calculating play rates!`);
+}
+
 async function main({
   tid: importedTids,
   anonymize: anonymizeNames = false,
@@ -614,6 +690,7 @@ async function main({
   );
 
   createIndexes();
+  addCardPlayRates(Array.from(cardIdByScryfallId.values()));
 }
 
 main(args.values)

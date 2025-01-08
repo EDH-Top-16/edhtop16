@@ -3,6 +3,8 @@ import {
   ResolveCursorConnectionArgs,
   resolveOffsetConnection,
 } from "@pothos/plugin-relay";
+import { subYears } from "date-fns";
+import { sql } from "kysely";
 import { db } from "../db";
 import { DB } from "../db/__generated__/types";
 import { builder } from "./builder";
@@ -119,6 +121,78 @@ Commander.implement({
         );
       },
       resolve: (parent) => parent.name,
+    }),
+    staples: t.connection({
+      type: Card,
+      resolve: async (parent, args) => {
+        return resolveCursorConnection(
+          { args, toCursor: (parent) => `${parent.id}` },
+          async ({
+            before,
+            after,
+            limit,
+            inverted,
+          }: ResolveCursorConnectionArgs) => {
+            const oneYearAgo = subYears(new Date(), 1).toISOString();
+
+            const { totalEntries } = await db
+              .selectFrom("Entry")
+              .select([(eb) => eb.fn.countAll<number>().as("totalEntries")])
+              .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
+              .where("Entry.commanderId", "=", parent.id)
+              .where("Tournament.tournamentDate", ">=", oneYearAgo)
+              .executeTakeFirstOrThrow();
+
+            let query = db
+              .with("entries", (eb) => {
+                return eb
+                  .selectFrom("DecklistItem")
+                  .leftJoin("Card", "Card.id", "DecklistItem.cardId")
+                  .leftJoin("Entry", "Entry.id", "DecklistItem.entryId")
+                  .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
+                  .where("Entry.commanderId", "=", parent.id)
+                  .where("Tournament.tournamentDate", ">=", oneYearAgo)
+                  .groupBy("Card.id")
+                  .select((eb) => [
+                    eb.ref("Card.id").as("cardId"),
+                    eb(
+                      eb.cast(eb.fn.count<number>("Card.id"), "real"),
+                      "/",
+                      totalEntries,
+                    ).as("playRateLastYear"),
+                  ]);
+              })
+              .selectFrom("Card")
+              .leftJoin("entries", "entries.cardId", "Card.id")
+              .where((eb) =>
+                eb(
+                  eb.fn("json_extract", ["Card.data", sql`'$.type_line'`]),
+                  "not like",
+                  "%Land%",
+                ),
+              )
+              .orderBy(
+                (eb) =>
+                  eb(
+                    "entries.playRateLastYear",
+                    "-",
+                    eb.ref("Card.playRateLastYear"),
+                  ),
+                inverted ? "asc" : "desc",
+              )
+              .selectAll("Card");
+
+            if (before) {
+              query = query.where("Card.id", "<=", Number(before));
+            }
+            if (after) {
+              query = query.where("Card.id", ">=", Number(after));
+            }
+
+            return query.limit(limit).execute();
+          },
+        );
+      },
     }),
   }),
 });
