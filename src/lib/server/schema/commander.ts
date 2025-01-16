@@ -183,10 +183,10 @@ Commander.implement({
               .selectAll("Card");
 
             if (before) {
-              query = query.where("Card.id", "<=", Number(before));
+              query = query.where("Card.id", "<", Number(before));
             }
             if (after) {
-              query = query.where("Card.id", ">=", Number(after));
+              query = query.where("Card.id", ">", Number(after));
             }
 
             return query.limit(limit).execute();
@@ -249,10 +249,10 @@ builder.queryField("commanders", (t) =>
           }
 
           if (before) {
-            query = query.where("Commander.id", "<=", Number(before));
+            query = query.where("Commander.id", "<", Number(before));
           }
           if (after) {
-            query = query.where("Commander.id", ">=", Number(after));
+            query = query.where("Commander.id", ">", Number(after));
           }
 
           query = query
