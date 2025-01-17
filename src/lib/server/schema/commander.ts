@@ -233,37 +233,24 @@ builder.queryField("commanders", (t) =>
           const minDate = minDateFromTimePeriod(args.timePeriod ?? "ONE_MONTH");
           const minTournamentSize = args.minTournamentSize || 0;
           const minEntries = args.minEntries || 0;
+          const sortBy =
+            args.sortBy === "POPULARITY"
+              ? "stats.count"
+              : "stats.conversionRate";
 
           let query = db
-            .selectFrom("Commander")
-            .selectAll("Commander")
-            .leftJoin("Entry", "Entry.commanderId", "Commander.id")
-            .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
-            .where("Commander.name", "!=", "Unknown Commander")
-            .where("Commander.name", "!=", "Nadu, Winged Wisdom")
-            .where("Tournament.tournamentDate", ">=", minDate.toISOString())
-            .where("Tournament.size", ">=", minTournamentSize);
-
-          if (args.colorId) {
-            query = query.where("Commander.colorId", "=", args.colorId);
-          }
-
-          if (before) {
-            query = query.where("Commander.id", "<", Number(before));
-          }
-          if (after) {
-            query = query.where("Commander.id", ">", Number(after));
-          }
-
-          query = query
-            .groupBy("Commander.id")
-            .having((eb) => eb.fn.count("Entry.id"), ">=", minEntries)
-            .orderBy(
-              (eb) => {
-                if (args.sortBy === "POPULARITY") {
-                  return eb.fn.count("Entry.id");
-                } else {
-                  return eb(
+            .with("stats", (eb) =>
+              eb
+                .selectFrom("Commander")
+                .leftJoin("Entry", "Entry.commanderId", "Commander.id")
+                .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
+                .where("Tournament.tournamentDate", ">=", minDate.toISOString())
+                .where("Tournament.size", ">=", minTournamentSize)
+                .groupBy("Commander.id")
+                .select((eb) => [
+                  eb.ref("Commander.id").as("commanderId"),
+                  eb.fn.count("Entry.id").as("count"),
+                  eb(
                     eb.cast(
                       eb.fn.sum(
                         eb
@@ -281,12 +268,55 @@ builder.queryField("commanders", (t) =>
                     ),
                     "/",
                     eb.fn.count("Entry.id"),
-                  );
-                }
-              },
-              inverted ? "asc" : "desc",
+                  ).as("conversionRate"),
+                ]),
             )
-            .orderBy("Commander.id", inverted ? "desc" : "asc")
+            .selectFrom("Commander")
+            .selectAll("Commander")
+            .leftJoin("stats", "stats.commanderId", "Commander.id")
+            .where("Commander.name", "!=", "Unknown Commander")
+            .where("Commander.name", "!=", "Nadu, Winged Wisdom")
+            .where("stats.count", ">=", minEntries);
+
+          if (args.colorId) {
+            query = query.where("Commander.colorId", "=", args.colorId);
+          }
+
+          if (before) {
+            query = query.where((eb) =>
+              eb(
+                eb.tuple(eb.ref(sortBy), eb.ref("Commander.id")),
+                ">",
+                eb.tuple(
+                  eb
+                    .selectFrom("stats")
+                    .select(sortBy)
+                    .where("commanderId", "=", Number(after)),
+                  Number(after),
+                ),
+              ),
+            );
+          }
+
+          if (after) {
+            query = query.where((eb) =>
+              eb(
+                eb.tuple(eb.ref(sortBy), eb.ref("Commander.id")),
+                "<",
+                eb.tuple(
+                  eb
+                    .selectFrom("stats")
+                    .select(sortBy)
+                    .where("commanderId", "=", Number(after)),
+                  Number(after),
+                ),
+              ),
+            );
+          }
+
+          query = query
+            .orderBy(sortBy, inverted ? "asc" : "desc")
+            .orderBy("Commander.id", inverted ? "asc" : "desc")
             .limit(limit);
 
           return query.execute();
