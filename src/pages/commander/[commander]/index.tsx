@@ -114,7 +114,7 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
           imageUrls
         }
 
-        stats(filters: { timePeriod: SIX_MONTHS }) {
+        stats(filters: { timePeriod: ONE_YEAR }) {
           conversionRate
           metaShare
           count
@@ -155,7 +155,7 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
         </div>
 
         <div className="absolute bottom-0 z-10 mx-auto flex w-full justify-center border-t border-white/60 bg-black/50 px-2 px-4 text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-full sm:border">
-          Six Months{" "}
+          Past Year{" "}
           <div className="ml-2 mr-1 border-l border-white/60">&nbsp;</div>{" "}
           {commander.stats.count} Entries
           <div className="ml-2 mr-1 border-l border-white/60">&nbsp;</div>{" "}
@@ -310,6 +310,7 @@ const CommanderQuery = graphql`
     $sortBy: EntriesSortBy!
     $minEventSize: Int!
     $maxStanding: Int
+    $timePeriod: TimePeriod
   ) {
     commander(name: $commander) {
       ...Commander_CommanderPageShell
@@ -353,7 +354,11 @@ function CommanderPage({
           first: $count
           after: $cursor
           sortBy: $sortBy
-          filters: { minEventSize: $minEventSize, maxStanding: $maxStanding }
+          filters: {
+            minEventSize: $minEventSize
+            maxStanding: $maxStanding
+            timePeriod: $timePeriod
+          }
         ) @connection(key: "Commander_entries") {
           edges {
             node {
@@ -456,6 +461,8 @@ export default withRelay(CommanderPage, CommanderQuery, {
         ctx.query.sortBy === "TOP" || !ctx.query.maxStanding
           ? undefined
           : Number(ctx.query.maxStanding),
+      timePeriod:
+        ctx.query.sortBy === "TOP" ? ("ONE_YEAR" as const) : undefined,
     };
   },
 });

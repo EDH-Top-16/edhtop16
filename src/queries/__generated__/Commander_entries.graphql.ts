@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<8d15f04fe88d736b3ec9d39fb4d8fcf4>>
+ * @generated SignedSource<<d3949fd0afc1de04b1d7b3e03ff62b0a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -61,6 +61,10 @@ return {
     {
       "kind": "RootArgument",
       "name": "sortBy"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "timePeriod"
     }
   ],
   "kind": "Fragment",
@@ -108,6 +112,11 @@ return {
               "kind": "Variable",
               "name": "minEventSize",
               "variableName": "minEventSize"
+            },
+            {
+              "kind": "Variable",
+              "name": "timePeriod",
+              "variableName": "timePeriod"
             }
           ],
           "kind": "ObjectValue",
@@ -201,6 +210,6 @@ return {
 };
 })();
 
-(node as any).hash = "876e1bd441cae57fe6a8ed9f662d6100";
+(node as any).hash = "dd5ecf026b227cd526752087b0600d9b";
 
 export default node;

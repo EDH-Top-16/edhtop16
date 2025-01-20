@@ -200,6 +200,7 @@ function CommandersPageShell({
             >
               <option value="CONVERSION">Conversion Rate</option>
               <option value="POPULARITY">Popularity</option>
+              <option value="TOP_CUTS">Top Cuts</option>
             </Select>
 
             <Select
@@ -381,7 +382,8 @@ function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
             display={display}
             commander={node}
             secondaryStatistic={
-              preloadedQuery.variables.sortBy === "CONVERSION"
+              preloadedQuery.variables.sortBy === "CONVERSION" ||
+              preloadedQuery.variables.sortBy === "TOP_CUTS"
                 ? "topCuts"
                 : "count"
             }

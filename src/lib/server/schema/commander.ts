@@ -13,7 +13,7 @@ import { Entry } from "./entry";
 import { minDateFromTimePeriod, TimePeriod } from "./types";
 
 const CommandersSortBy = builder.enumType("CommandersSortBy", {
-  values: ["POPULARITY", "CONVERSION"] as const,
+  values: ["POPULARITY", "CONVERSION", "TOP_CUTS"] as const,
 });
 
 const EntriesSortBy = builder.enumType("EntriesSortBy", {
@@ -125,73 +125,56 @@ Commander.implement({
     staples: t.connection({
       type: Card,
       resolve: async (parent, args) => {
-        return resolveCursorConnection(
-          { args, toCursor: (parent) => `${parent.id}` },
-          async ({
-            before,
-            after,
-            limit,
-            inverted,
-          }: ResolveCursorConnectionArgs) => {
-            const oneYearAgo = subYears(new Date(), 1).toISOString();
+        return resolveOffsetConnection({ args }, async ({ limit, offset }) => {
+          const oneYearAgo = subYears(new Date(), 1).toISOString();
 
-            const { totalEntries } = await db
-              .selectFrom("Entry")
-              .select([(eb) => eb.fn.countAll<number>().as("totalEntries")])
-              .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
-              .where("Entry.commanderId", "=", parent.id)
-              .where("Tournament.tournamentDate", ">=", oneYearAgo)
-              .executeTakeFirstOrThrow();
+          const { totalEntries } = await db
+            .selectFrom("Entry")
+            .select([(eb) => eb.fn.countAll<number>().as("totalEntries")])
+            .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
+            .where("Entry.commanderId", "=", parent.id)
+            .where("Tournament.tournamentDate", ">=", oneYearAgo)
+            .executeTakeFirstOrThrow();
 
-            let query = db
-              .with("entries", (eb) => {
-                return eb
-                  .selectFrom("DecklistItem")
-                  .leftJoin("Card", "Card.id", "DecklistItem.cardId")
-                  .leftJoin("Entry", "Entry.id", "DecklistItem.entryId")
-                  .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
-                  .where("Entry.commanderId", "=", parent.id)
-                  .where("Tournament.tournamentDate", ">=", oneYearAgo)
-                  .groupBy("Card.id")
-                  .select((eb) => [
-                    eb.ref("Card.id").as("cardId"),
-                    eb(
-                      eb.cast(eb.fn.count<number>("Card.id"), "real"),
-                      "/",
-                      totalEntries,
-                    ).as("playRateLastYear"),
-                  ]);
-              })
-              .selectFrom("Card")
-              .leftJoin("entries", "entries.cardId", "Card.id")
-              .where((eb) =>
-                eb(
-                  eb.fn("json_extract", ["Card.data", sql`'$.type_line'`]),
-                  "not like",
-                  "%Land%",
-                ),
-              )
-              .orderBy(
-                (eb) =>
+          let query = db
+            .with("entries", (eb) => {
+              return eb
+                .selectFrom("DecklistItem")
+                .leftJoin("Card", "Card.id", "DecklistItem.cardId")
+                .leftJoin("Entry", "Entry.id", "DecklistItem.entryId")
+                .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
+                .where("Entry.commanderId", "=", parent.id)
+                .where("Tournament.tournamentDate", ">=", oneYearAgo)
+                .groupBy("Card.id")
+                .select((eb) => [
+                  eb.ref("Card.id").as("cardId"),
                   eb(
-                    "entries.playRateLastYear",
-                    "-",
-                    eb.ref("Card.playRateLastYear"),
-                  ),
-                inverted ? "asc" : "desc",
-              )
-              .selectAll("Card");
+                    eb.cast(eb.fn.count<number>("Card.id"), "real"),
+                    "/",
+                    totalEntries,
+                  ).as("playRateLastYear"),
+                ]);
+            })
+            .selectFrom("Card")
+            .leftJoin("entries", "entries.cardId", "Card.id")
+            .where((eb) =>
+              eb(
+                eb.fn("json_extract", ["Card.data", sql`'$.type_line'`]),
+                "not like",
+                "%Land%",
+              ),
+            )
+            .orderBy((eb) =>
+              eb(
+                "entries.playRateLastYear",
+                "-",
+                eb.ref("Card.playRateLastYear"),
+              ),
+            )
+            .selectAll("Card");
 
-            if (before) {
-              query = query.where("Card.id", "<", Number(before));
-            }
-            if (after) {
-              query = query.where("Card.id", ">", Number(after));
-            }
-
-            return query.limit(limit).execute();
-          },
-        );
+          return query.limit(limit).offset(offset).execute();
+        });
       },
     }),
   }),
@@ -236,6 +219,8 @@ builder.queryField("commanders", (t) =>
           const sortBy =
             args.sortBy === "POPULARITY"
               ? "stats.count"
+              : args.sortBy === "TOP_CUTS"
+              ? "stats.topCuts"
               : "stats.conversionRate";
 
           let query = db
@@ -250,6 +235,20 @@ builder.queryField("commanders", (t) =>
                 .select((eb) => [
                   eb.ref("Commander.id").as("commanderId"),
                   eb.fn.count("Entry.id").as("count"),
+                  eb.fn
+                    .sum(
+                      eb
+                        .case()
+                        .when(
+                          "Entry.standing",
+                          "<=",
+                          eb.ref("Tournament.topCut"),
+                        )
+                        .then(1)
+                        .else(0)
+                        .end(),
+                    )
+                    .as("topCuts"),
                   eb(
                     eb.cast(
                       eb.fn.sum(

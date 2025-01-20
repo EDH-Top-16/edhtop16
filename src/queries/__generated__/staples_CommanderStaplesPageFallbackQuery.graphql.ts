@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<118d10a46160c25a66ee8cf7f1371c79>>
+ * @generated SignedSource<<eb8504b5c143294696a9833674d0d80b>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -133,7 +133,7 @@ return {
                 "kind": "Literal",
                 "name": "filters",
                 "value": {
-                  "timePeriod": "SIX_MONTHS"
+                  "timePeriod": "ONE_YEAR"
                 }
               }
             ],
@@ -164,7 +164,7 @@ return {
                 "storageKey": null
               }
             ],
-            "storageKey": "stats(filters:{\"timePeriod\":\"SIX_MONTHS\"})"
+            "storageKey": "stats(filters:{\"timePeriod\":\"ONE_YEAR\"})"
           },
           (v2/*: any*/)
         ],
@@ -173,12 +173,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "1bc4a03f220cfdb72ba31ed7f7015ae9",
+    "cacheID": "4bab06ee3e24efc81a558c4400d01d91",
     "id": null,
     "metadata": {},
     "name": "staples_CommanderStaplesPageFallbackQuery",
     "operationKind": "query",
-    "text": "query staples_CommanderStaplesPageFallbackQuery(\n  $commander: String!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: SIX_MONTHS}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n"
+    "text": "query staples_CommanderStaplesPageFallbackQuery(\n  $commander: String!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: ONE_YEAR}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n"
   }
 };
 })();
