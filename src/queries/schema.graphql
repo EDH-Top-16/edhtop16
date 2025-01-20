@@ -1,10 +1,23 @@
 type Card implements Node {
+  """
+  Image of the full front card face.
+  """
+  cardPreviewImageUrl: String
   cmc: Int!
   colorId: String!
   id: ID!
+
+  """
+  URL's of art crops for each card face.
+  """
   imageUrls: [String!]!
   name: String!
   oracleId: String!
+
+  """
+  Link to the card on Scryfall.
+  """
+  scryfallUrl: String!
   type: String!
 }
 
@@ -22,6 +35,12 @@ type Commander implements Node {
   ): CommanderEntriesConnection!
   id: ID!
   name: String!
+  staples(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): CommanderStaplesConnection!
   stats(filters: CommanderStatsFilters): CommanderStats!
 }
 
@@ -33,6 +52,16 @@ type CommanderEntriesConnection {
 type CommanderEntriesConnectionEdge {
   cursor: String!
   node: Entry!
+}
+
+type CommanderStaplesConnection {
+  edges: [CommanderStaplesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type CommanderStaplesConnectionEdge {
+  cursor: String!
+  node: Card!
 }
 
 type CommanderStats {
