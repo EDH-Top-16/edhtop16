@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<bc6281f83db8a4f7a59ccb51a5c878fa>>
+ * @generated SignedSource<<040805612e4306b20ff038e5a22931fc>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -142,6 +142,46 @@ return {
           },
           {
             "alias": null,
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "filters",
+                "value": {
+                  "timePeriod": "SIX_MONTHS"
+                }
+              }
+            ],
+            "concreteType": "CommanderStats",
+            "kind": "LinkedField",
+            "name": "stats",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "conversionRate",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "metaShare",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "count",
+                "storageKey": null
+              }
+            ],
+            "storageKey": "stats(filters:{\"timePeriod\":\"SIX_MONTHS\"})"
+          },
+          {
+            "alias": null,
             "args": (v5/*: any*/),
             "concreteType": "CommanderStaplesConnection",
             "kind": "LinkedField",
@@ -245,12 +285,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "9f82cdf4bba639116dbc1350dda4fd11",
+    "cacheID": "81724009dc69c35038363f46f1d9ad0f",
     "id": null,
     "metadata": {},
     "name": "staples_CommanderStaplesQuery",
     "operationKind": "query",
-    "text": "query staples_CommanderStaplesQuery(\n  $commander: String!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    ...staples_cards\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n\nfragment staples_cards on Commander {\n  staples(first: 58) {\n    edges {\n      node {\n        id\n        name\n        colorId\n        cardPreviewImageUrl\n        scryfallUrl\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
+    "text": "query staples_CommanderStaplesQuery(\n  $commander: String!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    ...staples_cards\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: SIX_MONTHS}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n\nfragment staples_cards on Commander {\n  staples(first: 58) {\n    edges {\n      node {\n        id\n        name\n        colorId\n        cardPreviewImageUrl\n        scryfallUrl\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
   }
 };
 })();
