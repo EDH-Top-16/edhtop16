@@ -83,6 +83,7 @@ input CommanderStatsFilters {
 enum CommandersSortBy {
   CONVERSION
   POPULARITY
+  TOP_CUTS
 }
 
 input EntriesFilter {

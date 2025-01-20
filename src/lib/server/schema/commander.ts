@@ -13,7 +13,7 @@ import { Entry } from "./entry";
 import { minDateFromTimePeriod, TimePeriod } from "./types";
 
 const CommandersSortBy = builder.enumType("CommandersSortBy", {
-  values: ["POPULARITY", "CONVERSION"] as const,
+  values: ["POPULARITY", "CONVERSION", "TOP_CUTS"] as const,
 });
 
 const EntriesSortBy = builder.enumType("EntriesSortBy", {
@@ -236,6 +236,8 @@ builder.queryField("commanders", (t) =>
           const sortBy =
             args.sortBy === "POPULARITY"
               ? "stats.count"
+              : args.sortBy === "TOP_CUTS"
+              ? "stats.topCuts"
               : "stats.conversionRate";
 
           let query = db
@@ -250,6 +252,20 @@ builder.queryField("commanders", (t) =>
                 .select((eb) => [
                   eb.ref("Commander.id").as("commanderId"),
                   eb.fn.count("Entry.id").as("count"),
+                  eb.fn
+                    .sum(
+                      eb
+                        .case()
+                        .when(
+                          "Entry.standing",
+                          "<=",
+                          eb.ref("Tournament.topCut"),
+                        )
+                        .then(1)
+                        .else(0)
+                        .end(),
+                    )
+                    .as("topCuts"),
                   eb(
                     eb.cast(
                       eb.fn.sum(
