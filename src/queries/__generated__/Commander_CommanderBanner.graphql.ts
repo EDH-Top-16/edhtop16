@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<158bead0c7461516455d542aed0e1a65>>
+ * @generated SignedSource<<7443f39fe9d225b8b34348089b65bc8e>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -73,7 +73,7 @@ const node: ReaderFragment = {
           "kind": "Literal",
           "name": "filters",
           "value": {
-            "timePeriod": "SIX_MONTHS"
+            "timePeriod": "ONE_YEAR"
           }
         }
       ],
@@ -104,13 +104,13 @@ const node: ReaderFragment = {
           "storageKey": null
         }
       ],
-      "storageKey": "stats(filters:{\"timePeriod\":\"SIX_MONTHS\"})"
+      "storageKey": "stats(filters:{\"timePeriod\":\"ONE_YEAR\"})"
     }
   ],
   "type": "Commander",
   "abstractKey": null
 };
 
-(node as any).hash = "a8aa1f790e84c4c7a07e7417dccac1b6";
+(node as any).hash = "84737ce1d712a642f2e33aa3c262721a";
 
 export default node;

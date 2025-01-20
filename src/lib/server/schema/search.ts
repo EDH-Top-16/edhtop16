@@ -34,7 +34,8 @@ builder.queryField("searchResults", (t) =>
           eb.ref("Tournament.name").as("name"),
           sql.lit("/tournament/").as("prefix"),
           eb.ref("Tournament.TID").as("suffix"),
-        ]);
+        ])
+        .orderBy("Tournament.size desc");
 
       const queryParts: (typeof commandersQuery | typeof tournamentsQuery)[] =
         [];

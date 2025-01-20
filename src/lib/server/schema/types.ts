@@ -20,7 +20,9 @@ export const TimePeriod = builder.enumType("TimePeriod", {
 export function minDateFromTimePeriod(
   timePeriod: (typeof TimePeriod)["$inferType"] | null | undefined,
 ) {
-  return timePeriod === "SIX_MONTHS"
+  return timePeriod === "ONE_YEAR"
+    ? subMonths(new Date(), 12)
+    : timePeriod === "SIX_MONTHS"
     ? subMonths(new Date(), 6)
     : timePeriod === "THREE_MONTHS"
     ? subMonths(new Date(), 3)

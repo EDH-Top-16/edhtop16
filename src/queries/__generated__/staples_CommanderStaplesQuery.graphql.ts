@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<040805612e4306b20ff038e5a22931fc>>
+ * @generated SignedSource<<c27a814ecf68573967c715d588dc39a9>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -147,7 +147,7 @@ return {
                 "kind": "Literal",
                 "name": "filters",
                 "value": {
-                  "timePeriod": "SIX_MONTHS"
+                  "timePeriod": "ONE_YEAR"
                 }
               }
             ],
@@ -178,7 +178,7 @@ return {
                 "storageKey": null
               }
             ],
-            "storageKey": "stats(filters:{\"timePeriod\":\"SIX_MONTHS\"})"
+            "storageKey": "stats(filters:{\"timePeriod\":\"ONE_YEAR\"})"
           },
           {
             "alias": null,
@@ -285,12 +285,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "81724009dc69c35038363f46f1d9ad0f",
+    "cacheID": "88693b718e339eef1a72d37000f2649d",
     "id": null,
     "metadata": {},
     "name": "staples_CommanderStaplesQuery",
     "operationKind": "query",
-    "text": "query staples_CommanderStaplesQuery(\n  $commander: String!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    ...staples_cards\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: SIX_MONTHS}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n\nfragment staples_cards on Commander {\n  staples(first: 58) {\n    edges {\n      node {\n        id\n        name\n        colorId\n        cardPreviewImageUrl\n        scryfallUrl\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
+    "text": "query staples_CommanderStaplesQuery(\n  $commander: String!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    ...staples_cards\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: ONE_YEAR}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n\nfragment staples_cards on Commander {\n  staples(first: 58) {\n    edges {\n      node {\n        id\n        name\n        colorId\n        cardPreviewImageUrl\n        scryfallUrl\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
   }
 };
 })();
