@@ -26,9 +26,8 @@ export const Card = builder.loadableNode("Card", {
     }),
     colorId: t.string({
       resolve: (parent) => {
-        const colorIdentity = new Set(
-          scryfallCardSchema.parse(parent.data).color_identity,
-        );
+        const card = scryfallCardSchema.parse(JSON.parse(parent.data));
+        const colorIdentity = new Set(card.color_identity);
 
         let colorId: string = "";
         for (const c of ["W", "U", "B", "R", "G", "C"]) {
@@ -44,12 +43,32 @@ export const Card = builder.loadableNode("Card", {
       },
     }),
     imageUrls: t.stringList({
+      description: `URL's of art crops for each card face.`,
       resolve: (parent) => {
         const card = scryfallCardSchema.parse(JSON.parse(parent.data));
         const cardFaces = card.card_faces ? card.card_faces : [card];
         return cardFaces
           .map((c) => c.image_uris?.art_crop)
           .filter((c): c is string => c != null);
+      },
+    }),
+    cardPreviewImageUrl: t.string({
+      description: `Image of the full front card face.`,
+      nullable: true,
+      resolve: (parent) => {
+        const card = scryfallCardSchema.parse(JSON.parse(parent.data));
+        const cardFaces = card.card_faces ? card.card_faces : [card];
+        return cardFaces
+          .map((c) => c.image_uris?.normal)
+          .filter((c): c is string => c != null)
+          ?.at(0);
+      },
+    }),
+    scryfallUrl: t.string({
+      description: `Link to the card on Scryfall.`,
+      resolve: (parent) => {
+        const card = scryfallCardSchema.parse(JSON.parse(parent.data));
+        return card.scryfall_uri;
       },
     }),
   }),

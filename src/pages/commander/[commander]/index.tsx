@@ -2,7 +2,7 @@ import cn from "classnames";
 import { format } from "date-fns";
 import { NextSeo } from "next-seo";
 import { useRouter } from "next/router";
-import { PropsWithChildren, Suspense, useCallback } from "react";
+import { PropsWithChildren, Suspense, useCallback, useMemo } from "react";
 import { Tabs } from "react-aria-components";
 import {
   useFragment,
@@ -12,27 +12,27 @@ import {
 } from "react-relay";
 import { RelayProps, withRelay } from "relay-nextjs";
 import { graphql } from "relay-runtime";
-import { ColorIdentity } from "../../assets/icons/colors";
-import { Card } from "../../components/card";
-import { Edhtop16Fallback, LoadingIcon } from "../../components/fallback";
-import { Footer } from "../../components/footer";
-import { LoadMoreButton } from "../../components/load_more";
-import { Navigation } from "../../components/navigation";
-import { Select } from "../../components/select";
-import { Tab, TabList } from "../../components/tabs";
-import { formatOrdinals } from "../../lib/client/format";
-import { getClientEnvironment } from "../../lib/client/relay_client_environment";
-import { Commander_CommanderBanner$key } from "../../queries/__generated__/Commander_CommanderBanner.graphql";
-import { Commander_CommanderMeta$key } from "../../queries/__generated__/Commander_CommanderMeta.graphql";
-import { Commander_CommanderPageFallbackQuery } from "../../queries/__generated__/Commander_CommanderPageFallbackQuery.graphql";
-import { Commander_CommanderPageShell$key } from "../../queries/__generated__/Commander_CommanderPageShell.graphql";
+import { ColorIdentity } from "../../../assets/icons/colors";
+import { Card } from "../../../components/card";
+import { Edhtop16Fallback, LoadingIcon } from "../../../components/fallback";
+import { Footer } from "../../../components/footer";
+import { LoadMoreButton } from "../../../components/load_more";
+import { Navigation } from "../../../components/navigation";
+import { Select } from "../../../components/select";
+import { Tab, TabList } from "../../../components/tabs";
+import { formatOrdinals } from "../../../lib/client/format";
+import { getClientEnvironment } from "../../../lib/client/relay_client_environment";
+import { Commander_CommanderBanner$key } from "../../../queries/__generated__/Commander_CommanderBanner.graphql";
+import { Commander_CommanderMeta$key } from "../../../queries/__generated__/Commander_CommanderMeta.graphql";
+import { Commander_CommanderPageFallbackQuery } from "../../../queries/__generated__/Commander_CommanderPageFallbackQuery.graphql";
+import { Commander_CommanderPageShell$key } from "../../../queries/__generated__/Commander_CommanderPageShell.graphql";
 import {
   Commander_CommanderQuery,
   EntriesSortBy,
-} from "../../queries/__generated__/Commander_CommanderQuery.graphql";
-import { Commander_entries$key } from "../../queries/__generated__/Commander_entries.graphql";
-import { Commander_EntryCard$key } from "../../queries/__generated__/Commander_EntryCard.graphql";
-import { CommanderEntriesQuery } from "../../queries/__generated__/CommanderEntriesQuery.graphql";
+} from "../../../queries/__generated__/Commander_CommanderQuery.graphql";
+import { Commander_entries$key } from "../../../queries/__generated__/Commander_entries.graphql";
+import { Commander_EntryCard$key } from "../../../queries/__generated__/Commander_EntryCard.graphql";
+import { CommanderEntriesQuery } from "../../../queries/__generated__/CommanderEntriesQuery.graphql";
 
 function EntryCard(props: { entry: Commander_EntryCard$key }) {
   const entry = useFragment(
@@ -169,24 +169,49 @@ function CommanderMeta(props: { commander: Commander_CommanderMeta$key }) {
   );
 }
 
-function CommanderPageShell({
-  sortBy,
-  onUpdateQueryParam,
+export function CommanderPageShell({
+  disableNavigation,
   children,
   ...props
 }: PropsWithChildren<{
-  sortBy: EntriesSortBy;
+  disableNavigation?: boolean;
   commander: Commander_CommanderPageShell$key;
-  onUpdateQueryParam?: (key: string, value: string) => void;
 }>) {
   const commander = useFragment(
     graphql`
       fragment Commander_CommanderPageShell on Commander {
+        breakdownUrl
         ...Commander_CommanderBanner
         ...Commander_CommanderMeta
       }
     `,
     props.commander,
+  );
+
+  const router = useRouter();
+  const selectedTab = useMemo(() => {
+    if (router.pathname === "/commander/[commander]") {
+      return router.query["sortBy"] as EntriesSortBy;
+    }
+
+    if (router.pathname === "/commander/[commander]/staples") {
+      return "STAPLES";
+    }
+
+    return null;
+  }, [router]);
+
+  const onSelectionChange = useCallback(
+    (key: string | number) => {
+      if (key === "TOP" || key === "NEW") {
+        const nextUrl = new URL(commander.breakdownUrl, window.location.href);
+        nextUrl.searchParams.set("sortBy", key);
+        router.push(nextUrl);
+      } else if (key === "STAPLES") {
+        router.push(commander.breakdownUrl + "/staples");
+      }
+    },
+    [router, commander.breakdownUrl],
   );
 
   return (
@@ -196,15 +221,14 @@ function CommanderPageShell({
       <CommanderBanner commander={commander} />
       <Tabs
         className="mx-auto max-w-screen-md"
-        isDisabled={onUpdateQueryParam == null}
-        selectedKey={sortBy}
-        onSelectionChange={(nextKey) =>
-          onUpdateQueryParam?.("sortBy", nextKey as string)
-        }
+        selectedKey={selectedTab}
+        onSelectionChange={onSelectionChange}
+        isDisabled={disableNavigation}
       >
         <TabList>
           <Tab id="TOP">Top Performing Decklists</Tab>
           <Tab id="NEW">Recent Decklists</Tab>
+          {selectedTab === "STAPLES" && <Tab id="STAPLES">Staples</Tab>}
         </TabList>
       </Tabs>
       {children}
@@ -327,11 +351,7 @@ function CommanderPage({
   );
 
   return (
-    <CommanderPageShell
-      commander={commander}
-      sortBy={preloadedQuery.variables.sortBy}
-      onUpdateQueryParam={setQueryVariable}
-    >
+    <CommanderPageShell commander={commander}>
       <div className="mx-auto flex grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
         {preloadedQuery.variables.sortBy === "NEW" && (
           <RecentEntriesFilterCard
@@ -373,10 +393,7 @@ function CommanderPageFallback() {
   );
 
   return (
-    <CommanderPageShell
-      commander={commander}
-      sortBy={router.query.sortBy as EntriesSortBy}
-    >
+    <CommanderPageShell commander={commander} disableNavigation>
       {router.query.sortBy === "NEW" ? (
         <div className="mx-auto flex grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
           <RecentEntriesFilterCard
@@ -405,7 +422,7 @@ export default withRelay(CommanderPage, CommanderQuery, {
   createClientEnvironment: () => getClientEnvironment()!,
   createServerEnvironment: async () => {
     const { createServerEnvironment } = await import(
-      "../../lib/server/relay_server_environment"
+      "../../../lib/server/relay_server_environment"
     );
 
     return createServerEnvironment();

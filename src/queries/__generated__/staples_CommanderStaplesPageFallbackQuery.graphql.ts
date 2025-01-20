@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<48e166256756fe9337e920f1c37b3a6e>>
+ * @generated SignedSource<<3464c21da9362fcdbae1ac5c64a428c0>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,17 +10,17 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type Commander_CommanderPageFallbackQuery$variables = {
+export type staples_CommanderStaplesPageFallbackQuery$variables = {
   commander: string;
 };
-export type Commander_CommanderPageFallbackQuery$data = {
+export type staples_CommanderStaplesPageFallbackQuery$data = {
   readonly commander: {
     readonly " $fragmentSpreads": FragmentRefs<"Commander_CommanderPageShell">;
   };
 };
-export type Commander_CommanderPageFallbackQuery = {
-  response: Commander_CommanderPageFallbackQuery$data;
-  variables: Commander_CommanderPageFallbackQuery$variables;
+export type staples_CommanderStaplesPageFallbackQuery = {
+  response: staples_CommanderStaplesPageFallbackQuery$data;
+  variables: staples_CommanderStaplesPageFallbackQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -50,7 +50,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "Commander_CommanderPageFallbackQuery",
+    "name": "staples_CommanderStaplesPageFallbackQuery",
     "selections": [
       {
         "alias": null,
@@ -76,7 +76,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "Commander_CommanderPageFallbackQuery",
+    "name": "staples_CommanderStaplesPageFallbackQuery",
     "selections": [
       {
         "alias": null,
@@ -133,16 +133,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "8f2ba1638635d23970607933a00e3fe8",
+    "cacheID": "6468b2f2e8e0ab45d70d5ff49b23d781",
     "id": null,
     "metadata": {},
-    "name": "Commander_CommanderPageFallbackQuery",
+    "name": "staples_CommanderStaplesPageFallbackQuery",
     "operationKind": "query",
-    "text": "query Commander_CommanderPageFallbackQuery(\n  $commander: String!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n"
+    "text": "query staples_CommanderStaplesPageFallbackQuery(\n  $commander: String!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n"
   }
 };
 })();
 
-(node as any).hash = "e103d336866ba6e9f98e3e977b739ba8";
+(node as any).hash = "567ce39ef6ea091f767cfa34a59ca166";
 
 export default node;
