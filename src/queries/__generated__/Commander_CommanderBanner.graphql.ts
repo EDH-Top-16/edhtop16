@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<bee9e32c23c300698b7312fdae765360>>
+ * @generated SignedSource<<158bead0c7461516455d542aed0e1a65>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,6 +16,11 @@ export type Commander_CommanderBanner$data = {
   }>;
   readonly colorId: string;
   readonly name: string;
+  readonly stats: {
+    readonly conversionRate: number;
+    readonly count: number;
+    readonly metaShare: number;
+  };
   readonly " $fragmentType": "Commander_CommanderBanner";
 };
 export type Commander_CommanderBanner$key = {
@@ -60,12 +65,52 @@ const node: ReaderFragment = {
         }
       ],
       "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "filters",
+          "value": {
+            "timePeriod": "SIX_MONTHS"
+          }
+        }
+      ],
+      "concreteType": "CommanderStats",
+      "kind": "LinkedField",
+      "name": "stats",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "conversionRate",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "metaShare",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "count",
+          "storageKey": null
+        }
+      ],
+      "storageKey": "stats(filters:{\"timePeriod\":\"SIX_MONTHS\"})"
     }
   ],
   "type": "Commander",
   "abstractKey": null
 };
 
-(node as any).hash = "035d2141fb0c1222742203e1c28c9e50";
+(node as any).hash = "a8aa1f790e84c4c7a07e7417dccac1b6";
 
 export default node;

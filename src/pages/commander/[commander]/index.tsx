@@ -20,7 +20,7 @@ import { LoadMoreButton } from "../../../components/load_more";
 import { Navigation } from "../../../components/navigation";
 import { Select } from "../../../components/select";
 import { Tab, TabList } from "../../../components/tabs";
-import { formatOrdinals } from "../../../lib/client/format";
+import { formatOrdinals, formatPercent } from "../../../lib/client/format";
 import { getClientEnvironment } from "../../../lib/client/relay_client_environment";
 import { Commander_CommanderBanner$key } from "../../../queries/__generated__/Commander_CommanderBanner.graphql";
 import { Commander_CommanderMeta$key } from "../../../queries/__generated__/Commander_CommanderMeta.graphql";
@@ -113,6 +113,12 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
         cards {
           imageUrls
         }
+
+        stats(filters: { timePeriod: SIX_MONTHS }) {
+          conversionRate
+          metaShare
+          count
+        }
       }
     `,
     props.commander,
@@ -120,7 +126,7 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
 
   return (
     <div className="h-64 w-full bg-black/60 md:h-80">
-      <div className="relative mx-auto flex h-full w-full max-w-screen-xl flex-col items-center justify-center space-y-4">
+      <div className="relative mx-auto flex h-full w-full max-w-screen-xl flex-col items-center justify-center">
         <div className="absolute left-0 top-0 flex h-full w-full brightness-[40%]">
           {commander.cards
             .flatMap((c) => c.imageUrls)
@@ -140,11 +146,22 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
             })}
         </div>
 
-        <h1 className="relative text-center font-title font-title text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
+        <h1 className="relative m-0 mb-4 text-center font-title font-title text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
           {commander.name}
         </h1>
+
         <div className="relative">
           <ColorIdentity identity={commander.colorId} />
+        </div>
+
+        <div className="absolute bottom-0 z-10 mx-auto flex w-full justify-center border-t border-white/60 bg-black/50 px-2 px-4 text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-full sm:border">
+          Six Months{" "}
+          <div className="ml-2 mr-1 border-l border-white/60">&nbsp;</div>{" "}
+          {commander.stats.count} Entries
+          <div className="ml-2 mr-1 border-l border-white/60">&nbsp;</div>{" "}
+          {formatPercent(commander.stats.metaShare)} Usage
+          <div className="ml-2 mr-1 border-l border-white/60">&nbsp;</div>{" "}
+          {formatPercent(commander.stats.conversionRate)} Conversion
         </div>
       </div>
     </div>

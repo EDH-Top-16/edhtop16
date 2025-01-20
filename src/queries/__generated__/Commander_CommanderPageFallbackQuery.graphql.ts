@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<48e166256756fe9337e920f1c37b3a6e>>
+ * @generated SignedSource<<301c0152f051fea1b69d2b72a0862a07>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -126,6 +126,46 @@ return {
             ],
             "storageKey": null
           },
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "filters",
+                "value": {
+                  "timePeriod": "SIX_MONTHS"
+                }
+              }
+            ],
+            "concreteType": "CommanderStats",
+            "kind": "LinkedField",
+            "name": "stats",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "conversionRate",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "metaShare",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "count",
+                "storageKey": null
+              }
+            ],
+            "storageKey": "stats(filters:{\"timePeriod\":\"SIX_MONTHS\"})"
+          },
           (v2/*: any*/)
         ],
         "storageKey": null
@@ -133,12 +173,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "8f2ba1638635d23970607933a00e3fe8",
+    "cacheID": "d899912fb0e6836a03188885a69cefee",
     "id": null,
     "metadata": {},
     "name": "Commander_CommanderPageFallbackQuery",
     "operationKind": "query",
-    "text": "query Commander_CommanderPageFallbackQuery(\n  $commander: String!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n"
+    "text": "query Commander_CommanderPageFallbackQuery(\n  $commander: String!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: SIX_MONTHS}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n"
   }
 };
 })();
