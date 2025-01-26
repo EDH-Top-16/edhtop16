@@ -1,6 +1,19 @@
+import {
+  resolveCursorConnection,
+  ResolveCursorConnectionArgs,
+} from "@pothos/plugin-relay";
 import { db } from "../db";
 import { scryfallCardSchema } from "../scryfall";
 import { builder } from "./builder";
+import { Entry } from "./entry";
+
+const CardEntriesFilters = builder.inputType("CardEntriesFilters", {
+  fields: (t) => ({
+    colorId: t.string({ required: false }),
+    commanderName: t.string({ required: false }),
+    tournamentTID: t.string({ required: false }),
+  }),
+});
 
 export const Card = builder.loadableNode("Card", {
   id: { parse: (id) => Number(id), resolve: (parent) => parent.id },
@@ -71,5 +84,81 @@ export const Card = builder.loadableNode("Card", {
         return card.scryfall_uri;
       },
     }),
+    entries: t.connection({
+      type: Entry,
+      args: {
+        filters: t.arg({ type: CardEntriesFilters, required: false }),
+      },
+      resolve: (parent, args) => {
+        return resolveCursorConnection(
+          {
+            args,
+            toCursor: (parent) => `${parent.id}`,
+          },
+          async ({
+            before,
+            after,
+            limit,
+            inverted,
+          }: ResolveCursorConnectionArgs) => {
+            let query = db
+              .selectFrom("DecklistItem")
+              .innerJoin("Entry", "Entry.id", "DecklistItem.entryId")
+              .leftJoin("Commander", "Commander.id", "Entry.commanderId")
+              .where("DecklistItem.cardId", "=", parent.id)
+              .selectAll("Entry");
+
+            if (args.filters?.colorId) {
+              query = query.where(
+                "Commander.colorId",
+                "=",
+                args.filters.colorId,
+              );
+            }
+
+            if (args.filters?.commanderName) {
+              query = query.where(
+                "Commander.name",
+                "=",
+                args.filters.commanderName,
+              );
+            }
+
+            if (args.filters?.tournamentTID) {
+              query = query
+                .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
+                .where("Tournament.TID", "=", args.filters.tournamentTID);
+            }
+
+            if (before) {
+              query = query.where("Entry.id", ">", Number(before));
+            }
+
+            if (after) {
+              query = query.where("Entry.id", "<", Number(after));
+            }
+
+            return query
+              .orderBy("Entry.id", inverted ? "asc" : "desc")
+              .limit(limit)
+              .execute();
+          },
+        );
+      },
+    }),
   }),
 });
+
+builder.queryField("card", (t) =>
+  t.field({
+    type: Card,
+    args: { name: t.arg.string({ required: true }) },
+    resolve: async (_root, args) => {
+      return db
+        .selectFrom("Card")
+        .selectAll()
+        .where("name", "=", args.name)
+        .executeTakeFirstOrThrow();
+    },
+  }),
+);
