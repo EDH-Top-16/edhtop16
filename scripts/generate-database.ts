@@ -576,11 +576,17 @@ CREATE TABLE "DecklistItem" (
 
 function createIndexes() {
   db.exec(`
+    CREATE INDEX "Commander_name_idx" on "Commander"("name");
+
     CREATE UNIQUE INDEX "Tournament_TID_key" ON "Tournament"("TID");
     CREATE INDEX "Tournament_TID_idx" ON "Tournament"("TID");
+    CREATE INDEX "Tournament_name_idx" ON "Tournament"("name");
+
     CREATE UNIQUE INDEX "Player_topdeckProfile_key" ON "Player"("topdeckProfile");
     CREATE INDEX "Player_topdeckProfile_idx" ON "Player"("topdeckProfile");
+
     CREATE UNIQUE INDEX "Card_oracleId_key" ON "Card"("oracleId");
+    CREATE INDEX "Card_name_idx" on "Card"("name");
 
     CREATE INDEX "Entry_tournamentId_idx" on "Entry"("tournamentId");
     CREATE INDEX "Entry_playerId_idx" on "Entry"("playerId");

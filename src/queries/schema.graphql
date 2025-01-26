@@ -5,6 +5,12 @@ type Card implements Node {
   cardPreviewImageUrl: String
   cmc: Int!
   colorId: String!
+  entries(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): CardEntriesConnection!
   id: ID!
 
   """
@@ -19,6 +25,16 @@ type Card implements Node {
   """
   scryfallUrl: String!
   type: String!
+}
+
+type CardEntriesConnection {
+  edges: [CardEntriesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type CardEntriesConnectionEdge {
+  cursor: String!
+  node: Entry!
 }
 
 type Commander implements Node {
@@ -165,6 +181,7 @@ type Player implements Node {
 }
 
 type Query {
+  card(name: String!): Card!
   commander(name: String!): Commander!
   commanders(
     after: String
