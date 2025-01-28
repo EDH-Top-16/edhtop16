@@ -164,12 +164,14 @@ Commander.implement({
                 "%Land%",
               ),
             )
-            .orderBy((eb) =>
-              eb(
-                "entries.playRateLastYear",
-                "-",
-                eb.ref("Card.playRateLastYear"),
-              ),
+            .orderBy(
+              (eb) =>
+                eb(
+                  "entries.playRateLastYear",
+                  "-",
+                  eb.ref("Card.playRateLastYear"),
+                ),
+              "desc",
             )
             .selectAll("Card");
 
