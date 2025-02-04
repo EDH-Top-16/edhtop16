@@ -75,7 +75,11 @@ function StapleCardsList(props: { commander: staples_cards$key }) {
 }
 
 const CommanderStaplesQuery = graphql`
-  query staples_CommanderStaplesQuery($commander: String!) {
+  query staples_CommanderStaplesQuery(
+    $commander: String!
+    $timePeriod: TimePeriod!
+    $minEventSize: Int!
+  ) {
     commander(name: $commander) {
       ...Commander_CommanderPageShell
       ...staples_cards
@@ -106,13 +110,21 @@ function CommanderStaplesPageFallback() {
   const { commander } =
     useLazyLoadQuery<staples_CommanderStaplesPageFallbackQuery>(
       graphql`
-        query staples_CommanderStaplesPageFallbackQuery($commander: String!) {
+        query staples_CommanderStaplesPageFallbackQuery(
+          $commander: String!
+          $timePeriod: TimePeriod!
+          $minEventSize: Int!
+        ) {
           commander(name: $commander) {
             ...Commander_CommanderPageShell
           }
         }
       `,
-      { commander: router.query.commander as string },
+      {
+        commander: router.query.commander as string,
+        timePeriod: "ONE_YEAR",
+        minEventSize: 0,
+      },
       { fetchPolicy: "store-or-network" },
     );
 
@@ -136,5 +148,12 @@ export default withRelay(CommanderStaplesPage, CommanderStaplesQuery, {
     );
 
     return createServerEnvironment();
+  },
+  variablesFromContext: (ctx) => {
+    return {
+      commander: ctx.query.commander as string,
+      timePeriod: "ONE_YEAR" as const,
+      minEventSize: 0,
+    };
   },
 });

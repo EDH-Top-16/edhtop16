@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<eb8504b5c143294696a9833674d0d80b>>
+ * @generated SignedSource<<5591da6e1b8a78bbeef6e8157d61ea11>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,8 +10,11 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
+export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type staples_CommanderStaplesPageFallbackQuery$variables = {
   commander: string;
+  minEventSize: number;
+  timePeriod: TimePeriod;
 };
 export type staples_CommanderStaplesPageFallbackQuery$data = {
   readonly commander: {
@@ -24,21 +27,29 @@ export type staples_CommanderStaplesPageFallbackQuery = {
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = [
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "commander"
-  }
-],
-v1 = [
+var v0 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "commander"
+},
+v1 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "minEventSize"
+},
+v2 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "timePeriod"
+},
+v3 = [
   {
     "kind": "Variable",
     "name": "name",
     "variableName": "commander"
   }
 ],
-v2 = {
+v4 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -47,14 +58,18 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v0/*: any*/),
+      (v1/*: any*/),
+      (v2/*: any*/)
+    ],
     "kind": "Fragment",
     "metadata": null,
     "name": "staples_CommanderStaplesPageFallbackQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v3/*: any*/),
         "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "commander",
@@ -74,13 +89,17 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v0/*: any*/),
+      (v2/*: any*/),
+      (v1/*: any*/)
+    ],
     "kind": "Operation",
     "name": "staples_CommanderStaplesPageFallbackQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v3/*: any*/),
         "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "commander",
@@ -122,7 +141,7 @@ return {
                 "name": "imageUrls",
                 "storageKey": null
               },
-              (v2/*: any*/)
+              (v4/*: any*/)
             ],
             "storageKey": null
           },
@@ -130,11 +149,20 @@ return {
             "alias": null,
             "args": [
               {
-                "kind": "Literal",
-                "name": "filters",
-                "value": {
-                  "timePeriod": "ONE_YEAR"
-                }
+                "fields": [
+                  {
+                    "kind": "Variable",
+                    "name": "minSize",
+                    "variableName": "minEventSize"
+                  },
+                  {
+                    "kind": "Variable",
+                    "name": "timePeriod",
+                    "variableName": "timePeriod"
+                  }
+                ],
+                "kind": "ObjectValue",
+                "name": "filters"
               }
             ],
             "concreteType": "CommanderStats",
@@ -164,25 +192,25 @@ return {
                 "storageKey": null
               }
             ],
-            "storageKey": "stats(filters:{\"timePeriod\":\"ONE_YEAR\"})"
+            "storageKey": null
           },
-          (v2/*: any*/)
+          (v4/*: any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "cacheID": "4bab06ee3e24efc81a558c4400d01d91",
+    "cacheID": "f3cb493194847126786dae9b110b37fa",
     "id": null,
     "metadata": {},
     "name": "staples_CommanderStaplesPageFallbackQuery",
     "operationKind": "query",
-    "text": "query staples_CommanderStaplesPageFallbackQuery(\n  $commander: String!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: ONE_YEAR}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n"
+    "text": "query staples_CommanderStaplesPageFallbackQuery(\n  $commander: String!\n  $timePeriod: TimePeriod!\n  $minEventSize: Int!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n"
   }
 };
 })();
 
-(node as any).hash = "567ce39ef6ea091f767cfa34a59ca166";
+(node as any).hash = "3305d761526198d54f96bfc5dbd71ac8";
 
 export default node;
