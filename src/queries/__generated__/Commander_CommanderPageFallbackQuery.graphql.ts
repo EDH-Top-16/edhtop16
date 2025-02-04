@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<fcf0abf3eac19c947f7f416bda81fc97>>
+ * @generated SignedSource<<44282651927fac61547fdc515bd6b3fd>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,8 +10,11 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
+export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type Commander_CommanderPageFallbackQuery$variables = {
   commander: string;
+  minEventSize: number;
+  timePeriod: TimePeriod;
 };
 export type Commander_CommanderPageFallbackQuery$data = {
   readonly commander: {
@@ -24,21 +27,29 @@ export type Commander_CommanderPageFallbackQuery = {
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = [
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "commander"
-  }
-],
-v1 = [
+var v0 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "commander"
+},
+v1 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "minEventSize"
+},
+v2 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "timePeriod"
+},
+v3 = [
   {
     "kind": "Variable",
     "name": "name",
     "variableName": "commander"
   }
 ],
-v2 = {
+v4 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -47,14 +58,18 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v0/*: any*/),
+      (v1/*: any*/),
+      (v2/*: any*/)
+    ],
     "kind": "Fragment",
     "metadata": null,
     "name": "Commander_CommanderPageFallbackQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v3/*: any*/),
         "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "commander",
@@ -74,13 +89,17 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v0/*: any*/),
+      (v2/*: any*/),
+      (v1/*: any*/)
+    ],
     "kind": "Operation",
     "name": "Commander_CommanderPageFallbackQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v3/*: any*/),
         "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "commander",
@@ -122,7 +141,7 @@ return {
                 "name": "imageUrls",
                 "storageKey": null
               },
-              (v2/*: any*/)
+              (v4/*: any*/)
             ],
             "storageKey": null
           },
@@ -130,11 +149,20 @@ return {
             "alias": null,
             "args": [
               {
-                "kind": "Literal",
-                "name": "filters",
-                "value": {
-                  "timePeriod": "ONE_YEAR"
-                }
+                "fields": [
+                  {
+                    "kind": "Variable",
+                    "name": "minSize",
+                    "variableName": "minEventSize"
+                  },
+                  {
+                    "kind": "Variable",
+                    "name": "timePeriod",
+                    "variableName": "timePeriod"
+                  }
+                ],
+                "kind": "ObjectValue",
+                "name": "filters"
               }
             ],
             "concreteType": "CommanderStats",
@@ -164,25 +192,25 @@ return {
                 "storageKey": null
               }
             ],
-            "storageKey": "stats(filters:{\"timePeriod\":\"ONE_YEAR\"})"
+            "storageKey": null
           },
-          (v2/*: any*/)
+          (v4/*: any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "cacheID": "11f86c496b03360e556714e6d6be9e06",
+    "cacheID": "bc316aa93d417ccbf24683107c45548b",
     "id": null,
     "metadata": {},
     "name": "Commander_CommanderPageFallbackQuery",
     "operationKind": "query",
-    "text": "query Commander_CommanderPageFallbackQuery(\n  $commander: String!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: ONE_YEAR}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n"
+    "text": "query Commander_CommanderPageFallbackQuery(\n  $commander: String!\n  $timePeriod: TimePeriod!\n  $minEventSize: Int!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n"
   }
 };
 })();
 
-(node as any).hash = "e103d336866ba6e9f98e3e977b739ba8";
+(node as any).hash = "41c1eeb8d7fbc59343c45c70f308aae8";
 
 export default node;

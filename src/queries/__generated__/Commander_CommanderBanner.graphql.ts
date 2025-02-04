@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<7443f39fe9d225b8b34348089b65bc8e>>
+ * @generated SignedSource<<c839400b2a63a61177787161bd3c85cf>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -29,7 +29,16 @@ export type Commander_CommanderBanner$key = {
 };
 
 const node: ReaderFragment = {
-  "argumentDefinitions": [],
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "minEventSize"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "timePeriod"
+    }
+  ],
   "kind": "Fragment",
   "metadata": null,
   "name": "Commander_CommanderBanner",
@@ -70,11 +79,20 @@ const node: ReaderFragment = {
       "alias": null,
       "args": [
         {
-          "kind": "Literal",
-          "name": "filters",
-          "value": {
-            "timePeriod": "ONE_YEAR"
-          }
+          "fields": [
+            {
+              "kind": "Variable",
+              "name": "minSize",
+              "variableName": "minEventSize"
+            },
+            {
+              "kind": "Variable",
+              "name": "timePeriod",
+              "variableName": "timePeriod"
+            }
+          ],
+          "kind": "ObjectValue",
+          "name": "filters"
         }
       ],
       "concreteType": "CommanderStats",
@@ -104,13 +122,13 @@ const node: ReaderFragment = {
           "storageKey": null
         }
       ],
-      "storageKey": "stats(filters:{\"timePeriod\":\"ONE_YEAR\"})"
+      "storageKey": null
     }
   ],
   "type": "Commander",
   "abstractKey": null
 };
 
-(node as any).hash = "84737ce1d712a642f2e33aa3c262721a";
+(node as any).hash = "77be2ab72bef33263eb6f012ee2615e4";
 
 export default node;

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<bfc5d44e8d7d1c173e761ad028524fec>>
+ * @generated SignedSource<<51e5d9a2d56090db620b5e6470dd2966>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -17,7 +17,7 @@ export type Commander_CommanderQuery$variables = {
   maxStanding?: number | null | undefined;
   minEventSize: number;
   sortBy: EntriesSortBy;
-  timePeriod?: TimePeriod | null | undefined;
+  timePeriod: TimePeriod;
 };
 export type Commander_CommanderQuery$data = {
   readonly commander: {
@@ -76,7 +76,12 @@ v7 = {
   "name": "id",
   "storageKey": null
 },
-v8 = [
+v8 = {
+  "kind": "Variable",
+  "name": "timePeriod",
+  "variableName": "timePeriod"
+},
+v9 = [
   {
     "fields": [
       {
@@ -89,11 +94,7 @@ v8 = [
         "name": "minEventSize",
         "variableName": "minEventSize"
       },
-      {
-        "kind": "Variable",
-        "name": "timePeriod",
-        "variableName": "timePeriod"
-      }
+      (v8/*: any*/)
     ],
     "kind": "ObjectValue",
     "name": "filters"
@@ -205,11 +206,16 @@ return {
             "alias": null,
             "args": [
               {
-                "kind": "Literal",
-                "name": "filters",
-                "value": {
-                  "timePeriod": "ONE_YEAR"
-                }
+                "fields": [
+                  {
+                    "kind": "Variable",
+                    "name": "minSize",
+                    "variableName": "minEventSize"
+                  },
+                  (v8/*: any*/)
+                ],
+                "kind": "ObjectValue",
+                "name": "filters"
               }
             ],
             "concreteType": "CommanderStats",
@@ -239,11 +245,11 @@ return {
                 "storageKey": null
               }
             ],
-            "storageKey": "stats(filters:{\"timePeriod\":\"ONE_YEAR\"})"
+            "storageKey": null
           },
           {
             "alias": null,
-            "args": (v8/*: any*/),
+            "args": (v9/*: any*/),
             "concreteType": "CommanderEntriesConnection",
             "kind": "LinkedField",
             "name": "entries",
@@ -391,7 +397,7 @@ return {
           },
           {
             "alias": null,
-            "args": (v8/*: any*/),
+            "args": (v9/*: any*/),
             "filters": [
               "sortBy",
               "filters"
@@ -408,16 +414,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "a041265b0d8a55d2fe8951fcca10c3a8",
+    "cacheID": "566e291ccb15adef7f8f3571cb8f0d80",
     "id": null,
     "metadata": {},
     "name": "Commander_CommanderQuery",
     "operationKind": "query",
-    "text": "query Commander_CommanderQuery(\n  $commander: String!\n  $sortBy: EntriesSortBy!\n  $minEventSize: Int!\n  $maxStanding: Int\n  $timePeriod: TimePeriod\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    ...Commander_entries\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: ONE_YEAR}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    id\n  }\n}\n\nfragment Commander_entries on Commander {\n  entries(first: 48, sortBy: $sortBy, filters: {minEventSize: $minEventSize, maxStanding: $maxStanding, timePeriod: $timePeriod}) {\n    edges {\n      node {\n        id\n        ...Commander_EntryCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
+    "text": "query Commander_CommanderQuery(\n  $commander: String!\n  $sortBy: EntriesSortBy!\n  $minEventSize: Int!\n  $maxStanding: Int\n  $timePeriod: TimePeriod!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    ...Commander_entries\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    id\n  }\n}\n\nfragment Commander_entries on Commander {\n  entries(first: 48, sortBy: $sortBy, filters: {minEventSize: $minEventSize, maxStanding: $maxStanding, timePeriod: $timePeriod}) {\n    edges {\n      node {\n        id\n        ...Commander_EntryCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
   }
 };
 })();
 
-(node as any).hash = "f5a5849528bb448e674b93858477f317";
+(node as any).hash = "21471a6a338a99c7e013d818272ec0c2";
 
 export default node;

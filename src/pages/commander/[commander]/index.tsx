@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import { NextSeo } from "next-seo";
 import { useRouter } from "next/router";
 import { PropsWithChildren, Suspense, useCallback, useMemo } from "react";
-import { Tabs } from "react-aria-components";
 import {
   useFragment,
   useLazyLoadQuery,
@@ -29,10 +28,12 @@ import { Commander_CommanderPageShell$key } from "../../../queries/__generated__
 import {
   Commander_CommanderQuery,
   EntriesSortBy,
+  TimePeriod,
 } from "../../../queries/__generated__/Commander_CommanderQuery.graphql";
 import { Commander_entries$key } from "../../../queries/__generated__/Commander_entries.graphql";
 import { Commander_EntryCard$key } from "../../../queries/__generated__/Commander_EntryCard.graphql";
 import { CommanderEntriesQuery } from "../../../queries/__generated__/CommanderEntriesQuery.graphql";
+import { ParsedUrlQuery } from "querystring";
 
 function EntryCard(props: { entry: Commander_EntryCard$key }) {
   const entry = useFragment(
@@ -114,7 +115,7 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
           imageUrls
         }
 
-        stats(filters: { timePeriod: ONE_YEAR }) {
+        stats(filters: { timePeriod: $timePeriod, minSize: $minEventSize }) {
           conversionRate
           metaShare
           count
@@ -154,13 +155,15 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
           <ColorIdentity identity={commander.colorId} />
         </div>
 
-        <div className="absolute bottom-0 z-10 mx-auto flex w-full justify-center border-t border-white/60 bg-black/50 px-2 px-4 text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-full sm:border">
-          Past Year{" "}
-          <div className="ml-2 mr-1 border-l border-white/60">&nbsp;</div>{" "}
+        <div className="absolute bottom-0 z-10 mx-auto flex w-full items-center justify-center justify-around border-t border-white/60 bg-black/50 px-3 text-center text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border">
           {commander.stats.count} Entries
-          <div className="ml-2 mr-1 border-l border-white/60">&nbsp;</div>{" "}
-          {formatPercent(commander.stats.metaShare)} Usage
-          <div className="ml-2 mr-1 border-l border-white/60">&nbsp;</div>{" "}
+          <div className="ml-2 mr-1 border-l border-white/60 py-2">
+            &nbsp;
+          </div>{" "}
+          {formatPercent(commander.stats.metaShare)} Meta%
+          <div className="ml-2 mr-1 border-l border-white/60 py-2">
+            &nbsp;
+          </div>{" "}
           {formatPercent(commander.stats.conversionRate)} Conversion
         </div>
       </div>
@@ -206,125 +209,10 @@ export function CommanderPageShell({
   );
 
   const router = useRouter();
-  const selectedTab = useMemo(() => {
-    if (router.pathname === "/commander/[commander]") {
-      return router.query["sortBy"] as EntriesSortBy;
-    }
+  const { maxStanding, minEventSize, sortBy, timePeriod } = useMemo(() => {
+    return queryVariablesFromParsedUrlQuery(router.query);
+  }, [router.query]);
 
-    if (router.pathname === "/commander/[commander]/staples") {
-      return "STAPLES";
-    }
-
-    return null;
-  }, [router]);
-
-  const onSelectionChange = useCallback(
-    (key: string | number) => {
-      if (key === "TOP" || key === "NEW") {
-        const nextUrl = new URL(commander.breakdownUrl, window.location.href);
-        nextUrl.searchParams.set("sortBy", key);
-        router.push(nextUrl);
-      } else if (key === "STAPLES") {
-        router.push(commander.breakdownUrl + "/staples");
-      }
-    },
-    [router, commander.breakdownUrl],
-  );
-
-  return (
-    <>
-      <Navigation />
-      <CommanderMeta commander={commander} />
-      <CommanderBanner commander={commander} />
-      <Tabs
-        className="mx-auto max-w-screen-md"
-        selectedKey={selectedTab}
-        onSelectionChange={onSelectionChange}
-        isDisabled={disableNavigation}
-      >
-        <TabList>
-          <Tab id="TOP">Top Performing Decklists</Tab>
-          <Tab id="NEW">Recent Decklists</Tab>
-          {selectedTab === "STAPLES" && <Tab id="STAPLES">Staples</Tab>}
-        </TabList>
-      </Tabs>
-      {children}
-    </>
-  );
-}
-
-function RecentEntriesFilterCard({
-  minEventSize,
-  maxStanding,
-  setQueryVariable,
-}: {
-  minEventSize: number;
-  maxStanding: number | undefined | null;
-  setQueryVariable?: (key: string, value: string | null) => void;
-}) {
-  return (
-    <Card hoverEffect={false}>
-      <div className="flex flex-col gap-4">
-        <span className="border-b border-white text-white">
-          Search Settings
-        </span>
-
-        <div className="flex gap-4 text-black">
-          <Select
-            id="commander-event-size"
-            label="Event Size"
-            value={`${minEventSize}`}
-            disabled={setQueryVariable == null}
-            onChange={(e) => {
-              setQueryVariable?.("minEventSize", e);
-            }}
-          >
-            <option value="0">All Events</option>
-            <option value="60">60+ Players</option>
-            <option value="100">100+ Players</option>
-          </Select>
-
-          <Select
-            id="commander-event-size"
-            label="Player Standing"
-            value={`${maxStanding}`}
-            disabled={setQueryVariable == null}
-            onChange={(e) => {
-              setQueryVariable?.("maxStanding", e ? e : null);
-            }}
-          >
-            <option value="">All Players</option>
-            <option value="16">Top 16</option>
-            <option value="4">Top 4</option>
-            <option value="1">Winner</option>
-          </Select>
-        </div>
-      </div>
-    </Card>
-  );
-}
-
-const CommanderQuery = graphql`
-  query Commander_CommanderQuery(
-    $commander: String!
-    $sortBy: EntriesSortBy!
-    $minEventSize: Int!
-    $maxStanding: Int
-    $timePeriod: TimePeriod
-  ) {
-    commander(name: $commander) {
-      ...Commander_CommanderPageShell
-      ...Commander_entries
-    }
-  }
-`;
-
-function CommanderPage({
-  preloadedQuery,
-}: RelayProps<{}, Commander_CommanderQuery>) {
-  const { commander } = usePreloadedQuery(CommanderQuery, preloadedQuery);
-
-  const router = useRouter();
   const setQueryVariable = useCallback(
     (key: string, value: string | null) => {
       const nextUrl = new URL(window.location.href);
@@ -338,6 +226,111 @@ function CommanderPage({
     },
     [router],
   );
+
+  return (
+    <>
+      <Navigation />
+      <CommanderMeta commander={commander} />
+      <CommanderBanner commander={commander} />
+
+      <div className="mx-auto grid max-w-screen-md grid-cols-2 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
+        <Select
+          id="commander-sort-by"
+          label="Sort By"
+          value={sortBy}
+          disabled={setQueryVariable == null}
+          onChange={(e) => {
+            setQueryVariable?.("sortBy", e);
+          }}
+        >
+          <option value="TOP">Top Performing</option>
+          <option value="NEW">Recent</option>
+        </Select>
+
+        <Select
+          id="commanders-time-period"
+          label="Time Period"
+          value={timePeriod}
+          disabled={setQueryVariable == null}
+          onChange={(e) => {
+            setQueryVariable?.("timePeriod", e);
+          }}
+        >
+          <option value="ONE_MONTH">1 Month</option>
+          <option value="THREE_MONTHS">3 Months</option>
+          <option value="SIX_MONTHS">6 Months</option>
+          <option value="ONE_YEAR">1 Year</option>
+          <option value="ALL_TIME">All Time</option>
+          <option value="POST_BAN">Post Ban</option>
+        </Select>
+
+        <Select
+          id="commander-event-size"
+          label="Event Size"
+          value={`${minEventSize}`}
+          disabled={setQueryVariable == null}
+          onChange={(e) => {
+            setQueryVariable?.("minEventSize", e);
+          }}
+        >
+          <option value="0">All Events</option>
+          <option value="60">60+ Players</option>
+          <option value="100">100+ Players</option>
+        </Select>
+
+        <Select
+          id="commander-event-size"
+          label="Standing"
+          value={`${maxStanding}`}
+          disabled={setQueryVariable == null}
+          onChange={(e) => {
+            setQueryVariable?.("maxStanding", e ? e : null);
+          }}
+        >
+          <option value="">All Players</option>
+          <option value="16">Top 16</option>
+          <option value="4">Top 4</option>
+          <option value="1">Winner</option>
+        </Select>
+      </div>
+      {children}
+    </>
+  );
+}
+
+function queryVariablesFromParsedUrlQuery(query: ParsedUrlQuery) {
+  const commander = query.commander as string;
+  const timePeriod = (query.timePeriod as TimePeriod) ?? "ONE_YEAR";
+  const sortBy = (query.sortBy as EntriesSortBy) ?? "TOP";
+  const minEventSize =
+    typeof query.minEventSize === "string" ? Number(query.minEventSize) : 60;
+  const maxStanding =
+    typeof query.maxStanding === "string"
+      ? Number(query.maxStanding)
+      : undefined;
+
+  return { commander, timePeriod, sortBy, minEventSize, maxStanding };
+}
+
+const CommanderQuery = graphql`
+  query Commander_CommanderQuery(
+    $commander: String!
+    $sortBy: EntriesSortBy!
+    $minEventSize: Int!
+    $maxStanding: Int
+    $timePeriod: TimePeriod!
+  ) {
+    commander(name: $commander) {
+      ...Commander_CommanderPageShell
+      ...Commander_entries
+    }
+  }
+`;
+
+function CommanderPage({
+  preloadedQuery,
+}: RelayProps<{}, Commander_CommanderQuery>) {
+  const { commander } = usePreloadedQuery(CommanderQuery, preloadedQuery);
 
   const { data, loadNext, isLoadingNext, hasNext } = usePaginationFragment<
     CommanderEntriesQuery,
@@ -375,14 +368,6 @@ function CommanderPage({
   return (
     <CommanderPageShell commander={commander}>
       <div className="mx-auto flex grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
-        {preloadedQuery.variables.sortBy === "NEW" && (
-          <RecentEntriesFilterCard
-            minEventSize={preloadedQuery.variables.minEventSize}
-            maxStanding={preloadedQuery.variables.maxStanding}
-            setQueryVariable={setQueryVariable}
-          />
-        )}
-
         {data.entries.edges.map(({ node }) => (
           <EntryCard key={node.id} entry={node} />
         ))}
@@ -401,36 +386,29 @@ function CommanderPage({
 
 function CommanderPageFallback() {
   const router = useRouter();
+  const queryVariables = useMemo(() => {
+    return queryVariablesFromParsedUrlQuery(router.query);
+  }, [router.query]);
 
   const { commander } = useLazyLoadQuery<Commander_CommanderPageFallbackQuery>(
     graphql`
-      query Commander_CommanderPageFallbackQuery($commander: String!) {
+      query Commander_CommanderPageFallbackQuery(
+        $commander: String!
+        $timePeriod: TimePeriod!
+        $minEventSize: Int!
+      ) {
         commander(name: $commander) {
           ...Commander_CommanderPageShell
         }
       }
     `,
-    { commander: router.query.commander as string },
+    queryVariables,
     { fetchPolicy: "store-or-network" },
   );
 
   return (
     <CommanderPageShell commander={commander} disableNavigation>
-      {router.query.sortBy === "NEW" ? (
-        <div className="mx-auto flex grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
-          <RecentEntriesFilterCard
-            minEventSize={Number(router.query.minEventSize || "60")}
-            maxStanding={
-              !router.query.maxStanding
-                ? undefined
-                : Number(router.query.maxStanding)
-            }
-          />
-          <LoadingIcon padding={false} className="self-center" />
-        </div>
-      ) : (
-        <LoadingIcon />
-      )}
+      <LoadingIcon />
     </CommanderPageShell>
   );
 }
@@ -450,19 +428,6 @@ export default withRelay(CommanderPage, CommanderQuery, {
     return createServerEnvironment();
   },
   variablesFromContext: (ctx) => {
-    return {
-      commander: ctx.query.commander as string,
-      sortBy: (ctx.query.sortBy ?? "TOP") as EntriesSortBy,
-      minEventSize:
-        ctx.query.sortBy === "TOP"
-          ? 60
-          : Number(ctx.query.minEventSize || "60"),
-      maxStanding:
-        ctx.query.sortBy === "TOP" || !ctx.query.maxStanding
-          ? undefined
-          : Number(ctx.query.maxStanding),
-      timePeriod:
-        ctx.query.sortBy === "TOP" ? ("ONE_YEAR" as const) : undefined,
-    };
+    return queryVariablesFromParsedUrlQuery(ctx.query);
   },
 });
