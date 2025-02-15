@@ -189,6 +189,7 @@ async function getTournaments(
     .db("cedhtop16")
     .collection("metadata")
     .find(metadataFilters)
+    .sort({ date: "desc" })
     .map((doc) => {
       const result = tournamentSchema.safeParse(doc);
       if (!result.success) {
