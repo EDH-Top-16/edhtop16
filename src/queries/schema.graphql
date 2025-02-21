@@ -8,6 +8,7 @@ type Card implements Node {
   entries(
     after: String
     before: String
+    filters: CardEntriesFilters
     first: Int
     last: Int
   ): CardEntriesConnection!
@@ -35,6 +36,12 @@ type CardEntriesConnection {
 type CardEntriesConnectionEdge {
   cursor: String!
   node: Entry!
+}
+
+input CardEntriesFilters {
+  colorId: String
+  commanderName: String
+  tournamentTID: String
 }
 
 type Commander implements Node {

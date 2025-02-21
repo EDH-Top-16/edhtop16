@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<c559d25ceee5fb021ad294e2693b13dc>>
+ * @generated SignedSource<<92dd498b0546ba5c7ede8ebe706dbe59>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -19,6 +19,7 @@ export type Commander_EntryCard$data = {
   } | null | undefined;
   readonly standing: number;
   readonly tournament: {
+    readonly TID: string;
     readonly name: string;
     readonly size: number;
     readonly tournamentDate: string;
@@ -100,6 +101,13 @@ return {
       "name": "tournament",
       "plural": false,
       "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "TID",
+          "storageKey": null
+        },
         (v0/*: any*/),
         {
           "alias": null,
@@ -124,6 +132,6 @@ return {
 };
 })();
 
-(node as any).hash = "f0a17b89872541c05fa09bab437d9b70";
+(node as any).hash = "b392e00f7a35c4f52e5011deabde3070";
 
 export default node;

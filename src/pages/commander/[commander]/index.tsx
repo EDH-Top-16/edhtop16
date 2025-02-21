@@ -50,6 +50,7 @@ function EntryCard(props: { entry: Commander_EntryCard$key }) {
         }
 
         tournament {
+          TID
           name
           size
           tournamentDate
@@ -59,9 +60,7 @@ function EntryCard(props: { entry: Commander_EntryCard$key }) {
     props.entry,
   );
 
-  let entryName = `${entry.player?.name ?? "Unknown Player"} @ ${
-    entry.tournament.name
-  }`;
+  let entryName = `${entry.player?.name ?? "Unknown Player"}`;
 
   if (entry.standing === 1) {
     entryName = `🥇 ${entryName}`;
@@ -88,15 +87,35 @@ function EntryCard(props: { entry: Commander_EntryCard$key }) {
     <Card bottomText={bottomText}>
       <div className="flex h-32 flex-col space-y-2">
         {entry.decklist ? (
-          <a
-            href={entry.decklist}
-            target="_blank"
-            className="line-clamp-2 text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
-          >
-            {entryName}
-          </a>
+          <div className="line-clamp-2">
+            <a
+              href={entry.decklist}
+              target="_blank"
+              className="text-xl font-bold underline decoration-transparent transition-colors hover:decoration-inherit"
+            >
+              {entryName}
+            </a>
+            <span className="text-xl font-bold mx-2">@</span>
+            <a
+              href={`/tournament/${entry.tournament.TID}`}
+              target="_blank"
+              className="text-xl font-bold underline decoration-transparent transition-colors hover:decoration-inherit"
+            >
+              {entry.tournament.name}
+            </a>
+          </div>
         ) : (
-          <span className="text-xl font-bold">{entryName}</span>
+          <span className="text-xl font-bold">
+            {entryName}
+            <span className="mx-2">@</span>
+            <a
+              href={`/tournament/${entry.tournament.TID}`}
+              target="_blank"
+              className="text-xl font-bold underline decoration-transparent transition-colors hover:decoration-inherit"
+            >
+              {entry.tournament.name}
+            </a>
+          </span>
         )}
 
         <span>{format(entry.tournament.tournamentDate, "MMMM do yyyy")}</span>
