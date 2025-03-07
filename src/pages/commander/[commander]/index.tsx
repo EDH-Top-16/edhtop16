@@ -53,16 +53,14 @@ function EntryCard(props: { entry: Commander_EntryCard$key }) {
           name
           size
           tournamentDate
+          TID
         }
       }
     `,
     props.entry,
   );
 
-  let entryName = `${entry.player?.name ?? "Unknown Player"} @ ${
-    entry.tournament.name
-  }`;
-
+  let entryName = `${entry.player?.name ?? "Unknown Player"}`;
   if (entry.standing === 1) {
     entryName = `🥇 ${entryName}`;
   } else if (entry.standing <= 4) {
@@ -86,12 +84,12 @@ function EntryCard(props: { entry: Commander_EntryCard$key }) {
 
   return (
     <Card bottomText={bottomText}>
-      <div className="flex h-32 flex-col space-y-2">
+      <div className="flex h-32 flex-col">
         {entry.decklist ? (
           <a
             href={entry.decklist}
             target="_blank"
-            className="line-clamp-2 text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
+            className="line-clamp-1 text-xl font-bold underline decoration-transparent transition-colors hover:decoration-inherit"
           >
             {entryName}
           </a>
@@ -99,7 +97,15 @@ function EntryCard(props: { entry: Commander_EntryCard$key }) {
           <span className="text-xl font-bold">{entryName}</span>
         )}
 
-        <span>{format(entry.tournament.tournamentDate, "MMMM do yyyy")}</span>
+        <a
+          href={`/tournament/${entry.tournament.TID}`}
+          className="line-clamp-2 pt-2 underline decoration-transparent transition-colors hover:decoration-inherit"
+        >
+          {entry.tournament.name}
+        </a>
+        <span className="line-clamp-1 text-sm opacity-70">
+          {format(entry.tournament.tournamentDate, "MMMM do yyyy")}
+        </span>
       </div>
     </Card>
   );
