@@ -110,7 +110,7 @@ impl TopdeckClient {
             "{{
   \"game\": \"Magic: The Gathering\",
   \"format\": \"EDH\",
-  \"last\": 30,
+  \"last\": 5,
   \"columns\": [
     \"name\",
     \"id\",

@@ -54,10 +54,7 @@ async fn unprocessed_standings(
     let mut decklist_url_by_record_id: HashMap<ObjectId, String> = HashMap::new();
     while let Some(Ok(entry)) = cursor.next().await {
         let entry_id = entry.get_object_id("_id")?;
-        let Ok(decklist_url) = entry.get_str("decklist") else {
-            continue;
-        };
-
+        let decklist_url = entry.get_str("decklist").unwrap_or_default();
         decklist_url_by_record_id.insert(entry_id, decklist_url.to_string());
     }
 
@@ -93,7 +90,11 @@ async fn update_decklist_for_entry(
 
     let color_id = deck.color_id();
     let commander_name = deck.commander_name();
-    let main_deck: Vec<String> = deck.mainboard.into_keys().collect();
+    let main_deck: Vec<String> = deck
+        .mainboard
+        .values()
+        .map(|c| c.card.scryfall_id.clone())
+        .collect();
 
     collection
         .update_one(
