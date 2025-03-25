@@ -1,4 +1,4 @@
-use anyhow::Context;
+use anyhow::{anyhow, Context};
 use futures::StreamExt;
 use mongodb::{
     bson::{self, doc, oid::ObjectId, Document},
@@ -76,33 +76,20 @@ async fn update_decklist_for_entry(
     collection: &Collection<Document>,
     object_id: &ObjectId,
     decklist_url: &str,
-) -> anyhow::Result<Option<String>> {
+) -> anyhow::Result<String> {
     let Some(decklist_id) = moxfield_id(&decklist_url) else {
-        log::info!(
-            "Skipping {}/{}: could not match moxfield link {:?}",
+        return Err(anyhow!(
+            "Could not extract Moxfield link for {}/{}: {}",
             collection.name(),
             object_id,
             decklist_url
-        );
-
-        return Ok(None);
+        ));
     };
 
-    let Ok(deck) = moxfield_client
+    let deck = moxfield_client
         .get_deck(&decklist_id)
         .await
-        .inspect_err(|err| {
-            log::info!(
-                "Skipping {}/{}: moxfield API request failed for {}: {:?}",
-                collection.name(),
-                object_id,
-                decklist_url,
-                err
-            );
-        })
-    else {
-        return Ok(None);
-    };
+        .context(anyhow!("Could not get decklist: {}", decklist_url))?;
 
     let color_id = deck.color_id();
     let commander_name = deck.commander_name();
@@ -121,7 +108,33 @@ async fn update_decklist_for_entry(
         )
         .await?;
 
-    Ok(Some(commander_name))
+    Ok(commander_name)
+}
+
+async fn set_unknown_commander_for_entry(
+    collection: &Collection<Document>,
+    object_id: &ObjectId,
+) -> () {
+    let update = collection
+        .update_one(
+            doc! { "_id": object_id },
+            doc! {
+                "$set": doc! {
+                    "commander": "Unknown Commander",
+                    "colorID": "N/A",
+                }
+            },
+        )
+        .await;
+
+    if let Err(err) = update {
+        log::error!(
+            "Could not set unknown commander for {}/{}: {}",
+            collection.name(),
+            object_id,
+            err
+        );
+    };
 }
 
 #[tokio::main]
@@ -142,7 +155,7 @@ async fn main() -> anyhow::Result<()> {
 
     let moxfield_client = MoxfieldClient::new(&moxfield_api_key);
 
-    let mut decklist_updates: JoinSet<anyhow::Result<()>> = JoinSet::new();
+    let mut decklist_updates: JoinSet<()> = JoinSet::new();
     for tid in recent_tournaments(&database).await? {
         let tournament_collection: Collection<Document> = database.collection(&tid);
         for (object_id, decklist_url) in unprocessed_standings(&database, &tid).await? {
@@ -151,29 +164,30 @@ async fn main() -> anyhow::Result<()> {
             let tid = tid.clone();
 
             decklist_updates.spawn(async move {
-                let commander_name = update_decklist_for_entry(
+                let update = update_decklist_for_entry(
                     &moxfield_client,
                     &tournament_collection,
                     &object_id,
                     &decklist_url,
                 )
-                .await?;
+                .await;
 
-                if let Some(commander_name) = commander_name {
-                    log::info!("Processed {}/{}: {}", tid, object_id, commander_name);
-                };
-
-                Ok(())
+                match update {
+                    Ok(commander_name) => {
+                        log::info!("Processed {}/{}: {}", tid, object_id, commander_name);
+                    }
+                    Err(err) => {
+                        log::info!("Could not update entry: {:?}", err);
+                        set_unknown_commander_for_entry(&tournament_collection, &object_id).await;
+                    }
+                }
             });
         }
     }
 
     while let Some(res) = decklist_updates.join_next().await {
         match res {
-            Ok(Ok(_)) => {}
-            Ok(Err(err)) => {
-                log::error!("Could not insert: {:?}", err);
-            }
+            Ok(()) => {}
             Err(err) => {
                 log::error!("Could not join task: {:?}", err);
             }
