@@ -84,7 +84,7 @@ impl TournamentEntry {
             "winsBracket": self.wins_bracket,
             "draws": self.draws,
             "lossesSwiss": self.losses_swiss,
-            "lossessBracket": self.losses_bracket,
+            "lossesBracket": self.losses_bracket,
             "standing": index,
             "profile": self.id.clone()
         }
