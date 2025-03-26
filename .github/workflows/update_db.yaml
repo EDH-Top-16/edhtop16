@@ -60,4 +60,4 @@ jobs:
           MOXFIELD_API_KEY: ${{ secrets.MOXFIELD_API_KEY }}
 
       - name: Deploy Application Database
-        run: doctl apps create-deployment ${{ secrets.DIGITALOCEAN_APP_ID }} --force-rebuild
+        run: doctl apps create-deployment ${{ secrets.DIGITALOCEAN_APP_ID }} --force-rebuild --wait
