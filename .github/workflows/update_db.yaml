@@ -5,18 +5,9 @@ concurrency:
   cancel-in-progress: false
 
 on:
-  workflow_call:
-    inputs:
-      overwrite_existing_unknown:
-        type: boolean
-        default: false
-        description: Overwrite existing tournaments with what topdeck gives, and re-query 'Unknown Commander' values when assigning commanders
-    secrets:
-      MTG_API_PAT:
-      DIGITALOCEAN_ACCESS_TOKEN:
-      TOPDECK_API_KEY:
-      ATLAS_URI:
-      DIGITALOCEAN_APP_ID:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 3 * * *"
 
 jobs:
   update_db:
@@ -24,55 +15,40 @@ jobs:
     steps:
       - name: Checkout files
         uses: actions/checkout@v4
-        with:
-          path: edhtop16/
-
-      - name: Checkout private library
-        uses: actions/checkout@v4
-        with:
-          repository: EDH-Top-16/mtg_api
-          token: ${{ secrets.MTG_API_PAT }}
-          sparse-checkout: |-
-            mtg_api.py
-          sparse-checkout-cone-mode: false
-          path: mtg_api/
-          ref: main
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-      - name: Copy files to same working directory
-        run: |-
-          cp mtg_api/mtg_api.py edhtop16/server/scripts/
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
 
-      - name: Install Dependencies
-        working-directory: edhtop16/server/scripts/
-        run: pip install -r requirements.txt
+      - name: Setup Rust
+        run: rustup update
+
+      - name: Run load_topdeck_tournaments
+        working-directory: scraper
+        run: cargo run --release --bin load_topdeck_tournaments
 
       - name: Copy Secrets
-        working-directory: edhtop16/server/scripts/
+        working-directory: server/scripts/
         run: |-
-          echo "${{ secrets.TOPDECK_API_KEY }}" > eminence_api_key.txt
           echo "ATLAS_URI=${{ secrets.ATLAS_URI }}" > config.env
 
-      - name: Run get_tournaments.py
-        working-directory: edhtop16/server/scripts/
-        run: python get_tournaments.py ${{ inputs.overwrite_existing_unknown && '-o' || '' }}
+      - name: Install Python Dependencies
+        working-directory: server/scripts/
+        run: pip install -r requirements.txt
 
       - name: Run get_jsonl.py
         if: ${{ inputs.overwrite_existing_unknown }}
-        working-directory: edhtop16/server/scripts/
+        working-directory: server/scripts/
         run: python get_jsonl.py
 
-      - name: Run get_commanders.py
-        working-directory: edhtop16/server/scripts/
-        run: python get_commanders.py ${{ inputs.overwrite_existing_unknown && '-u' || '' }}
+      - name: Run scrape_commanders
+        working-directory: scraper
+        run: cargo run --release --bin scrape_commanders
 
       - name: Deploy Application Database
         working-directory: edhtop16/

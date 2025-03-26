@@ -23,3 +23,14 @@ jobs:
         run: npx next lint
       - name: Check Types
         run: npx tsc
+  build-server:
+    name: Build Server
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Rust
+        run: rustup update
+      - name: Check Formatting
+        run: cargo fmt --check
+      - name: Check Build
+        run: cargo build --all-targets
