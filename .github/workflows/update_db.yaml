@@ -31,6 +31,9 @@ jobs:
       - name: Run load_topdeck_tournaments
         working-directory: scraper
         run: cargo run --release --bin load_topdeck_tournaments
+        env:
+          ENTRIES_DB_URL: ${{ secrets.ENTRIES_DB_URL }}
+          TOPDECK_GG_API_KEY: ${{ secrets.TOPDECK_GG_API_KEY }}
 
       - name: Copy Secrets
         working-directory: server/scripts/
@@ -49,6 +52,9 @@ jobs:
       - name: Run scrape_commanders
         working-directory: scraper
         run: cargo run --release --bin scrape_commanders
+        env:
+          ENTRIES_DB_URL: ${{ secrets.ENTRIES_DB_URL }}
+          MOXFIELD_API_KEY: ${{ secrets.MOXFIELD_API_KEY }}
 
       - name: Deploy Application Database
         working-directory: edhtop16/
