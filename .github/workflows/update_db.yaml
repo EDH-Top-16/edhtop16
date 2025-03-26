@@ -32,7 +32,7 @@ jobs:
         working-directory: scraper
         run: cargo run --release --bin load_topdeck_tournaments
         env:
-          ENTRIES_DB_URL: ${{ secrets.ENTRIES_DB_URL }}
+          ENTRIES_DB_URL: ${{ secrets.ATLAS_URI }}
           TOPDECK_GG_API_KEY: ${{ secrets.TOPDECK_GG_API_KEY }}
 
       - name: Copy Secrets
@@ -45,7 +45,6 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run get_jsonl.py
-        if: ${{ inputs.overwrite_existing_unknown }}
         working-directory: server/scripts/
         run: python get_jsonl.py
 
@@ -53,9 +52,8 @@ jobs:
         working-directory: scraper
         run: cargo run --release --bin scrape_commanders
         env:
-          ENTRIES_DB_URL: ${{ secrets.ENTRIES_DB_URL }}
+          ENTRIES_DB_URL: ${{ secrets.ATLAS_URI }}
           MOXFIELD_API_KEY: ${{ secrets.MOXFIELD_API_KEY }}
 
       - name: Deploy Application Database
-        working-directory: edhtop16/
         run: doctl apps create-deployment ${{ secrets.DIGITALOCEAN_APP_ID }} --force-rebuild
