@@ -31,6 +31,8 @@ jobs:
       - name: Setup Rust
         run: rustup update
       - name: Check Formatting
+        working-directory: scraper
         run: cargo fmt --check
       - name: Check Build
+        working-directory: scraper
         run: cargo build --all-targets
