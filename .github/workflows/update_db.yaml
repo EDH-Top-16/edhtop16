@@ -28,6 +28,10 @@ jobs:
       - name: Setup Rust
         run: rustup update
 
+      - name: Build Scraper
+        working-directory: scraper
+        run: cargo build --all-targets --release
+
       - name: Run load_topdeck_tournaments
         working-directory: scraper
         run: cargo run --release --bin load_topdeck_tournaments
