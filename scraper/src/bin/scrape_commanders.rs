@@ -20,12 +20,15 @@ async fn recent_tournaments(db: &Database) -> anyhow::Result<Vec<String>> {
             .unwrap(),
     );
 
+    let thirty_days_ago_seconds = thirty_days_ago.timestamp_millis() / 1000;
+
     let metadata: Collection<Document> = db.collection("metadata");
     let mut cursor = metadata
         .find(doc! {
-            "date": doc! {
-                "$gte": thirty_days_ago
-            }
+            "$or": [
+                { "date": { "$gte": thirty_days_ago } },
+                { "startDate": { "$gte": thirty_days_ago_seconds } }
+            ],
         })
         .await?;
 
