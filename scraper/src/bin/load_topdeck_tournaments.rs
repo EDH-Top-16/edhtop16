@@ -53,7 +53,7 @@ async fn main() -> anyhow::Result<()> {
     let mut tournament_inserts: JoinSet<anyhow::Result<()>> = JoinSet::new();
     for tournament in tournaments {
         if known_tids.contains(&tournament.tid) {
-            log::info!("Skipping import for {}", tournament.tid);
+            log::info!("Skipping existing tournament: {}", tournament.tid);
             continue;
         }
 
@@ -64,7 +64,7 @@ async fn main() -> anyhow::Result<()> {
             metdata_ref.insert_one(&tournament_doc).await?;
             log::info!(
                 "Inserted metadata for: {}",
-                tournament_doc.get("TID").unwrap().as_str().unwrap()
+                tournament_doc.get_str("TID").unwrap()
             );
 
             Ok(())
@@ -72,7 +72,7 @@ async fn main() -> anyhow::Result<()> {
 
         for (standing, entry) in tournament.standings.iter().enumerate() {
             let standing: i32 = standing.try_into().unwrap();
-            let entry_doc = entry.into_doc(standing + 1);
+            let entry_doc = entry.into_doc(standing);
             let collection_ref: mongodb::Collection<Document> =
                 database.collection(&tournament.tid).clone();
 
