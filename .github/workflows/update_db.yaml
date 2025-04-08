@@ -21,10 +21,6 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-
       - name: Setup Rust
         run: rustup update
 
@@ -39,18 +35,11 @@ jobs:
           ENTRIES_DB_URL: ${{ secrets.ATLAS_URI }}
           TOPDECK_GG_API_KEY: ${{ secrets.TOPDECK_GG_API_KEY }}
 
-      - name: Copy Secrets
-        working-directory: server/scripts/
-        run: |-
-          echo "ATLAS_URI=${{ secrets.ATLAS_URI }}" > config.env
-
-      - name: Install Python Dependencies
-        working-directory: server/scripts/
-        run: pip install -r requirements.txt
-
-      - name: Run get_jsonl.py
-        working-directory: server/scripts/
-        run: python get_jsonl.py
+      - name: Run load_third_party_tournaments
+        working-directory: scraper
+        run: cargo run --release --bin load_third_party_tournaments
+        env:
+          ENTRIES_DB_URL: ${{ secrets.ATLAS_URI }}
 
       - name: Run scrape_commanders
         working-directory: scraper
