@@ -38,8 +38,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# Python stuff
-**/__pycache__/
-eminence_api_key.txt
-mtg_api.py
