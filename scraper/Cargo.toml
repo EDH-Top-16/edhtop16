@@ -15,6 +15,7 @@ log = "0.4.26"
 governor = "0.8.1"
 dotenvy = "0.15.7"
 regex = "1.11.1"
+clap = { version = "4.5.37", features = ["derive"] }
 
 [dependencies.mongodb]
 version = "3.2.1"

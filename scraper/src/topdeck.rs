@@ -142,4 +142,49 @@ impl TopdeckClient {
         let tournaments: Vec<Tournament> = serde_json::from_str(&response_body)?;
         Ok(tournaments)
     }
+
+    pub async fn get_tournaments(&self, tids: &Vec<String>) -> anyhow::Result<Vec<Tournament>> {
+        let tids_json: String = tids
+            .iter()
+            .map(|t| format!("\"{}\"", t))
+            .collect::<Vec<String>>()
+            .join(", ");
+
+        let request_body = format!(
+            "{{
+    \"game\": \"Magic: The Gathering\",
+    \"format\": \"EDH\",
+    \"TID\": {},
+    \"columns\": [
+        \"name\",
+        \"id\",
+        \"decklist\",
+        \"wins\",
+        \"winsSwiss\",
+        \"winsBracket\",
+        \"winRateSwiss\",
+        \"winRateBracket\",
+        \"draws\",
+        \"losses\",
+        \"lossesSwiss\",
+        \"lossesBracket\"
+    ]
+}}",
+            tids_json
+        );
+
+        let api_response = self
+            .http_client
+            .post("https://topdeck.gg/api/v2/tournaments")
+            .header("Accept", "application/json")
+            .header("Authorization", self.api_key.clone())
+            .header("Content-Type", "application/json")
+            .body(request_body)
+            .send()
+            .await?;
+
+        let response_body = api_response.text().await?;
+        let tournaments: Vec<Tournament> = serde_json::from_str(&response_body)?;
+        Ok(tournaments)
+    }
 }
