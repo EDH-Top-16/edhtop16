@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<a2d3ec6e4a5ee31deeab0e90fcedd563>>
+ * @generated SignedSource<<b790c483bcd1b74e3c5b8c378bd4f2a5>>
+ * @relayHash 3a51f41e3bf477628d97c7d880dbc6fc
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +9,9 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConcreteRequest, Query } from 'relay-runtime';
+// @relayRequestID 3a51f41e3bf477628d97c7d880dbc6fc
+
+import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type TournamentSortBy = "DATE" | "PLAYERS" | "%future added value";
@@ -285,16 +288,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "3a51f41e3bf477628d97c7d880dbc6fc",
-    "id": null,
+    "id": "3a51f41e3bf477628d97c7d880dbc6fc",
     "metadata": {},
     "name": "tournaments_TournamentsQuery",
     "operationKind": "query",
-    "text": "query tournaments_TournamentsQuery(\n  $timePeriod: TimePeriod!\n  $sortBy: TournamentSortBy!\n  $minSize: Int!\n) {\n  ...tournaments_Tournaments\n}\n\nfragment tournaments_TournamentCard on Tournament {\n  TID\n  name\n  size\n  tournamentDate\n  entries(maxStanding: 1) {\n    player {\n      name\n      id\n    }\n    commander {\n      cards {\n        imageUrls\n        id\n      }\n      id\n    }\n    id\n  }\n}\n\nfragment tournaments_Tournaments on Query {\n  tournaments(first: 100, filters: {timePeriod: $timePeriod, minSize: $minSize}, sortBy: $sortBy) {\n    edges {\n      node {\n        id\n        ...tournaments_TournamentCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();
 
-(node as any).hash = "7ea75e1966ab0b4c32500aa3341ec813";
+(node as any).hash = "2d036af7a2d645b003a71553392b44bb";
+
+import { PreloadableQueryRegistry } from 'relay-runtime';
+PreloadableQueryRegistry.set(node.params.id, node);
 
 export default node;

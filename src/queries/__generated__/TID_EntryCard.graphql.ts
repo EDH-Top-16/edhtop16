@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<9e789fecc229d59d4682cf8838563058>>
+ * @generated SignedSource<<dc78880d95ed40993f6acde2b190b315>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { Fragment, ReaderFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TID_EntryCard$data = {
   readonly commander: {

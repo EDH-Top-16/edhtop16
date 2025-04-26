@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<6179e7de366e35ac3b6454c7acb899b5>>
+ * @generated SignedSource<<c4f8952db3362b66d863d620c1483f1f>>
+ * @relayHash 57c23b56501604cff8fc7fa2a0bbc24c
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +9,9 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConcreteRequest, Query } from 'relay-runtime';
+// @relayRequestID 57c23b56501604cff8fc7fa2a0bbc24c
+
+import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TID_TournamentPageFallbackQuery$variables = {
   TID: string;
@@ -223,12 +226,11 @@ return {
     ]
   },
   "params": {
-    "cacheID": "57c23b56501604cff8fc7fa2a0bbc24c",
-    "id": null,
+    "id": "57c23b56501604cff8fc7fa2a0bbc24c",
     "metadata": {},
     "name": "TID_TournamentPageFallbackQuery",
     "operationKind": "query",
-    "text": "query TID_TournamentPageFallbackQuery(\n  $TID: String!\n) {\n  tournament(TID: $TID) {\n    ...TID_TournamentPageShell\n    id\n  }\n}\n\nfragment TID_TournamentBanner on Tournament {\n  name\n  size\n  tournamentDate\n  bracketUrl\n  winner: entries(maxStanding: 1) {\n    commander {\n      cards {\n        imageUrls\n        id\n      }\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentMeta on Tournament {\n  name\n}\n\nfragment TID_TournamentPageShell on Tournament {\n  ...TID_TournamentBanner\n  ...TID_TournamentMeta\n  promo {\n    ...promo_EmbededPromo\n  }\n}\n\nfragment promo_EmbededPromo on FirstPartyPromo {\n  title\n  description\n  buttonText\n  backgroundImageUrl\n  imageUrl\n  href\n}\n"
+    "text": null
   }
 };
 })();

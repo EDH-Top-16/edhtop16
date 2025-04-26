@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b9353766c31adf36932f4afa4d727e93>>
+ * @generated SignedSource<<bead58307de6cfea3184a3aa070e0d9c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { Fragment, ReaderFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TID_TournamentBanner$data = {
   readonly bracketUrl: string;

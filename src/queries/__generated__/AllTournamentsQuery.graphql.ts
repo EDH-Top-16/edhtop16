@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<7c0810d171d5136e4201c5ba2394606a>>
+ * @generated SignedSource<<2cac940233fb699b28e7fc2f94fffcee>>
+ * @relayHash 15b1c952364ae9080615dd21b7335603
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +9,9 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConcreteRequest, Query } from 'relay-runtime';
+// @relayRequestID 15b1c952364ae9080615dd21b7335603
+
+import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type TournamentSortBy = "DATE" | "PLAYERS" | "%future added value";
@@ -307,12 +310,11 @@ return {
     ]
   },
   "params": {
-    "cacheID": "15b1c952364ae9080615dd21b7335603",
-    "id": null,
+    "id": "15b1c952364ae9080615dd21b7335603",
     "metadata": {},
     "name": "AllTournamentsQuery",
     "operationKind": "query",
-    "text": "query AllTournamentsQuery(\n  $count: Int = 100\n  $cursor: String\n  $minSize: Int\n  $sortBy: TournamentSortBy\n  $timePeriod: TimePeriod\n) {\n  ...tournaments_Tournaments_1G22uz\n}\n\nfragment tournaments_TournamentCard on Tournament {\n  TID\n  name\n  size\n  tournamentDate\n  entries(maxStanding: 1) {\n    player {\n      name\n      id\n    }\n    commander {\n      cards {\n        imageUrls\n        id\n      }\n      id\n    }\n    id\n  }\n}\n\nfragment tournaments_Tournaments_1G22uz on Query {\n  tournaments(first: $count, after: $cursor, filters: {timePeriod: $timePeriod, minSize: $minSize}, sortBy: $sortBy) {\n    edges {\n      node {\n        id\n        ...tournaments_TournamentCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();

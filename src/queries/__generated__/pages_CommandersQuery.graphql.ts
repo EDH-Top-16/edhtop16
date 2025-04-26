@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<acf1f23190ee2b76c36436908ffab675>>
+ * @generated SignedSource<<ba5a486e1c5a1e9c65e3922688066ce4>>
+ * @relayHash 14745cc7afd103bd6a5ec872679047e4
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +9,9 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConcreteRequest, Query } from 'relay-runtime';
+// @relayRequestID 14745cc7afd103bd6a5ec872679047e4
+
+import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type CommandersSortBy = "CONVERSION" | "POPULARITY" | "TOP_CUTS" | "%future added value";
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
@@ -310,16 +313,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "14745cc7afd103bd6a5ec872679047e4",
-    "id": null,
+    "id": "14745cc7afd103bd6a5ec872679047e4",
     "metadata": {},
     "name": "pages_CommandersQuery",
     "operationKind": "query",
-    "text": "query pages_CommandersQuery(\n  $timePeriod: TimePeriod!\n  $sortBy: CommandersSortBy!\n  $minEntries: Int!\n  $minTournamentSize: Int!\n  $colorId: String\n) {\n  ...pages_topCommanders\n}\n\nfragment pages_TopCommandersCard on Commander {\n  name\n  colorId\n  breakdownUrl\n  stats(filters: {timePeriod: $timePeriod, minSize: $minTournamentSize}) {\n    conversionRate\n    topCuts\n    count\n    metaShare\n  }\n  cards {\n    imageUrls\n    id\n  }\n}\n\nfragment pages_topCommanders on Query {\n  commanders(first: 48, timePeriod: $timePeriod, sortBy: $sortBy, colorId: $colorId, minEntries: $minEntries, minTournamentSize: $minTournamentSize) {\n    edges {\n      node {\n        id\n        ...pages_TopCommandersCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();
 
-(node as any).hash = "c1fa5916a049524edba4b690aacf4c50";
+(node as any).hash = "a1ee982ceaef8e5eb98991f6761fa30f";
+
+import { PreloadableQueryRegistry } from 'relay-runtime';
+PreloadableQueryRegistry.set(node.params.id, node);
 
 export default node;

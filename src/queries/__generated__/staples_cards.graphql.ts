@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<fa4ae945da4139dffb1ddd759bd496c5>>
+ * @generated SignedSource<<b2361cd9b71ee228bc4b06025cf9c92c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type staples_cards$data = {
   readonly id: string;
@@ -29,6 +29,8 @@ export type staples_cards$key = {
   readonly " $data"?: staples_cards$data;
   readonly " $fragmentSpreads": FragmentRefs<"staples_cards">;
 };
+
+import CommanderStapleCardsQuery_graphql from './CommanderStapleCardsQuery.graphql';
 
 const node: ReaderFragment = (function(){
 var v0 = [
@@ -76,7 +78,7 @@ return {
       "fragmentPathInResult": [
         "node"
       ],
-      "operation": require('./CommanderStapleCardsQuery.graphql'),
+      "operation": CommanderStapleCardsQuery_graphql,
       "identifierInfo": {
         "identifierField": "id",
         "identifierQueryVariableName": "id"

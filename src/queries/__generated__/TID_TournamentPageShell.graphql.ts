@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<e509a64208708bcb9dc6c53bcad29ce0>>
+ * @generated SignedSource<<ac4e31e479acaa106fee503605226da7>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { Fragment, ReaderFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TID_TournamentPageShell$data = {
   readonly promo: {

@@ -307,7 +307,7 @@ const CommandersQuery = graphql`
     $minEntries: Int!
     $minTournamentSize: Int!
     $colorId: String
-  ) {
+  ) @preloadable {
     ...pages_topCommanders
   }
 `;

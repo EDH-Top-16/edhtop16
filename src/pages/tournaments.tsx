@@ -1,22 +1,20 @@
 import FireIcon from "@heroicons/react/24/solid/FireIcon";
 import { format } from "date-fns";
-import { NextSeo } from "next-seo";
+// import { NextSeo } from "next-seo";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { PropsWithChildren, useCallback, useMemo } from "react";
 import {
+  EntryPointComponent,
   graphql,
   useFragment,
   usePaginationFragment,
   usePreloadedQuery,
 } from "react-relay";
-import { RelayProps, withRelay } from "relay-nextjs";
 import { Card } from "../components/card";
 import { Footer } from "../components/footer";
 import { LoadMoreButton } from "../components/load_more";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
-import { getClientEnvironment } from "../lib/client/relay_client_environment";
 import { AllTournamentsQuery } from "../queries/__generated__/AllTournamentsQuery.graphql";
 import { tournaments_TournamentCard$key } from "../queries/__generated__/tournaments_TournamentCard.graphql";
 import { tournaments_Tournaments$key } from "../queries/__generated__/tournaments_Tournaments.graphql";
@@ -100,10 +98,10 @@ function TournamentsPageShell({
   return (
     <>
       <Navigation searchType="tournament" />
-      <NextSeo
+      {/* <NextSeo
         title="cEDH Tournaments"
         description="Discover top and recent cEDH tournaments!"
-      />
+      /> */}
 
       <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
         <div className="mb-8 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0">
@@ -170,25 +168,22 @@ const TournamentsQuery = graphql`
     $timePeriod: TimePeriod!
     $sortBy: TournamentSortBy!
     $minSize: Int!
-  ) {
+  ) @preloadable {
     ...tournaments_Tournaments
   }
 `;
 
-function TournamentsPage({
-  preloadedQuery,
-}: RelayProps<{}, tournaments_TournamentsQuery>) {
-  const query = usePreloadedQuery(TournamentsQuery, preloadedQuery);
+export const TournamentsPage: EntryPointComponent<
+  { tournamentQueryRef: tournaments_TournamentsQuery },
+  {}
+> = ({ queries }) => {
+  const query = usePreloadedQuery(TournamentsQuery, queries.tournamentQueryRef);
 
-  const router = useRouter();
-  const setQueryVariable = useCallback(
-    (key: string, value: string) => {
-      const nextUrl = new URL(window.location.href);
-      nextUrl.searchParams.set(key, value);
-      router.replace(nextUrl, undefined, { shallow: true, scroll: false });
-    },
-    [router],
-  );
+  const setQueryVariable = useCallback((key: string, value: string) => {
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set(key, value);
+    window.location.href = nextUrl.toString();
+  }, []);
 
   const { data, loadNext, isLoadingNext, hasNext } = usePaginationFragment<
     AllTournamentsQuery,
@@ -221,9 +216,9 @@ function TournamentsPage({
 
   return (
     <TournamentsPageShell
-      sortBy={preloadedQuery.variables.sortBy}
-      timePeriod={preloadedQuery.variables.timePeriod}
-      minSize={`${preloadedQuery.variables.minSize}`}
+      sortBy={queries.tournamentQueryRef.variables.sortBy}
+      timePeriod={queries.tournamentQueryRef.variables.timePeriod}
+      minSize={`${queries.tournamentQueryRef.variables.minSize}`}
       onUpdateQueryParam={setQueryVariable}
     >
       <div className="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
@@ -241,41 +236,43 @@ function TournamentsPage({
       <Footer />
     </TournamentsPageShell>
   );
-}
+};
 
-function TournamentsPagePlaceholder() {
-  const router = useRouter();
+// function TournamentsPagePlaceholder() {
+//   const router = useRouter();
 
-  return (
-    <TournamentsPageShell
-      sortBy={(router.query.sortBy as TournamentSortBy | undefined) ?? "DATE"}
-      timePeriod={
-        (router.query.timePeriod as TimePeriod | undefined) ?? "SIX_MONTHS"
-      }
-      minSize={(router.query.minSize as string | undefined) ?? "60"}
-    >
-      <div className="flex w-full justify-center pt-24 text-white">
-        <FireIcon className="h-12 w-12 animate-pulse" />
-      </div>
-    </TournamentsPageShell>
-  );
-}
+//   return (
+//     <TournamentsPageShell
+//       sortBy={(router.query.sortBy as TournamentSortBy | undefined) ?? "DATE"}
+//       timePeriod={
+//         (router.query.timePeriod as TimePeriod | undefined) ?? "SIX_MONTHS"
+//       }
+//       minSize={(router.query.minSize as string | undefined) ?? "60"}
+//     >
+//       <div className="flex w-full justify-center pt-24 text-white">
+//         <FireIcon className="h-12 w-12 animate-pulse" />
+//       </div>
+//     </TournamentsPageShell>
+//   );
+// }
 
-export default withRelay(TournamentsPage, TournamentsQuery, {
-  fallback: <TournamentsPagePlaceholder />,
-  createClientEnvironment: () => getClientEnvironment()!,
-  createServerEnvironment: async () => {
-    const { createServerEnvironment } = await import(
-      "../lib/server/relay_server_environment"
-    );
+// export default TournamentsPage;
 
-    return createServerEnvironment();
-  },
-  variablesFromContext: (ctx) => {
-    return {
-      timePeriod: (ctx.query.timePeriod as TimePeriod) ?? "SIX_MONTHS",
-      sortBy: (ctx.query.sortBy as TournamentSortBy) ?? "DATE",
-      minSize: Number((ctx.query.minSize as string) ?? 60),
-    };
-  },
-});
+// export default withRelay(TournamentsPage, TournamentsQuery, {
+//   fallback: <TournamentsPagePlaceholder />,
+//   createClientEnvironment: () => getClientEnvironment()!,
+//   createServerEnvironment: async () => {
+//     const { createServerEnvironment } = await import(
+//       "../lib/server/relay_server_environment"
+//     );
+
+//     return createServerEnvironment();
+//   },
+//   variablesFromContext: (ctx) => {
+//     return {
+//       timePeriod: (ctx.query.timePeriod as TimePeriod) ?? "SIX_MONTHS",
+//       sortBy: (ctx.query.sortBy as TournamentSortBy) ?? "DATE",
+//       minSize: Number((ctx.query.minSize as string) ?? 60),
+//     };
+//   },
+// });

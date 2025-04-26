@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<58515fadd07de8cca15fc3f726502441>>
+ * @generated SignedSource<<d92eb34c938d6aeb898c3fde9ac6a96c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { Fragment, ReaderFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TID_BreakdownGroupCard$data = {
   readonly commander: {

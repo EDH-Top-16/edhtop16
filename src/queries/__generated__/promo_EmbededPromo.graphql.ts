@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<efe037a8a8782bf5aaf7d430f5d5deef>>
+ * @generated SignedSource<<bc4963865856d2c90ed612bba8076a84>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { Fragment, ReaderFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type promo_EmbededPromo$data = {
   readonly backgroundImageUrl: string;

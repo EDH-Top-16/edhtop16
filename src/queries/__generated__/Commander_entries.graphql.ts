@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d3949fd0afc1de04b1d7b3e03ff62b0a>>
+ * @generated SignedSource<<105a2f21237456e4b83da5f6d4a70fce>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type Commander_entries$data = {
   readonly entries: {
@@ -26,6 +26,8 @@ export type Commander_entries$key = {
   readonly " $data"?: Commander_entries$data;
   readonly " $fragmentSpreads": FragmentRefs<"Commander_entries">;
 };
+
+import CommanderEntriesQuery_graphql from './CommanderEntriesQuery.graphql';
 
 const node: ReaderFragment = (function(){
 var v0 = [
@@ -89,7 +91,7 @@ return {
       "fragmentPathInResult": [
         "node"
       ],
-      "operation": require('./CommanderEntriesQuery.graphql'),
+      "operation": CommanderEntriesQuery_graphql,
       "identifierInfo": {
         "identifierField": "id",
         "identifierQueryVariableName": "id"

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<39c1943e6cd9d10cb85c5b3d9c5efc42>>
+ * @generated SignedSource<<43d17604c74a2c14dab14d7cab7d903b>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type tournaments_Tournaments$data = {
   readonly tournaments: {
@@ -25,6 +25,8 @@ export type tournaments_Tournaments$key = {
   readonly " $data"?: tournaments_Tournaments$data;
   readonly " $fragmentSpreads": FragmentRefs<"tournaments_Tournaments">;
 };
+
+import AllTournamentsQuery_graphql from './AllTournamentsQuery.graphql';
 
 const node: ReaderFragment = (function(){
 var v0 = [
@@ -75,7 +77,7 @@ return {
         "path": (v0/*: any*/)
       },
       "fragmentPathInResult": [],
-      "operation": require('./AllTournamentsQuery.graphql')
+      "operation": AllTournamentsQuery_graphql
     }
   },
   "name": "tournaments_Tournaments",
