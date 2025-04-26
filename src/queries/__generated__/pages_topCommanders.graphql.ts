@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<8c963432ff25b2cf13eb926bf7d2824d>>
+ * @generated SignedSource<<2329427560741b613a6e6193a698c614>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type pages_topCommanders$data = {
   readonly commanders: {
@@ -25,6 +25,8 @@ export type pages_topCommanders$key = {
   readonly " $data"?: pages_topCommanders$data;
   readonly " $fragmentSpreads": FragmentRefs<"pages_topCommanders">;
 };
+
+import TopCommandersQuery_graphql from './TopCommandersQuery.graphql';
 
 const node: ReaderFragment = (function(){
 var v0 = [
@@ -83,7 +85,7 @@ return {
         "path": (v0/*: any*/)
       },
       "fragmentPathInResult": [],
-      "operation": require('./TopCommandersQuery.graphql')
+      "operation": TopCommandersQuery_graphql
     }
   },
   "name": "pages_topCommanders",

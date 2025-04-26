@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<b2905f282a0e849c6930e8174c878525>>
+ * @generated SignedSource<<ec7a42f01d1afaf6844ee5a36db37fab>>
+ * @relayHash 6feb330076340a8d9cd3690f1324d431
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +9,9 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConcreteRequest, Query } from 'relay-runtime';
+// @relayRequestID 6feb330076340a8d9cd3690f1324d431
+
+import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type Commander_CommanderPageFallbackQuery$variables = {
@@ -254,12 +257,11 @@ return {
     ]
   },
   "params": {
-    "cacheID": "6feb330076340a8d9cd3690f1324d431",
-    "id": null,
+    "id": "6feb330076340a8d9cd3690f1324d431",
     "metadata": {},
     "name": "Commander_CommanderPageFallbackQuery",
     "operationKind": "query",
-    "text": "query Commander_CommanderPageFallbackQuery(\n  $commander: String!\n  $timePeriod: TimePeriod!\n  $minEventSize: Int!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n  promo {\n    ...promo_EmbededPromo\n  }\n}\n\nfragment promo_EmbededPromo on FirstPartyPromo {\n  title\n  description\n  buttonText\n  backgroundImageUrl\n  imageUrl\n  href\n}\n"
+    "text": null
   }
 };
 })();

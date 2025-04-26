@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<61d4c5c9538c9417c8d8be62fb16a3f4>>
+ * @generated SignedSource<<463e337d076e6edc57f8eaba15fcb2b9>>
+ * @relayHash f3805aae05bcc5e10b0c07f1f1080fd8
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +9,9 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConcreteRequest, Query } from 'relay-runtime';
+// @relayRequestID f3805aae05bcc5e10b0c07f1f1080fd8
+
+import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type staples_CommanderStaplesQuery$variables = {
@@ -366,12 +369,11 @@ return {
     ]
   },
   "params": {
-    "cacheID": "f3805aae05bcc5e10b0c07f1f1080fd8",
-    "id": null,
+    "id": "f3805aae05bcc5e10b0c07f1f1080fd8",
     "metadata": {},
     "name": "staples_CommanderStaplesQuery",
     "operationKind": "query",
-    "text": "query staples_CommanderStaplesQuery(\n  $commander: String!\n  $timePeriod: TimePeriod!\n  $minEventSize: Int!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    ...staples_cards\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n  promo {\n    ...promo_EmbededPromo\n  }\n}\n\nfragment promo_EmbededPromo on FirstPartyPromo {\n  title\n  description\n  buttonText\n  backgroundImageUrl\n  imageUrl\n  href\n}\n\nfragment staples_cards on Commander {\n  staples(first: 58) {\n    edges {\n      node {\n        id\n        name\n        colorId\n        cardPreviewImageUrl\n        scryfallUrl\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
+    "text": null
   }
 };
 })();

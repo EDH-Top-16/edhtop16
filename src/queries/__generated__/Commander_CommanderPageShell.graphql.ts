@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<ddc48ec7415a039a5863b501ccaaf9f3>>
+ * @generated SignedSource<<e62bf4de555a8259cab4a27d0fc81883>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { Fragment, ReaderFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type Commander_CommanderPageShell$data = {
   readonly breakdownUrl: string;

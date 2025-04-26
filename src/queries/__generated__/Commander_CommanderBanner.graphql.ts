@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<c839400b2a63a61177787161bd3c85cf>>
+ * @generated SignedSource<<685170f9fd97bad5189959f9174aa3d1>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { Fragment, ReaderFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type Commander_CommanderBanner$data = {
   readonly cards: ReadonlyArray<{

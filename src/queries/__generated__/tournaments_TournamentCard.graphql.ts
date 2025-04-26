@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b334128011dabc90670064d824fb3269>>
+ * @generated SignedSource<<d8db7c2b25e277485aeda37137c5cc89>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { Fragment, ReaderFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type tournaments_TournamentCard$data = {
   readonly TID: string;

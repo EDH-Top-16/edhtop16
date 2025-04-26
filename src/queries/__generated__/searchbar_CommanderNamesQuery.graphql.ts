@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<4b0c47b4067a8cd8850a2ddb4e964f5d>>
+ * @generated SignedSource<<2215a3e2a9acc9d7875651736daffc0c>>
+ * @relayHash f5a13fa4bfbf171fe18cd4cb0af93921
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +9,9 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConcreteRequest, Query } from 'relay-runtime';
+// @relayRequestID f5a13fa4bfbf171fe18cd4cb0af93921
+
+import { ConcreteRequest } from 'relay-runtime';
 export type SearchResultType = "COMMANDER" | "TOURNAMENT" | "%future added value";
 export type searchbar_CommanderNamesQuery$variables = {
   searchTypes: ReadonlyArray<SearchResultType>;
@@ -83,12 +86,11 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "f5a13fa4bfbf171fe18cd4cb0af93921",
-    "id": null,
+    "id": "f5a13fa4bfbf171fe18cd4cb0af93921",
     "metadata": {},
     "name": "searchbar_CommanderNamesQuery",
     "operationKind": "query",
-    "text": "query searchbar_CommanderNamesQuery(\n  $searchTypes: [SearchResultType!]!\n) {\n  searchResults(types: $searchTypes) {\n    name\n    url\n  }\n}\n"
+    "text": null
   }
 };
 })();

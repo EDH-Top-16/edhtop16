@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<f0a72d8e2ef3f718615b326c6e430a38>>
+ * @generated SignedSource<<35895e93eee6126063dd1549ee5a8f96>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { Fragment, ReaderFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type pages_TopCommandersCard$data = {
   readonly breakdownUrl: string;

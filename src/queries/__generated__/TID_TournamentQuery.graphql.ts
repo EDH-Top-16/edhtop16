@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<2a58e802d4d4220c5119183b67e24748>>
+ * @generated SignedSource<<03a809f7d513291cf59af474babc96f6>>
+ * @relayHash fe1e8f08fa7b139ed855da81a339195a
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +9,9 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConcreteRequest, Query } from 'relay-runtime';
+// @relayRequestID fe1e8f08fa7b139ed855da81a339195a
+
+import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TID_TournamentQuery$variables = {
   TID: string;
@@ -532,12 +535,11 @@ return {
     ]
   },
   "params": {
-    "cacheID": "fe1e8f08fa7b139ed855da81a339195a",
-    "id": null,
+    "id": "fe1e8f08fa7b139ed855da81a339195a",
     "metadata": {},
     "name": "TID_TournamentQuery",
     "operationKind": "query",
-    "text": "query TID_TournamentQuery(\n  $TID: String!\n  $commander: String\n  $showStandings: Boolean!\n  $showBreakdown: Boolean!\n  $showBreakdownCommander: Boolean!\n) {\n  tournament(TID: $TID) {\n    ...TID_TournamentPageShell\n    entries @include(if: $showStandings) {\n      id\n      ...TID_EntryCard\n    }\n    breakdown @include(if: $showBreakdown) {\n      commander {\n        id\n      }\n      ...TID_BreakdownGroupCard\n    }\n    breakdownEntries: entries(commander: $commander) @include(if: $showBreakdownCommander) {\n      id\n      ...TID_EntryCard\n    }\n    id\n  }\n}\n\nfragment TID_BreakdownGroupCard on TournamentBreakdownGroup {\n  commander {\n    name\n    breakdownUrl\n    colorId\n    cards {\n      imageUrls\n      id\n    }\n    id\n  }\n  entries\n  topCuts\n  conversionRate\n}\n\nfragment TID_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    isKnownCheater\n    id\n  }\n  commander {\n    name\n    breakdownUrl\n    cards {\n      imageUrls\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentBanner on Tournament {\n  name\n  size\n  tournamentDate\n  bracketUrl\n  winner: entries(maxStanding: 1) {\n    commander {\n      cards {\n        imageUrls\n        id\n      }\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentMeta on Tournament {\n  name\n}\n\nfragment TID_TournamentPageShell on Tournament {\n  ...TID_TournamentBanner\n  ...TID_TournamentMeta\n  promo {\n    ...promo_EmbededPromo\n  }\n}\n\nfragment promo_EmbededPromo on FirstPartyPromo {\n  title\n  description\n  buttonText\n  backgroundImageUrl\n  imageUrl\n  href\n}\n"
+    "text": null
   }
 };
 })();

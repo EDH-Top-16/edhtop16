@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<c4616f345e1ef02cd2c2428e4eab6cee>>
+ * @generated SignedSource<<71e5c5a7e28765700d3a8bd3193b754a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { Fragment, ReaderFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type Commander_EntryCard$data = {
   readonly decklist: string | null | undefined;

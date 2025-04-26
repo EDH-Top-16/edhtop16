@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<f3371953a35cc0412a6925073404e5fc>>
+ * @generated SignedSource<<9fac690b676a7980192040459c99f3b4>>
+ * @relayHash 561207541f274d1a370edc4ceb5ed57f
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +9,9 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConcreteRequest, Query } from 'relay-runtime';
+// @relayRequestID 561207541f274d1a370edc4ceb5ed57f
+
+import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type CommanderStapleCardsQuery$variables = {
   count?: number | null | undefined;
@@ -247,12 +250,11 @@ return {
     ]
   },
   "params": {
-    "cacheID": "561207541f274d1a370edc4ceb5ed57f",
-    "id": null,
+    "id": "561207541f274d1a370edc4ceb5ed57f",
     "metadata": {},
     "name": "CommanderStapleCardsQuery",
     "operationKind": "query",
-    "text": "query CommanderStapleCardsQuery(\n  $count: Int = 58\n  $cursor: String\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...staples_cards_1G22uz\n    id\n  }\n}\n\nfragment staples_cards_1G22uz on Commander {\n  staples(first: $count, after: $cursor) {\n    edges {\n      node {\n        id\n        name\n        colorId\n        cardPreviewImageUrl\n        scryfallUrl\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
+    "text": null
   }
 };
 })();

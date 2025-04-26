@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<29e1005ef3eb86a12d0b54a6fbd70444>>
+ * @generated SignedSource<<03fbf598441669551608d9cf3794ebcc>>
+ * @relayHash 5ff9379fd35615befef7fb22ec8f0e00
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +9,9 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConcreteRequest, Query } from 'relay-runtime';
+// @relayRequestID 5ff9379fd35615befef7fb22ec8f0e00
+
+import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type CommandersSortBy = "CONVERSION" | "POPULARITY" | "TOP_CUTS" | "%future added value";
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
@@ -328,12 +331,11 @@ return {
     ]
   },
   "params": {
-    "cacheID": "5ff9379fd35615befef7fb22ec8f0e00",
-    "id": null,
+    "id": "5ff9379fd35615befef7fb22ec8f0e00",
     "metadata": {},
     "name": "TopCommandersQuery",
     "operationKind": "query",
-    "text": "query TopCommandersQuery(\n  $colorId: String\n  $count: Int = 48\n  $cursor: String\n  $minEntries: Int\n  $minTournamentSize: Int\n  $sortBy: CommandersSortBy\n  $timePeriod: TimePeriod\n) {\n  ...pages_topCommanders_1G22uz\n}\n\nfragment pages_TopCommandersCard on Commander {\n  name\n  colorId\n  breakdownUrl\n  stats(filters: {timePeriod: $timePeriod, minSize: $minTournamentSize}) {\n    conversionRate\n    topCuts\n    count\n    metaShare\n  }\n  cards {\n    imageUrls\n    id\n  }\n}\n\nfragment pages_topCommanders_1G22uz on Query {\n  commanders(first: $count, after: $cursor, timePeriod: $timePeriod, sortBy: $sortBy, colorId: $colorId, minEntries: $minEntries, minTournamentSize: $minTournamentSize) {\n    edges {\n      node {\n        id\n        ...pages_TopCommandersCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();

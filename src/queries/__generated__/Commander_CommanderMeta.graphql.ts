@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<0a750e3c092fde7dcfe826fd28c22278>>
+ * @generated SignedSource<<0d2301f3d4210c477ce576c46d045171>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { Fragment, ReaderFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type Commander_CommanderMeta$data = {
   readonly name: string;

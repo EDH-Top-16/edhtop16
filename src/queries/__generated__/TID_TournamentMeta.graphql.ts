@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b82acfc34fd781233fe857849a136a5b>>
+ * @generated SignedSource<<6f886fe49c1466c4ce91bb7ce3463cc7>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { Fragment, ReaderFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TID_TournamentMeta$data = {
   readonly name: string;
