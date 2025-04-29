@@ -11,6 +11,9 @@ RUN npm run generate:db -- --entries-db-url="${ENTRIES_DB_URL}"
 # We take a minimal Unit image and install language-specific modules.
 FROM unit:1.31.1-node20
 
+ARG NEXT_PUBLIC_POSTHOG_KEY
+ENV NEXT_PUBLIC_POSTHOG_KEY=${NEXT_PUBLIC_POSTHOG_KEY}
+
 WORKDIR /app
 ENV NODE_ENV=production
 
