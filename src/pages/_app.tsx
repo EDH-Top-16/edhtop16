@@ -25,8 +25,7 @@ const montserrat = Montserrat({
 function usePosthog() {
   useEffect(() => {
     posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
-      api_host: "/ingest",
-      ui_host: "https://us.posthog.com",
+      api_host: "https://us.i.posthog.com",
       person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well
       // Enable debug mode in development
       loaded: (posthog) => {
@@ -37,7 +36,6 @@ function usePosthog() {
     const handleRouteChange = () => posthog?.capture("$pageview");
 
     Router.events.on("routeChangeComplete", handleRouteChange);
-
     return () => {
       Router.events.off("routeChangeComplete", handleRouteChange);
     };
