@@ -1,7 +1,7 @@
 import FireIcon from "@heroicons/react/24/solid/FireIcon";
 import { format } from "date-fns";
 // import { NextSeo } from "next-seo";
-import Link from "next/link";
+// import Link from "next/link";
 import { PropsWithChildren, useCallback, useMemo } from "react";
 import {
   EntryPointComponent,
@@ -70,12 +70,12 @@ function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
         }))}
     >
       <div className="flex h-32 flex-col space-y-2">
-        <Link
+        <a
           href={`/tournament/${tournament.TID}`}
           className="line-clamp-2 text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
         >
           {tournament.name}
-        </Link>
+        </a>
 
         <span>{format(tournament.tournamentDate, "MMMM do yyyy")}</span>
       </div>

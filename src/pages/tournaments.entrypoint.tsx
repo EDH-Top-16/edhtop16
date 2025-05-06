@@ -15,6 +15,7 @@ export const entrypoint: EntryPoint<
       queries: {
         tournamentQueryRef: {
           parameters: TournamentsQueryParameters,
+          options: { fetchPolicy: "store-or-network" },
           variables: {
             minSize: 0,
             sortBy: "DATE",

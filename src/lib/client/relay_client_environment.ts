@@ -1,5 +1,11 @@
-import { Environment, Network, RecordSource, Store } from "relay-runtime";
-import { RecordMap } from "relay-runtime/lib/store/RelayStoreTypes";
+import {
+  Environment,
+  Network,
+  PayloadData,
+  RecordSource,
+  Store,
+} from "relay-runtime";
+import { OperationDescriptor } from "relay-runtime/lib/store/RelayStoreTypes";
 
 export function createClientNetwork() {
   return Network.create(async (params, variables) => {
@@ -11,7 +17,9 @@ export function createClientNetwork() {
       },
       body: JSON.stringify({
         query: params.text,
+        id: params.id,
         variables,
+        extensions: {},
       }),
     });
 
@@ -24,13 +32,22 @@ let clientEnv: Environment | undefined;
 export function getClientEnvironment() {
   if (typeof window === "undefined") return null;
 
-  const records = window.__river_records as RecordMap;
   if (clientEnv == null) {
     clientEnv = new Environment({
       network: createClientNetwork(),
-      store: new Store(new RecordSource(records)),
+      store: new Store(new RecordSource()),
       isServer: false,
     });
+
+    const ops = (window as any).__river_ops as [
+      OperationDescriptor,
+      PayloadData,
+    ][];
+
+    for (const [op, payload] of ops) {
+      console.log(op);
+      clientEnv.commitPayload(op, payload);
+    }
   }
 
   return clientEnv;

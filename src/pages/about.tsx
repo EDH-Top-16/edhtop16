@@ -1,4 +1,4 @@
-import { NextSeo } from "next-seo";
+// import { NextSeo } from "next-seo";
 import Image from "next/image";
 import TeamImage from "../assets/images/team.jpg";
 import { Navigation } from "../components/navigation";
@@ -7,7 +7,7 @@ function AboutPage() {
   return (
     <>
       <Navigation />
-      <NextSeo title="About" description="About Us" />
+      {/* <NextSeo title="About" description="About Us" /> */}
 
       <div className="mx-auto my-8 flex w-full max-w-screen-md flex-col items-center gap-6 px-8 text-white">
         <h1 className="flex-1 font-title text-5xl font-extrabold text-white">

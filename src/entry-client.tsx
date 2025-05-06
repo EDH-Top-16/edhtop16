@@ -8,6 +8,7 @@ const router = new Router();
 const env = getClientEnvironment()!;
 
 const { App } = createRiverApp(router, env);
+
 // hydrateRoot(
 //   document.getElementById("root")!,
 //   <StrictMode>

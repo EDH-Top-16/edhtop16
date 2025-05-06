@@ -1,7 +1,8 @@
 import { createBrowserHistory, History, Listener } from "history";
 import { createRouter } from "radix3";
-import { createContext, useContext, useSyncExternalStore } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { GetEntryPointParamsFromEntryPoint } from "react-relay/relay-hooks/helpers";
+import { entrypoint as e1 } from "../../pages/index.entrypoint";
 import { entrypoint as e0 } from "../../pages/tournaments.entrypoint";
 
 type RouterConf = (typeof Router)["CONF"];
@@ -9,6 +10,7 @@ type RouterConf = (typeof Router)["CONF"];
 export class Router {
   static CONF = {
     "/tournaments": { entrypoint: e0 } as const,
+    "/": { entrypoint: e1 } as const,
   } as const;
 
   private readonly radixRouter = createRouter<RouterConf[keyof RouterConf]>({
@@ -47,7 +49,14 @@ export function useRoute() {
 }
 
 export function useRouter(router: Router) {
-  return useSyncExternalStore(router.listen, router.route, router.route);
+  const [route, setRoute] = useState(() => router.route());
+  useEffect(() => {
+    return router.listen(() => {
+      setRoute(router.route());
+    });
+  }, [router]);
+
+  return route;
 }
 
 type t2 = GetEntryPointParamsFromEntryPoint<
