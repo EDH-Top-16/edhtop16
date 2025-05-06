@@ -1,5 +1,5 @@
 import cn from "classnames";
-import Link from "next/link";
+// import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
 import { useSearch } from "../lib/client/search";
@@ -85,7 +85,7 @@ function Suggestions({
   return (
     <>
       {suggestions.slice(0, 20).map((suggestion, i, { length }) => (
-        <Link key={suggestion.name} href={suggestion.url}>
+        <a key={suggestion.name} href={suggestion.url}>
           <li
             className={cn(
               "px-4 py-1 text-black hover:bg-gray-300",
@@ -94,7 +94,7 @@ function Suggestions({
           >
             {suggestion.name}
           </li>
-        </Link>
+        </a>
       ))}
     </>
   );

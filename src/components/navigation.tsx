@@ -1,7 +1,8 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
 import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
 import XMarkIcon from "@heroicons/react/24/solid/XMarkIcon";
 import cn from "classnames";
-import Link from "next/link";
+// import Link from "next/link";
 import { useCallback, useState } from "react";
 import { Searchbar } from "./searchbar";
 
@@ -17,23 +18,23 @@ export function Navigation({
 
   return (
     <nav className="sticky top-0 z-20 grid w-full grid-cols-[auto_auto_auto_1fr] items-center gap-x-6 gap-y-3 bg-[#312d5a] px-4 py-3 font-title text-white md:px-8">
-      <Link href="/" className="text-xl font-black">
+      <a href="/" className="text-xl font-black">
         EDHTop16
-      </Link>
+      </a>
 
-      <Link
+      <a
         href="/"
         className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm"
       >
         Commanders
-      </Link>
+      </a>
 
-      <Link
+      <a
         href="/tournaments"
         className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm"
       >
         Tournaments
-      </Link>
+      </a>
 
       <button
         className="block justify-self-end	md:hidden"

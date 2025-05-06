@@ -2,51 +2,58 @@ import type { JSResourceReference } from "react-relay";
 
 type JsResourceConf = (typeof JSResource)["CONF"];
 type ModuleId = keyof JsResourceConf;
-type Module = Awaited<ReturnType<JsResourceConf[ModuleId]["loader"]>>;
+type ModuleType<M extends ModuleId> = Awaited<
+  ReturnType<JsResourceConf[M]["loader"]>
+>;
 
-const resourceCache = new Map<ModuleId, JSResource>();
-
-export class JSResource implements JSResourceReference<Module> {
+export class JSResource<M extends ModuleId>
+  implements JSResourceReference<ModuleType<M>>
+{
   static CONF = {
     "m#tournaments": {
       src: "src/pages/tournaments.tsx",
       loader: () =>
         import("../../pages/tournaments").then((m) => m.TournamentsPage),
     },
+    "m#index": {
+      src: "src/pages/index.tsx",
+      loader: () => import("../../pages/index").then((m) => m.CommandersPage),
+    },
   } as const;
 
-  static fromModuleId(moduleId: ModuleId) {
-    if (resourceCache.has(moduleId)) {
-      return resourceCache.get(moduleId)!;
+  private static readonly resourceCache = new Map<ModuleId, JSResource<any>>();
+  static fromModuleId<M extends ModuleId>(moduleId: M) {
+    if (JSResource.resourceCache.has(moduleId)) {
+      return JSResource.resourceCache.get(moduleId)!;
     }
 
     const resource = new JSResource(moduleId);
-    resourceCache.set(moduleId, resource);
+    JSResource.resourceCache.set(moduleId, resource);
     return resource;
   }
 
-  private moduleResultPromise: Promise<Module> | null = null;
-  private moduleResult: Module | null = null;
-  private constructor(private readonly moduleId: ModuleId) {}
+  private constructor(private readonly moduleId: M) {}
+  private modulePromiseCache: Promise<ModuleType<M>> | null = null;
+  private moduleCache: ModuleType<M> | null = null;
 
   getModuleId(): string {
     return this.moduleId;
   }
 
-  getModuleIfRequired(): Module | null {
-    return this.moduleResult;
+  getModuleIfRequired(): ModuleType<M> | null {
+    return this.moduleCache;
   }
 
-  async load(): Promise<Module> {
-    if (this.moduleResultPromise == null) {
-      this.moduleResultPromise = JSResource.CONF[this.moduleId]
+  async load(): Promise<ModuleType<M>> {
+    if (this.modulePromiseCache == null) {
+      this.modulePromiseCache = JSResource.CONF[this.moduleId]
         .loader()
         .then((m) => {
-          this.moduleResult = m;
-          return this.moduleResult;
+          this.moduleCache = m as ModuleType<M>;
+          return this.moduleCache;
         });
     }
 
-    return await this.moduleResultPromise;
+    return await this.modulePromiseCache;
   }
 }

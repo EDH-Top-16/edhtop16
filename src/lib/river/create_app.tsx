@@ -32,19 +32,26 @@ export function createRiverApp(router: Router, env: RelayModernEnvironment) {
     );
 
     useEffect(() => {
-      loadEntrypointRef(router.route()?.params as any as any);
-    }, [loadEntrypointRef]);
+      loadEntrypointRef(route?.params as any);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [route]);
 
     const ep = initialEntrypoint ?? entrypointRef;
+    console.log({ ep });
 
     return (
       <RouterContextProvier value={route}>
         <RelayEnvironmentProvider environment={env}>
-          {ep == null ? (
-            <NotFound />
-          ) : (
-            <EntryPointContainer entryPointReference={ep} props={{}} />
-          )}
+          <main className="relative min-h-screen bg-[#514f86]">
+            {ep == null ? (
+              <NotFound />
+            ) : (
+              <EntryPointContainer
+                entryPointReference={ep}
+                props={route?.params ?? {}}
+              />
+            )}
+          </main>
         </RelayEnvironmentProvider>
       </RouterContextProvier>
     );

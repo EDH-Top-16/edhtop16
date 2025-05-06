@@ -1,7 +1,15 @@
 import { StrictMode } from "react";
 import { renderToString } from "react-dom/server";
 import { PreloadedQuery } from "react-relay";
-import { GraphQLResponse, OperationType } from "relay-runtime";
+import {
+  createOperationDescriptor,
+  GraphQLResponse,
+  GraphQLSingularResponse,
+  OperationDescriptor,
+  OperationType,
+  PayloadData,
+  PreloadableQueryRegistry,
+} from "relay-runtime";
 import { createRiverApp } from "./lib/river/create_app";
 import { Router } from "./lib/river/router";
 import { createServerEnvironment } from "./lib/server/relay_server_environment";
@@ -11,9 +19,26 @@ export async function render(url: string) {
   const env = createServerEnvironment();
   const { App, entrypoint } = createRiverApp(router, env);
 
-  for (const query of Object.values(entrypoint?.queries ?? {})) {
+  const preloadedQueryOps: [OperationDescriptor, PayloadData][] = [];
+  for (const query of Object.values(
+    entrypoint?.queries ?? {},
+  ) as PreloadedQuery<OperationType>[]) {
     try {
-      await ensureQueryFlushed(query);
+      const payload = await ensureQueryFlushed(query);
+      const concreteRequest =
+        query.id == null ? null : PreloadableQueryRegistry.get(query.id);
+
+      if (concreteRequest != null) {
+        const desc = createOperationDescriptor(
+          concreteRequest,
+          query.variables,
+        );
+
+        preloadedQueryOps.push([
+          desc,
+          (payload as GraphQLSingularResponse).data!,
+        ]);
+      }
     } catch (e) {
       console.error(e);
       throw e;
@@ -27,12 +52,10 @@ export async function render(url: string) {
     </StrictMode>,
   );
 
-  console.log("Entrypoint:", entrypoint);
-
   return {
     html,
-    rootModule: entrypoint?.rootModuleID,
-    records: env.getStore().getSource().toJSON(),
+    root: entrypoint?.rootModuleID,
+    ops: preloadedQueryOps,
   };
 }
 

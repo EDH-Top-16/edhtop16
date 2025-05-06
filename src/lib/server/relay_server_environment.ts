@@ -12,7 +12,7 @@ import { readFile } from "node:fs/promises";
 
 let persistedQueryCache: Promise<Record<string, string>> | null = null;
 async function getPersistedQuery(id: string) {
-  if (persistedQueryCache == null) {
+  if (persistedQueryCache == null || process.env.NODE_ENV !== "production") {
     persistedQueryCache = (async () => {
       const persistedQueriesSource = await readFile(
         "src/queries/persisted_queries.json",
