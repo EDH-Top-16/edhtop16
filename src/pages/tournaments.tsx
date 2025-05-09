@@ -135,6 +135,7 @@ function TournamentsPageShell({
               }}
             >
               <option value="0">All Tournaments</option>
+              <option value="32">32+ Players</option>
               <option value="60">60+ Players</option>
               <option value="100">100+ Players</option>
             </Select>
