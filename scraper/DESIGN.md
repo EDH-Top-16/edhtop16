@@ -36,8 +36,7 @@ The goals here are to:
 ```sh
 $ etl --phases=pull,load,import_topdeck,import_spicerack,reify_commanders,materialize,push \
       --db=data/edhtop16.db \
-      --tid=XYZ \
-      --tid=789
+      --tids=XYZ,789
 ```
 
 ## Arguments
@@ -45,6 +44,10 @@ $ etl --phases=pull,load,import_topdeck,import_spicerack,reify_commanders,materi
 ### `--phases`
 
 **Default:** All phases
+
+Comma-separated string of phases to run during the ETL process.
+
+Not all phases are able to be run if a prior phase is skipped, e.g `load`.
 
 ### `--db`
 
@@ -57,13 +60,24 @@ local SQLite database.
 
 **Default:** None
 
-### `--tid`
+Comma-separated string of phases to skip during the ETL process. Skipping a
+phase takes priority over explicitly specifying one in `--phases`. E.g.
+`--phases=pull,load,materialize,push --skip=push` will not run `push`.
+
+Not all phases are able to be run if a prior phase is skipped, e.g `load`.
+
+### `--tids`
 
 **Default:** None
+
+Comma-separated string of specific TIDs to work against. If specified, only
+tournaments in this set will be used, and `--time-days` will be ignored.
 
 ### `--time-days`
 
 **Default:** `30`
+
+If working within a time window (e.g. nightly jobs), how far to look back.
 
 ## Environment Variables
 
@@ -100,7 +114,7 @@ DuckDB instance. Only certain tables are loaded into memory, namely:
 ### `import_topdeck`
 
 Pulls tournaments from the Topdeck API into the in-memory DuckDB instance from
-the time range in `--time-days`, or only those in `--tid` if specified. Results
+the time range in `--time-days`, or only those in `--tids` if specified. Results
 are cached in `Tournament`, `Entry` and `Player`.
 
 ### `import_spicerack`
