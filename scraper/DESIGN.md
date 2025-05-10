@@ -8,14 +8,13 @@ able to push and pull data from it. This SQLite database is later downloaded in
 the container build process for EDHTop16.
 
 The initial version of this tool is designed to consume and output the same
-database format from `scripts/generate-database`. This is to ease the transition
+database format from `npm run generate:db`. This is to ease the transition
 period such that CI can go from:
 
 1. **GH Action:** `load_topdeck_tournaments` ➡️ Mongo
 2. **GH Action:** `load_third_party_tournaments` ➡️ Mongo
 3. **GH Action:** `scrape_commanders` ➡️ Mongo
-4. **Container Build:** Mongo ➡️ `scripts/generate-database` ➡️
-   `data/edhtop16.db`
+4. **Container Build:** Mongo ➡️ `npm run generate:db` ➡️ `data/edhtop16.db`
 
 to:
 
@@ -29,7 +28,7 @@ The goals here are to:
    pipeline.
 
 `etl` will need a one-time bootstrapping of its initial database using
-`scripts/generate-database`.
+`npm run generate:db && etl --phase=push`.
 
 ## Example Usage
 
