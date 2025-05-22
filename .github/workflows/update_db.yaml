@@ -48,5 +48,29 @@ jobs:
           ENTRIES_DB_URL: ${{ secrets.ATLAS_URI }}
           MOXFIELD_API_KEY: ${{ secrets.MOXFIELD_API_KEY }}
 
-      - name: Deploy Application Database
-        run: doctl apps create-deployment ${{ secrets.DIGITALOCEAN_APP_ID }} --force-rebuild --wait
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Generate Application Database
+        run: npm run generate:db
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+          ENTRIES_DB_URL: ${{ secrets.ATLAS_URI }}
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+
+      - name: Push Application Database
+        run: go run etl.go --phases=push
+        env:
+          DO_SPACES_ENDPOINT: ${{ secrets.DO_SPACES_ENDPOINT }}
+          DO_SPACES_ACCESS_KEY_ID: ${{ secrets.DO_SPACES_ACCESS_KEY_ID }}
+          DO_SPACES_SECRET_ACCESS_KEY: ${{ secrets.DO_SPACES_SECRET_ACCESS_KEY }}
+
+      # - name: Deploy Application
+        # run: doctl apps create-deployment ${{ secrets.DIGITALOCEAN_APP_ID }} --force-rebuild --wait

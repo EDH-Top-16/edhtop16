@@ -25,22 +25,21 @@ const args = parseArgs({
     anonymize: {
       type: "boolean",
     },
-    "entries-db-url": {
-      type: "string",
-    },
   },
 });
 
-if (!args.values["entries-db-url"]) {
+if (!process.env.ENTRIES_DB_URL) {
   console.log(
-    pc.red("Could not generate database!\nMust provide --entries-db-url flag"),
+    pc.red(
+      "Could not generate database!\nMust provide ENTRIES_DB_URL environment variable",
+    ),
   );
 
   process.exit(1);
 }
 
 /** Connection to the raw entries database. */
-const mongo = new MongoClient(args.values["entries-db-url"]);
+const mongo = new MongoClient(process.env.ENTRIES_DB_URL);
 
 /** Connection to local SQLite database seeded from data warehouse. */
 const db = new Database("data/edhtop16.db");
