@@ -239,6 +239,36 @@ export function CommanderPageShell({
       <CommanderMeta commander={commander} />
       <CommanderBanner commander={commander} />
 
+      <div className="relative mx-auto my-4 w-full max-w-screen-lg overflow-hidden rounded-none bg-cover bg-center md:w-4/5 md:rounded-md lg:w-3/4">
+        <div className="absolute left-0 top-0 flex h-full w-full brightness-[40%]">
+          <img
+            className={cn("w-full flex-1 object-cover object-center")}
+            src="https://images.squarespace-cdn.com/content/v1/678c3905719a1c6cc58feab9/21d588d8-1e0d-4e90-957f-e49c0bee398c/RogThras+2k+x+1.2k.png?format=1500w"
+          />
+        </div>
+
+        <div className="absolute inset-0 bg-black/40"></div>
+        <a
+          href="https://support.edhrec.com/en/articles/5134389-how-to-become-an-edhrec-supporter"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative z-10 block px-4 py-3 md:p-6"
+        >
+          <div className="mx-auto max-w-screen-lg">
+            <h2 className="mb-1 text-xl font-bold text-white md:mb-2 md:text-2xl">
+              Support The Community
+            </h2>
+            <p className="mb-2 text-sm text-white/90 md:mb-3 md:text-base">
+              Get access to exclusive content and help us continue providing
+              quality resources for the community.
+            </p>
+            <div className="inline-block rounded-md bg-amber-500 px-3 py-1.5 text-sm font-semibold text-black transition-colors hover:bg-amber-600 md:px-4 md:py-2 md:text-base">
+              Preorder Now!
+            </div>
+          </div>
+        </a>
+      </div>
+
       <div className="mx-auto grid max-w-screen-md grid-cols-2 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
         <Select
           id="commander-sort-by"
