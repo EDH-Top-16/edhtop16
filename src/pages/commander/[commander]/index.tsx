@@ -2,6 +2,7 @@ import cn from "classnames";
 import { format } from "date-fns";
 import { NextSeo } from "next-seo";
 import { useRouter } from "next/router";
+import { ParsedUrlQuery } from "querystring";
 import { PropsWithChildren, Suspense, useCallback, useMemo } from "react";
 import {
   useFragment,
@@ -18,13 +19,13 @@ import { Footer } from "../../../components/footer";
 import { LoadMoreButton } from "../../../components/load_more";
 import { Navigation } from "../../../components/navigation";
 import { Select } from "../../../components/select";
-import { Tab, TabList } from "../../../components/tabs";
 import { formatOrdinals, formatPercent } from "../../../lib/client/format";
 import { getClientEnvironment } from "../../../lib/client/relay_client_environment";
 import { Commander_CommanderBanner$key } from "../../../queries/__generated__/Commander_CommanderBanner.graphql";
 import { Commander_CommanderMeta$key } from "../../../queries/__generated__/Commander_CommanderMeta.graphql";
 import { Commander_CommanderPageFallbackQuery } from "../../../queries/__generated__/Commander_CommanderPageFallbackQuery.graphql";
 import { Commander_CommanderPageShell$key } from "../../../queries/__generated__/Commander_CommanderPageShell.graphql";
+import { Commander_CommanderPromo$key } from "../../../queries/__generated__/Commander_CommanderPromo.graphql";
 import {
   Commander_CommanderQuery,
   EntriesSortBy,
@@ -33,7 +34,6 @@ import {
 import { Commander_entries$key } from "../../../queries/__generated__/Commander_entries.graphql";
 import { Commander_EntryCard$key } from "../../../queries/__generated__/Commander_EntryCard.graphql";
 import { CommanderEntriesQuery } from "../../../queries/__generated__/CommanderEntriesQuery.graphql";
-import { ParsedUrlQuery } from "querystring";
 
 function EntryCard(props: { entry: Commander_EntryCard$key }) {
   const entry = useFragment(
@@ -153,7 +153,7 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
             })}
         </div>
 
-        <h1 className="relative m-0 mb-4 text-center font-title font-title text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
+        <h1 className="relative m-0 mb-4 text-center font-title text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
           {commander.name}
         </h1>
 
@@ -161,7 +161,7 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
           <ColorIdentity identity={commander.colorId} />
         </div>
 
-        <div className="absolute bottom-0 z-10 mx-auto flex w-full items-center justify-center justify-around border-t border-white/60 bg-black/50 px-3 text-center text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border">
+        <div className="absolute bottom-0 z-10 mx-auto flex w-full items-center justify-around border-t border-white/60 bg-black/50 px-3 text-center text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border">
           {commander.stats.count} Entries
           <div className="ml-2 mr-1 border-l border-white/60 py-2">
             &nbsp;
@@ -173,6 +173,72 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
           {formatPercent(commander.stats.conversionRate)} Conversion
         </div>
       </div>
+    </div>
+  );
+}
+
+function CommanderPromo(props: { promo: Commander_CommanderPromo$key }) {
+  const promo = useFragment(
+    graphql`
+      fragment Commander_CommanderPromo on CommanderPromo {
+        title
+        description
+        buttonText
+        backgroundImageUrl
+        imageUrl
+        href
+      }
+    `,
+    props.promo,
+  );
+
+  return (
+    <div className="relative mx-auto my-4 w-full max-w-screen-lg overflow-hidden rounded-none bg-cover bg-center md:w-4/5 md:rounded-md lg:w-3/4">
+      <div className="absolute left-0 top-0 flex h-full w-full brightness-[40%]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          alt="promo"
+          className={"w-full flex-1 object-cover object-center"}
+          src={promo.backgroundImageUrl}
+        />
+      </div>
+
+      <div className="absolute inset-0 bg-black/40"></div>
+      <a
+        href={promo.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="relative z-10 block px-4 py-3 md:p-6"
+      >
+        <div className="group mx-auto flex max-w-screen-lg">
+          <div className="flex-1">
+            <h2 className="mb-1 text-xl font-bold text-white md:mb-2 md:text-2xl">
+              {promo.title}
+            </h2>
+
+            <p className="mb-2 text-sm text-white/90 md:mb-3 md:text-base">
+              {promo.description.map((text, i) => {
+                return (
+                  <span key={i} className="block">
+                    {text}
+                  </span>
+                );
+              })}
+            </p>
+
+            <div className="inline-block rounded-md bg-amber-500 px-3 py-1.5 text-sm font-semibold text-black transition-colors group-hover:bg-amber-600 md:px-4 md:py-2 md:text-base">
+              {promo.buttonText}
+            </div>
+          </div>
+
+          {promo.imageUrl && (
+            <div
+              className="h-min-content w-28 -rotate-12 bg-contain bg-center bg-no-repeat transition group-hover:rotate-6 group-hover:scale-110 md:w-40 lg:w-52"
+              style={{ backgroundImage: `url('${promo.imageUrl}')` }}
+            />
+          )}
+        </div>
+      </a>
     </div>
   );
 }
@@ -209,6 +275,10 @@ export function CommanderPageShell({
         breakdownUrl
         ...Commander_CommanderBanner
         ...Commander_CommanderMeta
+
+        promo {
+          ...Commander_CommanderPromo
+        }
       }
     `,
     props.commander,
@@ -238,6 +308,7 @@ export function CommanderPageShell({
       <Navigation />
       <CommanderMeta commander={commander} />
       <CommanderBanner commander={commander} />
+      {commander.promo && <CommanderPromo promo={commander.promo} />}
 
       <div className="mx-auto grid max-w-screen-md grid-cols-2 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
         <Select
@@ -374,7 +445,7 @@ function CommanderPage({
 
   return (
     <CommanderPageShell commander={commander}>
-      <div className="mx-auto flex grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
         {data.entries.edges.map(({ node }) => (
           <EntryCard key={node.id} entry={node} />
         ))}

@@ -11,6 +11,7 @@ import { builder } from "./builder";
 import { Card } from "./card";
 import { Entry } from "./entry";
 import { minDateFromTimePeriod, TimePeriod } from "./types";
+import { CommanderPromoRef, getActivePromotions } from "./promo";
 
 const CommandersSortBy = builder.enumType("CommandersSortBy", {
   values: ["POPULARITY", "CONVERSION", "TOP_CUTS"] as const,
@@ -177,6 +178,13 @@ Commander.implement({
 
           return query.limit(limit).offset(offset).execute();
         });
+      },
+    }),
+    promo: t.field({
+      type: CommanderPromoRef,
+      nullable: true,
+      resolve: (parent) => {
+        return getActivePromotions(parent.name)[0];
       },
     }),
   }),

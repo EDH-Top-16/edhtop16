@@ -8,6 +8,7 @@ type Card implements Node {
   entries(
     after: String
     before: String
+    filters: CardEntriesFilters
     first: Int
     last: Int
   ): CardEntriesConnection!
@@ -37,6 +38,12 @@ type CardEntriesConnectionEdge {
   node: Entry!
 }
 
+input CardEntriesFilters {
+  colorId: String
+  commanderName: String
+  tournamentTID: String
+}
+
 type Commander implements Node {
   breakdownUrl: String!
   cards: [Card!]!
@@ -51,6 +58,7 @@ type Commander implements Node {
   ): CommanderEntriesConnection!
   id: ID!
   name: String!
+  promo: CommanderPromo
   staples(
     after: String
     before: String
@@ -68,6 +76,15 @@ type CommanderEntriesConnection {
 type CommanderEntriesConnectionEdge {
   cursor: String!
   node: Entry!
+}
+
+type CommanderPromo {
+  backgroundImageUrl: String!
+  buttonText: String!
+  description: [String!]!
+  href: String!
+  imageUrl: String
+  title: String!
 }
 
 type CommanderStaplesConnection {

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<4fc38ad76ee509b4301eabbafbcb3fd9>>
+ * @generated SignedSource<<3e13bf2c83261ab0446c9c62097c5232>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -210,6 +210,59 @@ return {
           },
           {
             "alias": null,
+            "args": null,
+            "concreteType": "CommanderPromo",
+            "kind": "LinkedField",
+            "name": "promo",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "title",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "description",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "buttonText",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "backgroundImageUrl",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "imageUrl",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "href",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "alias": null,
             "args": (v7/*: any*/),
             "concreteType": "CommanderStaplesConnection",
             "kind": "LinkedField",
@@ -313,12 +366,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "e15a351430643835407d237ffbb735ee",
+    "cacheID": "bea19c40bebeceada9321a04bad6ebb8",
     "id": null,
     "metadata": {},
     "name": "staples_CommanderStaplesQuery",
     "operationKind": "query",
-    "text": "query staples_CommanderStaplesQuery(\n  $commander: String!\n  $timePeriod: TimePeriod!\n  $minEventSize: Int!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    ...staples_cards\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n\nfragment staples_cards on Commander {\n  staples(first: 58) {\n    edges {\n      node {\n        id\n        name\n        colorId\n        cardPreviewImageUrl\n        scryfallUrl\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
+    "text": "query staples_CommanderStaplesQuery(\n  $commander: String!\n  $timePeriod: TimePeriod!\n  $minEventSize: Int!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    ...staples_cards\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n  promo {\n    ...Commander_CommanderPromo\n  }\n}\n\nfragment Commander_CommanderPromo on CommanderPromo {\n  title\n  description\n  buttonText\n  backgroundImageUrl\n  imageUrl\n  href\n}\n\nfragment staples_cards on Commander {\n  staples(first: 58) {\n    edges {\n      node {\n        id\n        name\n        colorId\n        cardPreviewImageUrl\n        scryfallUrl\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
   }
 };
 })();

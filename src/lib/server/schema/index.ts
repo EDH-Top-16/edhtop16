@@ -4,6 +4,7 @@ import "./player";
 import "./tournament";
 import "./card";
 import "./search";
+import "./promo";
 
 import { builder } from "./builder";
 
