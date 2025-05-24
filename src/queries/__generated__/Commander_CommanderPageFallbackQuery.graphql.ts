@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<44282651927fac61547fdc515bd6b3fd>>
+ * @generated SignedSource<<2fac83858a2e9332341bc26089df08e9>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -194,6 +194,59 @@ return {
             ],
             "storageKey": null
           },
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "CommanderPromo",
+            "kind": "LinkedField",
+            "name": "promo",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "title",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "description",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "buttonText",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "backgroundImageUrl",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "imageUrl",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "href",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
           (v4/*: any*/)
         ],
         "storageKey": null
@@ -201,12 +254,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "bc316aa93d417ccbf24683107c45548b",
+    "cacheID": "4687d1f4f46cfce8cea75f86a2c81760",
     "id": null,
     "metadata": {},
     "name": "Commander_CommanderPageFallbackQuery",
     "operationKind": "query",
-    "text": "query Commander_CommanderPageFallbackQuery(\n  $commander: String!\n  $timePeriod: TimePeriod!\n  $minEventSize: Int!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n}\n"
+    "text": "query Commander_CommanderPageFallbackQuery(\n  $commander: String!\n  $timePeriod: TimePeriod!\n  $minEventSize: Int!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n  promo {\n    ...Commander_CommanderPromo\n  }\n}\n\nfragment Commander_CommanderPromo on CommanderPromo {\n  title\n  description\n  buttonText\n  backgroundImageUrl\n  imageUrl\n  href\n}\n"
   }
 };
 })();
