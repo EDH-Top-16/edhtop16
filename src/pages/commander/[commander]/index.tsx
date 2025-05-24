@@ -212,11 +212,11 @@ function CommanderPromo(props: { promo: Commander_CommanderPromo$key }) {
       >
         <div className="group mx-auto flex max-w-screen-lg">
           <div className="flex-1">
-            <h2 className="mb-1 text-xl font-bold text-white md:mb-2 md:text-2xl">
+            <h2 className="mb-1 text-lg font-bold text-white md:mb-2 md:text-xl lg:text-2xl">
               {promo.title}
             </h2>
 
-            <p className="mb-2 text-sm text-white/90 md:mb-3 md:text-base">
+            <p className="mb-2 text-xs text-white/90 md:mb-3 md:text-sm lg:text-base">
               {promo.description.map((text, i) => {
                 return (
                   <span key={i} className="block">
@@ -233,8 +233,11 @@ function CommanderPromo(props: { promo: Commander_CommanderPromo$key }) {
 
           {promo.imageUrl && (
             <div
-              className="h-min-content w-28 -rotate-12 bg-contain bg-center bg-no-repeat transition group-hover:rotate-6 group-hover:scale-110 md:w-40 lg:w-52"
-              style={{ backgroundImage: `url('${promo.imageUrl}')` }}
+              className="h-min-content flex-1 -rotate-12 bg-contain bg-center bg-no-repeat transition group-hover:rotate-6 group-hover:scale-110"
+              style={{
+                maxWidth: "13rem",
+                backgroundImage: `url('${promo.imageUrl}')`,
+              }}
             />
           )}
         </div>
