@@ -58,7 +58,7 @@ type Commander implements Node {
   ): CommanderEntriesConnection!
   id: ID!
   name: String!
-  promo: CommanderPromo
+  promo: FirstPartyPromo
   staples(
     after: String
     before: String
@@ -76,15 +76,6 @@ type CommanderEntriesConnection {
 type CommanderEntriesConnectionEdge {
   cursor: String!
   node: Entry!
-}
-
-type CommanderPromo {
-  backgroundImageUrl: String!
-  buttonText: String!
-  description: [String!]!
-  href: String!
-  imageUrl: String
-  title: String!
 }
 
 type CommanderStaplesConnection {
@@ -171,6 +162,15 @@ enum EntrySortBy {
   STANDING
   WINRATE
   WINS
+}
+
+type FirstPartyPromo {
+  backgroundImageUrl: String!
+  buttonText: String!
+  description: [String!]!
+  href: String!
+  imageUrl: String
+  title: String!
 }
 
 interface Node {
@@ -291,6 +291,7 @@ type Tournament implements Node {
   entries(commander: String, maxStanding: Int): [Entry!]!
   id: ID!
   name: String!
+  promo: FirstPartyPromo
   rounds: [TopdeckTournamentRound!]!
   size: Int!
   swissRounds: Int!

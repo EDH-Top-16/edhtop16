@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<3e13bf2c83261ab0446c9c62097c5232>>
+ * @generated SignedSource<<61d4c5c9538c9417c8d8be62fb16a3f4>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -211,7 +211,7 @@ return {
           {
             "alias": null,
             "args": null,
-            "concreteType": "CommanderPromo",
+            "concreteType": "FirstPartyPromo",
             "kind": "LinkedField",
             "name": "promo",
             "plural": false,
@@ -366,12 +366,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "bea19c40bebeceada9321a04bad6ebb8",
+    "cacheID": "f3805aae05bcc5e10b0c07f1f1080fd8",
     "id": null,
     "metadata": {},
     "name": "staples_CommanderStaplesQuery",
     "operationKind": "query",
-    "text": "query staples_CommanderStaplesQuery(\n  $commander: String!\n  $timePeriod: TimePeriod!\n  $minEventSize: Int!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    ...staples_cards\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n  promo {\n    ...Commander_CommanderPromo\n  }\n}\n\nfragment Commander_CommanderPromo on CommanderPromo {\n  title\n  description\n  buttonText\n  backgroundImageUrl\n  imageUrl\n  href\n}\n\nfragment staples_cards on Commander {\n  staples(first: 58) {\n    edges {\n      node {\n        id\n        name\n        colorId\n        cardPreviewImageUrl\n        scryfallUrl\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
+    "text": "query staples_CommanderStaplesQuery(\n  $commander: String!\n  $timePeriod: TimePeriod!\n  $minEventSize: Int!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    ...staples_cards\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n  promo {\n    ...promo_EmbededPromo\n  }\n}\n\nfragment promo_EmbededPromo on FirstPartyPromo {\n  title\n  description\n  buttonText\n  backgroundImageUrl\n  imageUrl\n  href\n}\n\nfragment staples_cards on Commander {\n  staples(first: 58) {\n    edges {\n      node {\n        id\n        name\n        colorId\n        cardPreviewImageUrl\n        scryfallUrl\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
   }
 };
 })();

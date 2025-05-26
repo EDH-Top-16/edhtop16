@@ -24,6 +24,7 @@ import { TID_TournamentMeta$key } from "../../queries/__generated__/TID_Tourname
 import { TID_TournamentPageFallbackQuery } from "../../queries/__generated__/TID_TournamentPageFallbackQuery.graphql";
 import { TID_TournamentPageShell$key } from "../../queries/__generated__/TID_TournamentPageShell.graphql";
 import { TID_TournamentQuery } from "../../queries/__generated__/TID_TournamentQuery.graphql";
+import { FirstPartyPromo } from "../../components/promo";
 
 function EntryCard({
   highlightFirst = true,
@@ -288,6 +289,10 @@ function TournamentPageShell({
       fragment TID_TournamentPageShell on Tournament {
         ...TID_TournamentBanner
         ...TID_TournamentMeta
+
+        promo {
+          ...promo_EmbededPromo
+        }
       }
     `,
     props.tournament,
@@ -298,6 +303,8 @@ function TournamentPageShell({
       <Navigation />
       <TournamentMeta tournament={tournament} />
       <TournamentBanner tournament={tournament} />
+      {tournament.promo && <FirstPartyPromo promo={tournament.promo} />}
+
       <Tabs
         className="mx-auto max-w-screen-md"
         isDisabled={onUpdateQueryParam == null}

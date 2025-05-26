@@ -10,8 +10,8 @@ import { DB } from "../db/__generated__/types";
 import { builder } from "./builder";
 import { Card } from "./card";
 import { Entry } from "./entry";
+import { FirstPartyPromoRef, getActivePromotions } from "./promo";
 import { minDateFromTimePeriod, TimePeriod } from "./types";
-import { CommanderPromoRef, getActivePromotions } from "./promo";
 
 const CommandersSortBy = builder.enumType("CommandersSortBy", {
   values: ["POPULARITY", "CONVERSION", "TOP_CUTS"] as const,
@@ -181,10 +181,10 @@ Commander.implement({
       },
     }),
     promo: t.field({
-      type: CommanderPromoRef,
+      type: FirstPartyPromoRef,
       nullable: true,
       resolve: (parent) => {
-        return getActivePromotions(parent.name)[0];
+        return getActivePromotions({ commander: parent.name })[0];
       },
     }),
   }),

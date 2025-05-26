@@ -5,6 +5,7 @@ import { DB } from "../db/__generated__/types";
 import { builder } from "./builder";
 import { Commander } from "./commander";
 import { Entry } from "./entry";
+import { FirstPartyPromoRef, getActivePromotions } from "./promo";
 import {
   minDateFromTimePeriod,
   TimePeriod,
@@ -192,6 +193,13 @@ Tournament.implement({
         `.execute(db);
 
         return groups.rows;
+      },
+    }),
+    promo: t.field({
+      type: FirstPartyPromoRef,
+      nullable: true,
+      resolve: (parent) => {
+        return getActivePromotions({ tid: parent.name })[0];
       },
     }),
   }),
