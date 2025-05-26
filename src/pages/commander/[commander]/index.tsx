@@ -18,6 +18,7 @@ import { Edhtop16Fallback, LoadingIcon } from "../../../components/fallback";
 import { Footer } from "../../../components/footer";
 import { LoadMoreButton } from "../../../components/load_more";
 import { Navigation } from "../../../components/navigation";
+import { FirstPartyPromo } from "../../../components/promo";
 import { Select } from "../../../components/select";
 import { formatOrdinals, formatPercent } from "../../../lib/client/format";
 import { getClientEnvironment } from "../../../lib/client/relay_client_environment";
@@ -25,7 +26,6 @@ import { Commander_CommanderBanner$key } from "../../../queries/__generated__/Co
 import { Commander_CommanderMeta$key } from "../../../queries/__generated__/Commander_CommanderMeta.graphql";
 import { Commander_CommanderPageFallbackQuery } from "../../../queries/__generated__/Commander_CommanderPageFallbackQuery.graphql";
 import { Commander_CommanderPageShell$key } from "../../../queries/__generated__/Commander_CommanderPageShell.graphql";
-import { Commander_CommanderPromo$key } from "../../../queries/__generated__/Commander_CommanderPromo.graphql";
 import {
   Commander_CommanderQuery,
   EntriesSortBy,
@@ -177,75 +177,6 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
   );
 }
 
-function CommanderPromo(props: { promo: Commander_CommanderPromo$key }) {
-  const promo = useFragment(
-    graphql`
-      fragment Commander_CommanderPromo on CommanderPromo {
-        title
-        description
-        buttonText
-        backgroundImageUrl
-        imageUrl
-        href
-      }
-    `,
-    props.promo,
-  );
-
-  return (
-    <div className="relative mx-auto my-4 w-full max-w-screen-lg overflow-hidden rounded-none bg-cover bg-center md:w-4/5 md:rounded-md lg:w-3/4">
-      <div className="absolute left-0 top-0 flex h-full w-full brightness-[40%]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          alt="promo"
-          className={"w-full flex-1 object-cover object-center"}
-          src={promo.backgroundImageUrl}
-        />
-      </div>
-
-      <div className="absolute inset-0 bg-black/40"></div>
-      <a
-        href={promo.href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="relative z-10 block px-4 py-3 md:p-6"
-      >
-        <div className="group mx-auto flex max-w-screen-lg">
-          <div className="flex-1">
-            <h2 className="mb-1 text-lg font-bold text-white md:mb-2 md:text-xl lg:text-2xl">
-              {promo.title}
-            </h2>
-
-            <p className="mb-2 text-xs text-white/90 md:mb-3 md:text-sm lg:text-base">
-              {promo.description.map((text, i) => {
-                return (
-                  <span key={i} className="block">
-                    {text}
-                  </span>
-                );
-              })}
-            </p>
-
-            <div className="inline-block rounded-md bg-amber-500 px-3 py-1.5 text-sm font-semibold text-black transition-colors group-hover:bg-amber-600 md:px-4 md:py-2 md:text-base">
-              {promo.buttonText}
-            </div>
-          </div>
-
-          {promo.imageUrl && (
-            <div
-              className="h-min-content flex-1 -rotate-12 bg-contain bg-center bg-no-repeat transition group-hover:rotate-6 group-hover:scale-110"
-              style={{
-                maxWidth: "13rem",
-                backgroundImage: `url('${promo.imageUrl}')`,
-              }}
-            />
-          )}
-        </div>
-      </a>
-    </div>
-  );
-}
-
 function CommanderMeta(props: { commander: Commander_CommanderMeta$key }) {
   const commander = useFragment(
     graphql`
@@ -280,7 +211,7 @@ export function CommanderPageShell({
         ...Commander_CommanderMeta
 
         promo {
-          ...Commander_CommanderPromo
+          ...promo_EmbededPromo
         }
       }
     `,
@@ -311,7 +242,7 @@ export function CommanderPageShell({
       <Navigation />
       <CommanderMeta commander={commander} />
       <CommanderBanner commander={commander} />
-      {commander.promo && <CommanderPromo promo={commander.promo} />}
+      {commander.promo && <FirstPartyPromo promo={commander.promo} />}
 
       <div className="mx-auto grid max-w-screen-md grid-cols-2 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
         <Select

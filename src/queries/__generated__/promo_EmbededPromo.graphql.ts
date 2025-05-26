@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<00e942da89baa3b5a5217e64ec913be8>>
+ * @generated SignedSource<<efe037a8a8782bf5aaf7d430f5d5deef>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,25 +10,25 @@
 
 import { Fragment, ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type Commander_CommanderPromo$data = {
+export type promo_EmbededPromo$data = {
   readonly backgroundImageUrl: string;
   readonly buttonText: string;
   readonly description: ReadonlyArray<string>;
   readonly href: string;
   readonly imageUrl: string | null | undefined;
   readonly title: string;
-  readonly " $fragmentType": "Commander_CommanderPromo";
+  readonly " $fragmentType": "promo_EmbededPromo";
 };
-export type Commander_CommanderPromo$key = {
-  readonly " $data"?: Commander_CommanderPromo$data;
-  readonly " $fragmentSpreads": FragmentRefs<"Commander_CommanderPromo">;
+export type promo_EmbededPromo$key = {
+  readonly " $data"?: promo_EmbededPromo$data;
+  readonly " $fragmentSpreads": FragmentRefs<"promo_EmbededPromo">;
 };
 
 const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Commander_CommanderPromo",
+  "name": "promo_EmbededPromo",
   "selections": [
     {
       "alias": null,
@@ -73,10 +73,10 @@ const node: ReaderFragment = {
       "storageKey": null
     }
   ],
-  "type": "CommanderPromo",
+  "type": "FirstPartyPromo",
   "abstractKey": null
 };
 
-(node as any).hash = "b70e76c7e9132c08f9115856653fb48f";
+(node as any).hash = "a67a802bb9aaa73cec02386ee04000af";
 
 export default node;
