@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d7abca331660233857fd849097f00f5b>>
+ * @generated SignedSource<<2a58e802d4d4220c5119183b67e24748>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -175,6 +175,13 @@ v12 = [
     "plural": false,
     "selections": [
       (v9/*: any*/),
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "isKnownCheater",
+        "storageKey": null
+      },
       (v6/*: any*/)
     ],
     "storageKey": null
@@ -525,12 +532,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "e26c34bc5b043b52ef297f49a0dc2b38",
+    "cacheID": "fe1e8f08fa7b139ed855da81a339195a",
     "id": null,
     "metadata": {},
     "name": "TID_TournamentQuery",
     "operationKind": "query",
-    "text": "query TID_TournamentQuery(\n  $TID: String!\n  $commander: String\n  $showStandings: Boolean!\n  $showBreakdown: Boolean!\n  $showBreakdownCommander: Boolean!\n) {\n  tournament(TID: $TID) {\n    ...TID_TournamentPageShell\n    entries @include(if: $showStandings) {\n      id\n      ...TID_EntryCard\n    }\n    breakdown @include(if: $showBreakdown) {\n      commander {\n        id\n      }\n      ...TID_BreakdownGroupCard\n    }\n    breakdownEntries: entries(commander: $commander) @include(if: $showBreakdownCommander) {\n      id\n      ...TID_EntryCard\n    }\n    id\n  }\n}\n\nfragment TID_BreakdownGroupCard on TournamentBreakdownGroup {\n  commander {\n    name\n    breakdownUrl\n    colorId\n    cards {\n      imageUrls\n      id\n    }\n    id\n  }\n  entries\n  topCuts\n  conversionRate\n}\n\nfragment TID_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  commander {\n    name\n    breakdownUrl\n    cards {\n      imageUrls\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentBanner on Tournament {\n  name\n  size\n  tournamentDate\n  bracketUrl\n  winner: entries(maxStanding: 1) {\n    commander {\n      cards {\n        imageUrls\n        id\n      }\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentMeta on Tournament {\n  name\n}\n\nfragment TID_TournamentPageShell on Tournament {\n  ...TID_TournamentBanner\n  ...TID_TournamentMeta\n  promo {\n    ...promo_EmbededPromo\n  }\n}\n\nfragment promo_EmbededPromo on FirstPartyPromo {\n  title\n  description\n  buttonText\n  backgroundImageUrl\n  imageUrl\n  href\n}\n"
+    "text": "query TID_TournamentQuery(\n  $TID: String!\n  $commander: String\n  $showStandings: Boolean!\n  $showBreakdown: Boolean!\n  $showBreakdownCommander: Boolean!\n) {\n  tournament(TID: $TID) {\n    ...TID_TournamentPageShell\n    entries @include(if: $showStandings) {\n      id\n      ...TID_EntryCard\n    }\n    breakdown @include(if: $showBreakdown) {\n      commander {\n        id\n      }\n      ...TID_BreakdownGroupCard\n    }\n    breakdownEntries: entries(commander: $commander) @include(if: $showBreakdownCommander) {\n      id\n      ...TID_EntryCard\n    }\n    id\n  }\n}\n\nfragment TID_BreakdownGroupCard on TournamentBreakdownGroup {\n  commander {\n    name\n    breakdownUrl\n    colorId\n    cards {\n      imageUrls\n      id\n    }\n    id\n  }\n  entries\n  topCuts\n  conversionRate\n}\n\nfragment TID_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    isKnownCheater\n    id\n  }\n  commander {\n    name\n    breakdownUrl\n    cards {\n      imageUrls\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentBanner on Tournament {\n  name\n  size\n  tournamentDate\n  bracketUrl\n  winner: entries(maxStanding: 1) {\n    commander {\n      cards {\n        imageUrls\n        id\n      }\n      id\n    }\n    id\n  }\n}\n\nfragment TID_TournamentMeta on Tournament {\n  name\n}\n\nfragment TID_TournamentPageShell on Tournament {\n  ...TID_TournamentBanner\n  ...TID_TournamentMeta\n  promo {\n    ...promo_EmbededPromo\n  }\n}\n\nfragment promo_EmbededPromo on FirstPartyPromo {\n  title\n  description\n  buttonText\n  backgroundImageUrl\n  imageUrl\n  href\n}\n"
   }
 };
 })();

@@ -44,6 +44,7 @@ function EntryCard({
 
         player {
           name
+          isKnownCheater
         }
 
         commander {
@@ -66,6 +67,17 @@ function EntryCard({
   } else if (entry.standing === 3) {
     entryName = `🥉 ${entryName}`;
   }
+
+  const entryNameNode = (
+    <span className="flex items-center">
+      {entryName}
+      {entry.player?.isKnownCheater && (
+        <span className="ml-2 rounded-full bg-red-600 px-2 py-1 text-xs uppercase">
+          Cheater
+        </span>
+      )}
+    </span>
+  );
 
   const bottomText = (
     <div className="flex">
@@ -98,10 +110,10 @@ function EntryCard({
             target="_blank"
             className="line-clamp-2 text-xl font-bold underline decoration-transparent transition-colors hover:decoration-inherit"
           >
-            {entryName}
+            {entryNameNode}
           </a>
         ) : (
-          <span className="text-xl font-bold">{entryName}</span>
+          <span className="text-xl font-bold">{entryNameNode}</span>
         )}
 
         <Link
@@ -242,7 +254,7 @@ function TournamentBanner(props: { tournament: TID_TournamentBanner$key }) {
           </div>
         )}
 
-        <h1 className="relative text-center font-title font-title text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
+        <h1 className="relative text-center font-title text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
           {tournament.name}
         </h1>
         <div className="relative flex w-full max-w-screen-md flex-col items-center justify-evenly gap-1 text-base text-white md:flex-row md:text-lg lg:text-xl">
@@ -396,7 +408,7 @@ function TournamentPage({
       }
       onUpdateQueryParam={setQueryVariable}
     >
-      <div className="mx-auto flex grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
         {preloadedQuery.variables.showStandings &&
           tournament.entries != null &&
           tournament.entries.map((entry) => (

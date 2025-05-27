@@ -2,6 +2,8 @@ import { db } from "../db";
 import { builder } from "./builder";
 import { Entry } from "./entry";
 
+const KNOWN_CHEATERS = new Set(["eUiV4NK8aWXDzUpX8ieUCC8C9On1"]);
+
 export const Player = builder.loadableNodeRef("Player", {
   id: { parse: (id) => Number(id), resolve: (parent) => parent.id },
   load: async (ids: number[]) => {
@@ -156,6 +158,11 @@ Player.implement({
 
         return conversionRate;
       },
+    }),
+    isKnownCheater: t.boolean({
+      resolve: (parent) =>
+        parent.topdeckProfile != null &&
+        KNOWN_CHEATERS.has(parent.topdeckProfile),
     }),
   }),
 });
