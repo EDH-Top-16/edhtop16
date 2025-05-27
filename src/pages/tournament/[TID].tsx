@@ -69,10 +69,10 @@ function EntryCard({
   }
 
   const entryNameNode = (
-    <span className="z-10 flex items-center">
+    <span className="relative flex items-baseline">
       {entryName}
       {entry.player?.isKnownCheater && (
-        <span className="ml-2 rounded-full bg-red-600 px-2 py-1 text-xs uppercase">
+        <span className="absolute right-0 rounded-full bg-red-600 px-2 py-1 text-xs uppercase">
           Cheater
         </span>
       )}
