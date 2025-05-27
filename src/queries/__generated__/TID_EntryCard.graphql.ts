@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<f00995617d34a2824f334ca48a28437b>>
+ * @generated SignedSource<<9e789fecc229d59d4682cf8838563058>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -22,6 +22,7 @@ export type TID_EntryCard$data = {
   readonly draws: number;
   readonly losses: number;
   readonly player: {
+    readonly isKnownCheater: boolean;
     readonly name: string;
   } | null | undefined;
   readonly standing: number;
@@ -90,7 +91,14 @@ return {
       "name": "player",
       "plural": false,
       "selections": [
-        (v0/*: any*/)
+        (v0/*: any*/),
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "isKnownCheater",
+          "storageKey": null
+        }
       ],
       "storageKey": null
     },
@@ -137,6 +145,6 @@ return {
 };
 })();
 
-(node as any).hash = "4f4928b6b478227ae474d99b692d460b";
+(node as any).hash = "d1156d6019a54860009b45c2e88d9570";
 
 export default node;

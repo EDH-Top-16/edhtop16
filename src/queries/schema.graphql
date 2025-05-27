@@ -189,6 +189,7 @@ type Player implements Node {
   draws: Int!
   entries: [Entry!]!
   id: ID!
+  isKnownCheater: Boolean!
   losses: Int!
   name: String!
   topCuts: Int!
