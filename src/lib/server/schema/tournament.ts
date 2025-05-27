@@ -199,7 +199,7 @@ Tournament.implement({
       type: FirstPartyPromoRef,
       nullable: true,
       resolve: (parent) => {
-        return getActivePromotions({ tid: parent.name })[0];
+        return getActivePromotions({ tid: parent.TID })[0];
       },
     }),
   }),
