@@ -72,7 +72,7 @@ function EntryCard({
     <span className="flex items-center">
       {entryName}
       {entry.player?.isKnownCheater && (
-        <span className="ml-2 rounded-full bg-red-600 px-2 py-1 text-xs uppercase">
+        <span className="z-10 ml-2 rounded-full bg-red-600 px-2 py-1 text-xs uppercase">
           Cheater
         </span>
       )}
