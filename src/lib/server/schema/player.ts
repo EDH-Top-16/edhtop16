@@ -160,9 +160,12 @@ Player.implement({
       },
     }),
     isKnownCheater: t.boolean({
-      resolve: (parent) =>
-        parent.topdeckProfile != null &&
-        KNOWN_CHEATERS.has(parent.topdeckProfile),
+      resolve: (parent) => {
+        return (
+          parent.topdeckProfile != null &&
+          KNOWN_CHEATERS.has(parent.topdeckProfile)
+        );
+      },
     }),
   }),
 });
