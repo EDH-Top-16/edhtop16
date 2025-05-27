@@ -2,7 +2,12 @@ import { db } from "../db";
 import { builder } from "./builder";
 import { Entry } from "./entry";
 
-const KNOWN_CHEATERS = new Set(["eUiV4NK8aWXDzUpX8ieUCC8C9On1"]);
+const KNOWN_CHEATERS = new Set([
+  // https://docs.google.com/document/d/1m7aHiwIl11RKnpp7aYVzOA8daPijgbygbLreWi5cmeM/edit?tab=t.0
+  "eUiV4NK8aWXDzUpX8ieUCC8C9On1",
+  // https://docs.google.com/document/d/1HVo6lrWz252eu-8eNVzjY0MPddOt-uucFQobKDMI7Zk/edit?usp=drivesdk
+  "QnHqzI3FgmgQsJOLZNU9CuizkKC3",
+]);
 
 export const Player = builder.loadableNodeRef("Player", {
   id: { parse: (id) => Number(id), resolve: (parent) => parent.id },
