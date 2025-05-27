@@ -84,7 +84,8 @@ export function getActivePromotions(opts: {
   const now = Date.now();
   return promos.filter(
     (p) =>
-      (p.commander === opts.commander || p.tid === opts.tid) &&
+      ((opts.commander != null && p.commander === opts.commander) ||
+        (opts.tid != null && p.tid === opts.tid)) &&
       isWithinInterval(now, { start: p.activeFrom, end: p.activeUntil }),
   );
 }
