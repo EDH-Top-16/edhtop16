@@ -61,7 +61,7 @@ const promos: FirstPartyPromo[] = [
     href: "https://freedomwaffle.com/shop/p/rogthras-manga-playmat?utm_source=edhtop16.com",
   },
   {
-    tid: "land-go-expo-redemption-event",
+    tid: "salt-city-cedh-convention",
     activeFrom: new Date("2025-05-26"),
     activeUntil: new Date("2025-06-09"),
     title: "RogThras Manga Play Mat",

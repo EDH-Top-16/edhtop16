@@ -47,6 +47,7 @@ function EntryCard(props: { entry: Commander_EntryCard$key }) {
 
         player {
           name
+          isKnownCheater
         }
 
         tournament {
@@ -68,6 +69,17 @@ function EntryCard(props: { entry: Commander_EntryCard$key }) {
   } else if (entry.standing <= 16) {
     entryName = `🥉 ${entryName}`;
   }
+
+  const entryNameNode = (
+    <span className="relative flex items-baseline">
+      {entryName}
+      {entry.player?.isKnownCheater && (
+        <span className="absolute right-0 rounded-full bg-red-600 px-2 py-1 text-xs uppercase">
+          Cheater
+        </span>
+      )}
+    </span>
+  );
 
   const bottomText = (
     <div className="flex">
@@ -91,10 +103,10 @@ function EntryCard(props: { entry: Commander_EntryCard$key }) {
             target="_blank"
             className="line-clamp-1 text-xl font-bold underline decoration-transparent transition-colors hover:decoration-inherit"
           >
-            {entryName}
+            {entryNameNode}
           </a>
         ) : (
-          <span className="text-xl font-bold">{entryName}</span>
+          <span className="text-xl font-bold">{entryNameNode}</span>
         )}
 
         <a
