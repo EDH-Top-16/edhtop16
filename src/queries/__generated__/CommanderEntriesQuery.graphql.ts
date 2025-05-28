@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<726bd00655f6d169532079985341a53b>>
+ * @generated SignedSource<<5b1bb709f3a24ee17eb23628765159f8>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -275,6 +275,13 @@ return {
                             "plural": false,
                             "selections": [
                               (v11/*: any*/),
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "isKnownCheater",
+                                "storageKey": null
+                              },
                               (v9/*: any*/)
                             ],
                             "storageKey": null
@@ -377,12 +384,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "47745c81ab6831a467272e0f258fe69d",
+    "cacheID": "6d57a79d7dad9da5f8c78abbefd5ee68",
     "id": null,
     "metadata": {},
     "name": "CommanderEntriesQuery",
     "operationKind": "query",
-    "text": "query CommanderEntriesQuery(\n  $count: Int = 48\n  $cursor: String\n  $maxStanding: Int\n  $minEventSize: Int\n  $sortBy: EntriesSortBy\n  $timePeriod: TimePeriod\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...Commander_entries_1G22uz\n    id\n  }\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    TID\n    id\n  }\n}\n\nfragment Commander_entries_1G22uz on Commander {\n  entries(first: $count, after: $cursor, sortBy: $sortBy, filters: {minEventSize: $minEventSize, maxStanding: $maxStanding, timePeriod: $timePeriod}) {\n    edges {\n      node {\n        id\n        ...Commander_EntryCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
+    "text": "query CommanderEntriesQuery(\n  $count: Int = 48\n  $cursor: String\n  $maxStanding: Int\n  $minEventSize: Int\n  $sortBy: EntriesSortBy\n  $timePeriod: TimePeriod\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...Commander_entries_1G22uz\n    id\n  }\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    isKnownCheater\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    TID\n    id\n  }\n}\n\nfragment Commander_entries_1G22uz on Commander {\n  entries(first: $count, after: $cursor, sortBy: $sortBy, filters: {minEventSize: $minEventSize, maxStanding: $maxStanding, timePeriod: $timePeriod}) {\n    edges {\n      node {\n        id\n        ...Commander_EntryCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n"
   }
 };
 })();

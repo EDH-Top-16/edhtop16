@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d612d9b00cd112c63e7b5edd0303dd57>>
+ * @generated SignedSource<<5b2a2ad2cc0bcdc8ebfa696ec3a6c0dc>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -369,6 +369,13 @@ return {
                         "plural": false,
                         "selections": [
                           (v6/*: any*/),
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "isKnownCheater",
+                            "storageKey": null
+                          },
                           (v7/*: any*/)
                         ],
                         "storageKey": null
@@ -474,12 +481,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "a16d8a10bb873ebb48b137076660d685",
+    "cacheID": "44fd64595812c138718233ad2b365250",
     "id": null,
     "metadata": {},
     "name": "Commander_CommanderQuery",
     "operationKind": "query",
-    "text": "query Commander_CommanderQuery(\n  $commander: String!\n  $sortBy: EntriesSortBy!\n  $minEventSize: Int!\n  $maxStanding: Int\n  $timePeriod: TimePeriod!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    ...Commander_entries\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n  promo {\n    ...promo_EmbededPromo\n  }\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    TID\n    id\n  }\n}\n\nfragment Commander_entries on Commander {\n  entries(first: 48, sortBy: $sortBy, filters: {minEventSize: $minEventSize, maxStanding: $maxStanding, timePeriod: $timePeriod}) {\n    edges {\n      node {\n        id\n        ...Commander_EntryCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n\nfragment promo_EmbededPromo on FirstPartyPromo {\n  title\n  description\n  buttonText\n  backgroundImageUrl\n  imageUrl\n  href\n}\n"
+    "text": "query Commander_CommanderQuery(\n  $commander: String!\n  $sortBy: EntriesSortBy!\n  $minEventSize: Int!\n  $maxStanding: Int\n  $timePeriod: TimePeriod!\n) {\n  commander(name: $commander) {\n    ...Commander_CommanderPageShell\n    ...Commander_entries\n    id\n  }\n}\n\nfragment Commander_CommanderBanner on Commander {\n  name\n  colorId\n  cards {\n    imageUrls\n    id\n  }\n  stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {\n    conversionRate\n    metaShare\n    count\n  }\n}\n\nfragment Commander_CommanderMeta on Commander {\n  name\n}\n\nfragment Commander_CommanderPageShell on Commander {\n  breakdownUrl\n  ...Commander_CommanderBanner\n  ...Commander_CommanderMeta\n  promo {\n    ...promo_EmbededPromo\n  }\n}\n\nfragment Commander_EntryCard on Entry {\n  standing\n  wins\n  losses\n  draws\n  decklist\n  player {\n    name\n    isKnownCheater\n    id\n  }\n  tournament {\n    name\n    size\n    tournamentDate\n    TID\n    id\n  }\n}\n\nfragment Commander_entries on Commander {\n  entries(first: 48, sortBy: $sortBy, filters: {minEventSize: $minEventSize, maxStanding: $maxStanding, timePeriod: $timePeriod}) {\n    edges {\n      node {\n        id\n        ...Commander_EntryCard\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n  id\n}\n\nfragment promo_EmbededPromo on FirstPartyPromo {\n  title\n  description\n  buttonText\n  backgroundImageUrl\n  imageUrl\n  href\n}\n"
   }
 };
 })();
