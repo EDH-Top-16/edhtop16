@@ -202,3 +202,19 @@ builder.queryField("player", (t) =>
     },
   }),
 );
+
+builder.queryField("cheaters", (t) =>
+  t.field({
+    type: t.listRef(Player),
+    resolve: async () => {
+      const allCheaters = ALL_KNOWN_CHEATERS.map((p) => p.topdeckProfile);
+      if (allCheaters.length === 0) return [];
+
+      return db
+        .selectFrom("Player")
+        .selectAll()
+        .where("topdeckProfile", "in", allCheaters)
+        .execute();
+    },
+  }),
+);
