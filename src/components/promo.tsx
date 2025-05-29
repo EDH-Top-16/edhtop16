@@ -31,7 +31,7 @@ export function FirstPartyPromo(props: { promo: promo_EmbededPromo$key }) {
       <a
         href={promo.href}
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener"
         className="relative z-10 block px-4 py-3 md:p-6"
       >
         <div className="group mx-auto flex max-w-screen-lg">
