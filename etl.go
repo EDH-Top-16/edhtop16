@@ -96,15 +96,26 @@ func phasesFromFlags(flags etlFlags) map[EtlPhase]bool {
 }
 
 func createS3Client() (*minio.Client, error) {
-	endpoint := os.Getenv("DO_SPACES_ENDPOINT")
-	accessKeyID := os.Getenv("DO_SPACES_ACCESS_KEY_ID")
-	secretAccessKey := os.Getenv("DO_SPACES_SECRET_ACCESS_KEY")
+	endpoint, present := os.LookupEnv("DO_SPACES_ENDPOINT")
+	if !present {
+		return nil, fmt.Errorf("DO_SPACES_ENDPOINT is required but not present")
+	}
+
+	accessKeyID, present := os.LookupEnv("DO_SPACES_ACCESS_KEY_ID")
+	if !present {
+		return nil, fmt.Errorf("DO_SPACES_ENDPOINT is required but not present")
+	}
+
+	secretAccessKey, present := os.LookupEnv("DO_SPACES_SECRET_ACCESS_KEY")
+	if !present {
+		return nil, fmt.Errorf("DO_SPACES_ENDPOINT is required but not present")
+	}
+
 	useSSL := true
 
 	return minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
 		Secure: useSSL,
-		Region: "nyc3",
 	})
 }
 
@@ -184,8 +195,7 @@ var phases = []PhaseExecutor{
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		err = fmt.Errorf("could not load .env: %w", err)
-		log.Panicln(err)
+		log.Printf("Running without loading .env: %v\n", err)
 	}
 
 	etl, err := LoadEtlContext()
