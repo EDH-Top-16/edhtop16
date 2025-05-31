@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate:db": "rm -f data/edhtop16.db && node -r ts-node/register scripts/generate-database.ts",
-    "generate:dbtypes": "DATABASE_URL=data/edhtop16.db kysely-codegen --out-file=src/lib/server/db/__generated__/types.d.ts",
+    "generate:db": "rm edhtop16.db && node -r ts-node/register scripts/generate-database.ts",
+    "generate:dbtypes": "DATABASE_URL=edhtop16.db kysely-codegen --out-file=src/lib/server/db/__generated__/types.d.ts",
     "generate:schema": "node -r ts-node/register scripts/print-schema.ts",
     "generate:relay": "relay-compiler"
   },

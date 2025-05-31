@@ -42,7 +42,7 @@ if (!process.env.ENTRIES_DB_URL) {
 const mongo = new MongoClient(process.env.ENTRIES_DB_URL);
 
 /** Connection to local SQLite database seeded from data warehouse. */
-const db = new Database("data/edhtop16.db");
+const db = new Database("edhtop16.db");
 
 // Turn off journalizing and start a transaction for faster inserts.
 console.log(pc.green(`Connected to local SQLite database!`));

@@ -42,7 +42,7 @@ RUN npm i -g unit-http@1.31
 
 # Copy build output from build stage and install dependencies.
 COPY --from=build /app/.next client/.next
-COPY --from=db /app/data client/data/
+COPY --from=db /app/edhtop16.db client/
 COPY package*.json client/
 COPY server.js client/
 COPY next.config.js client/

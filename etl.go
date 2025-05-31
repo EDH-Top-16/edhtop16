@@ -66,7 +66,7 @@ func parseFlags() etlFlags {
 
 	phasesFlag := flag.String("phases", strings.Join(default_phases, ","), "Phases to run")
 	skipPhasesFlag := flag.String("skip", "", "Phases to skip")
-	dbFlag := flag.String("db", "data/edhtop16.db", "On-disk location of the database")
+	dbFlag := flag.String("db", "edhtop16.db", "On-disk location of the database")
 	flag.Parse()
 
 	return etlFlags{

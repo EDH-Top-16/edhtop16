@@ -3,5 +3,4 @@
 .next/
 .env
 node_modules/
-data/
 scraper/target/
