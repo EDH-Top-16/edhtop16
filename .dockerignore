@@ -3,6 +3,5 @@
 .next/
 .env
 node_modules/
-data/edhtop16.db
-data/edhtop16.db-journal
 scraper/target/
+edhtop16.db

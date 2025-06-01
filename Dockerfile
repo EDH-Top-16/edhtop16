@@ -1,19 +1,42 @@
+# Pull the application database
+FROM golang:1.24 AS db
+
+ARG DO_SPACES_ENDPOINT
+ENV DO_SPACES_ENDPOINT=${DO_SPACES_ENDPOINT}
+
+ARG DO_SPACES_ACCESS_KEY_ID
+ENV DO_SPACES_ACCESS_KEY_ID=${DO_SPACES_ACCESS_KEY_ID}
+
+ARG DO_SPACES_SECRET_ACCESS_KEY
+ENV DO_SPACES_SECRET_ACCESS_KEY=${DO_SPACES_SECRET_ACCESS_KEY}
+
+WORKDIR /app
+
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+
+COPY etl.go .
+RUN go run etl.go --phases=pull
+
 # Build the application.
 FROM node:20-bullseye AS build
 
-ARG ENTRIES_DB_URL
 ARG NEXT_PUBLIC_POSTHOG_KEY
 ENV NEXT_PUBLIC_POSTHOG_KEY=${NEXT_PUBLIC_POSTHOG_KEY}
 
 WORKDIR /app
 
-COPY . .
 ENV NODE_OPTIONS=--max-old-space-size=4096
-RUN npm ci
-RUN npm run build
-RUN npm run generate:db -- --entries-db-url="${ENTRIES_DB_URL}"
 
-# We take a minimal Unit image and install language-specific modules.
+COPY package.json ./
+COPY package-lock.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# Main image pulling in builds and data from previous stages.
 FROM unit:1.31.1-node20
 
 WORKDIR /app
@@ -24,7 +47,7 @@ RUN npm i -g unit-http@1.31
 
 # Copy build output from build stage and install dependencies.
 COPY --from=build /app/.next client/.next
-COPY --from=build /app/data client/data/
+COPY --from=db --chown=unit:unit /app/edhtop16.db client/
 COPY package*.json client/
 COPY server.js client/
 COPY next.config.js client/

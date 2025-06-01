@@ -7,7 +7,7 @@ type GlobalWithDb = typeof global & { db?: Kysely<DB> };
 function getDb() {
   const globalWithDb = global as GlobalWithDb;
   if (!globalWithDb.db) {
-    const database = new Database("data/edhtop16.db", {
+    const database = new Database("edhtop16.db", {
       readonly: true,
       fileMustExist: true,
     });
