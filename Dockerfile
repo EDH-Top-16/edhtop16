@@ -12,7 +12,8 @@ ENV DO_SPACES_SECRET_ACCESS_KEY=${DO_SPACES_SECRET_ACCESS_KEY}
 
 WORKDIR /app
 
-COPY go.mod go.mod ./
+COPY go.mod ./
+COPY go.sum ./
 RUN go mod download
 
 COPY etl.go .
@@ -26,9 +27,13 @@ ENV NEXT_PUBLIC_POSTHOG_KEY=${NEXT_PUBLIC_POSTHOG_KEY}
 
 WORKDIR /app
 
-COPY . .
 ENV NODE_OPTIONS=--max-old-space-size=4096
+
+COPY package.json ./
+COPY package-lock.json ./
 RUN npm ci
+
+COPY . .
 RUN npm run build
 
 # Main image pulling in builds and data from previous stages.
@@ -42,7 +47,7 @@ RUN npm i -g unit-http@1.31
 
 # Copy build output from build stage and install dependencies.
 COPY --from=build /app/.next client/.next
-COPY --from=db /app/edhtop16.db client/
+COPY --from=db --chown=unit:unit /app/edhtop16.db client/
 COPY package*.json client/
 COPY server.js client/
 COPY next.config.js client/

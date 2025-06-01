@@ -34,7 +34,7 @@ The goals here are to:
 
 ```sh
 $ etl --phases=pull,load,import_topdeck,import_spicerack,reify_commanders,materialize,push \
-      --db=data/edhtop16.db \
+      --db=edhtop16.db \
       --tids=XYZ,789
 ```
 
@@ -50,7 +50,7 @@ Not all phases are able to be run if a prior phase is skipped, e.g `load`.
 
 ### `--db`
 
-**Default:** `data/edhtop16.com`
+**Default:** `edhtop16.com`
 
 Specifies the relative file path that should be used for reading and writing the
 local SQLite database.
