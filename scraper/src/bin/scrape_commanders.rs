@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Context};
+use clap::Parser;
 use futures::StreamExt;
 use mongodb::{
     bson::{self, doc, oid::ObjectId, Document},
@@ -12,6 +13,14 @@ use std::{collections::HashMap, env};
 use tokio::task::JoinSet;
 
 const THIRTY_DAYS_AS_MILLIS: u128 = 2592000000;
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Specific tournament ID to process
+    #[arg(short, long)]
+    tid: Vec<String>,
+}
 
 async fn recent_tournaments(db: &Database) -> anyhow::Result<Vec<String>> {
     let thirty_days_ago = bson::DateTime::from_millis(
@@ -150,6 +159,7 @@ async fn main() -> anyhow::Result<()> {
         log::info!("No .env file found")
     }
 
+    let args = Args::parse();
     let mongo_uri = env::var("ENTRIES_DB_URL").context("Loading ENTRIES_DB_URL")?;
     let moxfield_api_key = env::var("MOXFIELD_API_KEY").context("Loading MOXFIELD_API_KEY")?;
 
@@ -159,8 +169,14 @@ async fn main() -> anyhow::Result<()> {
 
     let moxfield_client = MoxfieldClient::new(&moxfield_api_key);
 
+    let tournaments_for_processing = if args.tid.len() > 0 {
+        args.tid
+    } else {
+        recent_tournaments(&database).await?
+    };
+
     let mut decklist_updates: JoinSet<()> = JoinSet::new();
-    for tid in recent_tournaments(&database).await? {
+    for tid in tournaments_for_processing {
         let tournament_collection: Collection<Document> = database.collection(&tid);
         for (object_id, decklist_url) in unprocessed_standings(&database, &tid).await? {
             let moxfield_client = moxfield_client.clone();
