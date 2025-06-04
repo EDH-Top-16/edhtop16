@@ -12,11 +12,8 @@ WORKDIR /app
 
 ENV NODE_OPTIONS=--max-old-space-size=4096
 
-COPY package.json ./
-COPY package-lock.json ./
-RUN npm ci
-
 COPY . .
+RUN npm ci
 RUN npm run build
 
 # Pull application database
