@@ -1,32 +1,32 @@
-# syntax=docker/dockerfile:1
 # Build the application.
 FROM node:20-bullseye AS build
-
-ARG DO_SPACES_ENDPOINT
-ARG DO_SPACES_ACCESS_KEY_ID
-ARG DO_SPACES_SECRET_ACCESS_KEY
-ARG NEXT_PUBLIC_POSTHOG_KEY
-ENV NEXT_PUBLIC_POSTHOG_KEY=${NEXT_PUBLIC_POSTHOG_KEY}
 
 WORKDIR /app
 
 ENV NODE_OPTIONS=--max-old-space-size=4096
 
-COPY . .
+COPY package.json ./
+COPY package-lock.json ./
 RUN npm ci
+
+COPY . .
+
+ARG NEXT_PUBLIC_POSTHOG_KEY
+ENV NEXT_PUBLIC_POSTHOG_KEY=${NEXT_PUBLIC_POSTHOG_KEY}
+
 RUN npm run build
 
 # Pull application database
 RUN apt-get update
 RUN apt-get install s3cmd -y
-COPY <<-EOT /root/.s3cfg
-  access_key = ${DO_SPACES_ACCESS_KEY_ID}
-  secret_key = ${DO_SPACES_SECRET_ACCESS_KEY}
-  host_base = ${DO_SPACES_ENDPOINT}
-  host_bucket= ${DO_SPACES_ENDPOINT}
-EOT
 
-RUN s3cmd get s3://edhtop16/edhtop16.db
+ARG DO_SPACES_ENDPOINT
+ARG DO_SPACES_ACCESS_KEY_ID
+ARG DO_SPACES_SECRET_ACCESS_KEY
+ENV AWS_ACCESS_KEY_ID=${DO_SPACES_ACCESS_KEY_ID}
+ENV AWS_SECRET_ACCESS_KEY=${DO_SPACES_SECRET_ACCESS_KEY}
+
+RUN s3cmd --host ${DO_SPACES_ENDPOINT} --host-bucket ${DO_SPACES_ENDPOINT} get s3://edhtop16/edhtop16.db
 
 # Main image pulling in builds and data from previous stages.
 FROM unit:1.31.1-node20
