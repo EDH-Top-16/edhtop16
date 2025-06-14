@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -73,6 +75,22 @@ pub struct TournamentEntry {
     pub losses_swiss: i32,
     #[serde(rename = "lossesBracket", default)]
     pub losses_bracket: i32,
+    #[serde(rename = "deckObj")]
+    pub deck: Option<TournamentDecklist>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct TournamentDecklist {
+    #[serde(rename = "Commanders")]
+    commanders: HashMap<String, TournamentDecklistEntry>,
+    #[serde(rename = "Mainboard")]
+    mainboard: HashMap<String, TournamentDecklistEntry>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct TournamentDecklistEntry {
+    pub id: String,
+    pub count: i32,
 }
 
 impl TournamentEntry {
