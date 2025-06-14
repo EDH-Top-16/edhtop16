@@ -492,8 +492,11 @@ async function createPlayers(
           .filter((c) => c != null),
       );
 
+      const decklistUrlMatch = entry.decklist?.match(/https?:\/\/[\w\W]*$/g);
+      const decklistUrl = decklistUrlMatch?.[0] ?? entry.decklist;
+
       const { lastInsertRowid } = insertEntry.run(
-        entry.decklist,
+        decklistUrl,
         entry.draws,
         entry.lossesBracket,
         entry.lossesSwiss,
