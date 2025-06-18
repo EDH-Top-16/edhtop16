@@ -82,9 +82,10 @@ pub struct TournamentEntry {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TournamentDecklist {
     #[serde(rename = "Commanders")]
-    commanders: HashMap<String, TournamentDecklistEntry>,
+    pub commanders: HashMap<String, TournamentDecklistEntry>,
     #[serde(rename = "Mainboard")]
-    mainboard: HashMap<String, TournamentDecklistEntry>,
+    pub mainboard: HashMap<String, TournamentDecklistEntry>,
+    pub metadata: TournamentDecklistMetadata,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -93,11 +94,26 @@ pub struct TournamentDecklistEntry {
     pub count: i32,
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct TournamentDecklistMetadata {
+    pub game: String,
+    pub format: String,
+    #[serde(rename = "importedFrom")]
+    pub imported_from: Option<String>,
+}
+
 impl TournamentEntry {
+    pub fn decklist_url(&self) -> Option<String> {
+        match &self.deck {
+            Some(deck) => deck.metadata.imported_from.clone(),
+            None => self.decklist.clone(),
+        }
+    }
+
     pub fn into_doc(&self, index: i32) -> mongodb::bson::Document {
         mongodb::bson::doc! {
             "name": self.name.clone(),
-            "decklist": self.decklist.clone(),
+            "decklist": self.decklist_url(),
             "winsSwiss": self.wins_swiss,
             "winsBracket": self.wins_bracket,
             "draws": self.draws,
