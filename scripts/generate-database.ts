@@ -295,15 +295,165 @@ async function createTournaments(tids?: string[]) {
   return tournamentIdByTid;
 }
 
+function wubrgify(colorIdentity: string[]): string {
+  let buf = "";
+
+  if (colorIdentity.includes("W")) {
+    buf += "W";
+  }
+  if (colorIdentity.includes("U")) {
+    buf += "U";
+  }
+  if (colorIdentity.includes("B")) {
+    buf += "B";
+  }
+  if (colorIdentity.includes("R")) {
+    buf += "R";
+  }
+  if (colorIdentity.includes("G")) {
+    buf += "G";
+  }
+
+  if (buf.length === 0) {
+    return "C";
+  } else {
+    return buf;
+  }
+}
+
+function parseRawDecklist(
+  decklist: string,
+  defaultCards: ScryfallDatabase,
+  oracleCards: ScryfallDatabase,
+): {
+  commander: string;
+  colorID: string;
+  maindeck: string[];
+  decklistUrl: string | null;
+} {
+  // Raw decklists from Topdeck have the form:
+  //
+  //     ~~Commanders~~
+  //     1 Commander Name
+  //     1 Partner Name (may be absent)
+  //
+  //     ~~Mainboard~~
+  //     N Card Name
+  //     N Card Name
+  //     etc..
+  //
+  //    Imported from <decklist url>
+  //
+  // We parse those commander names, then "normalize" them by grabbing the
+  // Scryfall ID from `oracleCards`, then use that ID to grab the default name
+  // from `defaultCards`. Then we sort and join the names with ` / ` to get our
+  // commander name. For color ID, we take both cards and join the color
+  // identities together.
+  //
+  // For the maindeck we want to return a list of Scryfall card IDs, so we just
+  // grab the ID based on the card name in `oracleCards`, making sure to add
+  // duplicate items in the array for card counts >1.
+
+  const lines = decklist.trim().replaceAll("\\n", "\n").split("\n");
+  let currentSection = "";
+  const commanderNames: string[] = [];
+  const maindeckLines: string[] = [];
+  let decklistUrl: string | null = null;
+
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    if (trimmedLine.startsWith("~~") && trimmedLine.endsWith("~~")) {
+      currentSection = trimmedLine.toLowerCase();
+    } else if (trimmedLine.startsWith("Imported from")) {
+      const decklistUrlMatch = trimmedLine.match(/https?:\/\/[\w\W]*$/g);
+      decklistUrl = decklistUrlMatch?.[0] ?? null;
+    } else if (currentSection === "~~commanders~~" && trimmedLine) {
+      // Extract card name from "1 Commander Name" format
+      const match = trimmedLine.match(/^\d+\s+(.+)$/);
+      if (match && match[1]) {
+        commanderNames.push(match[1].replaceAll(`’`, `'`));
+      }
+    } else if (currentSection === "~~mainboard~~" && trimmedLine) {
+      maindeckLines.push(trimmedLine);
+    }
+  }
+
+  // Process commanders
+  const commanderIds: string[] = [];
+  const colorIdentities: string[] = [];
+
+  for (const commanderName of commanderNames) {
+    const oracleCard = oracleCards.cardByName.get(commanderName);
+    if (oracleCard && oracleCard.id) {
+      const defaultCard = defaultCards.cardByScryfallId.get(oracleCard.id);
+      if (defaultCard && defaultCard.name) {
+        commanderIds.push(defaultCard.name);
+        if (defaultCard.color_identity) {
+          colorIdentities.push(...defaultCard.color_identity);
+        }
+      }
+    }
+  }
+
+  const commander = commanderIds.sort().join(" / ");
+  const uniqueColors = Array.from(new Set(colorIdentities));
+  const colorID = wubrgify(uniqueColors);
+
+  // Process maindeck
+  const maindeck: string[] = [];
+  for (const line of maindeckLines) {
+    const match = line.match(/^(\d+)\s+(.+)$/);
+    if (match && match[1] && match[2]) {
+      const count = parseInt(match[1], 10);
+      const cardName = match[2];
+      const oracleCard = oracleCards.cardByName.get(cardName);
+      if (oracleCard && oracleCard.id) {
+        for (let i = 0; i < count; i++) {
+          maindeck.push(oracleCard.id);
+        }
+      }
+    }
+  }
+
+  return {
+    commander,
+    colorID,
+    maindeck,
+    decklistUrl,
+  };
+}
+
 type EntryWithTid = Entry & { TID: string };
-async function loadEntries(tids: string[]): Promise<EntryWithTid[]> {
+async function loadEntries(
+  tids: string[],
+  defaultCards: ScryfallDatabase,
+  oracleCards: ScryfallDatabase,
+): Promise<EntryWithTid[]> {
   const entriesByTid = new Map<string, Entry[]>();
   await workerPool(tids, async (tid) => {
     entriesByTid.set(tid, await getTournamentEntries(tid));
   });
 
   return Array.from(entriesByTid).flatMap(([TID, entries]) => {
-    return entries.flatMap((e) => ({ ...e, TID }));
+    return entries.flatMap((e) => {
+      const entry = { ...e, TID };
+      if (entry.decklist?.startsWith(`~~`)) {
+        const parsedDecklist = parseRawDecklist(
+          entry.decklist,
+          defaultCards,
+          oracleCards,
+        );
+
+        entry.decklist = parsedDecklist.decklistUrl;
+        if (parsedDecklist.decklistUrl == null) {
+          entry.commander = parsedDecklist.commander;
+          entry.colorID = parsedDecklist.colorID;
+          entry.mainDeck = parsedDecklist.maindeck;
+        }
+      }
+
+      return entry;
+    });
   });
 }
 
@@ -332,7 +482,11 @@ async function createCommanders(entries: EntryWithTid[]) {
   return commanderIdByName;
 }
 
-async function createCards(entries: EntryWithTid[]) {
+async function createCards(
+  entries: EntryWithTid[],
+  defaultCards: ScryfallDatabase,
+  oracleCards: ScryfallDatabase,
+) {
   const insertCard = db.prepare(`
     INSERT INTO "Card"
     ("oracleId", "name", "data")
@@ -342,20 +496,13 @@ async function createCards(entries: EntryWithTid[]) {
   const cardIdByOracleId = new Map<string, number>();
   const cardIdByScryfallId = new Map<string, number>();
 
-  const [oracleDatabase, scryfallDatabase] = await Promise.all([
-    ScryfallDatabase.create("oracle_cards"),
-    ScryfallDatabase.create("default_cards"),
-  ]);
-
   const mainDeckCards = entries.flatMap((e) => e.mainDeck ?? []);
   const commanderCards = entries
     .flatMap((e) => e.commander.split(" / "))
-    .map((c) => scryfallDatabase.cardByName.get(c)?.id)
+    .map((c) => defaultCards.cardByName.get(c)?.id)
     .filter((id) => id != null);
 
-  const defaultCommander = scryfallDatabase.cardByName.get(
-    "The Prismatic Piper",
-  );
+  const defaultCommander = defaultCards.cardByName.get("The Prismatic Piper");
 
   if (defaultCommander) commanderCards.push(defaultCommander.id);
 
@@ -366,7 +513,7 @@ async function createCards(entries: EntryWithTid[]) {
   const allOracleIds = Array.from(
     new Set(
       allScryfallIds
-        .map((id) => scryfallDatabase.cardByScryfallId.get(id)?.oracle_id)
+        .map((id) => defaultCards.cardByScryfallId.get(id)?.oracle_id)
         .filter((id) => id != null),
     ),
   );
@@ -379,7 +526,7 @@ async function createCards(entries: EntryWithTid[]) {
     for (const oracleId of allOracleIds) {
       if (cardIdByOracleId.has(oracleId)) continue;
 
-      const card = oracleDatabase.cardByOracleId.get(oracleId);
+      const card = oracleCards.cardByOracleId.get(oracleId);
       if (card == null) continue;
 
       let colorId: string = "";
@@ -398,7 +545,7 @@ async function createCards(entries: EntryWithTid[]) {
   })();
 
   for (const scryfallId of allScryfallIds) {
-    const card = scryfallDatabase.cardByScryfallId.get(scryfallId);
+    const card = defaultCards.cardByScryfallId.get(scryfallId);
     if (card == null) continue;
 
     const cardId = cardIdByOracleId.get(card.oracle_id);
@@ -683,11 +830,27 @@ async function main({
   tid?: string[];
 }) {
   createSchema();
+  const [oracleCards, defaultCards] = await Promise.all([
+    ScryfallDatabase.create("oracle_cards"),
+    ScryfallDatabase.create("default_cards"),
+  ]);
 
   const tournamentIdByTid = await createTournaments(importedTids);
-  const entries = await loadEntries(Array.from(tournamentIdByTid.keys()));
+
+  const entries = await loadEntries(
+    Array.from(tournamentIdByTid.keys()),
+    defaultCards,
+    oracleCards,
+  );
+
   const commanderIdByName = await createCommanders(entries);
-  const cardIdByScryfallId = await createCards(entries);
+
+  const cardIdByScryfallId = await createCards(
+    entries,
+    defaultCards,
+    oracleCards,
+  );
+
   await createPlayers(
     {
       entries,
