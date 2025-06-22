@@ -81,10 +81,11 @@ async function createServer() {
       )) as typeof import("./src/entry-server");
 
       console.log("Loaded module, rendering, ", url);
-      let { html, root, ops } = await render(url);
+      let { html, ops, rootModule } = await render(url);
 
       const preloadModuleFile =
-        Object.values(manifest).find((s) => s.name === root)?.file ?? null;
+        Object.values(manifest).find((s) => s.name === rootModule)?.file ??
+        null;
 
       const renderedPage = template
         .replace(`<!--app-html-->`, () => html)
@@ -96,7 +97,7 @@ async function createServer() {
             )} -->
 
 <script type="text/javascript">
-  window.__river_ops = ${serialize(ops)}
+  window.__river_ops = ${serialize(ops)};
 </script>`,
         );
 

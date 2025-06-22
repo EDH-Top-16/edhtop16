@@ -45,7 +45,6 @@ export function getClientEnvironment() {
     ][];
 
     for (const [op, payload] of ops) {
-      console.log(op);
       clientEnv.commitPayload(op, payload);
     }
   }

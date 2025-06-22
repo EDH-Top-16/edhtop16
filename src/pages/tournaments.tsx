@@ -1,7 +1,5 @@
-import FireIcon from "@heroicons/react/24/solid/FireIcon";
+/** @module m#tournaments */
 import { format } from "date-fns";
-// import { NextSeo } from "next-seo";
-// import Link from "next/link";
 import { PropsWithChildren, useCallback, useMemo } from "react";
 import {
   EntryPointComponent,

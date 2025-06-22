@@ -1,11 +1,7 @@
-import FireIcon from "@heroicons/react/24/solid/FireIcon";
+/** @module m#index */
 import RectangleStackIcon from "@heroicons/react/24/solid/RectangleStackIcon";
 import TableCellsIcon from "@heroicons/react/24/solid/TableCellsIcon";
-// import { QueryParamKind, useQueryParams } from "@reverecre/next-query-params";
 import cn from "classnames";
-// import { NextSeo } from "next-seo";
-// import Link from "next/link";
-// import { useRouter } from "next/router";
 import type { ParsedUrlQuery } from "querystring";
 import { PropsWithChildren, useCallback, useMemo } from "react";
 import {

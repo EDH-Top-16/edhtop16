@@ -17,6 +17,8 @@ import { createServerEnvironment } from "./lib/server/relay_server_environment";
 export async function render(url: string) {
   const router = new Router(url);
   const env = createServerEnvironment();
+
+  await router.route()?.entrypoint?.root.load();
   const { App, entrypoint } = createRiverApp(router, env);
 
   const preloadedQueryOps: [OperationDescriptor, PayloadData][] = [];
@@ -54,7 +56,7 @@ export async function render(url: string) {
 
   return {
     html,
-    root: entrypoint?.rootModuleID,
+    rootModule: entrypoint?.rootModuleID,
     ops: preloadedQueryOps,
   };
 }

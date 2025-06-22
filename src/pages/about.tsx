@@ -1,6 +1,6 @@
 // import { NextSeo } from "next-seo";
-import Image from "next/image";
-import TeamImage from "../assets/images/team.jpg";
+// import Image from "next/image";
+// import TeamImage from "../assets/images/team.jpg";
 import { Navigation } from "../components/navigation";
 
 function AboutPage() {
@@ -72,12 +72,12 @@ function AboutPage() {
           Our Team
         </h1>
 
-        <Image
+        {/* <Image
           src={TeamImage}
           width={300}
           alt="ryan and jason"
           className="rounded-lg shadow"
-        />
+        /> */}
 
         <p className="w-full">
           EDHTop16 is developed and maintained by Ryan Delaney and Jason Qiu.

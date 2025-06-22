@@ -1,16 +1,13 @@
+/** @route / */
 import { EntryPoint } from "react-relay";
 import { JSResource } from "../lib/river/js_resource";
+import { Router } from "../lib/river/router";
 import CommandersQueryParameters from "../queries/__generated__/pages_CommandersQuery$parameters";
-import { pages_CommandersQuery$variables } from "../queries/__generated__/pages_CommandersQuery.graphql";
-import { CommandersPage } from "./index";
+import type { CommandersPage } from "./index";
 
-/** @route / */
-export const entrypoint: EntryPoint<
-  typeof CommandersPage,
-  pages_CommandersQuery$variables
-> = {
+export const entrypoint: EntryPoint<typeof CommandersPage, Router> = {
   root: JSResource.fromModuleId("m#index"),
-  getPreloadProps(variables) {
+  getPreloadProps(router) {
     return {
       queries: {
         commandersQueryRef: {

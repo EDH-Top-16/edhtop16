@@ -1,13 +1,13 @@
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
 import cn from "classnames";
 import { format } from "date-fns";
-import { NextSeo } from "next-seo";
-import Link from "next/link";
-import { useRouter } from "next/router";
+// import { NextSeo } from "next-seo";
+// import Link from "next/link";
+// import { useRouter } from "next/router";
 import { PropsWithChildren, Suspense, useCallback, useMemo } from "react";
-import { Tabs } from "react-aria-components";
+// import { Tabs } from "react-aria-components";
 import { useFragment, useLazyLoadQuery, usePreloadedQuery } from "react-relay";
-import { RelayProps, withRelay } from "relay-nextjs";
+// import { RelayProps, withRelay } from "relay-nextjs";
 import { graphql } from "relay-runtime";
 import { ColorIdentity } from "../../assets/icons/colors";
 import { Card } from "../../components/card";
@@ -116,12 +116,12 @@ function EntryCard({
           <span className="text-xl font-bold">{entryNameNode}</span>
         )}
 
-        <Link
+        <a
           href={entry.commander.breakdownUrl}
           className="underline decoration-transparent transition-colors hover:decoration-inherit"
         >
           {entry.commander.name}
-        </Link>
+        </a>
       </div>
     </Card>
   );
@@ -277,10 +277,11 @@ function TournamentMeta(props: { tournament: TID_TournamentMeta$key }) {
   );
 
   return (
-    <NextSeo
-      title={tournament.name}
-      description={`Top Performing cEDH decks at ${tournament.name}`}
-    />
+    null
+    // <NextSeo
+    //   title={tournament.name}
+    //   description={`Top Performing cEDH decks at ${tournament.name}`}
+    // />
   );
 }
 
@@ -317,7 +318,7 @@ function TournamentPageShell({
       <TournamentBanner tournament={tournament} />
       {tournament.promo && <FirstPartyPromo promo={tournament.promo} />}
 
-      <Tabs
+      {/* <Tabs
         className="mx-auto max-w-screen-md"
         isDisabled={onUpdateQueryParam == null}
         selectedKey={tab}
@@ -335,7 +336,7 @@ function TournamentPageShell({
           <Tab id="breakdown">Metagame Breakdown</Tab>
           <Tab id="commander">{commanderName}</Tab>
         </TabList>
-      </Tabs>
+      </Tabs> */}
       {children}
     </>
   );
