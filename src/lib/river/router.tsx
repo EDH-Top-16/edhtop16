@@ -5,7 +5,16 @@ import {
   Listener,
 } from "history";
 import { createRouter } from "radix3";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  AnchorHTMLAttributes,
+  createContext,
+  PropsWithChildren,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { entrypoint as e1 } from "../../pages/index.entrypoint";
 import { entrypoint as e0 } from "../../pages/tournaments.entrypoint";
 
@@ -55,14 +64,101 @@ export class Router {
 }
 
 const defaultRouter = new Router("/");
+const navigationContext = createContext(defaultRouter);
+const routeContext = createContext(defaultRouter.route());
 
-const routerContext = createContext(defaultRouter);
-export const RouterContextProvider = routerContext.Provider;
-export function useRouter() {
-  return useContext(routerContext);
+export function NavigationContextProvider({
+  router,
+  children,
+}: PropsWithChildren<{ router: Router }>) {
+  return (
+    <navigationContext.Provider value={router}>
+      {children}
+    </navigationContext.Provider>
+  );
 }
 
-const routeContext = createContext(defaultRouter.route());
+type NavigationDirection = string | URL | ((nextUrl: URL) => void);
+function evaluationNavigationDirection(nav: NavigationDirection): URL {
+  if (typeof nav === "string") {
+    return new URL(nav, window.location.href);
+  } else if (nav instanceof URL) {
+    return nav;
+  } else {
+    const nextUrl = new URL(window.location.href);
+    nav(nextUrl);
+    return nextUrl;
+  }
+}
+
+export function useNavigation() {
+  const router = useContext(navigationContext);
+
+  const push = useCallback(
+    (nav: NavigationDirection) => {
+      const nextUrl = evaluationNavigationDirection(nav);
+
+      // Don't support navigaton to a different domain.
+      if (window.location.origin !== nextUrl.origin) {
+        throw new Error("Cannot navigate to a different origin.");
+      }
+
+      router.push(nextUrl.pathname + nextUrl.search);
+    },
+    [router],
+  );
+
+  const replace = useCallback(
+    (nav: NavigationDirection) => {
+      const nextUrl = evaluationNavigationDirection(nav);
+
+      // Don't support navigaton to a different domain.
+      if (window.location.origin !== nextUrl.origin) {
+        throw new Error("Cannot navigate to a different origin.");
+      }
+
+      router.replace(nextUrl.pathname + nextUrl.search);
+    },
+    [router],
+  );
+
+  return useMemo(
+    () => ({
+      push,
+      replace,
+    }),
+    [push, replace],
+  );
+}
+
+export function Link(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
+  const { push } = useNavigation();
+
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+      props.onClick?.(e);
+      if (e.defaultPrevented || !props.href) return;
+
+      // See https://github.com/remix-run/react-router/blob/main/packages/react-router/lib/dom/dom.ts#L34
+      const shouldHandle =
+        e.button === 0 &&
+        (!props.target || props.target === "_self") &&
+        !(e.metaKey || e.altKey || e.ctrlKey || e.shiftKey);
+
+      if (!shouldHandle) return;
+
+      const destination = new URL(props.href, window.location.href);
+      if (destination.origin !== window.location.origin) return;
+
+      e.preventDefault();
+      push(destination);
+    },
+    [push],
+  );
+
+  return <a {...props} onClick={handleClick} />;
+}
+
 export const RouteContextProvider = routeContext.Provider;
 export function useRoute() {
   return useContext(routeContext);
