@@ -1,8 +1,6 @@
-/* eslint-disable @next/next/no-html-link-for-pages */
 import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
 import XMarkIcon from "@heroicons/react/24/solid/XMarkIcon";
 import cn from "classnames";
-// import Link from "next/link";
 import { useCallback, useState } from "react";
 import { Searchbar } from "./searchbar";
 
