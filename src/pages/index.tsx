@@ -27,7 +27,7 @@ import {
 import { pages_topCommanders$key } from "../queries/__generated__/pages_topCommanders.graphql";
 import { pages_TopCommandersCard$key } from "../queries/__generated__/pages_TopCommandersCard.graphql";
 import { TopCommandersQuery } from "../queries/__generated__/TopCommandersQuery.graphql";
-import { useRouter } from "../lib/river/router";
+import { useNavigation } from "../lib/river/router";
 
 function TopCommandersCard({
   display = "card",
@@ -271,16 +271,15 @@ function useCommandersDisplay() {
 }
 
 function useSetQueryVariable() {
-  const router = useRouter();
+  const nav = useNavigation();
   return useCallback((key: string, value: string | null) => {
-    const nextUrl = new URL(window.location.href);
-    if (value == null) {
-      nextUrl.searchParams.delete(key);
-    } else {
-      nextUrl.searchParams.set(key, value);
-    }
-
-    router.replace(nextUrl.pathname + nextUrl.search);
+    nav.replace((url) => {
+      if (value == null) {
+        url.searchParams.delete(key);
+      } else {
+        url.searchParams.set(key, value);
+      }
+    });
   }, []);
 }
 

@@ -9,7 +9,7 @@ import { Environment } from "relay-runtime";
 import {
   RouteContextProvider,
   Router,
-  RouterContextProvider,
+  NavigationContextProvider,
   useCurrentRoute,
 } from "./router";
 
@@ -44,7 +44,7 @@ export function createRiverApp(router: Router, env: Environment) {
     const ep = entrypointRef ?? initialEntrypoint;
 
     return (
-      <RouterContextProvider value={router}>
+      <NavigationContextProvider router={router}>
         <RouteContextProvider value={route}>
           <RelayEnvironmentProvider environment={env}>
             <main className="relative min-h-screen bg-[#514f86]">
@@ -59,7 +59,7 @@ export function createRiverApp(router: Router, env: Environment) {
             </main>
           </RelayEnvironmentProvider>
         </RouteContextProvider>
-      </RouterContextProvider>
+      </NavigationContextProvider>
     );
   }
 
