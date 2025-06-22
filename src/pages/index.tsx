@@ -27,6 +27,7 @@ import {
 import { pages_topCommanders$key } from "../queries/__generated__/pages_topCommanders.graphql";
 import { pages_TopCommandersCard$key } from "../queries/__generated__/pages_TopCommandersCard.graphql";
 import { TopCommandersQuery } from "../queries/__generated__/TopCommandersQuery.graphql";
+import { useRouter } from "../lib/river/router";
 
 function TopCommandersCard({
   display = "card",
@@ -270,7 +271,7 @@ function useCommandersDisplay() {
 }
 
 function useSetQueryVariable() {
-  // const router = useRouter();
+  const router = useRouter();
   return useCallback((key: string, value: string | null) => {
     const nextUrl = new URL(window.location.href);
     if (value == null) {
@@ -278,21 +279,22 @@ function useSetQueryVariable() {
     } else {
       nextUrl.searchParams.set(key, value);
     }
-    // router.replace(nextUrl, undefined, { shallow: true, scroll: false });
+
+    router.replace(nextUrl.pathname + nextUrl.search);
   }, []);
 }
 
-function queryVariablesFromParsedUrlQuery(query: ParsedUrlQuery) {
-  const timePeriod = (query.timePeriod as TimePeriod) ?? "SIX_MONTHS";
-  const sortBy = (query.sortBy as CommandersSortBy) ?? "POPULARITY";
-  const colorId = query.colorId as string | undefined;
-  const minEntries =
-    typeof query.minEntries === "string" ? Number(query.minEntries) : 20;
-  const minTournamentSize =
-    typeof query.minSize === "string" ? Number(query.minSize) : 60;
+// function queryVariablesFromParsedUrlQuery(query: ParsedUrlQuery) {
+//   const timePeriod = (query.timePeriod as TimePeriod) ?? "SIX_MONTHS";
+//   const sortBy = (query.sortBy as CommandersSortBy) ?? "POPULARITY";
+//   const colorId = query.colorId as string | undefined;
+//   const minEntries =
+//     typeof query.minEntries === "string" ? Number(query.minEntries) : 20;
+//   const minTournamentSize =
+//     typeof query.minSize === "string" ? Number(query.minSize) : 60;
 
-  return { timePeriod, sortBy, colorId, minEntries, minTournamentSize };
-}
+//   return { timePeriod, sortBy, colorId, minEntries, minTournamentSize };
+// }
 
 const CommandersQuery = graphql`
   query pages_CommandersQuery(
