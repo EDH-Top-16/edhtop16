@@ -6,7 +6,7 @@ import {
   useEntryPointLoader,
 } from "react-relay";
 import RelayModernEnvironment from "relay-runtime/lib/store/RelayModernEnvironment";
-import { Router, RouterContextProvier, useRouter } from "./router";
+import { Router, RouterContextProvider, useRouter } from "./router";
 
 function getEntrypoint(router: Router, env: RelayModernEnvironment) {
   const initialRoute = router.route();
@@ -37,10 +37,9 @@ export function createRiverApp(router: Router, env: RelayModernEnvironment) {
     }, [route]);
 
     const ep = initialEntrypoint ?? entrypointRef;
-    console.log({ ep });
 
     return (
-      <RouterContextProvier value={route}>
+      <RouterContextProvider value={route}>
         <RelayEnvironmentProvider environment={env}>
           <main className="relative min-h-screen bg-[#514f86]">
             {ep == null ? (
@@ -53,7 +52,7 @@ export function createRiverApp(router: Router, env: RelayModernEnvironment) {
             )}
           </main>
         </RelayEnvironmentProvider>
-      </RouterContextProvier>
+      </RouterContextProvider>
     );
   }
 
