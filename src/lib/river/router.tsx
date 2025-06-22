@@ -15,7 +15,9 @@ import {
   useMemo,
   useState,
 } from "react";
+import { entrypoint as e2 } from "../../pages/about.entrypoint";
 import { entrypoint as e1 } from "../../pages/index.entrypoint";
+import { entrypoint as e3 } from "../../pages/tournament/tournament_view.entrypoint";
 import { entrypoint as e0 } from "../../pages/tournaments.entrypoint";
 
 type RouterConf = (typeof Router)["CONF"];
@@ -24,6 +26,8 @@ export class Router {
   static CONF = {
     "/tournaments": { entrypoint: e0 } as const,
     "/": { entrypoint: e1 } as const,
+    "/about": { entrypoint: e2 } as const,
+    "/tournament/:tid": { entrypoint: e3 } as const,
   } as const;
 
   private readonly radixRouter = createRouter<RouterConf[keyof RouterConf]>({
@@ -122,13 +126,12 @@ export function useNavigation() {
     [router],
   );
 
-  return useMemo(
-    () => ({
-      push,
-      replace,
-    }),
-    [push, replace],
-  );
+  return useMemo(() => ({ push, replace }), [push, replace]);
+}
+
+export interface EntryPointParams {
+  router: Router;
+  params?: Record<string, any>;
 }
 
 export function Link(props: AnchorHTMLAttributes<HTMLAnchorElement>) {

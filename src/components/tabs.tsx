@@ -1,41 +1,46 @@
-import { PropsWithChildren } from "react";
-import { Tab, TabList, TabListProps, TabProps } from "react-aria-components";
 import cn from "classnames";
+import React, { PropsWithChildren } from "react";
 
 function Edhtop16TabList({
   children,
   className,
-  ...props
-}: PropsWithChildren<TabListProps<object>>) {
+}: PropsWithChildren<{ className?: string }>) {
   return (
-    <TabList
-      {...props}
+    <div
       className={cn(
         "flex flex-wrap justify-center gap-6 border-b border-white/40 p-6 text-center",
         className,
       )}
     >
       {children}
-    </TabList>
+    </div>
   );
+}
+
+interface Edhtop16TabProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  selected?: boolean;
 }
 
 function Edhtop16Tab({
   children,
   className,
+  selected,
   ...props
-}: PropsWithChildren<TabProps>) {
+}: PropsWithChildren<Edhtop16TabProps>) {
   return (
-    <Tab
+    <button
       {...props}
       className={cn(
-        "cursor-pointer border-white text-lg text-white/60 outline-none transition-colors selected:border-b-2 selected:text-white disabled:border-white/60 disabled:text-white/60",
+        "cursor-pointer border-white text-lg text-white/60 outline-hidden transition-colors",
+        selected && "border-b-2 text-white",
+        props.disabled && "border-white/60 text-white/60",
         className,
       )}
     >
       {children}
-    </Tab>
+    </button>
   );
 }
 
-export { Edhtop16TabList as TabList, Edhtop16Tab as Tab };
+export { Edhtop16Tab as Tab, Edhtop16TabList as TabList };

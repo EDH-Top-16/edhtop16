@@ -1,15 +1,15 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { usePersistedOperations } from "@graphql-yoga/plugin-persisted-operations";
+import tailwindcss from '@tailwindcss/vite';
 import react from "@vitejs/plugin-react";
 import dotenv from "dotenv";
 import express from "express";
-import { createYoga, GraphQLParams } from "graphql-yoga";
+import { createYoga, type GraphQLParams } from "graphql-yoga";
 import fs from "node:fs";
 import { readFile } from "node:fs/promises";
-import path from "node:path";
+import serialize from "serialize-javascript";
 import { createServer as createViteServer } from "vite";
 import { cjsInterop } from "vite-plugin-cjs-interop";
-import serialize from "serialize-javascript";
 
 interface ViteManifest {
   [moduleId: string]: {
@@ -37,6 +37,7 @@ async function createServer() {
       ssrManifest: true,
     },
     plugins: [
+      tailwindcss(),
       react({ babel: { plugins: ["relay"] } }),
       cjsInterop({ dependencies: ["react-relay", "relay-runtime"] }),
     ],
@@ -70,7 +71,7 @@ async function createServer() {
 
     try {
       let template = fs.readFileSync(
-        path.resolve(__dirname, "index.html"),
+        "index.html",
         "utf-8",
       );
 

@@ -1,11 +1,4 @@
-import {
-  Environment,
-  Network,
-  PayloadData,
-  RecordSource,
-  Store,
-} from "relay-runtime";
-import { OperationDescriptor } from "relay-runtime/lib/store/RelayStoreTypes";
+import { Environment, Network, RecordSource, Store } from "relay-runtime";
 
 export function createClientNetwork() {
   return Network.create(async (params, variables) => {
@@ -38,15 +31,6 @@ export function getClientEnvironment() {
       store: new Store(new RecordSource()),
       isServer: false,
     });
-
-    const ops = (window as any).__river_ops as [
-      OperationDescriptor,
-      PayloadData,
-    ][];
-
-    for (const [op, payload] of ops) {
-      clientEnv.commitPayload(op, payload);
-    }
   }
 
   return clientEnv;

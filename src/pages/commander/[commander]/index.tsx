@@ -145,8 +145,8 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
 
   return (
     <div className="h-64 w-full bg-black/60 md:h-80">
-      <div className="relative mx-auto flex h-full w-full max-w-screen-xl flex-col items-center justify-center">
-        <div className="absolute left-0 top-0 flex h-full w-full brightness-[40%]">
+      <div className="relative mx-auto flex h-full w-full max-w-(--breakpoint-xl) flex-col items-center justify-center">
+        <div className="absolute left-0 top-0 flex h-full w-full brightness-40">
           {commander.cards
             .flatMap((c) => c.imageUrls)
             .map((src, _i, { length }) => {
@@ -256,7 +256,7 @@ export function CommanderPageShell({
       <CommanderBanner commander={commander} />
       {commander.promo && <FirstPartyPromo promo={commander.promo} />}
 
-      <div className="mx-auto grid max-w-screen-md grid-cols-2 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
+      <div className="mx-auto grid max-w-(--breakpoint-md) grid-cols-2 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
         <Select
           id="commander-sort-by"
           label="Sort By"
@@ -391,7 +391,7 @@ function CommanderPage({
 
   return (
     <CommanderPageShell commander={commander}>
-      <div className="mx-auto grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
         {data.entries.edges.map(({ node }) => (
           <EntryCard key={node.id} entry={node} />
         ))}

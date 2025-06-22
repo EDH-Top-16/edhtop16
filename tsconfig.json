@@ -10,17 +10,12 @@
     "strictNullChecks": true,
     "noUncheckedIndexedAccess": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
   },
-  "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx", ".next/types/**/*.ts", "types/*.ts", "devserver.ts"],
-  "exclude": ["node_modules"],
-  "ts-node": {
-    "compilerOptions": {
-      "module": "CommonJS"
-    }
-  }
+  "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx", ".next/types/**/*.ts", "types/*.ts", "devserver.mts"],
+  "exclude": ["node_modules"]
 }

@@ -5,7 +5,7 @@ import {
   RelayEnvironmentProvider,
   useEntryPointLoader,
 } from "react-relay";
-import { Environment } from "relay-runtime";
+import { Environment, OperationDescriptor, PayloadData } from "relay-runtime";
 import {
   RouteContextProvider,
   Router,
@@ -13,13 +13,26 @@ import {
   useCurrentRoute,
 } from "./router";
 
+function hydrateStore(env: Environment) {
+  if ("__river_ops" in window) {
+    const ops = (window as any).__river_ops as [
+      OperationDescriptor,
+      PayloadData,
+    ][];
+
+    for (const [op, payload] of ops) {
+      env.commitPayload(op, payload);
+    }
+  }
+}
+
 function getEntrypoint(router: Router, env: Environment) {
   const initialRoute = router.route();
   try {
     return loadEntryPoint(
       { getEnvironment: () => env },
       initialRoute?.entrypoint,
-      router,
+      { params: initialRoute.params, router },
     );
   } catch (e) {
     return null;
@@ -27,6 +40,10 @@ function getEntrypoint(router: Router, env: Environment) {
 }
 
 export function createRiverApp(router: Router, env: Environment) {
+  if (typeof window !== "undefined") {
+    hydrateStore(env);
+  }
+
   const initialEntrypoint = getEntrypoint(router, env);
 
   function App() {
@@ -37,7 +54,7 @@ export function createRiverApp(router: Router, env: Environment) {
     );
 
     useEffect(() => {
-      loadEntrypointRef(router);
+      loadEntrypointRef({ params: route.params, router });
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [route]);
 
@@ -45,8 +62,8 @@ export function createRiverApp(router: Router, env: Environment) {
 
     return (
       <NavigationContextProvider router={router}>
-        <RouteContextProvider value={route}>
-          <RelayEnvironmentProvider environment={env}>
+        <RelayEnvironmentProvider environment={env}>
+          <RouteContextProvider value={route}>
             <main className="relative min-h-screen bg-[#514f86]">
               {ep == null ? (
                 <NotFound />
@@ -57,8 +74,8 @@ export function createRiverApp(router: Router, env: Environment) {
                 />
               )}
             </main>
-          </RelayEnvironmentProvider>
-        </RouteContextProvider>
+          </RouteContextProvider>
+        </RelayEnvironmentProvider>
       </NavigationContextProvider>
     );
   }
