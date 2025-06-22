@@ -1,4 +1,3 @@
-/** @module m#tournaments */
 import { format } from "date-fns";
 import { PropsWithChildren, useCallback, useMemo } from "react";
 import {
@@ -13,6 +12,7 @@ import { Footer } from "../components/footer";
 import { LoadMoreButton } from "../components/load_more";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
+import { Link, useNavigation } from "../lib/river/router";
 import { AllTournamentsQuery } from "../queries/__generated__/AllTournamentsQuery.graphql";
 import { tournaments_TournamentCard$key } from "../queries/__generated__/tournaments_TournamentCard.graphql";
 import { tournaments_Tournaments$key } from "../queries/__generated__/tournaments_Tournaments.graphql";
@@ -68,12 +68,12 @@ function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
         }))}
     >
       <div className="flex h-32 flex-col space-y-2">
-        <a
+        <Link
           href={`/tournament/${tournament.TID}`}
           className="line-clamp-2 text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
         >
           {tournament.name}
-        </a>
+        </Link>
 
         <span>{format(tournament.tournamentDate, "MMMM do yyyy")}</span>
       </div>
@@ -101,9 +101,9 @@ function TournamentsPageShell({
         description="Discover top and recent cEDH tournaments!"
       /> */}
 
-      <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
+      <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">
         <div className="mb-8 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0">
-          <h1 className="flex-1 font-title text-4xl font-extrabold text-white md:text-5xl">
+          <h1 className="font-title flex-1 text-4xl font-extrabold text-white md:text-5xl">
             cEDH Tournaments
           </h1>
 
@@ -161,27 +161,37 @@ function TournamentsPageShell({
   );
 }
 
-const TournamentsQuery = graphql`
-  query tournaments_TournamentsQuery(
-    $timePeriod: TimePeriod!
-    $sortBy: TournamentSortBy!
-    $minSize: Int!
-  ) @preloadable {
-    ...tournaments_Tournaments
-  }
-`;
-
+/** @resource m#tournaments */
 export const TournamentsPage: EntryPointComponent<
   { tournamentQueryRef: tournaments_TournamentsQuery },
   {}
 > = ({ queries }) => {
-  const query = usePreloadedQuery(TournamentsQuery, queries.tournamentQueryRef);
+  const query = usePreloadedQuery(
+    graphql`
+      query tournaments_TournamentsQuery(
+        $timePeriod: TimePeriod!
+        $sortBy: TournamentSortBy!
+        $minSize: Int!
+      ) @preloadable {
+        ...tournaments_Tournaments
+      }
+    `,
+    queries.tournamentQueryRef,
+  );
 
-  const setQueryVariable = useCallback((key: string, value: string) => {
-    const nextUrl = new URL(window.location.href);
-    nextUrl.searchParams.set(key, value);
-    window.location.href = nextUrl.toString();
-  }, []);
+  const nav = useNavigation();
+  const setQueryVariable = useCallback(
+    (key: string, value: string) => {
+      nav.replace((url) => {
+        if (value == null) {
+          url.searchParams.delete(key);
+        } else {
+          url.searchParams.set(key, value);
+        }
+      });
+    },
+    [nav],
+  );
 
   const { data, loadNext, isLoadingNext, hasNext } = usePaginationFragment<
     AllTournamentsQuery,
@@ -253,24 +263,3 @@ export const TournamentsPage: EntryPointComponent<
 //     </TournamentsPageShell>
 //   );
 // }
-
-// export default TournamentsPage;
-
-// export default withRelay(TournamentsPage, TournamentsQuery, {
-//   fallback: <TournamentsPagePlaceholder />,
-//   createClientEnvironment: () => getClientEnvironment()!,
-//   createServerEnvironment: async () => {
-//     const { createServerEnvironment } = await import(
-//       "../lib/server/relay_server_environment"
-//     );
-
-//     return createServerEnvironment();
-//   },
-//   variablesFromContext: (ctx) => {
-//     return {
-//       timePeriod: (ctx.query.timePeriod as TimePeriod) ?? "SIX_MONTHS",
-//       sortBy: (ctx.query.sortBy as TournamentSortBy) ?? "DATE",
-//       minSize: Number((ctx.query.minSize as string) ?? 60),
-//     };
-//   },
-// });

@@ -1,21 +1,37 @@
-/** @route /tournament/:tid */
 import { EntryPoint } from "react-relay";
-import { JSResource } from "../lib/river/js_resource";
-import { Router } from "../lib/river/router";
+import { JSResource, ModuleType } from "../lib/river/js_resource";
+import { EntryPointParams, QueryParamKind } from "../lib/river/router";
 import TournamentsQueryParameters from "../queries/__generated__/tournaments_TournamentsQuery$parameters";
-import type { TournamentsPage } from "./tournaments";
+import type {
+  TimePeriod,
+  TournamentSortBy,
+} from "../queries/__generated__/AllTournamentsQuery.graphql";
 
-export const entrypoint: EntryPoint<typeof TournamentsPage, Router> = {
+/** @route /tournaments */
+export const entrypoint: EntryPoint<
+  ModuleType<"m#tournaments">,
+  EntryPointParams
+> = {
   root: JSResource.fromModuleId("m#tournaments"),
-  getPreloadProps(router) {
+  getPreloadProps({ router }) {
+    const {
+      sortBy = "DATE",
+      minSize = 0,
+      timePeriod = "ALL_TIME",
+    } = router.parseQuery({
+      sortBy: QueryParamKind.STRING,
+      minSize: QueryParamKind.NUMBER,
+      timePeriod: QueryParamKind.STRING,
+    });
+
     return {
       queries: {
         tournamentQueryRef: {
           parameters: TournamentsQueryParameters,
           variables: {
-            minSize: 0,
-            sortBy: "DATE",
-            timePeriod: "ALL_TIME",
+            minSize,
+            sortBy: sortBy as TournamentSortBy,
+            timePeriod: timePeriod as TimePeriod,
           },
         },
       },

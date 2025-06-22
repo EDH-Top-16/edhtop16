@@ -1,4 +1,3 @@
-/** @module m#index */
 import RectangleStackIcon from "@heroicons/react/24/solid/RectangleStackIcon";
 import TableCellsIcon from "@heroicons/react/24/solid/TableCellsIcon";
 import cn from "classnames";
@@ -81,7 +80,7 @@ function TopCommandersCard({
 
   if (display === "table") {
     return (
-      <div className="grid w-full grid-cols-[130px_1fr] items-center gap-x-2 overflow-x-hidden rounded bg-[#312d5a]/50 p-4 text-white shadow-md lg:grid-cols-[130px_minmax(350px,_1fr)_100px_100px_100px_100px]">
+      <div className="grid w-full grid-cols-[130px_1fr] items-center gap-x-2 overflow-x-hidden rounded-sm bg-[#312d5a]/50 p-4 text-white shadow-md lg:grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px]">
         <div>
           <ColorIdentity identity={commander.colorId} />
         </div>
@@ -159,7 +158,7 @@ function CommandersPageShell({
         description="Discover top performing commanders in cEDH!"
       /> */}
 
-      <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
+      <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">
         <div className="flex w-full items-baseline gap-4">
           <h1 className="mb-8 flex-1 font-title text-5xl font-extrabold text-white lg:mb-0">
             cEDH Metagame Breakdown
@@ -295,23 +294,25 @@ function useSetQueryVariable() {
 //   return { timePeriod, sortBy, colorId, minEntries, minTournamentSize };
 // }
 
-const CommandersQuery = graphql`
-  query pages_CommandersQuery(
-    $timePeriod: TimePeriod!
-    $sortBy: CommandersSortBy!
-    $minEntries: Int!
-    $minTournamentSize: Int!
-    $colorId: String
-  ) @preloadable {
-    ...pages_topCommanders
-  }
-`;
-
+/** @resource m#index */
 export const CommandersPage: EntryPointComponent<
   { commandersQueryRef: pages_CommandersQuery },
   {}
 > = ({ queries }) => {
-  const query = usePreloadedQuery(CommandersQuery, queries.commandersQueryRef);
+  const query = usePreloadedQuery(
+    graphql`
+      query pages_CommandersQuery(
+        $timePeriod: TimePeriod!
+        $sortBy: CommandersSortBy!
+        $minEntries: Int!
+        $minTournamentSize: Int!
+        $colorId: String
+      ) @preloadable {
+        ...pages_topCommanders
+      }
+    `,
+    queries.commandersQueryRef,
+  );
   const setQueryVariable = useSetQueryVariable();
   const [display] = useCommandersDisplay();
 
@@ -365,7 +366,7 @@ export const CommandersPage: EntryPointComponent<
         )}
       >
         {display === "table" && (
-          <div className="sticky top-[68px] hidden w-full grid-cols-[130px_minmax(350px,_1fr)_100px_100px_100px_100px] items-center gap-x-2 overflow-x-hidden bg-[#514f86] p-4 text-sm text-white lg:grid">
+          <div className="sticky top-[68px] hidden w-full grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px] items-center gap-x-2 overflow-x-hidden bg-[#514f86] p-4 text-sm text-white lg:grid">
             <div>Color</div>
             <div>Commander</div>
             <div>Entries</div>
@@ -422,18 +423,3 @@ export const CommandersPage: EntryPointComponent<
 //     </CommandersPageShell>
 //   );
 // }
-
-// export default withRelay(Commanders, CommandersQuery, {
-//   fallback: <CommandersPagePlaceholder />,
-//   createClientEnvironment: () => getClientEnvironment()!,
-//   createServerEnvironment: async () => {
-//     const { createServerEnvironment } = await import(
-//       "../lib/server/relay_server_environment"
-//     );
-
-//     return createServerEnvironment();
-//   },
-//   variablesFromContext: (ctx) => {
-//     return queryVariablesFromParsedUrlQuery(ctx.query);
-//   },
-// });

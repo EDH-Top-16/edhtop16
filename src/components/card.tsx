@@ -16,7 +16,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-lg bg-white shadow transition-shadow",
+        "group relative overflow-hidden rounded-lg bg-white shadow-sm transition-shadow",
         hoverEffect && "cursor-pointer hover:shadow-lg",
         className,
       )}
@@ -27,8 +27,8 @@ export function Card({
           images.length > 0 && "brightness-50",
           hoverEffect &&
             (images.length > 0
-              ? "group-hover:brightness-[40%]"
-              : "group-hover:brightness-[80%]"),
+              ? "group-hover:brightness-40"
+              : "group-hover:brightness-80"),
         )}
       >
         {images.map(({ src, alt }, _i, { length }) => {

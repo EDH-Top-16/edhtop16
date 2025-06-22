@@ -46,7 +46,7 @@ function StapleCardsList(props: { commander: staples_cards$key }) {
   );
 
   return (
-    <div className="mx-auto flex grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="mx-auto flex grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
       {data.staples.edges.map(({ node }) => {
         return (
           <div key={node.id} className="flex flex-col items-center">

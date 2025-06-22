@@ -1,15 +1,13 @@
-// import { NextSeo } from "next-seo";
-// import Image from "next/image";
-// import TeamImage from "../assets/images/team.jpg";
 import { Navigation } from "../components/navigation";
 
-function AboutPage() {
+/** @resource m#about */
+export function AboutPage() {
   return (
     <>
       <Navigation />
       {/* <NextSeo title="About" description="About Us" /> */}
 
-      <div className="mx-auto my-8 flex w-full max-w-screen-md flex-col items-center gap-6 px-8 text-white">
+      <div className="mx-auto my-8 flex w-full max-w-(--breakpoint-md) flex-col items-center gap-6 px-8 text-white">
         <h1 className="flex-1 font-title text-5xl font-extrabold text-white">
           About Us
         </h1>
@@ -76,7 +74,7 @@ function AboutPage() {
           src={TeamImage}
           width={300}
           alt="ryan and jason"
-          className="rounded-lg shadow"
+          className="rounded-lg shadow-sm"
         /> */}
 
         <p className="w-full">
@@ -90,5 +88,3 @@ function AboutPage() {
     </>
   );
 }
-
-export default AboutPage;

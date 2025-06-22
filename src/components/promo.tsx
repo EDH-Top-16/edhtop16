@@ -1,4 +1,4 @@
-import { graphql, useFragment } from "react-relay/hooks";
+import { graphql, useFragment } from "react-relay";
 import { promo_EmbededPromo$key } from "../queries/__generated__/promo_EmbededPromo.graphql";
 
 export function FirstPartyPromo(props: { promo: promo_EmbededPromo$key }) {
@@ -17,8 +17,8 @@ export function FirstPartyPromo(props: { promo: promo_EmbededPromo$key }) {
   );
 
   return (
-    <div className="relative mx-auto my-4 w-full max-w-screen-lg overflow-hidden rounded-none bg-cover bg-center md:w-4/5 md:rounded-md lg:w-3/4">
-      <div className="absolute left-0 top-0 flex h-full w-full brightness-[40%]">
+    <div className="relative mx-auto my-4 w-full max-w-(--breakpoint-lg) overflow-hidden rounded-none bg-cover bg-center md:w-4/5 md:rounded-md lg:w-3/4">
+      <div className="absolute left-0 top-0 flex h-full w-full brightness-40">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           alt="promo"
@@ -34,7 +34,7 @@ export function FirstPartyPromo(props: { promo: promo_EmbededPromo$key }) {
         rel="noopener"
         className="relative z-10 block px-4 py-3 md:p-6"
       >
-        <div className="group mx-auto flex max-w-screen-lg">
+        <div className="group mx-auto flex max-w-(--breakpoint-lg)">
           <div className="flex-1">
             <h2 className="mb-1 text-lg font-bold text-white md:mb-2 md:text-xl lg:text-2xl">
               {promo.title}

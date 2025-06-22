@@ -2,7 +2,7 @@ import type { JSResourceReference } from "react-relay";
 
 type JsResourceConf = (typeof JSResource)["CONF"];
 type ModuleId = keyof JsResourceConf;
-type ModuleType<M extends ModuleId> = Awaited<
+export type ModuleType<M extends ModuleId> = Awaited<
   ReturnType<JsResourceConf[M]["loader"]>
 >;
 
@@ -18,6 +18,17 @@ export class JSResource<M extends ModuleId>
     "m#index": {
       src: "src/pages/index.tsx",
       loader: () => import("../../pages/index").then((m) => m.CommandersPage),
+    },
+    "m#about": {
+      src: "src/pages/aboout.tsx",
+      loader: () => import("../../pages/about").then((m) => m.AboutPage),
+    },
+    "m#tournament_view": {
+      src: "src/pages/tournament/[TID].tsx",
+      loader: () =>
+        import("../../pages/tournament/[TID]").then(
+          (m) => m.TournamentViewPage,
+        ),
     },
   } as const;
 

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<03a809f7d513291cf59af474babc96f6>>
+ * @generated SignedSource<<14f00629c126fee42c8045cd18a3c06b>>
  * @relayHash fe1e8f08fa7b139ed855da81a339195a
  * @lightSyntaxTransform
  * @nogrep
@@ -544,6 +544,9 @@ return {
 };
 })();
 
-(node as any).hash = "398419d931fff736ab9bba066a2c9fb7";
+(node as any).hash = "daee1052822b0b2739ff540983b49914";
+
+import { PreloadableQueryRegistry } from 'relay-runtime';
+PreloadableQueryRegistry.set(node.params.id, node);
 
 export default node;
