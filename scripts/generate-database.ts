@@ -640,7 +640,10 @@ async function createPlayers(
       );
 
       const decklistUrlMatch = entry.decklist?.match(/https?:\/\/[\w\W]*$/g);
-      const decklistUrl = decklistUrlMatch?.[0] ?? entry.decklist;
+      let decklistUrl = decklistUrlMatch?.[0] ?? entry.decklist;
+      if (decklistUrl == null && entry.profile != null) {
+        decklistUrl = `https://topdeck.gg/deck/${entry.TID}/${entry.profile}`
+      }
 
       const { lastInsertRowid } = insertEntry.run(
         decklistUrl,
