@@ -8,8 +8,7 @@ async function main() {
   const router = new Router();
   const env = getClientEnvironment()!;
 
-  await router.route()?.entrypoint?.root.load();
-  const { App } = createRiverApp(router, env);
+  const { App } = await createRiverApp(router, env);
 
   hydrateRoot(
     document.getElementById("root")!,

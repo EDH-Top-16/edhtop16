@@ -39,11 +39,12 @@ function getEntrypoint(router: Router, env: Environment) {
   }
 }
 
-export function createRiverApp(router: Router, env: Environment) {
+export async function createRiverApp(router: Router, env: Environment) {
   if (typeof window !== "undefined") {
     hydrateStore(env);
   }
 
+  await router.route()?.entrypoint?.root.load();
   const initialEntrypoint = getEntrypoint(router, env);
 
   function App() {
