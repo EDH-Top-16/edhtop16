@@ -30,6 +30,13 @@ export class JSResource<M extends ModuleId>
           (m) => m.TournamentViewPage,
         ),
     },
+    "m#commander_page": {
+      src: "src/pages/commander/[commander]/index.tsx",
+      loader: () =>
+        import("../../pages/commander/[commander]").then(
+          (m) => m.CommanderPage,
+        ),
+    },
   } as const;
 
   private static readonly resourceCache = new Map<ModuleId, JSResource<any>>();

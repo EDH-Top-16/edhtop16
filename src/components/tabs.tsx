@@ -8,7 +8,7 @@ function Edhtop16TabList({
   return (
     <div
       className={cn(
-        "flex flex-wrap justify-center gap-6 border-b border-white/40 p-6 text-center",
+        "flex flex-wrap items-baseline justify-center gap-6 border-b border-white/40 p-6 text-center",
         className,
       )}
     >
