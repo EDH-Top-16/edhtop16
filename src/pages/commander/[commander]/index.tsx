@@ -1,7 +1,7 @@
 import cn from "classnames";
 import { format } from "date-fns";
 import { ParsedUrlQuery } from "querystring";
-import { PropsWithChildren, useCallback, useMemo } from "react";
+import { PropsWithChildren, useCallback } from "react";
 import {
   EntryPointComponent,
   useFragment,
@@ -17,7 +17,7 @@ import { Navigation } from "../../../components/navigation";
 import { FirstPartyPromo } from "../../../components/promo";
 import { Select } from "../../../components/select";
 import { formatOrdinals, formatPercent } from "../../../lib/client/format";
-import { Link } from "../../../lib/river/router";
+import { Link, useNavigation } from "../../../lib/river/router";
 import { Commander_CommanderBanner$key } from "../../../queries/__generated__/Commander_CommanderBanner.graphql";
 import { Commander_CommanderMeta$key } from "../../../queries/__generated__/Commander_CommanderMeta.graphql";
 import { Commander_CommanderPageShell$key } from "../../../queries/__generated__/Commander_CommanderPageShell.graphql";
@@ -205,10 +205,18 @@ function CommanderMeta(props: { commander: Commander_CommanderMeta$key }) {
 
 export function CommanderPageShell({
   disableNavigation,
+  maxStanding,
+  minEventSize,
+  sortBy,
+  timePeriod,
   children,
   ...props
 }: PropsWithChildren<{
   disableNavigation?: boolean;
+  maxStanding?: number | null;
+  minEventSize: number;
+  sortBy: EntriesSortBy;
+  timePeriod: TimePeriod;
   commander: Commander_CommanderPageShell$key;
 }>) {
   const commander = useFragment(
@@ -226,24 +234,16 @@ export function CommanderPageShell({
     props.commander,
   );
 
-  const router = useRouter();
-  const { maxStanding, minEventSize, sortBy, timePeriod } = useMemo(() => {
-    return queryVariablesFromParsedUrlQuery(router.query);
-  }, [router.query]);
-
-  const setQueryVariable = useCallback(
-    (key: string, value: string | null) => {
-      const nextUrl = new URL(window.location.href);
-      if (value != null) {
-        nextUrl.searchParams.set(key, value);
+  const nav = useNavigation();
+  const setQueryVariable = useCallback((key: string, value: string | null) => {
+    nav.replace((url) => {
+      if (value == null) {
+        url.searchParams.delete(key);
       } else {
-        nextUrl.searchParams.delete(key);
+        url.searchParams.set(key, value);
       }
-
-      router.replace(nextUrl, undefined, { shallow: true, scroll: false });
-    },
-    [router],
-  );
+    });
+  }, []);
 
   return (
     <>
@@ -389,7 +389,13 @@ export const CommanderPage: EntryPointComponent<
   );
 
   return (
-    <CommanderPageShell commander={commander}>
+    <CommanderPageShell
+      commander={commander}
+      maxStanding={queries.commanderQueryRef.variables.maxStanding}
+      minEventSize={queries.commanderQueryRef.variables.minEventSize}
+      sortBy={queries.commanderQueryRef.variables.sortBy}
+      timePeriod={queries.commanderQueryRef.variables.timePeriod}
+    >
       <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
         {data.entries.edges.map(({ node }) => (
           <EntryCard key={node.id} entry={node} />

@@ -1,7 +1,6 @@
 import RectangleStackIcon from "@heroicons/react/24/solid/RectangleStackIcon";
 import TableCellsIcon from "@heroicons/react/24/solid/TableCellsIcon";
 import cn from "classnames";
-import type { ParsedUrlQuery } from "querystring";
 import { PropsWithChildren, useCallback, useMemo } from "react";
 import {
   EntryPointComponent,
@@ -18,6 +17,7 @@ import { LoadMoreButton } from "../components/load_more";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
 import { formatPercent } from "../lib/client/format";
+import { useNavigation } from "../lib/river/router";
 import {
   CommandersSortBy,
   pages_CommandersQuery,
@@ -26,7 +26,6 @@ import {
 import { pages_topCommanders$key } from "../queries/__generated__/pages_topCommanders.graphql";
 import { pages_TopCommandersCard$key } from "../queries/__generated__/pages_TopCommandersCard.graphql";
 import { TopCommandersQuery } from "../queries/__generated__/TopCommandersQuery.graphql";
-import { useNavigation } from "../lib/river/router";
 
 function TopCommandersCard({
   display = "card",
@@ -87,7 +86,7 @@ function TopCommandersCard({
 
         <a
           href={commander.breakdownUrl}
-          className="mb-2 font-title text-xl underline lg:mb-0 lg:font-sans lg:text-base"
+          className="font-title mb-2 text-xl underline lg:mb-0 lg:font-sans lg:text-base"
         >
           {commander.name}
         </a>
@@ -160,7 +159,7 @@ function CommandersPageShell({
 
       <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">
         <div className="flex w-full items-baseline gap-4">
-          <h1 className="mb-8 flex-1 font-title text-5xl font-extrabold text-white lg:mb-0">
+          <h1 className="font-title mb-8 flex-1 text-5xl font-extrabold text-white lg:mb-0">
             cEDH Metagame Breakdown
           </h1>
 

@@ -16,6 +16,7 @@ import {
   useState,
 } from "react";
 import { entrypoint as e2 } from "../../pages/about.entrypoint";
+import { entrypoint as e4 } from "../../pages/commander/[commander]/commander_page.entrypoint";
 import { entrypoint as e1 } from "../../pages/index.entrypoint";
 import { entrypoint as e3 } from "../../pages/tournament/tournament_view.entrypoint";
 import { entrypoint as e0 } from "../../pages/tournaments.entrypoint";
@@ -28,6 +29,7 @@ export class Router {
     "/": { entrypoint: e1 } as const,
     "/about": { entrypoint: e2 } as const,
     "/tournament/:tid": { entrypoint: e3 } as const,
+    "/commander/:commander": { entrypoint: e4 } as const,
   } as const;
 
   private readonly radixRouter = createRouter<RouterConf[keyof RouterConf]>({

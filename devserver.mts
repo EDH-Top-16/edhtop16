@@ -1,27 +1,19 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { usePersistedOperations } from "@graphql-yoga/plugin-persisted-operations";
-import tailwindcss from '@tailwindcss/vite';
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import dotenv from "dotenv";
 import express from "express";
 import { createYoga, type GraphQLParams } from "graphql-yoga";
-import fs from "node:fs";
 import { readFile } from "node:fs/promises";
 import serialize from "serialize-javascript";
-import { createServer as createViteServer } from "vite";
+import { createServer as createViteServer, Manifest } from "vite";
 import { cjsInterop } from "vite-plugin-cjs-interop";
-
-interface ViteManifest {
-  [moduleId: string]: {
-    name: string;
-    file: string;
-  };
-}
 
 dotenv.config();
 
 async function createServer() {
-  let manifest: ViteManifest = {};
+  let manifest: Manifest = {};
   if (process.env.NODE_ENV === "production") {
     const manifestJson = await readFile("./dist/.vite/manifest.json");
     manifest = JSON.parse(manifestJson.toString("utf-8"));
@@ -45,10 +37,9 @@ async function createServer() {
 
   app.use(vite.middlewares);
 
-  const { schema } = await vite.ssrLoadModule("/src/lib/server/schema");
-  app.use(
-    "/api/graphql",
-    createYoga({
+  app.use("/api/graphql", async (req, res) => {
+    const { schema } = await vite.ssrLoadModule("/src/lib/server/schema");
+    const middleware = createYoga({
       schema,
       plugins: [
         usePersistedOperations({
@@ -63,18 +54,16 @@ async function createServer() {
           },
         }),
       ],
-    }),
-  );
+    });
+
+    return middleware(req, res);
+  });
 
   app.use("*all", async (req, res, next) => {
     const url = req.originalUrl;
 
     try {
-      let template = fs.readFileSync(
-        "index.html",
-        "utf-8",
-      );
-
+      let template = await readFile("index.html", "utf-8");
       template = await vite.transformIndexHtml(url, template);
 
       const { render } = (await vite.ssrLoadModule(
@@ -82,8 +71,7 @@ async function createServer() {
       )) as typeof import("./src/entry-server");
 
       console.log("Loaded module, rendering, ", url);
-      let { html, ops, rootModule } = await render(url);
-
+      const { html, ops, rootModule } = await render(url);
       const preloadModuleFile =
         Object.values(manifest).find((s) => s.name === rootModule)?.file ??
         null;
@@ -93,13 +81,13 @@ async function createServer() {
         .replace(
           "<!--app-head-->",
           `
-            <!-- I SHOULD PRELOAD THESE: ${JSON.stringify(
-              preloadModuleFile,
-            )} -->
+                  <!-- I SHOULD PRELOAD THESE: ${JSON.stringify(
+                    preloadModuleFile,
+                  )} -->
 
-<script type="text/javascript">
-  window.__river_ops = ${serialize(ops)};
-</script>`,
+      <script type="text/javascript">
+        window.__river_ops = ${serialize(ops)};
+      </script>`,
         );
 
       res.status(200).set({ "Content-Type": "text/html" }).end(renderedPage);
