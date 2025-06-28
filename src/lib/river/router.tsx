@@ -15,11 +15,17 @@ import {
   useMemo,
   useState,
 } from "react";
+import { Environment } from "relay-runtime";
 import { entrypoint as e2 } from "../../pages/about.entrypoint";
 import { entrypoint as e4 } from "../../pages/commander/[commander]/commander_page.entrypoint";
 import { entrypoint as e1 } from "../../pages/index.entrypoint";
 import { entrypoint as e3 } from "../../pages/tournament/tournament_view.entrypoint";
 import { entrypoint as e0 } from "../../pages/tournaments.entrypoint";
+import {
+  loadEntryPoint,
+  PreloadedEntryPoint,
+  useEntryPointLoader,
+} from "react-relay";
 
 type RouterConf = (typeof Router)["CONF"];
 
@@ -32,15 +38,6 @@ export class Router {
     "/commander/:commander": { entrypoint: e4 } as const,
   } as const;
 
-  private readonly radixRouter = createRouter<RouterConf[keyof RouterConf]>({
-    routes: Router.CONF,
-  });
-
-  private readonly history: History;
-
-  push;
-  replace;
-
   constructor(staticInit?: string) {
     if (staticInit == null) {
       this.history = createBrowserHistory();
@@ -51,6 +48,14 @@ export class Router {
     this.push = this.history.push.bind(this.history);
     this.replace = this.history.replace.bind(this.history);
   }
+
+  private readonly history: History;
+  readonly push;
+  readonly replace;
+
+  private readonly radixRouter = createRouter<RouterConf[keyof RouterConf]>({
+    routes: Router.CONF,
+  });
 
   route = () => {
     return {
@@ -67,6 +72,47 @@ export class Router {
 
   parseQuery = <T extends AnyParamMapping>(params: T) =>
     parseQuery(this.history.location.search, params);
+
+  private async loadEntryPoint(env: Environment) {
+    const initialRoute = this.route();
+    await initialRoute.entrypoint?.root.load();
+
+    try {
+      return loadEntryPoint(
+        { getEnvironment: () => env },
+        initialRoute?.entrypoint,
+        { params: initialRoute.params, router: this },
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  private static RouterContext = createContext(new Router("/"));
+
+  async createProvider(env: Environment) {
+    const router = this;
+    const initialEntryPoint = await router.loadEntryPoint(env);
+
+    return function RiverRouterProvider({ children }: PropsWithChildren<{}>) {
+      const route = useCurrentRoute(router);
+      const [entrypointRef, loadEntrypointRef, _dispose] = useEntryPointLoader(
+        { getEnvironment: () => env },
+        route?.entrypoint,
+      );
+
+      useEffect(() => {
+        loadEntrypointRef({ params: route.params, router });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [route]);
+
+      return (
+        <Router.RouterContext value={router}>{children}</Router.RouterContext>
+      );
+    };
+  }
+
+  async flushQueries() {}
 }
 
 const defaultRouter = new Router("/");
