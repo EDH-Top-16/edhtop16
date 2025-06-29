@@ -1,77 +1,29 @@
 import { StrictMode } from "react";
 import { renderToString } from "react-dom/server";
-import { PreloadedQuery } from "react-relay";
-import {
-  createOperationDescriptor,
-  GraphQLResponse,
-  GraphQLSingularResponse,
-  OperationDescriptor,
-  OperationType,
-  PayloadData,
-  PreloadableQueryRegistry,
-} from "relay-runtime";
-import { createRiverApp } from "./lib/river/create_app";
-import { Router } from "./lib/river/router";
+import { RelayEnvironmentProvider } from "react-relay";
+import { Manifest } from "vite";
+import { ServerRouter } from "./lib/river/server_router";
 import { createServerEnvironment } from "./lib/server/relay_server_environment";
+import { App } from "./pages/_app";
 
-export async function render(url: string) {
-  const router = new Router(url);
+export async function render(url: string, manifest?: Manifest) {
   const env = createServerEnvironment();
-
-  const { App, entrypoint } = await createRiverApp(router, env);
-
-  const preloadedQueryOps: [OperationDescriptor, PayloadData][] = [];
-  for (const query of Object.values(
-    entrypoint?.queries ?? {},
-  ) as PreloadedQuery<OperationType>[]) {
-    try {
-      const payload = await ensureQueryFlushed(query);
-      const concreteRequest =
-        query.id == null ? null : PreloadableQueryRegistry.get(query.id);
-
-      if (concreteRequest != null) {
-        const desc = createOperationDescriptor(
-          concreteRequest,
-          query.variables,
-        );
-
-        preloadedQueryOps.push([
-          desc,
-          (payload as GraphQLSingularResponse).data!,
-        ]);
-      }
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
-  }
+  const router = new ServerRouter({ getEnvironment: () => env }, url);
+  const RiverApp = await router.createApp();
 
   // TODO render to node stream
   const html = renderToString(
     <StrictMode>
-      <App />
+      <RelayEnvironmentProvider environment={env}>
+        <App>
+          <RiverApp />
+        </App>
+      </RelayEnvironmentProvider>
     </StrictMode>,
   );
 
   return {
     html,
-    rootModule: entrypoint?.rootModuleID,
-    ops: preloadedQueryOps,
+    bootstrapScript: router.bootstrapScripts(manifest),
   };
-}
-
-export type AnyPreloadedQuery = PreloadedQuery<OperationType>;
-async function ensureQueryFlushed(
-  query: AnyPreloadedQuery,
-): Promise<GraphQLResponse> {
-  return new Promise((resolve, reject) => {
-    if (query.source == null) {
-      resolve({ data: {} });
-    } else {
-      query.source.subscribe({
-        next: resolve,
-        error: reject,
-      });
-    }
-  });
 }

@@ -17,7 +17,7 @@ import { Navigation } from "../../../components/navigation";
 import { FirstPartyPromo } from "../../../components/promo";
 import { Select } from "../../../components/select";
 import { formatOrdinals, formatPercent } from "../../../lib/client/format";
-import { Link, useNavigation } from "../../../lib/river/router";
+import { Link, useRouter } from "../../../lib/river/router";
 import { Commander_CommanderBanner$key } from "../../../queries/__generated__/Commander_CommanderBanner.graphql";
 import { Commander_CommanderMeta$key } from "../../../queries/__generated__/Commander_CommanderMeta.graphql";
 import { Commander_CommanderPageShell$key } from "../../../queries/__generated__/Commander_CommanderPageShell.graphql";
@@ -234,16 +234,19 @@ export function CommanderPageShell({
     props.commander,
   );
 
-  const nav = useNavigation();
-  const setQueryVariable = useCallback((key: string, value: string | null) => {
-    nav.replace((url) => {
-      if (value == null) {
-        url.searchParams.delete(key);
-      } else {
-        url.searchParams.set(key, value);
-      }
-    });
-  }, []);
+  const { replace } = useRouter();
+  const setQueryVariable = useCallback(
+    (key: string, value: string | null) => {
+      replace((url) => {
+        if (value == null) {
+          url.searchParams.delete(key);
+        } else {
+          url.searchParams.set(key, value);
+        }
+      });
+    },
+    [replace],
+  );
 
   return (
     <>

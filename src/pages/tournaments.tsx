@@ -12,7 +12,7 @@ import { Footer } from "../components/footer";
 import { LoadMoreButton } from "../components/load_more";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
-import { Link, useNavigation } from "../lib/river/router";
+import { Link, useRouter } from "../lib/river/router";
 import { AllTournamentsQuery } from "../queries/__generated__/AllTournamentsQuery.graphql";
 import { tournaments_TournamentCard$key } from "../queries/__generated__/tournaments_TournamentCard.graphql";
 import { tournaments_Tournaments$key } from "../queries/__generated__/tournaments_Tournaments.graphql";
@@ -179,7 +179,7 @@ export const TournamentsPage: EntryPointComponent<
     queries.tournamentQueryRef,
   );
 
-  const nav = useNavigation();
+  const nav = useRouter();
   const setQueryVariable = useCallback(
     (key: string, value: string) => {
       nav.replace((url) => {

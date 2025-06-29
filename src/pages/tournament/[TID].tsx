@@ -15,7 +15,7 @@ import { Navigation } from "../../components/navigation";
 import { FirstPartyPromo } from "../../components/promo";
 import { Tab, TabList } from "../../components/tabs";
 import { formatOrdinals, formatPercent } from "../../lib/client/format";
-import { useNavigation } from "../../lib/river/router";
+import { useRouter } from "../../lib/river/router";
 import { TID_BreakdownGroupCard$key } from "../../queries/__generated__/TID_BreakdownGroupCard.graphql";
 import { TID_EntryCard$key } from "../../queries/__generated__/TID_EntryCard.graphql";
 import { TID_TournamentBanner$key } from "../../queries/__generated__/TID_TournamentBanner.graphql";
@@ -400,7 +400,7 @@ export const TournamentViewPage: EntryPointComponent<
     queries.tournamentQueryRef,
   );
 
-  const nav = useNavigation();
+  const nav = useRouter();
   const setQueryVariable = useCallback(
     (vars: [string, string | null][]) => {
       nav.replace((url) => {
