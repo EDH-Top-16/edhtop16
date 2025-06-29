@@ -8,10 +8,9 @@ import { App } from "./pages/_app";
 
 export async function render(url: string, manifest?: Manifest) {
   const env = createServerEnvironment();
-  const router = new ServerRouter({ getEnvironment: () => env }, url);
-  const RiverApp = await router.createApp();
+  const router = new ServerRouter(url);
+  const RiverApp = await router.createApp({ getEnvironment: () => env });
 
-  // TODO render to node stream
   const html = renderToString(
     <StrictMode>
       <RelayEnvironmentProvider environment={env}>
@@ -24,6 +23,6 @@ export async function render(url: string, manifest?: Manifest) {
 
   return {
     html,
-    bootstrapScript: router.bootstrapScripts(manifest),
+    bootstrap: RiverApp.bootstrap(manifest),
   };
 }

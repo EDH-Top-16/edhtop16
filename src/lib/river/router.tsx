@@ -21,6 +21,7 @@ import {
   PreloadedEntryPoint,
   useEntryPointLoader,
 } from "react-relay";
+import type { Manifest } from "vite";
 import { entrypoint as e2 } from "../../pages/about.entrypoint";
 import { entrypoint as e4 } from "../../pages/commander/[commander]/commander_page.entrypoint";
 import { entrypoint as e1 } from "../../pages/index.entrypoint";
@@ -40,15 +41,18 @@ export class Router {
     "/commander/:commander": { entrypoint: e4 } as const,
   } as const;
 
-  constructor(
-    readonly environmentProvider: IEnvironmentProvider<EnvironmentProviderOptions>,
-    staticInit?: string,
-  ) {
+  private currentRoute;
+  constructor(staticInit?: string) {
     if (staticInit == null) {
       this.history = createBrowserHistory();
     } else {
       this.history = createMemoryHistory({ initialEntries: [staticInit] });
     }
+
+    this.currentRoute = {
+      ...this.history.location,
+      ...this.radixRouter.lookup(this.history.location.pathname),
+    };
   }
 
   private readonly history: History;
@@ -87,14 +91,16 @@ export class Router {
   };
 
   route = () => {
-    return {
-      ...this.history.location,
-      ...this.radixRouter.lookup(this.history.location.pathname),
-    };
+    return this.currentRoute;
   };
 
   listen = (listener: Listener) => {
     return this.history.listen((update) => {
+      this.currentRoute = {
+        ...this.history.location,
+        ...this.radixRouter.lookup(this.history.location.pathname),
+      };
+
       listener(update);
     });
   };
@@ -102,50 +108,58 @@ export class Router {
   parseQuery = <T extends AnyParamMapping>(params: T) =>
     parseQuery(this.history.location.search, params);
 
-  initialEntryPoint?: PreloadedEntryPoint<any>;
-  protected async loadEntryPoint() {
+  protected async loadEntryPoint(
+    env: IEnvironmentProvider<EnvironmentProviderOptions>,
+  ) {
     const initialRoute = this.route();
     await initialRoute.entrypoint?.root.load();
 
-    this.initialEntryPoint = loadEntryPoint(
-      this.environmentProvider,
-      initialRoute?.entrypoint,
-      {
-        params: initialRoute.params,
-        router: this,
-      },
-    );
+    return loadEntryPoint(env, initialRoute?.entrypoint, {
+      params: initialRoute.params,
+      router: this,
+    });
   }
 
-  static Context = createContext(
-    new Router({ getEnvironment: () => null! }, "/"),
-  );
+  static Context = createContext(new Router("/"));
 
-  protected RiverApp = () => {
-    const route = useSyncExternalStore(this.listen, this.route, this.route);
-    const [entryPointRef, loadEntryPointRef, _dispose] = useEntryPointLoader(
-      this.environmentProvider,
-      route?.entrypoint,
-    );
+  protected createRiverAppFromEntryPoint(
+    env: IEnvironmentProvider<EnvironmentProviderOptions>,
+    initialEntryPoint: PreloadedEntryPoint<any>,
+  ) {
+    const router = this;
+    function RiverApp() {
+      const route = useSyncExternalStore(
+        router.listen,
+        router.route,
+        router.route,
+      );
+      const [entryPointRef, loadEntryPointRef, _dispose] = useEntryPointLoader(
+        env,
+        route?.entrypoint,
+      );
 
-    useEffect(() => {
-      loadEntryPointRef({ params: route.params, router: this });
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [route]);
+      useEffect(() => {
+        loadEntryPointRef({ params: route.params, router });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [route]);
 
-    const entryPoint = entryPointRef ?? this.initialEntryPoint;
-    return entryPoint == null ? (
-      <div>Not found...</div>
-    ) : (
-      <Router.Context value={this}>
-        <EntryPointContainer entryPointReference={entryPoint} props={{}} />
-      </Router.Context>
-    );
-  };
+      const entryPoint = entryPointRef ?? initialEntryPoint;
+      return entryPoint == null ? (
+        <div>Not found...</div>
+      ) : (
+        <Router.Context value={router}>
+          <EntryPointContainer entryPointReference={entryPoint} props={{}} />
+        </Router.Context>
+      );
+    }
 
-  async createApp() {
-    await this.loadEntryPoint();
-    return this.RiverApp;
+    RiverApp.bootstrap = (manifest?: Manifest): string | null => null;
+    return RiverApp;
+  }
+
+  async createApp(env: IEnvironmentProvider<EnvironmentProviderOptions>) {
+    const ep = await this.loadEntryPoint(env);
+    return this.createRiverAppFromEntryPoint(env, ep);
   }
 }
 

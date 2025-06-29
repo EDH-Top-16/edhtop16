@@ -7,8 +7,8 @@ import { App } from "./pages/_app";
 
 async function main() {
   const env = getClientEnvironment()!;
-  const router = new Router({ getEnvironment: () => env });
-  const RiverApp = await router.createApp();
+  const router = new Router();
+  const RiverApp = await router.createApp({ getEnvironment: () => env });
 
   hydrateRoot(
     document.getElementById("root")!,
