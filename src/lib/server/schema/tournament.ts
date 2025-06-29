@@ -248,7 +248,9 @@ builder.queryField("tournaments", (t) =>
 
           query = query.where("tournamentDate", ">=", minDate.toISOString());
         }
-        const maxDate = args.filters?.maxDate ? new Date(args.filters.maxDate) : new Date();
+        const maxDate = args.filters?.maxDate
+          ? new Date(args.filters.maxDate)
+          : new Date();
         query = query.where("tournamentDate", "<=", maxDate.toISOString());
 
         if (args.sortBy === "PLAYERS") {
