@@ -17,7 +17,7 @@ import { LoadMoreButton } from "../components/load_more";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
 import { formatPercent } from "../lib/client/format";
-import { useNavigation } from "../lib/river/router";
+import { useRouter } from "../lib/river/router";
 import {
   CommandersSortBy,
   pages_CommandersQuery,
@@ -269,7 +269,7 @@ function useCommandersDisplay() {
 }
 
 function useSetQueryVariable() {
-  const nav = useNavigation();
+  const nav = useRouter();
   return useCallback((key: string, value: string | null) => {
     nav.replace((url) => {
       if (value == null) {

@@ -1,19 +1,23 @@
-import { getClientEnvironment } from "./lib/client/relay_client_environment";
-import { createRiverApp } from "./lib/river/create_app";
-import { Router } from "./lib/river/router";
 import { StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
+import { RelayEnvironmentProvider } from "react-relay";
+import { getClientEnvironment } from "./lib/client/relay_client_environment";
+import { Router } from "./lib/river/router";
+import { App } from "./pages/_app";
 
 async function main() {
-  const router = new Router();
   const env = getClientEnvironment()!;
-
-  const { App } = await createRiverApp(router, env);
+  const router = new Router({ getEnvironment: () => env });
+  const RiverApp = await router.createApp();
 
   hydrateRoot(
     document.getElementById("root")!,
     <StrictMode>
-      <App />
+      <RelayEnvironmentProvider environment={env}>
+        <App>
+          <RiverApp />
+        </App>
+      </RelayEnvironmentProvider>
     </StrictMode>,
   );
 }

@@ -8,24 +8,26 @@ import { createRouter } from "radix3";
 import {
   AnchorHTMLAttributes,
   createContext,
-  PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
-  useMemo,
-  useState,
+  useSyncExternalStore,
 } from "react";
-import { Environment } from "relay-runtime";
+import {
+  EntryPointContainer,
+  EnvironmentProviderOptions,
+  IEnvironmentProvider,
+  loadEntryPoint,
+  PreloadedEntryPoint,
+  useEntryPointLoader,
+} from "react-relay";
 import { entrypoint as e2 } from "../../pages/about.entrypoint";
 import { entrypoint as e4 } from "../../pages/commander/[commander]/commander_page.entrypoint";
 import { entrypoint as e1 } from "../../pages/index.entrypoint";
 import { entrypoint as e3 } from "../../pages/tournament/tournament_view.entrypoint";
 import { entrypoint as e0 } from "../../pages/tournaments.entrypoint";
-import {
-  loadEntryPoint,
-  PreloadedEntryPoint,
-  useEntryPointLoader,
-} from "react-relay";
+
+type NavigationDirection = string | URL | ((nextUrl: URL) => void);
 
 type RouterConf = (typeof Router)["CONF"];
 
@@ -38,24 +40,51 @@ export class Router {
     "/commander/:commander": { entrypoint: e4 } as const,
   } as const;
 
-  constructor(staticInit?: string) {
+  constructor(
+    readonly environmentProvider: IEnvironmentProvider<EnvironmentProviderOptions>,
+    staticInit?: string,
+  ) {
     if (staticInit == null) {
       this.history = createBrowserHistory();
     } else {
       this.history = createMemoryHistory({ initialEntries: [staticInit] });
     }
-
-    this.push = this.history.push.bind(this.history);
-    this.replace = this.history.replace.bind(this.history);
   }
 
   private readonly history: History;
-  readonly push;
-  readonly replace;
-
   private readonly radixRouter = createRouter<RouterConf[keyof RouterConf]>({
     routes: Router.CONF,
   });
+
+  private evaluationNavigationDirection(nav: NavigationDirection): URL {
+    if (typeof nav === "string") {
+      return new URL(nav, window.location.href);
+    } else if (nav instanceof URL) {
+      return nav;
+    } else {
+      const nextUrl = new URL(window.location.href);
+      nav(nextUrl);
+      return nextUrl;
+    }
+  }
+
+  push = (nav: NavigationDirection) => {
+    const nextUrl = this.evaluationNavigationDirection(nav);
+    if (window.location.origin !== nextUrl.origin) {
+      throw new Error("Cannot navigate to a different origin.");
+    }
+
+    this.history.push(nextUrl.pathname + nextUrl.search);
+  };
+
+  replace = (nav: NavigationDirection) => {
+    const nextUrl = this.evaluationNavigationDirection(nav);
+    if (window.location.origin !== nextUrl.origin) {
+      throw new Error("Cannot navigate to a different origin.");
+    }
+
+    this.history.replace(nextUrl.pathname + nextUrl.search);
+  };
 
   route = () => {
     return {
@@ -73,108 +102,55 @@ export class Router {
   parseQuery = <T extends AnyParamMapping>(params: T) =>
     parseQuery(this.history.location.search, params);
 
-  private async loadEntryPoint(env: Environment) {
+  initialEntryPoint?: PreloadedEntryPoint<any>;
+  protected async loadEntryPoint() {
     const initialRoute = this.route();
     await initialRoute.entrypoint?.root.load();
 
-    try {
-      return loadEntryPoint(
-        { getEnvironment: () => env },
-        initialRoute?.entrypoint,
-        { params: initialRoute.params, router: this },
-      );
-    } catch (e) {
-      return null;
-    }
+    this.initialEntryPoint = loadEntryPoint(
+      this.environmentProvider,
+      initialRoute?.entrypoint,
+      {
+        params: initialRoute.params,
+        router: this,
+      },
+    );
   }
 
-  private static RouterContext = createContext(new Router("/"));
-
-  async createProvider(env: Environment) {
-    const router = this;
-    const initialEntryPoint = await router.loadEntryPoint(env);
-
-    return function RiverRouterProvider({ children }: PropsWithChildren<{}>) {
-      const route = useCurrentRoute(router);
-      const [entrypointRef, loadEntrypointRef, _dispose] = useEntryPointLoader(
-        { getEnvironment: () => env },
-        route?.entrypoint,
-      );
-
-      useEffect(() => {
-        loadEntrypointRef({ params: route.params, router });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [route]);
-
-      return (
-        <Router.RouterContext value={router}>{children}</Router.RouterContext>
-      );
-    };
-  }
-
-  async flushQueries() {}
-}
-
-const defaultRouter = new Router("/");
-const navigationContext = createContext(defaultRouter);
-const routeContext = createContext(defaultRouter.route());
-
-export function NavigationContextProvider({
-  router,
-  children,
-}: PropsWithChildren<{ router: Router }>) {
-  return (
-    <navigationContext.Provider value={router}>
-      {children}
-    </navigationContext.Provider>
+  static Context = createContext(
+    new Router({ getEnvironment: () => null! }, "/"),
   );
-}
 
-type NavigationDirection = string | URL | ((nextUrl: URL) => void);
-function evaluationNavigationDirection(nav: NavigationDirection): URL {
-  if (typeof nav === "string") {
-    return new URL(nav, window.location.href);
-  } else if (nav instanceof URL) {
-    return nav;
-  } else {
-    const nextUrl = new URL(window.location.href);
-    nav(nextUrl);
-    return nextUrl;
+  protected RiverApp = () => {
+    const route = useSyncExternalStore(this.listen, this.route, this.route);
+    const [entryPointRef, loadEntryPointRef, _dispose] = useEntryPointLoader(
+      this.environmentProvider,
+      route?.entrypoint,
+    );
+
+    useEffect(() => {
+      loadEntryPointRef({ params: route.params, router: this });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [route]);
+
+    const entryPoint = entryPointRef ?? this.initialEntryPoint;
+    return entryPoint == null ? (
+      <div>Not found...</div>
+    ) : (
+      <Router.Context value={this}>
+        <EntryPointContainer entryPointReference={entryPoint} props={{}} />
+      </Router.Context>
+    );
+  };
+
+  async createApp() {
+    await this.loadEntryPoint();
+    return this.RiverApp;
   }
 }
 
-export function useNavigation() {
-  const router = useContext(navigationContext);
-
-  const push = useCallback(
-    (nav: NavigationDirection) => {
-      const nextUrl = evaluationNavigationDirection(nav);
-
-      // Don't support navigaton to a different domain.
-      if (window.location.origin !== nextUrl.origin) {
-        throw new Error("Cannot navigate to a different origin.");
-      }
-
-      router.push(nextUrl.pathname + nextUrl.search);
-    },
-    [router],
-  );
-
-  const replace = useCallback(
-    (nav: NavigationDirection) => {
-      const nextUrl = evaluationNavigationDirection(nav);
-
-      // Don't support navigaton to a different domain.
-      if (window.location.origin !== nextUrl.origin) {
-        throw new Error("Cannot navigate to a different origin.");
-      }
-
-      router.replace(nextUrl.pathname + nextUrl.search);
-    },
-    [router],
-  );
-
-  return useMemo(() => ({ push, replace }), [push, replace]);
+export function useRouter() {
+  return useContext(Router.Context);
 }
 
 export interface EntryPointParams {
@@ -183,8 +159,7 @@ export interface EntryPointParams {
 }
 
 export function Link(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
-  const { push } = useNavigation();
-
+  const { push } = useRouter();
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
       props.onClick?.(e);
@@ -208,22 +183,6 @@ export function Link(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
   );
 
   return <a {...props} onClick={handleClick} />;
-}
-
-export const RouteContextProvider = routeContext.Provider;
-export function useRoute() {
-  return useContext(routeContext);
-}
-
-export function useCurrentRoute(router: Router) {
-  const [route, setRoute] = useState(() => router.route());
-  useEffect(() => {
-    return router.listen(() => {
-      setRoute(router.route());
-    });
-  }, [router]);
-
-  return route;
 }
 
 /** Configuration for how a value will be encoded and decoded into the URL. */

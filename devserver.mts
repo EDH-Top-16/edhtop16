@@ -6,8 +6,7 @@ import dotenv from "dotenv";
 import express from "express";
 import { createYoga, type GraphQLParams } from "graphql-yoga";
 import { readFile } from "node:fs/promises";
-import serialize from "serialize-javascript";
-import { createServer as createViteServer, Manifest } from "vite";
+import { createServer as createViteServer, type Manifest } from "vite";
 import { cjsInterop } from "vite-plugin-cjs-interop";
 
 dotenv.config();
@@ -71,24 +70,10 @@ async function createServer() {
       )) as typeof import("./src/entry-server");
 
       console.log("Loaded module, rendering, ", url);
-      const { html, ops, rootModule } = await render(url);
-      const preloadModuleFile =
-        Object.values(manifest).find((s) => s.name === rootModule)?.file ??
-        null;
-
+      const { html, bootstrapScript } = await render(url);
       const renderedPage = template
         .replace(`<!--app-html-->`, () => html)
-        .replace(
-          "<!--app-head-->",
-          `
-                  <!-- I SHOULD PRELOAD THESE: ${JSON.stringify(
-                    preloadModuleFile,
-                  )} -->
-
-      <script type="text/javascript">
-        window.__river_ops = ${serialize(ops)};
-      </script>`,
-        );
+        .replace("<!--app-head-->", () => bootstrapScript);
 
       res.status(200).set({ "Content-Type": "text/html" }).end(renderedPage);
     } catch (e) {
