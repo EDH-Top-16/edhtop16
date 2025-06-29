@@ -1,4 +1,9 @@
-import { PreloadedQuery } from "react-relay";
+import {
+  EnvironmentProviderOptions,
+  IEnvironmentProvider,
+  PreloadedEntryPoint,
+  PreloadedQuery,
+} from "react-relay";
 import {
   createOperationDescriptor,
   GraphQLResponse,
@@ -9,20 +14,26 @@ import {
   PreloadableQueryRegistry,
 } from "relay-runtime";
 import serialize from "serialize-javascript";
-import { Manifest } from "vite";
+import type { Manifest } from "vite";
 import { Router } from "./router";
 
+type AnyPreloadedEntryPoint = PreloadedEntryPoint<any>;
+type RiverOps = [OperationDescriptor, PayloadData][];
+
 export class ServerRouter extends Router {
-  async createApp() {
-    await this.loadEntryPoint();
-    await this.loadQueries();
-    return this.RiverApp;
+  async createApp(env: IEnvironmentProvider<EnvironmentProviderOptions>) {
+    const ep = await this.loadEntryPoint(env);
+    const ops = await this.loadQueries(ep);
+    const RiverApp = this.createRiverAppFromEntryPoint(env, ep);
+    RiverApp.bootstrap = (manifest) => this.bootstrapScripts(ep, ops, manifest);
+
+    return RiverApp;
   }
 
-  readonly preloadedQueryOps: [OperationDescriptor, PayloadData][] = [];
-  private async loadQueries() {
+  private async loadQueries(entryPoint: AnyPreloadedEntryPoint) {
+    const preloadedQueryOps: [OperationDescriptor, PayloadData][] = [];
     for (const query of Object.values(
-      this.initialEntryPoint?.queries ?? {},
+      entryPoint?.queries ?? {},
     ) as PreloadedQuery<OperationType>[]) {
       try {
         const payload = await ensureQueryFlushed(query);
@@ -35,7 +46,7 @@ export class ServerRouter extends Router {
             query.variables,
           );
 
-          this.preloadedQueryOps.push([
+          preloadedQueryOps.push([
             desc,
             (payload as GraphQLSingularResponse).data!,
           ]);
@@ -45,19 +56,25 @@ export class ServerRouter extends Router {
         throw e;
       }
     }
+
+    return preloadedQueryOps;
   }
 
-  bootstrapScripts(manifest?: Manifest) {
-    const rootModule = this.initialEntryPoint?.rootModuleID;
+  private bootstrapScripts(
+    entryPoint: AnyPreloadedEntryPoint,
+    ops: RiverOps,
+    manifest?: Manifest,
+  ) {
+    const rootModule = entryPoint.rootModuleID;
     const preloadModuleFile =
       Object.values(manifest ?? {}).find((s) => s.name === rootModule)?.file ??
       null;
 
     return `
-    <!-- I SHOULD PRELOAD THESE: ${JSON.stringify(preloadModuleFile)} -->
-    <script type="text/javascript">
-      window.__river_ops = ${serialize(this.preloadedQueryOps)};
-    </script>`;
+      <!-- I SHOULD PRELOAD THESE: ${JSON.stringify(preloadModuleFile)} -->
+      <script type="text/javascript">
+        window.__river_ops = ${serialize(ops)};
+      </script>`;
   }
 }
 

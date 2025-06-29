@@ -60,7 +60,6 @@ async function createServer() {
 
   app.use("*all", async (req, res, next) => {
     const url = req.originalUrl;
-
     try {
       let template = await readFile("index.html", "utf-8");
       template = await vite.transformIndexHtml(url, template);
@@ -70,12 +69,14 @@ async function createServer() {
       )) as typeof import("./src/entry-server");
 
       console.log("Loaded module, rendering, ", url);
-      const { html, bootstrapScript } = await render(url);
-      const renderedPage = template
-        .replace(`<!--app-html-->`, () => html)
-        .replace("<!--app-head-->", () => bootstrapScript);
+      const { html, bootstrap } = await render(url, manifest);
 
-      res.status(200).set({ "Content-Type": "text/html" }).end(renderedPage);
+      template = template.replace(`<!--app-html-->`, () => html);
+      if (bootstrap != null) {
+        template = template.replace("<!--app-head-->", () => bootstrap);
+      }
+
+      res.status(200).set({ "Content-Type": "text/html" }).end(template);
     } catch (e) {
       vite.ssrFixStacktrace(e as any);
       next(e);
