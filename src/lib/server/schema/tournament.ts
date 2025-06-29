@@ -231,17 +231,27 @@ builder.queryField("tournaments", (t) =>
       resolveOffsetConnection({ args }, ({ limit, offset }) => {
         let query = db
           .selectFrom("Tournament")
-          .where((eb) => eb.exists(
-            eb.selectFrom("Entry")
-              .where("Entry.tournamentId", "=", eb.ref("Tournament.id"))
-              .where((eb2) => eb2.or([
-                eb2("Entry.decklist", "is not", null),
-                eb2.exists(
-                  eb2.selectFrom("DecklistItem")
-                    .where("DecklistItem.entryId", "=", eb2.ref("Entry.id"))
-                )
-              ]))
-          ))
+          .where((eb) =>
+            eb.exists(
+              eb
+                .selectFrom("Entry")
+                .where("Entry.tournamentId", "=", eb.ref("Tournament.id"))
+                .where((eb2) =>
+                  eb2.or([
+                    eb2("Entry.decklist", "is not", null),
+                    eb2.exists(
+                      eb2
+                        .selectFrom("DecklistItem")
+                        .where(
+                          "DecklistItem.entryId",
+                          "=",
+                          eb2.ref("Entry.id"),
+                        ),
+                    ),
+                  ]),
+                ),
+            ),
+          )
           .selectAll();
 
         if (args.search) {
