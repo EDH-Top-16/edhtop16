@@ -200,6 +200,7 @@ type Player implements Node {
 
 type Query {
   card(name: String!): Card!
+  cheaters: [Player!]!
   commander(name: String!): Commander!
   commanders(
     after: String

@@ -1,7 +1,6 @@
 import {
   EnvironmentProviderOptions,
   IEnvironmentProvider,
-  PreloadedEntryPoint,
   PreloadedQuery,
 } from "react-relay";
 import {
@@ -15,10 +14,7 @@ import {
 } from "relay-runtime";
 import serialize from "serialize-javascript";
 import type { Manifest } from "vite";
-import { Router } from "./router";
-
-type AnyPreloadedEntryPoint = PreloadedEntryPoint<any>;
-type RiverOps = [OperationDescriptor, PayloadData][];
+import { AnyPreloadedEntryPoint, RiverOps, Router } from "./router";
 
 export class ServerRouter extends Router {
   async createApp(env: IEnvironmentProvider<EnvironmentProviderOptions>) {
@@ -78,7 +74,7 @@ export class ServerRouter extends Router {
   }
 }
 
-export type AnyPreloadedQuery = PreloadedQuery<OperationType>;
+type AnyPreloadedQuery = PreloadedQuery<OperationType>;
 async function ensureQueryFlushed(
   query: AnyPreloadedQuery,
 ): Promise<GraphQLResponse> {

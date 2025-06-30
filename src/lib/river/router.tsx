@@ -27,19 +27,24 @@ import { entrypoint as e4 } from "../../pages/commander/[commander]/commander_pa
 import { entrypoint as e1 } from "../../pages/index.entrypoint";
 import { entrypoint as e3 } from "../../pages/tournament/tournament_view.entrypoint";
 import { entrypoint as e0 } from "../../pages/tournaments.entrypoint";
+import { OperationDescriptor, PayloadData } from "relay-runtime";
+
+export type AnyPreloadedEntryPoint = PreloadedEntryPoint<any>;
+export type RiverOps = [OperationDescriptor, PayloadData][];
+
+type RouterConf = typeof ROUTER_CONF;
+const ROUTER_CONF = {
+  "/tournaments": { entrypoint: e0 } as const,
+  "/": { entrypoint: e1 } as const,
+  "/about": { entrypoint: e2 } as const,
+  "/tournament/:tid": { entrypoint: e3 } as const,
+  "/commander/:commander": { entrypoint: e4 } as const,
+} as const;
 
 type NavigationDirection = string | URL | ((nextUrl: URL) => void);
 
-type RouterConf = (typeof Router)["CONF"];
-
 export class Router {
-  static CONF = {
-    "/tournaments": { entrypoint: e0 } as const,
-    "/": { entrypoint: e1 } as const,
-    "/about": { entrypoint: e2 } as const,
-    "/tournament/:tid": { entrypoint: e3 } as const,
-    "/commander/:commander": { entrypoint: e4 } as const,
-  } as const;
+  static routes = Object.keys(ROUTER_CONF);
 
   private currentRoute;
   constructor(staticInit?: string) {
@@ -57,7 +62,7 @@ export class Router {
 
   private readonly history: History;
   private readonly radixRouter = createRouter<RouterConf[keyof RouterConf]>({
-    routes: Router.CONF,
+    routes: ROUTER_CONF,
   });
 
   private evaluationNavigationDirection(nav: NavigationDirection): URL {
@@ -107,6 +112,18 @@ export class Router {
 
   parseQuery = <T extends AnyParamMapping>(params: T) =>
     parseQuery(this.history.location.search, params);
+
+  private hydrateStore(
+    provider: IEnvironmentProvider<EnvironmentProviderOptions>,
+  ) {
+    const env = provider.getEnvironment(null);
+    if ("__river_ops" in window) {
+      const ops = (window as any).__river_ops as RiverOps;
+      for (const [op, payload] of ops) {
+        env.commitPayload(op, payload);
+      }
+    }
+  }
 
   protected async loadEntryPoint(
     env: IEnvironmentProvider<EnvironmentProviderOptions>,
@@ -158,6 +175,7 @@ export class Router {
   }
 
   async createApp(env: IEnvironmentProvider<EnvironmentProviderOptions>) {
+    this.hydrateStore(env);
     const ep = await this.loadEntryPoint(env);
     return this.createRiverAppFromEntryPoint(env, ep);
   }

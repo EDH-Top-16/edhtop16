@@ -17,7 +17,7 @@ import { LoadMoreButton } from "../components/load_more";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
 import { formatPercent } from "../lib/client/format";
-import { useRouter } from "../lib/river/router";
+import { Link, useRouter } from "../lib/river/router";
 import {
   CommandersSortBy,
   pages_CommandersQuery,
@@ -84,12 +84,12 @@ function TopCommandersCard({
           <ColorIdentity identity={commander.colorId} />
         </div>
 
-        <a
+        <Link
           href={commander.breakdownUrl}
           className="font-title mb-2 text-xl underline lg:mb-0 lg:font-sans lg:text-base"
         >
           {commander.name}
-        </a>
+        </Link>
 
         <div className="text-sm opacity-75 lg:hidden">Entries:</div>
         <div className="text-sm">{commander.stats.count}</div>
@@ -118,12 +118,12 @@ function TopCommandersCard({
         }))}
     >
       <div className="flex h-32 flex-col space-y-2">
-        <a
+        <Link
           href={commander.breakdownUrl}
           className="text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
         >
           {commander.name}
-        </a>
+        </Link>
 
         <ColorIdentity identity={commander.colorId} />
       </div>
