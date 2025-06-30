@@ -10,7 +10,9 @@ export function createClientNetwork() {
       },
       body: JSON.stringify({
         query: params.text,
+        id: params.id,
         variables,
+        extensions: {},
       }),
     });
 

@@ -2,6 +2,7 @@
 
 edhtop16.db
 /scraper/target
+dist/
 
 # dependencies
 /node_modules

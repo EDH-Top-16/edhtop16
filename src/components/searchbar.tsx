@@ -1,10 +1,10 @@
+import { searchbar_CommanderNamesQuery } from "#genfiles/queries/searchbar_CommanderNamesQuery.graphql";
+import { Link } from "#genfiles/river/router";
 import cn from "classnames";
-import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
 import { useSearch } from "../lib/client/search";
 import { ServerSafeSuspense } from "../lib/client/suspense";
-import { searchbar_CommanderNamesQuery } from "../queries/__generated__/searchbar_CommanderNamesQuery.graphql";
 
 export function Searchbar({
   searchType = "commander",
@@ -24,7 +24,7 @@ export function Searchbar({
     <div className="relative z-10 w-full grow text-lg text-black md:max-w-[400px]">
       <input
         className={cn(
-          "w-full rounded-xl border-0 px-4 py-2 outline-none transition-all duration-200",
+          "w-full rounded-xl border-0 bg-white px-4 py-2 outline-hidden transition-all duration-200",
           isActive && "rounded-b-none",
         )}
         ref={inputRef}

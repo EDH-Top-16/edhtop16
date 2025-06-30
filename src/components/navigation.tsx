@@ -1,7 +1,7 @@
+import { Link } from "#genfiles/river/router";
 import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
 import XMarkIcon from "@heroicons/react/24/solid/XMarkIcon";
 import cn from "classnames";
-import Link from "next/link";
 import { useCallback, useState } from "react";
 import { Searchbar } from "./searchbar";
 
@@ -16,7 +16,7 @@ export function Navigation({
   }, []);
 
   return (
-    <nav className="sticky top-0 z-20 grid w-full grid-cols-[auto_auto_auto_1fr] items-center gap-x-6 gap-y-3 bg-[#312d5a] px-4 py-3 font-title text-white md:px-8">
+    <nav className="font-title sticky top-0 z-20 grid w-full grid-cols-[auto_auto_auto_1fr] items-center gap-x-6 gap-y-3 bg-[#312d5a] px-4 py-3 text-white md:px-8">
       <Link href="/" className="text-xl font-black">
         EDHTop16
       </Link>
@@ -36,7 +36,7 @@ export function Navigation({
       </Link>
 
       <button
-        className="block justify-self-end	md:hidden"
+        className="block justify-self-end md:hidden"
         onClick={toggleSearch}
       >
         {mobileSearchOpen ? (
