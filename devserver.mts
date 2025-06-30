@@ -1,105 +1,32 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import { usePersistedOperations } from "@graphql-yoga/plugin-persisted-operations";
-import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react";
 import dotenv from "dotenv";
 import express from "express";
-import { createYoga, type GraphQLParams } from "graphql-yoga";
 import { readFile } from "node:fs/promises";
-import { createServer as createViteServer, type Manifest } from "vite";
-import { cjsInterop } from "vite-plugin-cjs-interop";
+import { createServer as createViteServer } from "vite";
 
 dotenv.config();
 
 async function createServer() {
-  let manifest: Manifest = {};
-  if (process.env.NODE_ENV === "production") {
-    const manifestJson = await readFile("./dist/.vite/manifest.json");
-    manifest = JSON.parse(manifestJson.toString("utf-8"));
-  }
+  const vite = await createViteServer();
 
   const app = express();
-
-  const vite = await createViteServer({
-    server: { middlewareMode: true },
-    appType: "custom",
-    build: {
-      manifest: true,
-      ssrManifest: true,
-    },
-    plugins: [
-      tailwindcss(),
-      react({ babel: { plugins: ["relay"] } }),
-      cjsInterop({ dependencies: ["react-relay", "relay-runtime"] }),
-    ],
-  });
-
   app.use(vite.middlewares);
+  app.use(async (req, res, next) => {
+    const persistedQueries = JSON.parse(
+      await readFile("src/queries/persisted_queries.json", "utf-8"),
+    );
 
-  app.use("/api/graphql", async (req, res) => {
-    const { schema } = await vite.ssrLoadModule("/src/lib/server/schema");
-    const middleware = createYoga({
-      schema,
-      plugins: [
-        usePersistedOperations({
-          allowArbitraryOperations: true,
-          extractPersistedOperationId(
-            params: GraphQLParams & { id?: unknown },
-          ) {
-            return typeof params.id === "string" ? params.id : null;
-          },
-          getPersistedOperation(key: string) {
-            return getPersistedQuery(key);
-          },
-        }),
-      ],
-    });
+    let template = await readFile("index.html", "utf-8");
+    template = await vite.transformIndexHtml(req.originalUrl, template);
 
-    return middleware(req, res);
-  });
+    const { createHandler } = (await vite.ssrLoadModule(
+      "/src/entry-server.tsx",
+    )) as typeof import("./src/entry-server");
 
-  app.use("*all", async (req, res, next) => {
-    const url = req.originalUrl;
-    try {
-      let template = await readFile("index.html", "utf-8");
-      template = await vite.transformIndexHtml(url, template);
-
-      const { render } = (await vite.ssrLoadModule(
-        "/src/entry-server.tsx",
-      )) as typeof import("./src/entry-server");
-
-      console.log("Loaded module, rendering, ", url);
-      const { html, bootstrap } = await render(url, manifest);
-
-      template = template.replace(`<!--app-html-->`, () => html);
-      if (bootstrap != null) {
-        template = template.replace("<!--app-head-->", () => bootstrap);
-      }
-
-      res.status(200).set({ "Content-Type": "text/html" }).end(template);
-    } catch (e) {
-      vite.ssrFixStacktrace(e as any);
-      next(e);
-    }
+    const handler = createHandler(template, persistedQueries);
+    handler(req, res, next);
   });
 
   app.listen(5173);
 }
 
-let persistedQueryCache: Promise<Record<string, string>> | null = null;
-async function getPersistedQuery(id: string) {
-  if (persistedQueryCache == null || process.env.NODE_ENV !== "production") {
-    persistedQueryCache = (async () => {
-      const persistedQueriesSource = await readFile(
-        "src/queries/persisted_queries.json",
-      );
-
-      return JSON.parse(persistedQueriesSource.toString("utf-8"));
-    })();
-  }
-
-  const persistedQueries = await persistedQueryCache;
-  return persistedQueries[id] ?? null;
-}
-
-createServer();
+createServer().catch(console.error);

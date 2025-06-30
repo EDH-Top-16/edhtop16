@@ -1,44 +1,40 @@
 import type { JSResourceReference } from "react-relay";
 
-type JsResourceConf = (typeof JSResource)["CONF"];
-type ModuleId = keyof JsResourceConf;
+type ResourceConf = typeof RESOURCE_CONF;
+const RESOURCE_CONF = {
+  "m#tournaments": {
+    src: "src/pages/tournaments.tsx",
+    loader: () =>
+      import("../../pages/tournaments").then((m) => m.TournamentsPage),
+  },
+  "m#index": {
+    src: "src/pages/index.tsx",
+    loader: () => import("../../pages/index").then((m) => m.CommandersPage),
+  },
+  "m#about": {
+    src: "src/pages/aboout.tsx",
+    loader: () => import("../../pages/about").then((m) => m.AboutPage),
+  },
+  "m#tournament_view": {
+    src: "src/pages/tournament/[TID].tsx",
+    loader: () =>
+      import("../../pages/tournament/[TID]").then((m) => m.TournamentViewPage),
+  },
+  "m#commander_page": {
+    src: "src/pages/commander/[commander]/index.tsx",
+    loader: () =>
+      import("../../pages/commander/[commander]").then((m) => m.CommanderPage),
+  },
+} as const;
+
+type ModuleId = keyof ResourceConf;
 export type ModuleType<M extends ModuleId> = Awaited<
-  ReturnType<JsResourceConf[M]["loader"]>
+  ReturnType<ResourceConf[M]["loader"]>
 >;
 
 export class JSResource<M extends ModuleId>
   implements JSResourceReference<ModuleType<M>>
 {
-  static CONF = {
-    "m#tournaments": {
-      src: "src/pages/tournaments.tsx",
-      loader: () =>
-        import("../../pages/tournaments").then((m) => m.TournamentsPage),
-    },
-    "m#index": {
-      src: "src/pages/index.tsx",
-      loader: () => import("../../pages/index").then((m) => m.CommandersPage),
-    },
-    "m#about": {
-      src: "src/pages/aboout.tsx",
-      loader: () => import("../../pages/about").then((m) => m.AboutPage),
-    },
-    "m#tournament_view": {
-      src: "src/pages/tournament/[TID].tsx",
-      loader: () =>
-        import("../../pages/tournament/[TID]").then(
-          (m) => m.TournamentViewPage,
-        ),
-    },
-    "m#commander_page": {
-      src: "src/pages/commander/[commander]/index.tsx",
-      loader: () =>
-        import("../../pages/commander/[commander]").then(
-          (m) => m.CommanderPage,
-        ),
-    },
-  } as const;
-
   private static readonly resourceCache = new Map<ModuleId, JSResource<any>>();
   static fromModuleId<M extends ModuleId>(moduleId: M) {
     if (JSResource.resourceCache.has(moduleId)) {
@@ -64,7 +60,7 @@ export class JSResource<M extends ModuleId>
 
   async load(): Promise<ModuleType<M>> {
     if (this.modulePromiseCache == null) {
-      this.modulePromiseCache = JSResource.CONF[this.moduleId]
+      this.modulePromiseCache = RESOURCE_CONF[this.moduleId]
         .loader()
         .then((m) => {
           this.moduleCache = m as ModuleType<M>;

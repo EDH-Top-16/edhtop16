@@ -15,7 +15,7 @@ import { Navigation } from "../../components/navigation";
 import { FirstPartyPromo } from "../../components/promo";
 import { Tab, TabList } from "../../components/tabs";
 import { formatOrdinals, formatPercent } from "../../lib/client/format";
-import { useRouter } from "../../lib/river/router";
+import { Link, useRouter } from "../../lib/river/router";
 import { TID_BreakdownGroupCard$key } from "../../queries/__generated__/TID_BreakdownGroupCard.graphql";
 import { TID_EntryCard$key } from "../../queries/__generated__/TID_EntryCard.graphql";
 import { TID_TournamentBanner$key } from "../../queries/__generated__/TID_TournamentBanner.graphql";
@@ -113,12 +113,12 @@ function EntryCard({
           <span className="text-xl font-bold">{entryNameNode}</span>
         )}
 
-        <a
+        <Link
           href={entry.commander.breakdownUrl}
           className="underline decoration-transparent transition-colors hover:decoration-inherit"
         >
           {entry.commander.name}
-        </a>
+        </Link>
       </div>
     </Card>
   );
@@ -169,7 +169,6 @@ function BreakdownGroupCard({
     >
       <div className="flex h-32 flex-col space-y-2">
         <button
-          // href={commander.breakdownUrl}
           className="text-left text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
           onClick={() => {
             onClickGroup?.(commander.name);
