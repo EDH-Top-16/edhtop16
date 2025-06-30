@@ -1,3 +1,10 @@
+import { TID_BreakdownGroupCard$key } from "#genfiles/queries/TID_BreakdownGroupCard.graphql";
+import { TID_EntryCard$key } from "#genfiles/queries/TID_EntryCard.graphql";
+import { TID_TournamentBanner$key } from "#genfiles/queries/TID_TournamentBanner.graphql";
+import { TID_TournamentMeta$key } from "#genfiles/queries/TID_TournamentMeta.graphql";
+import { TID_TournamentPageShell$key } from "#genfiles/queries/TID_TournamentPageShell.graphql";
+import { TID_TournamentQuery } from "#genfiles/queries/TID_TournamentQuery.graphql";
+import { Link, useRouter } from "#genfiles/river/router";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
 import cn from "classnames";
 import { format } from "date-fns";
@@ -15,13 +22,6 @@ import { Navigation } from "../../components/navigation";
 import { FirstPartyPromo } from "../../components/promo";
 import { Tab, TabList } from "../../components/tabs";
 import { formatOrdinals, formatPercent } from "../../lib/client/format";
-import { Link, useRouter } from "../../lib/river/router";
-import { TID_BreakdownGroupCard$key } from "../../queries/__generated__/TID_BreakdownGroupCard.graphql";
-import { TID_EntryCard$key } from "../../queries/__generated__/TID_EntryCard.graphql";
-import { TID_TournamentBanner$key } from "../../queries/__generated__/TID_TournamentBanner.graphql";
-import { TID_TournamentMeta$key } from "../../queries/__generated__/TID_TournamentMeta.graphql";
-import { TID_TournamentPageShell$key } from "../../queries/__generated__/TID_TournamentPageShell.graphql";
-import { TID_TournamentQuery } from "../../queries/__generated__/TID_TournamentQuery.graphql";
 
 function EntryCard({
   highlightFirst = true,

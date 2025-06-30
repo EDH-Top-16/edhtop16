@@ -1,3 +1,12 @@
+import {
+  CommandersSortBy,
+  pages_CommandersQuery,
+  TimePeriod,
+} from "#genfiles/queries/pages_CommandersQuery.graphql";
+import { pages_topCommanders$key } from "#genfiles/queries/pages_topCommanders.graphql";
+import { pages_TopCommandersCard$key } from "#genfiles/queries/pages_TopCommandersCard.graphql";
+import { TopCommandersQuery } from "#genfiles/queries/TopCommandersQuery.graphql";
+import { Link, useRouter } from "#genfiles/river/router";
 import RectangleStackIcon from "@heroicons/react/24/solid/RectangleStackIcon";
 import TableCellsIcon from "@heroicons/react/24/solid/TableCellsIcon";
 import cn from "classnames";
@@ -17,15 +26,6 @@ import { LoadMoreButton } from "../components/load_more";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
 import { formatPercent } from "../lib/client/format";
-import { Link, useRouter } from "../lib/river/router";
-import {
-  CommandersSortBy,
-  pages_CommandersQuery,
-  TimePeriod,
-} from "../queries/__generated__/pages_CommandersQuery.graphql";
-import { pages_topCommanders$key } from "../queries/__generated__/pages_topCommanders.graphql";
-import { pages_TopCommandersCard$key } from "../queries/__generated__/pages_TopCommandersCard.graphql";
-import { TopCommandersQuery } from "../queries/__generated__/TopCommandersQuery.graphql";
 
 function TopCommandersCard({
   display = "card",

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "generate:db": "rm -f edhtop16.db && node -r ts-node/register scripts/generate-database.ts",
-    "generate:dbtypes": "DATABASE_URL=edhtop16.db kysely-codegen --out-file=src/lib/server/db/__generated__/types.d.ts",
+    "generate:dbtypes": "DATABASE_URL=edhtop16.db kysely-codegen --out-file=./__generated__/db/types.d.ts",
     "generate:schema": "node -r ts-node/register scripts/print-schema.ts",
     "generate:relay": "relay-compiler",
     "build:client": "vite build --outDir dist/client",
@@ -12,6 +12,10 @@
     "build": "npm run build:client && npm run build:server",
     "dev": "node --experimental-strip-types devserver.mts",
     "start": "NODE_ENV=production node --experimental-strip-types server.mts"
+  },
+  "imports": {
+    "#src/*": "./src/*",
+    "#genfiles/*": "./__generated__/*"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.5",
@@ -57,7 +61,6 @@
     "eslint": "8.43.0",
     "kysely-codegen": "^0.17.0",
     "picocolors": "^1.1.1",
-    "postcss": "8.4.24",
     "prettier": "^3.0.3",
     "prettier-plugin-tailwindcss": "^0.6.13",
     "relay-compiler": "^20.0.0",

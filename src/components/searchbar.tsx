@@ -1,10 +1,10 @@
+import { searchbar_CommanderNamesQuery } from "#genfiles/queries/searchbar_CommanderNamesQuery.graphql";
+import { Link } from "#genfiles/river/router";
 import cn from "classnames";
 import { useMemo, useRef, useState } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
 import { useSearch } from "../lib/client/search";
 import { ServerSafeSuspense } from "../lib/client/suspense";
-import { searchbar_CommanderNamesQuery } from "../queries/__generated__/searchbar_CommanderNamesQuery.graphql";
-import { Link } from "../lib/river/router";
 
 export function Searchbar({
   searchType = "commander",

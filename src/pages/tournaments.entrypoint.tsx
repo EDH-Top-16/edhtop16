@@ -1,11 +1,11 @@
-import { EntryPoint } from "react-relay";
-import { JSResource, ModuleType } from "../lib/river/js_resource";
-import { EntryPointParams, QueryParamKind } from "../lib/river/router";
-import TournamentsQueryParameters from "../queries/__generated__/tournaments_TournamentsQuery$parameters";
 import type {
   TimePeriod,
   TournamentSortBy,
-} from "../queries/__generated__/AllTournamentsQuery.graphql";
+} from "#genfiles/queries/AllTournamentsQuery.graphql";
+import TournamentsQueryParameters from "#genfiles/queries/tournaments_TournamentsQuery$parameters";
+import { JSResource, ModuleType } from "#genfiles/river/js_resource";
+import { EntryPointParams, QueryParamKind } from "#genfiles/river/router";
+import { EntryPoint } from "react-relay";
 
 /** @route /tournaments */
 export const entrypoint: EntryPoint<

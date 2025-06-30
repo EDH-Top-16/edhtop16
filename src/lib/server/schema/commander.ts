@@ -1,3 +1,4 @@
+import { DB } from "#genfiles/db/types";
 import {
   resolveCursorConnection,
   ResolveCursorConnectionArgs,
@@ -6,7 +7,6 @@ import {
 import { subYears } from "date-fns";
 import { sql } from "kysely";
 import { db } from "../db";
-import { DB } from "../db/__generated__/types";
 import { builder } from "./builder";
 import { Card } from "./card";
 import { Entry } from "./entry";

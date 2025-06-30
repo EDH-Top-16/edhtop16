@@ -1,3 +1,4 @@
+import { ServerRouter } from "#genfiles/river/server_router";
 import { usePersistedOperations } from "@graphql-yoga/plugin-persisted-operations";
 import express from "express";
 import { createYoga, GraphQLParams } from "graphql-yoga";
@@ -5,7 +6,6 @@ import { StrictMode } from "react";
 import { renderToString } from "react-dom/server";
 import { RelayEnvironmentProvider } from "react-relay";
 import type { Manifest } from "vite";
-import { ServerRouter } from "./lib/river/server_router";
 import { createServerEnvironment } from "./lib/server/relay_server_environment";
 import { schema } from "./lib/server/schema";
 import { App } from "./pages/_app";

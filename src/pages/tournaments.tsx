@@ -1,3 +1,12 @@
+import { AllTournamentsQuery } from "#genfiles/queries/AllTournamentsQuery.graphql";
+import { tournaments_TournamentCard$key } from "#genfiles/queries/tournaments_TournamentCard.graphql";
+import { tournaments_Tournaments$key } from "#genfiles/queries/tournaments_Tournaments.graphql";
+import {
+  TimePeriod,
+  tournaments_TournamentsQuery,
+  TournamentSortBy,
+} from "#genfiles/queries/tournaments_TournamentsQuery.graphql";
+import { Link, useRouter } from "#genfiles/river/router";
 import { format } from "date-fns";
 import { PropsWithChildren, useCallback, useMemo } from "react";
 import {
@@ -12,15 +21,6 @@ import { Footer } from "../components/footer";
 import { LoadMoreButton } from "../components/load_more";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
-import { Link, useRouter } from "../lib/river/router";
-import { AllTournamentsQuery } from "../queries/__generated__/AllTournamentsQuery.graphql";
-import { tournaments_TournamentCard$key } from "../queries/__generated__/tournaments_TournamentCard.graphql";
-import { tournaments_Tournaments$key } from "../queries/__generated__/tournaments_Tournaments.graphql";
-import {
-  TimePeriod,
-  tournaments_TournamentsQuery,
-  TournamentSortBy,
-} from "../queries/__generated__/tournaments_TournamentsQuery.graphql";
 
 function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
   const tournament = useFragment(

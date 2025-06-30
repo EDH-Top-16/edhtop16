@@ -1,6 +1,6 @@
+import { JSResource, ModuleType } from "#genfiles/river/js_resource";
+import { EntryPointParams } from "#genfiles/river/router";
 import { EntryPoint } from "react-relay";
-import { JSResource, ModuleType } from "../lib/river/js_resource";
-import { EntryPointParams } from "../lib/river/router";
 
 /** @route /about */
 export const entrypoint: EntryPoint<ModuleType<"m#about">, EntryPointParams> = {

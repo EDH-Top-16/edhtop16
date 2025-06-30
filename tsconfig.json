@@ -14,12 +14,18 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true
+    "incremental": true,
+    "paths": {
+      "#src/*": ["./src/*"],
+      "#genfiles/*": ["./__generated__/*"]
+    }
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
+    "__generated__/**/*.tsx?",
+    "src/**/*.tsx?",
     "types/*.ts",
+    "src/entry-client.tsx",
+    "src/entry-server.tsx",
     "devserver.mts",
     "server.mts"
   ],
