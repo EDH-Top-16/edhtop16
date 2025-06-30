@@ -9,6 +9,7 @@
     "esModuleInterop": true,
     "strictNullChecks": true,
     "noUncheckedIndexedAccess": true,
+    "target": "esnext",
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
@@ -21,6 +22,7 @@
     }
   },
   "include": [
+    "scripts/rivergen.mts",
     "__generated__/**/*.tsx?",
     "src/**/*.tsx?",
     "types/*.ts",
