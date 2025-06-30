@@ -1,8 +1,8 @@
+import { Router } from "#genfiles/river/router";
 import { StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { RelayEnvironmentProvider } from "react-relay";
 import { getClientEnvironment } from "./lib/client/relay_client_environment";
-import { Router } from "./lib/river/router";
 import { App } from "./pages/_app";
 
 async function main() {

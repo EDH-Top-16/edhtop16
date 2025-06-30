@@ -1,11 +1,11 @@
 {
   "src": "./src",
-  "schema": "./src/queries/schema.graphql",
+  "schema": "./__generated__/schema.graphql",
   "language": "typescript",
   "excludes": ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"],
-  "artifactDirectory": "./src/queries/__generated__",
+  "artifactDirectory": "./__generated__/queries",
   "eagerEsModules": true,
   "persistConfig": {
-    "file": "./src/queries/persisted_queries.json"
+    "file": "./__generated__/persisted_queries.json"
   }
 }

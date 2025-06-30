@@ -1,6 +1,6 @@
+import { DB } from "#genfiles/db/types";
 import Database from "better-sqlite3";
 import { Kysely, SqliteDialect } from "kysely";
-import { DB } from "./__generated__/types";
 
 type GlobalWithDb = typeof global & { db?: Kysely<DB> };
 

@@ -5,25 +5,25 @@ const RESOURCE_CONF = {
   "m#tournaments": {
     src: "src/pages/tournaments.tsx",
     loader: () =>
-      import("../../pages/tournaments").then((m) => m.TournamentsPage),
+      import("#src/pages/tournaments").then((m) => m.TournamentsPage),
   },
   "m#index": {
     src: "src/pages/index.tsx",
-    loader: () => import("../../pages/index").then((m) => m.CommandersPage),
+    loader: () => import("#src/pages/index").then((m) => m.CommandersPage),
   },
   "m#about": {
-    src: "src/pages/aboout.tsx",
-    loader: () => import("../../pages/about").then((m) => m.AboutPage),
+    src: "src/pages/about.tsx",
+    loader: () => import("#src/pages/about").then((m) => m.AboutPage),
   },
   "m#tournament_view": {
     src: "src/pages/tournament/[TID].tsx",
     loader: () =>
-      import("../../pages/tournament/[TID]").then((m) => m.TournamentViewPage),
+      import("#src/pages/tournament/[TID]").then((m) => m.TournamentViewPage),
   },
   "m#commander_page": {
     src: "src/pages/commander/[commander]/index.tsx",
     loader: () =>
-      import("../../pages/commander/[commander]").then((m) => m.CommanderPage),
+      import("#src/pages/commander/[commander]").then((m) => m.CommanderPage),
   },
 } as const;
 

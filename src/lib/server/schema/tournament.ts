@@ -1,7 +1,7 @@
+import { DB } from "#genfiles/db/types";
 import { resolveOffsetConnection } from "@pothos/plugin-relay";
 import { sql } from "kysely";
 import { db } from "../db";
-import { DB } from "../db/__generated__/types";
 import { builder } from "./builder";
 import { Commander } from "./commander";
 import { Entry } from "./entry";

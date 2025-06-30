@@ -1,11 +1,11 @@
-import { EntryPoint } from "react-relay";
-import { JSResource, ModuleType } from "../../../lib/river/js_resource";
-import { EntryPointParams, QueryParamKind } from "../../../lib/river/router";
-import CommanderQueryParameters from "../../../queries/__generated__/Commander_CommanderQuery$parameters";
+import CommanderQueryParameters from "#genfiles/queries/Commander_CommanderQuery$parameters";
 import {
   EntriesSortBy,
   TimePeriod,
-} from "../../../queries/__generated__/Commander_CommanderQuery.graphql";
+} from "#genfiles/queries/Commander_CommanderQuery.graphql";
+import { JSResource, ModuleType } from "#genfiles/river/js_resource";
+import { EntryPointParams, QueryParamKind } from "#genfiles/river/router";
+import { EntryPoint } from "react-relay";
 
 /** @route /commander/:commander */
 export const entrypoint: EntryPoint<

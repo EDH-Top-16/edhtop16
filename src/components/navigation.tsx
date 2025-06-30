@@ -1,8 +1,8 @@
+import { Link } from "#genfiles/river/router";
 import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
 import XMarkIcon from "@heroicons/react/24/solid/XMarkIcon";
 import cn from "classnames";
 import { useCallback, useState } from "react";
-import { Link } from "../lib/river/router";
 import { Searchbar } from "./searchbar";
 
 export function Navigation({

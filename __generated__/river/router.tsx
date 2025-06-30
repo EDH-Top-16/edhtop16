@@ -1,3 +1,8 @@
+import { entrypoint as e2 } from "#src/pages/about.entrypoint";
+import { entrypoint as e4 } from "#src/pages/commander/[commander]/commander_page.entrypoint";
+import { entrypoint as e1 } from "#src/pages/index.entrypoint";
+import { entrypoint as e3 } from "#src/pages/tournament/tournament_view.entrypoint";
+import { entrypoint as e0 } from "#src/pages/tournaments.entrypoint";
 import {
   createBrowserHistory,
   createMemoryHistory,
@@ -21,13 +26,8 @@ import {
   PreloadedEntryPoint,
   useEntryPointLoader,
 } from "react-relay";
-import type { Manifest } from "vite";
-import { entrypoint as e2 } from "../../pages/about.entrypoint";
-import { entrypoint as e4 } from "../../pages/commander/[commander]/commander_page.entrypoint";
-import { entrypoint as e1 } from "../../pages/index.entrypoint";
-import { entrypoint as e3 } from "../../pages/tournament/tournament_view.entrypoint";
-import { entrypoint as e0 } from "../../pages/tournaments.entrypoint";
 import { OperationDescriptor, PayloadData } from "relay-runtime";
+import type { Manifest } from "vite";
 
 export type AnyPreloadedEntryPoint = PreloadedEntryPoint<any>;
 export type RiverOps = [OperationDescriptor, PayloadData][];

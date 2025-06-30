@@ -1,3 +1,15 @@
+import { Commander_CommanderBanner$key } from "#genfiles/queries/Commander_CommanderBanner.graphql";
+import { Commander_CommanderMeta$key } from "#genfiles/queries/Commander_CommanderMeta.graphql";
+import { Commander_CommanderPageShell$key } from "#genfiles/queries/Commander_CommanderPageShell.graphql";
+import {
+  Commander_CommanderQuery,
+  EntriesSortBy,
+  TimePeriod,
+} from "#genfiles/queries/Commander_CommanderQuery.graphql";
+import { Commander_entries$key } from "#genfiles/queries/Commander_entries.graphql";
+import { Commander_EntryCard$key } from "#genfiles/queries/Commander_EntryCard.graphql";
+import { CommanderEntriesQuery } from "#genfiles/queries/CommanderEntriesQuery.graphql";
+import { Link, useRouter } from "#genfiles/river/router";
 import cn from "classnames";
 import { format } from "date-fns";
 import { ParsedUrlQuery } from "querystring";
@@ -17,18 +29,6 @@ import { Navigation } from "../../../components/navigation";
 import { FirstPartyPromo } from "../../../components/promo";
 import { Select } from "../../../components/select";
 import { formatOrdinals, formatPercent } from "../../../lib/client/format";
-import { Link, useRouter } from "../../../lib/river/router";
-import { Commander_CommanderBanner$key } from "../../../queries/__generated__/Commander_CommanderBanner.graphql";
-import { Commander_CommanderMeta$key } from "../../../queries/__generated__/Commander_CommanderMeta.graphql";
-import { Commander_CommanderPageShell$key } from "../../../queries/__generated__/Commander_CommanderPageShell.graphql";
-import {
-  Commander_CommanderQuery,
-  EntriesSortBy,
-  TimePeriod,
-} from "../../../queries/__generated__/Commander_CommanderQuery.graphql";
-import { Commander_entries$key } from "../../../queries/__generated__/Commander_entries.graphql";
-import { Commander_EntryCard$key } from "../../../queries/__generated__/Commander_EntryCard.graphql";
-import { CommanderEntriesQuery } from "../../../queries/__generated__/CommanderEntriesQuery.graphql";
 
 function EntryCard(props: { entry: Commander_EntryCard$key }) {
   const entry = useFragment(

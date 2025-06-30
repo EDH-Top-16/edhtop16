@@ -1,5 +1,5 @@
+import { promo_EmbededPromo$key } from "#genfiles/queries/promo_EmbededPromo.graphql";
 import { graphql, useFragment } from "react-relay";
-import { promo_EmbededPromo$key } from "../queries/__generated__/promo_EmbededPromo.graphql";
 
 export function FirstPartyPromo(props: { promo: promo_EmbededPromo$key }) {
   const promo = useFragment(
@@ -18,7 +18,7 @@ export function FirstPartyPromo(props: { promo: promo_EmbededPromo$key }) {
 
   return (
     <div className="relative mx-auto my-4 w-full max-w-(--breakpoint-lg) overflow-hidden rounded-none bg-cover bg-center md:w-4/5 md:rounded-md lg:w-3/4">
-      <div className="absolute left-0 top-0 flex h-full w-full brightness-40">
+      <div className="absolute top-0 left-0 flex h-full w-full brightness-40">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           alt="promo"
@@ -57,7 +57,7 @@ export function FirstPartyPromo(props: { promo: promo_EmbededPromo$key }) {
 
           {promo.imageUrl && (
             <div
-              className="h-min-content flex-1 -rotate-12 bg-contain bg-center bg-no-repeat transition group-hover:rotate-6 group-hover:scale-110"
+              className="h-min-content flex-1 -rotate-12 bg-contain bg-center bg-no-repeat transition group-hover:scale-110 group-hover:rotate-6"
               style={{
                 maxWidth: "13rem",
                 backgroundImage: `url('${promo.imageUrl}')`,

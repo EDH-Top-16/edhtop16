@@ -1,7 +1,7 @@
+import TID_TournamentQueryParameters from "#genfiles/queries/TID_TournamentQuery$parameters";
+import { JSResource, ModuleType } from "#genfiles/river/js_resource";
+import { EntryPointParams, QueryParamKind } from "#genfiles/river/router";
 import { EntryPoint } from "react-relay";
-import { JSResource, ModuleType } from "../../lib/river/js_resource";
-import { EntryPointParams, QueryParamKind } from "../../lib/river/router";
-import TID_TournamentQueryParameters from "../../queries/__generated__/TID_TournamentQuery$parameters";
 
 /** @route /tournament/:tid */
 export const entrypoint: EntryPoint<
