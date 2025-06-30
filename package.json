@@ -9,6 +9,7 @@
     "generate:relay": "relay-compiler",
     "build:client": "vite build --outDir dist/client",
     "build:server": "vite build --outDir dist/server --ssr src/entry-server.tsx",
+    "build": "npm run build:client && npm run build:server",
     "dev": "node --experimental-strip-types devserver.mts",
     "start": "NODE_ENV=production node --experimental-strip-types server.mts"
   },
@@ -42,7 +43,6 @@
     "@faker-js/faker": "^9.0.3",
     "@graphql-yoga/plugin-persisted-operations": "^3.13.5",
     "@reverecre/promise": "^0.1.0",
-    "@rollup/plugin-commonjs": "^28.0.3",
     "@tailwindcss/vite": "^4.1.11",
     "@types/better-sqlite3": "^7.6.12",
     "@types/express": "^5.0.3",
