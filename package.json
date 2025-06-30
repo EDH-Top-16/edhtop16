@@ -45,6 +45,7 @@
     "@rollup/plugin-commonjs": "^28.0.3",
     "@tailwindcss/vite": "^4.1.11",
     "@types/better-sqlite3": "^7.6.12",
+    "@types/express": "^5.0.3",
     "@types/node": "20.3.1",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.3",
