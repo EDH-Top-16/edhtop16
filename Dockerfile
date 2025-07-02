@@ -46,5 +46,6 @@ COPY --from=build /build/edhtop16.db ./
 COPY server.mts ./
 COPY relay.config.json ./
 COPY public ./public/
+COPY __generated__/persisted_queries.json ./__generated__/persisted_queries.json
 
 CMD npm start

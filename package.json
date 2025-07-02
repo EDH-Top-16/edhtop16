@@ -19,6 +19,7 @@
     "#genfiles/*": "./__generated__/*"
   },
   "dependencies": {
+    "@graphql-yoga/plugin-persisted-operations": "^3.14.0",
     "@heroicons/react": "^2.1.5",
     "@pothos/core": "^4.3.0",
     "@pothos/plugin-dataloader": "^4.3.0",
@@ -48,7 +49,6 @@
   "devDependencies": {
     "@eslint/js": "^9.30.1",
     "@faker-js/faker": "^9.0.3",
-    "@graphql-yoga/plugin-persisted-operations": "^3.13.5",
     "@reverecre/promise": "^0.1.0",
     "@tailwindcss/vite": "^4.1.11",
     "@types/better-sqlite3": "^7.6.12",

@@ -29,7 +29,7 @@ async function createServer() {
     if (err) {
       console.error(err);
     } else {
-      console.log(pc.cyan("Listening on port 3000!"));
+      console.log(pc.cyan("Listening on port 8000!"));
     }
   });
 }
