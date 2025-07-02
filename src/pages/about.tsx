@@ -8,7 +8,7 @@ export function AboutPage() {
       {/* <NextSeo title="About" description="About Us" /> */}
 
       <div className="mx-auto my-8 flex w-full max-w-(--breakpoint-md) flex-col items-center gap-6 px-8 text-white">
-        <h1 className="flex-1 font-title text-5xl font-extrabold text-white">
+        <h1 className="font-title flex-1 text-5xl font-extrabold text-white">
           About Us
         </h1>
 
@@ -66,7 +66,7 @@ export function AboutPage() {
           for further questions.
         </p>
 
-        <h1 className="flex-1 font-title text-5xl font-extrabold text-white">
+        <h1 className="font-title flex-1 text-5xl font-extrabold text-white">
           Our Team
         </h1>
 

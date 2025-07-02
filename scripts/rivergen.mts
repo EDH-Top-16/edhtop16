@@ -1,98 +1,80 @@
-import ts from "typescript";
+import { Project, SourceFile, Symbol } from "ts-morph";
 
-function loadProgram() {
-  const configFile = ts.findConfigFile(
-    process.cwd(),
-    ts.sys.fileExists,
-    "tsconfig.json",
-  );
-
-  if (!configFile) throw Error("tsconfig.json not found");
-  const { config } = ts.readConfigFile(configFile, ts.sys.readFile);
-  const { options, fileNames, errors } = ts.parseJsonConfigFileContent(
-    config,
-    ts.sys,
-    process.cwd(),
-  );
-
-  return ts.createProgram({
-    options,
-    rootNames: fileNames,
-    configFileParsingDiagnostics: errors,
-  });
-}
+const JS_RESOURCE_FILENAME = "__generated__/river/js_resource.ts";
+const ROUTER_FILENAME = "__generated__/river/router.ts";
+const SERVER_ROUTER_FILENAME = "__generated__/river/server_router.ts";
 
 type RiverResource = {
   resourceName: string;
-  sourceFile: ts.SourceFile;
-  symbol: ts.Symbol;
+  sourceFile: SourceFile;
+  symbol: Symbol;
 };
 
 type RiverRoute = {
   routeName: string;
-  sourceFile: ts.SourceFile;
-  symbol: ts.Symbol;
+  sourceFile: SourceFile;
+  symbol: Symbol;
 };
 
 function collectRiverNodes(
-  checker: ts.TypeChecker,
-  sourceFile: ts.SourceFile,
+  sourceFile: SourceFile,
   riverResources: RiverResource[],
   riverRoutes: RiverRoute[],
 ) {
-  const moduleSymbol = checker.getSymbolAtLocation(sourceFile);
-  if (moduleSymbol == null) return;
-
-  const exports = checker.getExportsOfModule(moduleSymbol);
-  for (const symbol of exports) {
-    const tags = symbol.getJsDocTags();
-    for (const tag of tags) {
-      const tagText = tag.text?.at(0)?.text;
-      if (tagText == null) {
-        throw new Error(
-          `River directive "${tag.name}" requires at least one argument`,
-        );
-      }
-
-      switch (tag.name) {
+  console.log("searching", sourceFile.getFilePath());
+  sourceFile.getExportSymbols().forEach((symbol) => {
+    for (const tag of symbol.getJsDocTags()) {
+      switch (tag.getName()) {
         case "route": {
-          riverRoutes.push({ routeName: tagText, sourceFile, symbol });
+          riverRoutes.push({
+            routeName: tag.getText().at(0)?.text!,
+            sourceFile,
+            symbol,
+          });
           break;
         }
         case "resource": {
-          riverResources.push({ resourceName: tagText, sourceFile, symbol });
+          riverResources.push({
+            resourceName: tag.getText().at(0)?.text!,
+            sourceFile,
+            symbol,
+          });
           break;
         }
       }
     }
-  }
+  });
 }
 
-function shouldVisitSourceFile(sourceFile: ts.SourceFile) {
-  return (
-    !sourceFile.fileName.includes("node_modules") &&
-    !sourceFile.isDeclarationFile
-  );
-}
-
-const program = loadProgram();
-const checker = program.getTypeChecker();
+const project = new Project({ tsConfigFilePath: "tsconfig.json" });
+const riverFiles = {
+  jsResource: project.createSourceFile(JS_RESOURCE_FILENAME, "", {
+    overwrite: true,
+  }),
+  router: project.createSourceFile(ROUTER_FILENAME, "", {
+    overwrite: true,
+  }),
+  serverRouter: project.createSourceFile(SERVER_ROUTER_FILENAME, "", {
+    overwrite: true,
+  }),
+} as const;
 
 const riverResources: RiverResource[] = [];
 const riverRoutes: RiverRoute[] = [];
-program
+project
   .getSourceFiles()
-  .filter(shouldVisitSourceFile)
-  .forEach((f) => collectRiverNodes(checker, f, riverResources, riverRoutes));
+  .forEach((f) => collectRiverNodes(f, riverResources, riverRoutes));
 
 for (const { resourceName, sourceFile, symbol } of riverResources) {
   console.log(
     "Found resource",
     resourceName,
     "in module",
-    sourceFile.fileName,
+    riverFiles.jsResource.getRelativePathAsModuleSpecifierTo(
+      sourceFile.getFilePath(),
+    ),
     "exported as",
-    symbol.name,
+    symbol.getName(),
   );
 }
 
@@ -101,8 +83,10 @@ for (const { routeName, sourceFile, symbol } of riverRoutes) {
     "Found route",
     routeName,
     "in module",
-    sourceFile.fileName,
+    riverFiles.router.getRelativePathAsModuleSpecifierTo(
+      sourceFile.getFilePath(),
+    ),
     "exported as",
-    symbol.name,
+    symbol.getName(),
   );
 }
