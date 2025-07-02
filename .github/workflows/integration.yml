@@ -20,7 +20,7 @@ jobs:
       - name: Check Formatting
         run: npx prettier --check .
       - name: Check Lint
-        run: npx next lint
+        run: npx eslint .
       - name: Check Types
         run: npx tsc
   build-server:

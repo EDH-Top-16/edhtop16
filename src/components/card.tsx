@@ -23,7 +23,7 @@ export function Card({
     >
       <div
         className={cn(
-          "absolute left-0 top-0 flex h-full w-full bg-[#312d5a] transition",
+          "absolute top-0 left-0 flex h-full w-full bg-[#312d5a] transition",
           images.length > 0 && "brightness-50",
           hoverEffect &&
             (images.length > 0
@@ -33,7 +33,6 @@ export function Card({
       >
         {images.map(({ src, alt }, _i, { length }) => {
           return (
-            // eslint-disable-next-line @next/next/no-img-element
             <img
               className={cn(
                 "flex-1 object-cover object-top",

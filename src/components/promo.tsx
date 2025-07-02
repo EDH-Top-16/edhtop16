@@ -19,7 +19,6 @@ export function FirstPartyPromo(props: { promo: promo_EmbededPromo$key }) {
   return (
     <div className="relative mx-auto my-4 w-full max-w-(--breakpoint-lg) overflow-hidden rounded-none bg-cover bg-center md:w-4/5 md:rounded-md lg:w-3/4">
       <div className="absolute top-0 left-0 flex h-full w-full brightness-40">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           alt="promo"
           className={"w-full flex-1 object-cover object-center"}

@@ -18,6 +18,7 @@ export function createHandler(
   const graphqlHandler = createYoga({
     schema,
     plugins: [
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       usePersistedOperations({
         allowArbitraryOperations: true,
         extractPersistedOperationId: (

@@ -269,29 +269,20 @@ function useCommandersDisplay() {
 }
 
 function useSetQueryVariable() {
-  const nav = useRouter();
-  return useCallback((key: string, value: string | null) => {
-    nav.replace((url) => {
-      if (value == null) {
-        url.searchParams.delete(key);
-      } else {
-        url.searchParams.set(key, value);
-      }
-    });
-  }, []);
+  const { replace } = useRouter();
+  return useCallback(
+    (key: string, value: string | null) => {
+      replace((url) => {
+        if (value == null) {
+          url.searchParams.delete(key);
+        } else {
+          url.searchParams.set(key, value);
+        }
+      });
+    },
+    [replace],
+  );
 }
-
-// function queryVariablesFromParsedUrlQuery(query: ParsedUrlQuery) {
-//   const timePeriod = (query.timePeriod as TimePeriod) ?? "SIX_MONTHS";
-//   const sortBy = (query.sortBy as CommandersSortBy) ?? "POPULARITY";
-//   const colorId = query.colorId as string | undefined;
-//   const minEntries =
-//     typeof query.minEntries === "string" ? Number(query.minEntries) : 20;
-//   const minTournamentSize =
-//     typeof query.minSize === "string" ? Number(query.minSize) : 60;
-
-//   return { timePeriod, sortBy, colorId, minEntries, minTournamentSize };
-// }
 
 /** @resource m#index */
 export const CommandersPage: EntryPointComponent<
@@ -400,25 +391,3 @@ export const CommandersPage: EntryPointComponent<
     </CommandersPageShell>
   );
 };
-
-// function CommandersPagePlaceholder() {
-//   const setQueryVariable = useSetQueryVariable();
-//   const router = useRouter();
-//   const { sortBy, colorId, minEntries, timePeriod, minTournamentSize } =
-//     queryVariablesFromParsedUrlQuery(router.query);
-
-//   return (
-//     <CommandersPageShell
-//       sortBy={sortBy}
-//       timePeriod={timePeriod}
-//       colorId={colorId ?? ""}
-//       minEntries={minEntries}
-//       minTournamentSize={minTournamentSize}
-//       onUpdateQueryParam={setQueryVariable}
-//     >
-//       <div className="flex w-full justify-center pt-24 text-white">
-//         <FireIcon className="h-12 w-12 animate-pulse" />
-//       </div>
-//     </CommandersPageShell>
-//   );
-// }

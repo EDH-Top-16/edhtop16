@@ -222,7 +222,6 @@ function TournamentBanner(props: { tournament: TID_TournamentBanner$key }) {
               .flatMap((c) => c.imageUrls)
               .map((src, _i, { length }) => {
                 return (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     className={cn(
                       "flex-1 object-cover object-top",
@@ -305,15 +304,18 @@ function TournamentPageShell({
     props.tournament,
   );
 
-  const setSelectedTab = useCallback((e: MouseEvent<HTMLButtonElement>) => {
-    const nextKey = (e.target as HTMLButtonElement).id;
-    const nextParams: [key: string, value: string | null][] = [
-      ["tab", nextKey as string | null],
-    ];
+  const setSelectedTab = useCallback(
+    (e: MouseEvent<HTMLButtonElement>) => {
+      const nextKey = (e.target as HTMLButtonElement).id;
+      const nextParams: [key: string, value: string | null][] = [
+        ["tab", nextKey as string | null],
+      ];
 
-    if (nextKey !== "commander") nextParams.push(["commander", null]);
-    onUpdateQueryParam?.(nextParams);
-  }, []);
+      if (nextKey !== "commander") nextParams.push(["commander", null]);
+      onUpdateQueryParam?.(nextParams);
+    },
+    [onUpdateQueryParam],
+  );
 
   return (
     <>

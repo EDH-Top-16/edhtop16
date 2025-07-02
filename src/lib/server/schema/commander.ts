@@ -137,7 +137,7 @@ Commander.implement({
             .where("Tournament.tournamentDate", ">=", oneYearAgo)
             .executeTakeFirstOrThrow();
 
-          let query = db
+          const query = db
             .with("entries", (eb) => {
               return eb
                 .selectFrom("DecklistItem")

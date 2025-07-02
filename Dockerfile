@@ -1,5 +1,5 @@
 # Build the application.
-FROM node:24-bullseye AS build
+FROM node:24-bookworm AS build
 
 WORKDIR /build
 
@@ -29,17 +29,22 @@ ENV AWS_SECRET_ACCESS_KEY=${DO_SPACES_SECRET_ACCESS_KEY}
 RUN s3cmd --host ${DO_SPACES_ENDPOINT} --host-bucket ${DO_SPACES_ENDPOINT} get s3://edhtop16/edhtop16.db
 
 # Main image pulling in builds and data from previous stages.
-FROM node:24-alpine
+FROM node:24-bookworm
 
 EXPOSE 8000
 
 WORKDIR /app
 ENV NODE_ENV=production
 
+COPY package*.json ./
+RUN npm ci
+
 # Copy build output from build stage and install dependencies.
 COPY --from=build /build/dist ./dist
 COPY --from=build /build/edhtop16.db ./
-COPY package*.json ./
-COPY server.js ./
-COPY relay.config.js ./
+
+COPY server.mts ./
+COPY relay.config.json ./
 COPY public ./public/
+
+CMD npm start

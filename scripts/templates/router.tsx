@@ -23,23 +23,12 @@ import {
 } from "react-relay";
 import { OperationDescriptor, PayloadData } from "relay-runtime";
 import type { Manifest } from "vite";
-import { entrypoint as e0 } from "../../src/pages/about.entrypoint";
-import { entrypoint as e1 } from "../../src/pages/index.entrypoint";
-import { entrypoint as e2 } from "../../src/pages/tournaments.entrypoint";
-import { entrypoint as e3 } from "../../src/pages/tournament/tournament_view.entrypoint";
-import { entrypoint as e4 } from "../../src/pages/commander/[commander]/commander_page.entrypoint";
 
 export type AnyPreloadedEntryPoint = PreloadedEntryPoint<any>;
 export type RiverOps = [OperationDescriptor, PayloadData][];
 
 type RouterConf = typeof ROUTER_CONF;
-const ROUTER_CONF = {
-    "/about": { entrypoint: e0 } as const,
-    "/": { entrypoint: e1 } as const,
-    "/tournaments": { entrypoint: e2 } as const,
-    "/tournament/:tid": { entrypoint: e3 } as const,
-    "/commander/:commander": { entrypoint: e4 } as const
-} as const;
+const ROUTER_CONF = {} as const;
 
 type NavigationDirection = string | URL | ((nextUrl: URL) => void);
 

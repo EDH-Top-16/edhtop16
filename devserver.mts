@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import { readFile } from "node:fs/promises";
+import pc from "picocolors";
 import { createServer as createViteServer } from "vite";
 
 dotenv.config();
@@ -12,7 +13,7 @@ async function createServer() {
   app.use(vite.middlewares);
   app.use(async (req, res, next) => {
     const persistedQueries = JSON.parse(
-      await readFile("src/queries/persisted_queries.json", "utf-8"),
+      await readFile("__generated__/persisted_queries.json", "utf-8"),
     );
 
     let template = await readFile("index.html", "utf-8");
@@ -26,7 +27,13 @@ async function createServer() {
     handler(req, res, next);
   });
 
-  app.listen(5173);
+  app.listen(3000, (err) => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log(pc.cyan("Listening on port 3000!"));
+    }
+  });
 }
 
 createServer().catch(console.error);

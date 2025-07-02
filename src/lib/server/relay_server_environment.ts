@@ -15,7 +15,7 @@ async function getPersistedQuery(id: string) {
   if (persistedQueryCache == null || process.env.NODE_ENV !== "production") {
     persistedQueryCache = (async () => {
       const persistedQueriesSource = await readFile(
-        "src/queries/persisted_queries.json",
+        "__generated__/persisted_queries.json",
       );
 
       return JSON.parse(persistedQueriesSource.toString("utf-8"));
