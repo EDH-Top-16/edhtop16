@@ -10,10 +10,6 @@ COPY package-lock.json ./
 RUN npm ci
 
 COPY . .
-
-ARG NEXT_PUBLIC_POSTHOG_KEY
-ENV NEXT_PUBLIC_POSTHOG_KEY=${NEXT_PUBLIC_POSTHOG_KEY}
-
 RUN npm run build
 
 # Pull application database

@@ -303,6 +303,7 @@ export const CommandersPage: EntryPointComponent<
     `,
     queries.commandersQueryRef,
   );
+
   const setQueryVariable = useSetQueryVariable();
   const [display] = useCommandersDisplay();
 

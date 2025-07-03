@@ -22,8 +22,8 @@ async function createServer() {
   const handler = createHandler(template, persistedQueries, manifest);
 
   const app = express();
-  app.use(express.static("dist/client"));
   app.use(handler);
+  app.use(express.static("dist/client"));
 
   app.listen(8000, (err) => {
     if (err) {
