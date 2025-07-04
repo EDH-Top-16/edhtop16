@@ -245,21 +245,3 @@ export const TournamentsPage: EntryPointComponent<
     </TournamentsPageShell>
   );
 };
-
-// function TournamentsPagePlaceholder() {
-//   const router = useRouter();
-
-//   return (
-//     <TournamentsPageShell
-//       sortBy={(router.query.sortBy as TournamentSortBy | undefined) ?? "DATE"}
-//       timePeriod={
-//         (router.query.timePeriod as TimePeriod | undefined) ?? "SIX_MONTHS"
-//       }
-//       minSize={(router.query.minSize as string | undefined) ?? "60"}
-//     >
-//       <div className="flex w-full justify-center pt-24 text-white">
-//         <FireIcon className="h-12 w-12 animate-pulse" />
-//       </div>
-//     </TournamentsPageShell>
-//   );
-// }

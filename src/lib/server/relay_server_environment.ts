@@ -1,4 +1,4 @@
-import { graphql } from "graphql";
+import { graphql, GraphQLSchema } from "graphql";
 import {
   Environment,
   FetchFunction,
@@ -7,46 +7,31 @@ import {
   Store,
 } from "relay-runtime";
 import { createContext } from "./context";
-import { schema } from "./schema";
-import { readFile } from "node:fs/promises";
 
-let persistedQueryCache: Promise<Record<string, string>> | null = null;
-async function getPersistedQuery(id: string) {
-  if (persistedQueryCache == null || process.env.NODE_ENV !== "production") {
-    persistedQueryCache = (async () => {
-      const persistedQueriesSource = await readFile(
-        "__generated__/persisted_queries.json",
-      );
+export function createServerEnvironment(
+  schema: GraphQLSchema,
+  persistedQueries?: Record<string, string>,
+) {
+  const networkFetchFunction: FetchFunction = async (request, variables) => {
+    let source = request.text;
+    if (source == null && request.id) {
+      source = persistedQueries?.[request.id] ?? null;
+    }
 
-      return JSON.parse(persistedQueriesSource.toString("utf-8"));
-    })();
-  }
+    if (source == null) {
+      throw new Error(`Could not find source for query: ${request.id}`);
+    }
 
-  const persistedQueries = await persistedQueryCache;
-  return persistedQueries[id] ?? null;
-}
+    const results = await graphql({
+      schema,
+      source,
+      variableValues: variables,
+      contextValue: createContext(),
+    });
 
-const networkFetchFunction: FetchFunction = async (request, variables) => {
-  let source = request.text;
-  if (source == null && request.id) {
-    source = await getPersistedQuery(request.id);
-  }
+    return results as any;
+  };
 
-  if (source == null) {
-    throw new Error(`Could not find source for query: ${request.id}`);
-  }
-
-  const results = await graphql({
-    schema,
-    source,
-    variableValues: variables,
-    contextValue: createContext(),
-  });
-
-  return results as any;
-};
-
-export function createServerEnvironment() {
   return new Environment({
     network: Network.create(networkFetchFunction),
     store: new Store(new RecordSource()),

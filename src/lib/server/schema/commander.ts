@@ -230,8 +230,8 @@ builder.queryField("commanders", (t) =>
             args.sortBy === "POPULARITY"
               ? "stats.count"
               : args.sortBy === "TOP_CUTS"
-              ? "stats.topCuts"
-              : "stats.conversionRate";
+                ? "stats.topCuts"
+                : "stats.conversionRate";
 
           let query = db
             .with("stats", (eb) =>

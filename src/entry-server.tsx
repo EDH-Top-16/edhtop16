@@ -30,7 +30,7 @@ export function createHandler(
   });
 
   const entryPointHandler: express.Handler = async (req, res) => {
-    const env = createServerEnvironment();
+    const env = createServerEnvironment(schema, persistedQueries);
     const router = new ServerRouter(req.originalUrl);
     const RiverApp = await router.createApp({ getEnvironment: () => env });
 

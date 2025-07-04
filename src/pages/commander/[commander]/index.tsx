@@ -414,32 +414,3 @@ export const CommanderPage: EntryPointComponent<
     </CommanderPageShell>
   );
 };
-
-// function CommanderPageFallback() {
-//   const router = useRouter();
-//   const queryVariables = useMemo(() => {
-//     return queryVariablesFromParsedUrlQuery(router.query);
-//   }, [router.query]);
-
-//   const { commander } = useLazyLoadQuery<Commander_CommanderPageFallbackQuery>(
-//     graphql`
-//       query Commander_CommanderPageFallbackQuery(
-//         $commander: String!
-//         $timePeriod: TimePeriod!
-//         $minEventSize: Int!
-//       ) {
-//         commander(name: $commander) {
-//           ...Commander_CommanderPageShell
-//         }
-//       }
-//     `,
-//     queryVariables,
-//     { fetchPolicy: "store-or-network" },
-//   );
-
-//   return (
-//     <CommanderPageShell commander={commander} disableNavigation>
-//       <LoadingIcon />
-//     </CommanderPageShell>
-//   );
-// }

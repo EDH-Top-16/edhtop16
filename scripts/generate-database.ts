@@ -100,8 +100,9 @@ class ScryfallDatabase {
       const { data: scryfallBulkData } =
         ScryfallDatabase.scryfallBulkDataSchema.parse(scryfallBulkDataJson);
 
-      const databaseUrl = scryfallBulkData.find((d) => d.type === kind)
-        ?.download_uri;
+      const databaseUrl = scryfallBulkData.find(
+        (d) => d.type === kind,
+      )?.download_uri;
 
       if (!databaseUrl) {
         throw new Error(
@@ -808,14 +809,18 @@ function addCardPlayRates(cardIds: number[]) {
         colorIdMatch = "%";
       }
 
-      const totalForColorId = getEntriesForColorId.get(colorIdMatch, oneYearAgo)
-        ?.total;
+      const totalForColorId = getEntriesForColorId.get(
+        colorIdMatch,
+        oneYearAgo,
+      )?.total;
 
       if (totalForColorId) memoEntriesForColorId.set(colorId, totalForColorId);
     }
 
-    const totalEntriesForCard = getEntriesForCard.get(card.id, oneYearAgo)
-      ?.total;
+    const totalEntriesForCard = getEntriesForCard.get(
+      card.id,
+      oneYearAgo,
+    )?.total;
     const totalPossibleEntries = memoEntriesForColorId.get(colorId);
     if (totalPossibleEntries == null || totalEntriesForCard == null) return;
 

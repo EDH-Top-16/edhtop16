@@ -231,14 +231,14 @@ type DecodedQueryParamKind<Kind extends QueryParamKind> =
   Kind extends QueryParamKind.STRING
     ? string | undefined
     : Kind extends QueryParamKind.NUMBER
-    ? number | undefined
-    : Kind extends QueryParamKind.STRING_LIST
-    ? string[]
-    : Kind extends QueryParamKind.STRING_LIST_DEFAULT_UNDEFINED
-    ? string[] | undefined
-    : Kind extends QueryParamKind.STRING_REQUIRED
-    ? string
-    : Set<string>;
+      ? number | undefined
+      : Kind extends QueryParamKind.STRING_LIST
+        ? string[]
+        : Kind extends QueryParamKind.STRING_LIST_DEFAULT_UNDEFINED
+          ? string[] | undefined
+          : Kind extends QueryParamKind.STRING_REQUIRED
+            ? string
+            : Set<string>;
 
 interface AnyParamMapping {
   [param: string]: QueryParamKind;
@@ -287,8 +287,8 @@ export function parseQuery<ParamMapping extends AnyParamMapping>(
           queryParamValue == null
             ? []
             : Array.isArray(queryParamValue)
-            ? queryParamValue
-            : [queryParamValue]
+              ? queryParamValue
+              : [queryParamValue]
         ) as DecodedQueryParamKind<ParamMapping[keyof ParamMapping]>;
         break;
       case QueryParamKind.STRING_SET:
@@ -296,8 +296,8 @@ export function parseQuery<ParamMapping extends AnyParamMapping>(
           queryParamValue == null
             ? new Set()
             : Array.isArray(queryParamValue)
-            ? new Set(queryParamValue)
-            : new Set([queryParamValue])
+              ? new Set(queryParamValue)
+              : new Set([queryParamValue])
         ) as DecodedQueryParamKind<ParamMapping[keyof ParamMapping]>;
         break;
       case QueryParamKind.STRING_LIST_DEFAULT_UNDEFINED:
@@ -305,8 +305,8 @@ export function parseQuery<ParamMapping extends AnyParamMapping>(
           queryParamValue == null
             ? undefined
             : Array.isArray(queryParamValue)
-            ? queryParamValue
-            : [queryParamValue]
+              ? queryParamValue
+              : [queryParamValue]
         ) as DecodedQueryParamKind<ParamMapping[keyof ParamMapping]>;
         break;
       default:

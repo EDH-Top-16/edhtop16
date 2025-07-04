@@ -425,8 +425,8 @@ export const TournamentViewPage: EntryPointComponent<
         queries.tournamentQueryRef.variables.showBreakdown
           ? "breakdown"
           : queries.tournamentQueryRef.variables.showBreakdownCommander
-          ? "commander"
-          : "entries"
+            ? "commander"
+            : "entries"
       }
       onUpdateQueryParam={setQueryVariable}
     >
@@ -463,29 +463,3 @@ export const TournamentViewPage: EntryPointComponent<
     </TournamentPageShell>
   );
 };
-
-// function TournamentPageFallback() {
-//   const router = useRouter();
-
-//   const { tournament } = useLazyLoadQuery<TID_TournamentPageFallbackQuery>(
-//     graphql`
-//       query TID_TournamentPageFallbackQuery($TID: String!) {
-//         tournament(TID: $TID) {
-//           ...TID_TournamentPageShell
-//         }
-//       }
-//     `,
-//     { TID: router.query.TID as string },
-//     { fetchPolicy: "store-or-network" },
-//   );
-
-//   return (
-//     <TournamentPageShell
-//       tournament={tournament}
-//       tab={router.query.tab as string}
-//       commanderName={router.query.commander as string | undefined}
-//     >
-//       <LoadingIcon />
-//     </TournamentPageShell>
-//   );
-// }

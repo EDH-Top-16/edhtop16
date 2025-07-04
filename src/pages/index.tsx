@@ -6,11 +6,16 @@ import {
 import { pages_topCommanders$key } from "#genfiles/queries/pages_topCommanders.graphql";
 import { pages_TopCommandersCard$key } from "#genfiles/queries/pages_TopCommandersCard.graphql";
 import { TopCommandersQuery } from "#genfiles/queries/TopCommandersQuery.graphql";
-import { Link, useRouter } from "#genfiles/river/router";
+import { Link, QueryParamKind, useRouter } from "#genfiles/river/router";
 import RectangleStackIcon from "@heroicons/react/24/solid/RectangleStackIcon";
 import TableCellsIcon from "@heroicons/react/24/solid/TableCellsIcon";
 import cn from "classnames";
-import { PropsWithChildren, useCallback, useMemo } from "react";
+import {
+  PropsWithChildren,
+  startTransition,
+  useCallback,
+  useMemo,
+} from "react";
 import {
   EntryPointComponent,
   graphql,
@@ -163,7 +168,7 @@ function CommandersPageShell({
             cEDH Metagame Breakdown
           </h1>
 
-          <button className="" /* onClick={toggleDisplay} */>
+          <button className="cursor-pointer" onClick={toggleDisplay}>
             {display === "card" ? (
               <TableCellsIcon className="h-6 w-6 text-white" />
             ) : (
@@ -253,31 +258,34 @@ function CommandersPageShell({
 }
 
 function useCommandersDisplay() {
-  // const [{ display }, setParams] = useQueryParams({
-  //   display: QueryParamKind.STRING,
-  // });
+  const { parseQuery, replace } = useRouter();
+  const { display } = parseQuery({
+    display: QueryParamKind.STRING,
+  });
 
-  // const toggleDisplay = useCallback(() => {
-  //   setParams({ display: display === "table" ? "card" : "table" });
-  // }, [display, setParams]);
+  const toggleDisplay = useCallback(() => {
+    replace((url) => {
+      url.searchParams.set("display", display === "table" ? "card" : "table");
+    });
+  }, [display, replace]);
 
-  // return useMemo(() => {
-  //   return [display === "table" ? "table" : "card", toggleDisplay] as const;
-  // }, [display, toggleDisplay]);
-
-  return ["card" as "card" | "table", (d: string) => {}] as const;
+  return useMemo(() => {
+    return [display === "table" ? "table" : "card", toggleDisplay] as const;
+  }, [display, toggleDisplay]);
 }
 
 function useSetQueryVariable() {
   const { replace } = useRouter();
   return useCallback(
     (key: string, value: string | null) => {
-      replace((url) => {
-        if (value == null) {
-          url.searchParams.delete(key);
-        } else {
-          url.searchParams.set(key, value);
-        }
+      startTransition(() => {
+        replace((url) => {
+          if (value == null) {
+            url.searchParams.delete(key);
+          } else {
+            url.searchParams.set(key, value);
+          }
+        });
       });
     },
     [replace],
