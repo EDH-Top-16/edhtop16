@@ -7,6 +7,7 @@ import {
   TournamentSortBy,
 } from "#genfiles/queries/tournaments_TournamentsQuery.graphql";
 import { Link, useRouter } from "#genfiles/river/router";
+import { useSeoMeta } from "@unhead/react";
 import { format } from "date-fns";
 import { PropsWithChildren, useCallback, useMemo } from "react";
 import {
@@ -93,13 +94,14 @@ function TournamentsPageShell({
   minSize: string;
   onUpdateQueryParam?: (key: string, value: string) => void;
 }>) {
+  useSeoMeta({
+    title: "cEDH Tournaments",
+    description: "Discover top and recent cEDH tournaments!",
+  });
+
   return (
     <>
       <Navigation searchType="tournament" />
-      {/* <NextSeo
-        title="cEDH Tournaments"
-        description="Discover top and recent cEDH tournaments!"
-      /> */}
 
       <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">
         <div className="mb-8 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0">

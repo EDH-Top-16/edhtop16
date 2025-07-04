@@ -1,5 +1,10 @@
 import { ServerRouter } from "#genfiles/river/server_router";
 import { usePersistedOperations } from "@graphql-yoga/plugin-persisted-operations";
+import {
+  createHead,
+  transformHtmlTemplate,
+  UnheadProvider,
+} from "@unhead/react/server";
 import express from "express";
 import { createYoga, GraphQLParams } from "graphql-yoga";
 import { StrictMode } from "react";
@@ -30,6 +35,7 @@ export function createHandler(
   });
 
   const entryPointHandler: express.Handler = async (req, res) => {
+    const head = createHead();
     const env = createServerEnvironment(schema, persistedQueries);
     const router = new ServerRouter(req.originalUrl);
     const RiverApp = await router.createApp({ getEnvironment: () => env });
@@ -39,11 +45,13 @@ export function createHandler(
         case "render":
           return renderToString(
             <StrictMode>
-              <RelayEnvironmentProvider environment={env}>
-                <App>
-                  <RiverApp />
-                </App>
-              </RelayEnvironmentProvider>
+              <UnheadProvider value={head}>
+                <RelayEnvironmentProvider environment={env}>
+                  <App>
+                    <RiverApp />
+                  </App>
+                </RelayEnvironmentProvider>
+              </UnheadProvider>
             </StrictMode>,
           );
         case "bootstrap":
@@ -53,12 +61,12 @@ export function createHandler(
       }
     }
 
-    res
-      .status(200)
-      .set({ "Content-Type": "text/html" })
-      .end(
-        template.replace(/<!--\s*@river:(\w+)\s*-->/g, evaluateRiverDirective),
-      );
+    const renderedHtml = await transformHtmlTemplate(
+      head,
+      template.replace(/<!--\s*@river:(\w+)\s*-->/g, evaluateRiverDirective),
+    );
+
+    res.status(200).set({ "Content-Type": "text/html" }).end(renderedHtml);
   };
 
   const r = express.Router();

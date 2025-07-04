@@ -9,6 +9,7 @@ import { TopCommandersQuery } from "#genfiles/queries/TopCommandersQuery.graphql
 import { Link, QueryParamKind, useRouter } from "#genfiles/river/router";
 import RectangleStackIcon from "@heroicons/react/24/solid/RectangleStackIcon";
 import TableCellsIcon from "@heroicons/react/24/solid/TableCellsIcon";
+import { useSeoMeta } from "@unhead/react";
 import cn from "classnames";
 import {
   PropsWithChildren,
@@ -152,15 +153,16 @@ function CommandersPageShell({
   timePeriod: TimePeriod;
   onUpdateQueryParam?: (key: string, value: string | null) => void;
 }>) {
+  useSeoMeta({
+    title: "cEDH Commanders",
+    description: "Discover top performing commanders in cEDH!",
+  });
+
   const [display, toggleDisplay] = useCommandersDisplay();
 
   return (
     <>
       <Navigation />
-      {/* <NextSeo
-        title="cEDH Commanders"
-        description="Discover top performing commanders in cEDH!"
-      /> */}
 
       <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">
         <div className="flex w-full items-baseline gap-4">

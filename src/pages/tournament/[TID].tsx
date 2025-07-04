@@ -6,6 +6,7 @@ import { TID_TournamentPageShell$key } from "#genfiles/queries/TID_TournamentPag
 import { TID_TournamentQuery } from "#genfiles/queries/TID_TournamentQuery.graphql";
 import { Link, useRouter } from "#genfiles/river/router";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
+import { useSeoMeta } from "@unhead/react";
 import cn from "classnames";
 import { format } from "date-fns";
 import { MouseEvent, PropsWithChildren, useCallback, useMemo } from "react";
@@ -261,21 +262,20 @@ function TournamentBanner(props: { tournament: TID_TournamentBanner$key }) {
   );
 }
 
-function TournamentMeta(props: { tournament: TID_TournamentMeta$key }) {
+function useTournamentMeta(tournamentFromProps: TID_TournamentMeta$key) {
   const tournament = useFragment(
     graphql`
       fragment TID_TournamentMeta on Tournament {
         name
       }
     `,
-    props.tournament,
+    tournamentFromProps,
   );
 
-  return null;
-  // <NextSeo
-  //   title={tournament.name}
-  //   description={`Top Performing cEDH decks at ${tournament.name}`}
-  // />
+  useSeoMeta({
+    title: tournament.name,
+    description: `Top Performing cEDH decks at ${tournament.name}`,
+  });
 }
 
 function TournamentPageShell({
@@ -304,6 +304,8 @@ function TournamentPageShell({
     props.tournament,
   );
 
+  useTournamentMeta(tournament);
+
   const setSelectedTab = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       const nextKey = (e.target as HTMLButtonElement).id;
@@ -320,7 +322,6 @@ function TournamentPageShell({
   return (
     <>
       <Navigation />
-      <TournamentMeta tournament={tournament} />
       <TournamentBanner tournament={tournament} />
       {tournament.promo && <FirstPartyPromo promo={tournament.promo} />}
 

@@ -10,6 +10,7 @@ import { Commander_entries$key } from "#genfiles/queries/Commander_entries.graph
 import { Commander_EntryCard$key } from "#genfiles/queries/Commander_EntryCard.graphql";
 import { CommanderEntriesQuery } from "#genfiles/queries/CommanderEntriesQuery.graphql";
 import { Link, useRouter } from "#genfiles/river/router";
+import { useSeoMeta } from "@unhead/react";
 import cn from "classnames";
 import { format } from "date-fns";
 import { ParsedUrlQuery } from "querystring";
@@ -183,23 +184,20 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
   );
 }
 
-function CommanderMeta(props: { commander: Commander_CommanderMeta$key }) {
+function useCommanderMeta(commanderFromProps: Commander_CommanderMeta$key) {
   const commander = useFragment(
     graphql`
       fragment Commander_CommanderMeta on Commander {
         name
       }
     `,
-    props.commander,
+    commanderFromProps,
   );
 
-  return null;
-  // return (
-  //   <NextSeo
-  //     title={commander.name}
-  //     description={`Top Performing and Recent Decklists for ${commander.name} in cEDH`}
-  //   />
-  // );
+  useSeoMeta({
+    title: commander.name,
+    description: `Top Performing and Recent Decklists for ${commander.name} in cEDH`,
+  });
 }
 
 export function CommanderPageShell({
@@ -233,6 +231,8 @@ export function CommanderPageShell({
     props.commander,
   );
 
+  useCommanderMeta(commander);
+
   const { replace } = useRouter();
   const setQueryVariable = useCallback(
     (key: string, value: string | null) => {
@@ -250,7 +250,6 @@ export function CommanderPageShell({
   return (
     <>
       <Navigation />
-      <CommanderMeta commander={commander} />
       <CommanderBanner commander={commander} />
       {commander.promo && <FirstPartyPromo promo={commander.promo} />}
 

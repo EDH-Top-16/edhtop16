@@ -1,11 +1,16 @@
+import { useSeoMeta } from "@unhead/react";
 import { Navigation } from "../components/navigation";
 
 /** @resource m#about */
 export function AboutPage() {
+  useSeoMeta({
+    title: "About",
+    description: "About Us",
+  });
+
   return (
     <>
       <Navigation />
-      {/* <NextSeo title="About" description="About Us" /> */}
 
       <div className="mx-auto my-8 flex w-full max-w-(--breakpoint-md) flex-col items-center gap-6 px-8 text-white">
         <h1 className="font-title flex-1 text-5xl font-extrabold text-white">
