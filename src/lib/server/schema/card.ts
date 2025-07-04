@@ -162,3 +162,17 @@ builder.queryField("card", (t) =>
     },
   }),
 );
+
+builder.queryField("staples", (t) =>
+  t.field({
+    type: t.listRef(Card),
+    resolve: async () => {
+      return db
+        .selectFrom("Card")
+        .selectAll()
+        .where("playRateLastYear", ">=", 0.01)
+        .orderBy("playRateLastYear desc")
+        .execute();
+    },
+  }),
+);
