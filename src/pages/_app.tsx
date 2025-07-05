@@ -5,10 +5,6 @@ export function App({ children }: PropsWithChildren<{}>) {
   useHead({
     link: [
       {
-        rel: "stylesheet",
-        href: "/src/globals.css",
-      },
-      {
         rel: "preconnect",
         href: "https://fonts.googleapis.com",
       },
