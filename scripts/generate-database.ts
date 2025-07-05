@@ -13,7 +13,7 @@ import fs from "node:fs/promises";
 import { parseArgs } from "node:util";
 import pc from "picocolors";
 import * as undici from "undici";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { ScryfallCard, scryfallCardSchema } from "../src/lib/server/scryfall";
 
 const args = parseArgs({
