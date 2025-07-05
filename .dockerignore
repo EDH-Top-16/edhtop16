@@ -6,3 +6,5 @@ node_modules/
 scraper/target/
 edhtop16.db
 Dockerfile
+dist
+*.scryfall.json

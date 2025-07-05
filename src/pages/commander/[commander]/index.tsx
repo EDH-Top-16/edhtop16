@@ -1,39 +1,35 @@
+import { Commander_CommanderBanner$key } from "#genfiles/queries/Commander_CommanderBanner.graphql";
+import { Commander_CommanderMeta$key } from "#genfiles/queries/Commander_CommanderMeta.graphql";
+import { Commander_CommanderPageShell$key } from "#genfiles/queries/Commander_CommanderPageShell.graphql";
+import {
+  Commander_CommanderQuery,
+  EntriesSortBy,
+  TimePeriod,
+} from "#genfiles/queries/Commander_CommanderQuery.graphql";
+import { Commander_entries$key } from "#genfiles/queries/Commander_entries.graphql";
+import { Commander_EntryCard$key } from "#genfiles/queries/Commander_EntryCard.graphql";
+import { CommanderEntriesQuery } from "#genfiles/queries/CommanderEntriesQuery.graphql";
+import { Link, useRouter } from "#genfiles/river/router";
+import { useSeoMeta } from "@unhead/react";
 import cn from "classnames";
 import { format } from "date-fns";
-import { NextSeo } from "next-seo";
-import { useRouter } from "next/router";
 import { ParsedUrlQuery } from "querystring";
-import { PropsWithChildren, Suspense, useCallback, useMemo } from "react";
+import { PropsWithChildren, useCallback } from "react";
 import {
+  EntryPointComponent,
   useFragment,
-  useLazyLoadQuery,
   usePaginationFragment,
   usePreloadedQuery,
 } from "react-relay";
-import { RelayProps, withRelay } from "relay-nextjs";
 import { graphql } from "relay-runtime";
 import { ColorIdentity } from "../../../assets/icons/colors";
 import { Card } from "../../../components/card";
-import { Edhtop16Fallback, LoadingIcon } from "../../../components/fallback";
 import { Footer } from "../../../components/footer";
 import { LoadMoreButton } from "../../../components/load_more";
 import { Navigation } from "../../../components/navigation";
 import { FirstPartyPromo } from "../../../components/promo";
 import { Select } from "../../../components/select";
 import { formatOrdinals, formatPercent } from "../../../lib/client/format";
-import { getClientEnvironment } from "../../../lib/client/relay_client_environment";
-import { Commander_CommanderBanner$key } from "../../../queries/__generated__/Commander_CommanderBanner.graphql";
-import { Commander_CommanderMeta$key } from "../../../queries/__generated__/Commander_CommanderMeta.graphql";
-import { Commander_CommanderPageFallbackQuery } from "../../../queries/__generated__/Commander_CommanderPageFallbackQuery.graphql";
-import { Commander_CommanderPageShell$key } from "../../../queries/__generated__/Commander_CommanderPageShell.graphql";
-import {
-  Commander_CommanderQuery,
-  EntriesSortBy,
-  TimePeriod,
-} from "../../../queries/__generated__/Commander_CommanderQuery.graphql";
-import { Commander_entries$key } from "../../../queries/__generated__/Commander_entries.graphql";
-import { Commander_EntryCard$key } from "../../../queries/__generated__/Commander_EntryCard.graphql";
-import { CommanderEntriesQuery } from "../../../queries/__generated__/CommanderEntriesQuery.graphql";
 
 function EntryCard(props: { entry: Commander_EntryCard$key }) {
   const entry = useFragment(
@@ -109,12 +105,12 @@ function EntryCard(props: { entry: Commander_EntryCard$key }) {
           <span className="text-xl font-bold">{entryNameNode}</span>
         )}
 
-        <a
+        <Link
           href={`/tournament/${entry.tournament.TID}`}
           className="line-clamp-2 pt-2 underline decoration-transparent transition-colors hover:decoration-inherit"
         >
           {entry.tournament.name}
-        </a>
+        </Link>
         <span className="line-clamp-1 text-sm opacity-70">
           {format(entry.tournament.tournamentDate, "MMMM do yyyy")}
         </span>
@@ -145,13 +141,12 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
 
   return (
     <div className="h-64 w-full bg-black/60 md:h-80">
-      <div className="relative mx-auto flex h-full w-full max-w-screen-xl flex-col items-center justify-center">
-        <div className="absolute left-0 top-0 flex h-full w-full brightness-[40%]">
+      <div className="relative mx-auto flex h-full w-full max-w-(--breakpoint-xl) flex-col items-center justify-center">
+        <div className="absolute top-0 left-0 flex h-full w-full brightness-40">
           {commander.cards
             .flatMap((c) => c.imageUrls)
             .map((src, _i, { length }) => {
               return (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   className={cn(
                     "flex-1 object-cover object-top",
@@ -165,7 +160,7 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
             })}
         </div>
 
-        <h1 className="relative m-0 mb-4 text-center font-title text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
+        <h1 className="font-title relative m-0 mb-4 text-center text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
           {commander.name}
         </h1>
 
@@ -175,11 +170,11 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
 
         <div className="absolute bottom-0 z-10 mx-auto flex w-full items-center justify-around border-t border-white/60 bg-black/50 px-3 text-center text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border">
           {commander.stats.count} Entries
-          <div className="ml-2 mr-1 border-l border-white/60 py-2">
+          <div className="mr-1 ml-2 border-l border-white/60 py-2">
             &nbsp;
           </div>{" "}
           {formatPercent(commander.stats.metaShare)} Meta%
-          <div className="ml-2 mr-1 border-l border-white/60 py-2">
+          <div className="mr-1 ml-2 border-l border-white/60 py-2">
             &nbsp;
           </div>{" "}
           {formatPercent(commander.stats.conversionRate)} Conversion
@@ -189,30 +184,36 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
   );
 }
 
-function CommanderMeta(props: { commander: Commander_CommanderMeta$key }) {
+function useCommanderMeta(commanderFromProps: Commander_CommanderMeta$key) {
   const commander = useFragment(
     graphql`
       fragment Commander_CommanderMeta on Commander {
         name
       }
     `,
-    props.commander,
+    commanderFromProps,
   );
 
-  return (
-    <NextSeo
-      title={commander.name}
-      description={`Top Performing and Recent Decklists for ${commander.name} in cEDH`}
-    />
-  );
+  useSeoMeta({
+    title: commander.name,
+    description: `Top Performing and Recent Decklists for ${commander.name} in cEDH`,
+  });
 }
 
 export function CommanderPageShell({
   disableNavigation,
+  maxStanding,
+  minEventSize,
+  sortBy,
+  timePeriod,
   children,
   ...props
 }: PropsWithChildren<{
   disableNavigation?: boolean;
+  maxStanding?: number | null;
+  minEventSize: number;
+  sortBy: EntriesSortBy;
+  timePeriod: TimePeriod;
   commander: Commander_CommanderPageShell$key;
 }>) {
   const commander = useFragment(
@@ -230,33 +231,29 @@ export function CommanderPageShell({
     props.commander,
   );
 
-  const router = useRouter();
-  const { maxStanding, minEventSize, sortBy, timePeriod } = useMemo(() => {
-    return queryVariablesFromParsedUrlQuery(router.query);
-  }, [router.query]);
+  useCommanderMeta(commander);
 
+  const { replace } = useRouter();
   const setQueryVariable = useCallback(
     (key: string, value: string | null) => {
-      const nextUrl = new URL(window.location.href);
-      if (value != null) {
-        nextUrl.searchParams.set(key, value);
-      } else {
-        nextUrl.searchParams.delete(key);
-      }
-
-      router.replace(nextUrl, undefined, { shallow: true, scroll: false });
+      replace((url) => {
+        if (value == null) {
+          url.searchParams.delete(key);
+        } else {
+          url.searchParams.set(key, value);
+        }
+      });
     },
-    [router],
+    [replace],
   );
 
   return (
     <>
       <Navigation />
-      <CommanderMeta commander={commander} />
       <CommanderBanner commander={commander} />
       {commander.promo && <FirstPartyPromo promo={commander.promo} />}
 
-      <div className="mx-auto grid max-w-screen-md grid-cols-2 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
+      <div className="mx-auto grid max-w-(--breakpoint-md) grid-cols-2 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
         <Select
           id="commander-sort-by"
           label="Sort By"
@@ -336,25 +333,28 @@ function queryVariablesFromParsedUrlQuery(query: ParsedUrlQuery) {
   return { commander, timePeriod, sortBy, minEventSize, maxStanding };
 }
 
-const CommanderQuery = graphql`
-  query Commander_CommanderQuery(
-    $commander: String!
-    $sortBy: EntriesSortBy!
-    $minEventSize: Int!
-    $maxStanding: Int
-    $timePeriod: TimePeriod!
-  ) {
-    commander(name: $commander) {
-      ...Commander_CommanderPageShell
-      ...Commander_entries
-    }
-  }
-`;
-
-function CommanderPage({
-  preloadedQuery,
-}: RelayProps<{}, Commander_CommanderQuery>) {
-  const { commander } = usePreloadedQuery(CommanderQuery, preloadedQuery);
+/** @resource m#commander_page */
+export const CommanderPage: EntryPointComponent<
+  { commanderQueryRef: Commander_CommanderQuery },
+  {}
+> = ({ queries }) => {
+  const { commander } = usePreloadedQuery(
+    graphql`
+      query Commander_CommanderQuery(
+        $commander: String!
+        $sortBy: EntriesSortBy!
+        $minEventSize: Int!
+        $maxStanding: Int
+        $timePeriod: TimePeriod!
+      ) @preloadable {
+        commander(name: $commander) {
+          ...Commander_CommanderPageShell
+          ...Commander_entries
+        }
+      }
+    `,
+    queries.commanderQueryRef,
+  );
 
   const { data, loadNext, isLoadingNext, hasNext } = usePaginationFragment<
     CommanderEntriesQuery,
@@ -390,8 +390,14 @@ function CommanderPage({
   );
 
   return (
-    <CommanderPageShell commander={commander}>
-      <div className="mx-auto grid w-full max-w-screen-xl grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
+    <CommanderPageShell
+      commander={commander}
+      maxStanding={queries.commanderQueryRef.variables.maxStanding}
+      minEventSize={queries.commanderQueryRef.variables.minEventSize}
+      sortBy={queries.commanderQueryRef.variables.sortBy}
+      timePeriod={queries.commanderQueryRef.variables.timePeriod}
+    >
+      <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
         {data.entries.edges.map(({ node }) => (
           <EntryCard key={node.id} entry={node} />
         ))}
@@ -406,52 +412,4 @@ function CommanderPage({
       <Footer />
     </CommanderPageShell>
   );
-}
-
-function CommanderPageFallback() {
-  const router = useRouter();
-  const queryVariables = useMemo(() => {
-    return queryVariablesFromParsedUrlQuery(router.query);
-  }, [router.query]);
-
-  const { commander } = useLazyLoadQuery<Commander_CommanderPageFallbackQuery>(
-    graphql`
-      query Commander_CommanderPageFallbackQuery(
-        $commander: String!
-        $timePeriod: TimePeriod!
-        $minEventSize: Int!
-      ) {
-        commander(name: $commander) {
-          ...Commander_CommanderPageShell
-        }
-      }
-    `,
-    queryVariables,
-    { fetchPolicy: "store-or-network" },
-  );
-
-  return (
-    <CommanderPageShell commander={commander} disableNavigation>
-      <LoadingIcon />
-    </CommanderPageShell>
-  );
-}
-
-export default withRelay(CommanderPage, CommanderQuery, {
-  fallback: (
-    <Suspense fallback={<Edhtop16Fallback />}>
-      <CommanderPageFallback />
-    </Suspense>
-  ),
-  createClientEnvironment: () => getClientEnvironment()!,
-  createServerEnvironment: async () => {
-    const { createServerEnvironment } = await import(
-      "../../../lib/server/relay_server_environment"
-    );
-
-    return createServerEnvironment();
-  },
-  variablesFromContext: (ctx) => {
-    return queryVariablesFromParsedUrlQuery(ctx.query);
-  },
-});
+};

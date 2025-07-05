@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -10,19 +9,28 @@
     "esModuleInterop": true,
     "strictNullChecks": true,
     "noUncheckedIndexedAccess": true,
+    "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "paths": {
+      "#src/*": ["./src/*"],
+      "#genfiles/*": ["./__generated__/*"]
+    }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "scripts/rivergen.mts",
+    "__generated__/**/*.tsx?",
+    "src/**/*.tsx?",
+    "types/*.ts",
+    "src/entry-client.tsx",
+    "src/entry-server.tsx",
+    "devserver.mts",
+    "server.mts"
+  ],
   "exclude": ["node_modules"],
   "ts-node": {
     "compilerOptions": {

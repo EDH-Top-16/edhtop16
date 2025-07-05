@@ -1,0 +1,70 @@
+import type { JSResourceReference } from "react-relay";
+
+type ResourceConf = typeof RESOURCE_CONF;
+const RESOURCE_CONF = {
+    "m#about": {
+            src: "src/pages/about.tsx",
+            loader: () => import("../../src/pages/about").then(m => m.AboutPage)
+        },
+    "m#index": {
+            src: "src/pages/index.tsx",
+            loader: () => import("../../src/pages/index").then(m => m.CommandersPage)
+        },
+    "m#tournaments": {
+            src: "src/pages/tournaments.tsx",
+            loader: () => import("../../src/pages/tournaments").then(m => m.TournamentsPage)
+        },
+    "m#tournament_view": {
+            src: "src/pages/tournament/[TID].tsx",
+            loader: () => import("../../src/pages/tournament/[TID]").then(m => m.TournamentViewPage)
+        },
+    "m#commander_page": {
+            src: "src/pages/commander/[commander]/index.tsx",
+            loader: () => import("../../src/pages/commander/[commander]/index").then(m => m.CommanderPage)
+        }
+} as const;
+
+type ModuleId = keyof ResourceConf;
+export type ModuleType<M extends ModuleId> = Awaited<
+  ReturnType<ResourceConf[M]["loader"]>
+>;
+
+export class JSResource<M extends ModuleId>
+  implements JSResourceReference<ModuleType<M>>
+{
+  private static readonly resourceCache = new Map<ModuleId, JSResource<any>>();
+  static fromModuleId<M extends ModuleId>(moduleId: M) {
+    if (JSResource.resourceCache.has(moduleId)) {
+      return JSResource.resourceCache.get(moduleId)!;
+    }
+
+    const resource = new JSResource(moduleId);
+    JSResource.resourceCache.set(moduleId, resource);
+    return resource;
+  }
+
+  private constructor(private readonly moduleId: M) {}
+  private modulePromiseCache: Promise<ModuleType<M>> | null = null;
+  private moduleCache: ModuleType<M> | null = null;
+
+  getModuleId(): string {
+    return this.moduleId;
+  }
+
+  getModuleIfRequired(): ModuleType<M> | null {
+    return this.moduleCache;
+  }
+
+  async load(): Promise<ModuleType<M>> {
+    if (this.modulePromiseCache == null) {
+      this.modulePromiseCache = RESOURCE_CONF[this.moduleId]
+        .loader()
+        .then((m) => {
+          this.moduleCache = m as ModuleType<M>;
+          return this.moduleCache;
+        });
+    }
+
+    return await this.modulePromiseCache;
+  }
+}

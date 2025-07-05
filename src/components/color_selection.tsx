@@ -37,7 +37,7 @@ export function ColorSelection({ selected, onChange }: ColorSelectionProps) {
           role="button"
           onClick={() => handleSelect(color)}
           className={cn(
-            "aspect-square w-10 rounded-full transition-all duration-200",
+            "aspect-square w-10 cursor-pointer rounded-full transition-all duration-200",
             !selected.includes(color) && "brightness-50",
           )}
         >

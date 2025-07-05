@@ -16,24 +16,23 @@ export function Card({
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-lg bg-white shadow transition-shadow",
+        "group relative overflow-hidden rounded-lg bg-white shadow-sm transition-shadow",
         hoverEffect && "cursor-pointer hover:shadow-lg",
         className,
       )}
     >
       <div
         className={cn(
-          "absolute left-0 top-0 flex h-full w-full bg-[#312d5a] transition",
+          "absolute top-0 left-0 flex h-full w-full bg-[#312d5a] transition",
           images.length > 0 && "brightness-50",
           hoverEffect &&
             (images.length > 0
-              ? "group-hover:brightness-[40%]"
-              : "group-hover:brightness-[80%]"),
+              ? "group-hover:brightness-40"
+              : "group-hover:brightness-80"),
         )}
       >
         {images.map(({ src, alt }, _i, { length }) => {
           return (
-            // eslint-disable-next-line @next/next/no-img-element
             <img
               className={cn(
                 "flex-1 object-cover object-top",

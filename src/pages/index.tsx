@@ -1,20 +1,29 @@
-import FireIcon from "@heroicons/react/24/solid/FireIcon";
+import {
+  CommandersSortBy,
+  pages_CommandersQuery,
+  TimePeriod,
+} from "#genfiles/queries/pages_CommandersQuery.graphql";
+import { pages_topCommanders$key } from "#genfiles/queries/pages_topCommanders.graphql";
+import { pages_TopCommandersCard$key } from "#genfiles/queries/pages_TopCommandersCard.graphql";
+import { TopCommandersQuery } from "#genfiles/queries/TopCommandersQuery.graphql";
+import { Link, QueryParamKind, useRouter } from "#genfiles/river/router";
 import RectangleStackIcon from "@heroicons/react/24/solid/RectangleStackIcon";
 import TableCellsIcon from "@heroicons/react/24/solid/TableCellsIcon";
-import { QueryParamKind, useQueryParams } from "@reverecre/next-query-params";
+import { useSeoMeta } from "@unhead/react";
 import cn from "classnames";
-import { NextSeo } from "next-seo";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import type { ParsedUrlQuery } from "querystring";
-import { PropsWithChildren, useCallback, useMemo } from "react";
 import {
+  PropsWithChildren,
+  startTransition,
+  useCallback,
+  useMemo,
+} from "react";
+import {
+  EntryPointComponent,
   graphql,
   useFragment,
   usePaginationFragment,
   usePreloadedQuery,
 } from "react-relay";
-import { RelayProps, withRelay } from "relay-nextjs";
 import { ColorIdentity } from "../assets/icons/colors";
 import { Card } from "../components/card";
 import { ColorSelection } from "../components/color_selection";
@@ -23,15 +32,6 @@ import { LoadMoreButton } from "../components/load_more";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
 import { formatPercent } from "../lib/client/format";
-import { getClientEnvironment } from "../lib/client/relay_client_environment";
-import {
-  CommandersSortBy,
-  pages_CommandersQuery,
-  TimePeriod,
-} from "../queries/__generated__/pages_CommandersQuery.graphql";
-import { pages_topCommanders$key } from "../queries/__generated__/pages_topCommanders.graphql";
-import { pages_TopCommandersCard$key } from "../queries/__generated__/pages_TopCommandersCard.graphql";
-import { TopCommandersQuery } from "../queries/__generated__/TopCommandersQuery.graphql";
 
 function TopCommandersCard({
   display = "card",
@@ -85,17 +85,17 @@ function TopCommandersCard({
 
   if (display === "table") {
     return (
-      <div className="grid w-full grid-cols-[130px_1fr] items-center gap-x-2 overflow-x-hidden rounded bg-[#312d5a]/50 p-4 text-white shadow-md lg:grid-cols-[130px_minmax(350px,_1fr)_100px_100px_100px_100px]">
+      <div className="grid w-full grid-cols-[130px_1fr] items-center gap-x-2 overflow-x-hidden rounded-sm bg-[#312d5a]/50 p-4 text-white shadow-md lg:grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px]">
         <div>
           <ColorIdentity identity={commander.colorId} />
         </div>
 
-        <a
+        <Link
           href={commander.breakdownUrl}
-          className="mb-2 font-title text-xl underline lg:mb-0 lg:font-sans lg:text-base"
+          className="font-title mb-2 text-xl underline lg:mb-0 lg:font-sans lg:text-base"
         >
           {commander.name}
-        </a>
+        </Link>
 
         <div className="text-sm opacity-75 lg:hidden">Entries:</div>
         <div className="text-sm">{commander.stats.count}</div>
@@ -153,23 +153,24 @@ function CommandersPageShell({
   timePeriod: TimePeriod;
   onUpdateQueryParam?: (key: string, value: string | null) => void;
 }>) {
+  useSeoMeta({
+    title: "cEDH Commanders",
+    description: "Discover top performing commanders in cEDH!",
+  });
+
   const [display, toggleDisplay] = useCommandersDisplay();
 
   return (
     <>
       <Navigation />
-      <NextSeo
-        title="cEDH Commanders"
-        description="Discover top performing commanders in cEDH!"
-      />
 
-      <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
+      <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">
         <div className="flex w-full items-baseline gap-4">
-          <h1 className="mb-8 flex-1 font-title text-5xl font-extrabold text-white lg:mb-0">
+          <h1 className="font-title mb-8 flex-1 text-5xl font-extrabold text-white lg:mb-0">
             cEDH Metagame Breakdown
           </h1>
 
-          <button className="" onClick={toggleDisplay}>
+          <button className="cursor-pointer" onClick={toggleDisplay}>
             {display === "card" ? (
               <TableCellsIcon className="h-6 w-6 text-white" />
             ) : (
@@ -259,13 +260,16 @@ function CommandersPageShell({
 }
 
 function useCommandersDisplay() {
-  const [{ display }, setParams] = useQueryParams({
+  const { parseQuery, replace } = useRouter();
+  const { display } = parseQuery({
     display: QueryParamKind.STRING,
   });
 
   const toggleDisplay = useCallback(() => {
-    setParams({ display: display === "table" ? "card" : "table" });
-  }, [display, setParams]);
+    replace((url) => {
+      url.searchParams.set("display", display === "table" ? "card" : "table");
+    });
+  }, [display, replace]);
 
   return useMemo(() => {
     return [display === "table" ? "table" : "card", toggleDisplay] as const;
@@ -273,47 +277,43 @@ function useCommandersDisplay() {
 }
 
 function useSetQueryVariable() {
-  const router = useRouter();
+  const { replace } = useRouter();
   return useCallback(
     (key: string, value: string | null) => {
-      const nextUrl = new URL(window.location.href);
-      if (value == null) {
-        nextUrl.searchParams.delete(key);
-      } else {
-        nextUrl.searchParams.set(key, value);
-      }
-      router.replace(nextUrl, undefined, { shallow: true, scroll: false });
+      startTransition(() => {
+        replace((url) => {
+          if (value == null) {
+            url.searchParams.delete(key);
+          } else {
+            url.searchParams.set(key, value);
+          }
+        });
+      });
     },
-    [router],
+    [replace],
   );
 }
 
-function queryVariablesFromParsedUrlQuery(query: ParsedUrlQuery) {
-  const timePeriod = (query.timePeriod as TimePeriod) ?? "SIX_MONTHS";
-  const sortBy = (query.sortBy as CommandersSortBy) ?? "POPULARITY";
-  const colorId = query.colorId as string | undefined;
-  const minEntries =
-    typeof query.minEntries === "string" ? Number(query.minEntries) : 20;
-  const minTournamentSize =
-    typeof query.minSize === "string" ? Number(query.minSize) : 60;
+/** @resource m#index */
+export const CommandersPage: EntryPointComponent<
+  { commandersQueryRef: pages_CommandersQuery },
+  {}
+> = ({ queries }) => {
+  const query = usePreloadedQuery(
+    graphql`
+      query pages_CommandersQuery(
+        $timePeriod: TimePeriod!
+        $sortBy: CommandersSortBy!
+        $minEntries: Int!
+        $minTournamentSize: Int!
+        $colorId: String
+      ) @preloadable {
+        ...pages_topCommanders
+      }
+    `,
+    queries.commandersQueryRef,
+  );
 
-  return { timePeriod, sortBy, colorId, minEntries, minTournamentSize };
-}
-
-const CommandersQuery = graphql`
-  query pages_CommandersQuery(
-    $timePeriod: TimePeriod!
-    $sortBy: CommandersSortBy!
-    $minEntries: Int!
-    $minTournamentSize: Int!
-    $colorId: String
-  ) {
-    ...pages_topCommanders
-  }
-`;
-
-function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
-  const query = usePreloadedQuery(CommandersQuery, preloadedQuery);
   const setQueryVariable = useSetQueryVariable();
   const [display] = useCommandersDisplay();
 
@@ -351,11 +351,11 @@ function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
 
   return (
     <CommandersPageShell
-      sortBy={preloadedQuery.variables.sortBy}
-      timePeriod={preloadedQuery.variables.timePeriod}
-      colorId={preloadedQuery.variables.colorId || ""}
-      minEntries={preloadedQuery.variables.minEntries}
-      minTournamentSize={preloadedQuery.variables.minTournamentSize}
+      sortBy={queries.commandersQueryRef.variables.sortBy}
+      timePeriod={queries.commandersQueryRef.variables.timePeriod}
+      colorId={queries.commandersQueryRef.variables.colorId || ""}
+      minEntries={queries.commandersQueryRef.variables.minEntries}
+      minTournamentSize={queries.commandersQueryRef.variables.minTournamentSize}
       onUpdateQueryParam={setQueryVariable}
     >
       <div
@@ -367,7 +367,7 @@ function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
         )}
       >
         {display === "table" && (
-          <div className="sticky top-[68px] hidden w-full grid-cols-[130px_minmax(350px,_1fr)_100px_100px_100px_100px] items-center gap-x-2 overflow-x-hidden bg-[#514f86] p-4 text-sm text-white lg:grid">
+          <div className="sticky top-[68px] hidden w-full grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px] items-center gap-x-2 overflow-x-hidden bg-[#514f86] p-4 text-sm text-white lg:grid">
             <div>Color</div>
             <div>Commander</div>
             <div>Entries</div>
@@ -383,8 +383,8 @@ function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
             display={display}
             commander={node}
             secondaryStatistic={
-              preloadedQuery.variables.sortBy === "CONVERSION" ||
-              preloadedQuery.variables.sortBy === "TOP_CUTS"
+              queries.commandersQueryRef.variables.sortBy === "CONVERSION" ||
+              queries.commandersQueryRef.variables.sortBy === "TOP_CUTS"
                 ? "topCuts"
                 : "count"
             }
@@ -401,41 +401,4 @@ function Commanders({ preloadedQuery }: RelayProps<{}, pages_CommandersQuery>) {
       <Footer />
     </CommandersPageShell>
   );
-}
-
-function CommandersPagePlaceholder() {
-  const setQueryVariable = useSetQueryVariable();
-  const router = useRouter();
-  const { sortBy, colorId, minEntries, timePeriod, minTournamentSize } =
-    queryVariablesFromParsedUrlQuery(router.query);
-
-  return (
-    <CommandersPageShell
-      sortBy={sortBy}
-      timePeriod={timePeriod}
-      colorId={colorId ?? ""}
-      minEntries={minEntries}
-      minTournamentSize={minTournamentSize}
-      onUpdateQueryParam={setQueryVariable}
-    >
-      <div className="flex w-full justify-center pt-24 text-white">
-        <FireIcon className="h-12 w-12 animate-pulse" />
-      </div>
-    </CommandersPageShell>
-  );
-}
-
-export default withRelay(Commanders, CommandersQuery, {
-  fallback: <CommandersPagePlaceholder />,
-  createClientEnvironment: () => getClientEnvironment()!,
-  createServerEnvironment: async () => {
-    const { createServerEnvironment } = await import(
-      "../lib/server/relay_server_environment"
-    );
-
-    return createServerEnvironment();
-  },
-  variablesFromContext: (ctx) => {
-    return queryVariablesFromParsedUrlQuery(ctx.query);
-  },
-});
+};

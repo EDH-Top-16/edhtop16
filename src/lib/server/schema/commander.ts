@@ -1,3 +1,4 @@
+import { DB } from "#genfiles/db/types";
 import {
   resolveCursorConnection,
   ResolveCursorConnectionArgs,
@@ -6,7 +7,6 @@ import {
 import { subYears } from "date-fns";
 import { sql } from "kysely";
 import { db } from "../db";
-import { DB } from "../db/__generated__/types";
 import { builder } from "./builder";
 import { Card } from "./card";
 import { Entry } from "./entry";
@@ -137,7 +137,7 @@ Commander.implement({
             .where("Tournament.tournamentDate", ">=", oneYearAgo)
             .executeTakeFirstOrThrow();
 
-          let query = db
+          const query = db
             .with("entries", (eb) => {
               return eb
                 .selectFrom("DecklistItem")
@@ -230,8 +230,8 @@ builder.queryField("commanders", (t) =>
             args.sortBy === "POPULARITY"
               ? "stats.count"
               : args.sortBy === "TOP_CUTS"
-              ? "stats.topCuts"
-              : "stats.conversionRate";
+                ? "stats.topCuts"
+                : "stats.conversionRate";
 
           let query = db
             .with("stats", (eb) =>

@@ -1,16 +1,19 @@
-import { NextSeo } from "next-seo";
-import Image from "next/image";
-import TeamImage from "../assets/images/team.jpg";
+import { useSeoMeta } from "@unhead/react";
 import { Navigation } from "../components/navigation";
 
-function AboutPage() {
+/** @resource m#about */
+export function AboutPage() {
+  useSeoMeta({
+    title: "About",
+    description: "About Us",
+  });
+
   return (
     <>
       <Navigation />
-      <NextSeo title="About" description="About Us" />
 
-      <div className="mx-auto my-8 flex w-full max-w-screen-md flex-col items-center gap-6 px-8 text-white">
-        <h1 className="flex-1 font-title text-5xl font-extrabold text-white">
+      <div className="mx-auto my-8 flex w-full max-w-(--breakpoint-md) flex-col items-center gap-6 px-8 text-white">
+        <h1 className="font-title flex-1 text-5xl font-extrabold text-white">
           About Us
         </h1>
 
@@ -68,16 +71,16 @@ function AboutPage() {
           for further questions.
         </p>
 
-        <h1 className="flex-1 font-title text-5xl font-extrabold text-white">
+        <h1 className="font-title flex-1 text-5xl font-extrabold text-white">
           Our Team
         </h1>
 
-        <Image
+        {/* <Image
           src={TeamImage}
           width={300}
           alt="ryan and jason"
-          className="rounded-lg shadow"
-        />
+          className="rounded-lg shadow-sm"
+        /> */}
 
         <p className="w-full">
           EDHTop16 is developed and maintained by Ryan Delaney and Jason Qiu.
@@ -90,5 +93,3 @@ function AboutPage() {
     </>
   );
 }
-
-export default AboutPage;

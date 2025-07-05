@@ -1,30 +1,27 @@
-import FireIcon from "@heroicons/react/24/solid/FireIcon";
+import { AllTournamentsQuery } from "#genfiles/queries/AllTournamentsQuery.graphql";
+import { tournaments_TournamentCard$key } from "#genfiles/queries/tournaments_TournamentCard.graphql";
+import { tournaments_Tournaments$key } from "#genfiles/queries/tournaments_Tournaments.graphql";
+import {
+  TimePeriod,
+  tournaments_TournamentsQuery,
+  TournamentSortBy,
+} from "#genfiles/queries/tournaments_TournamentsQuery.graphql";
+import { Link, useRouter } from "#genfiles/river/router";
+import { useSeoMeta } from "@unhead/react";
 import { format } from "date-fns";
-import { NextSeo } from "next-seo";
-import Link from "next/link";
-import { useRouter } from "next/router";
 import { PropsWithChildren, useCallback, useMemo } from "react";
 import {
+  EntryPointComponent,
   graphql,
   useFragment,
   usePaginationFragment,
   usePreloadedQuery,
 } from "react-relay";
-import { RelayProps, withRelay } from "relay-nextjs";
 import { Card } from "../components/card";
 import { Footer } from "../components/footer";
 import { LoadMoreButton } from "../components/load_more";
 import { Navigation } from "../components/navigation";
 import { Select } from "../components/select";
-import { getClientEnvironment } from "../lib/client/relay_client_environment";
-import { AllTournamentsQuery } from "../queries/__generated__/AllTournamentsQuery.graphql";
-import { tournaments_TournamentCard$key } from "../queries/__generated__/tournaments_TournamentCard.graphql";
-import { tournaments_Tournaments$key } from "../queries/__generated__/tournaments_Tournaments.graphql";
-import {
-  TimePeriod,
-  tournaments_TournamentsQuery,
-  TournamentSortBy,
-} from "../queries/__generated__/tournaments_TournamentsQuery.graphql";
 
 function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
   const tournament = useFragment(
@@ -97,17 +94,18 @@ function TournamentsPageShell({
   minSize: string;
   onUpdateQueryParam?: (key: string, value: string) => void;
 }>) {
+  useSeoMeta({
+    title: "cEDH Tournaments",
+    description: "Discover top and recent cEDH tournaments!",
+  });
+
   return (
     <>
       <Navigation searchType="tournament" />
-      <NextSeo
-        title="cEDH Tournaments"
-        description="Discover top and recent cEDH tournaments!"
-      />
 
-      <div className="mx-auto mt-8 w-full max-w-screen-xl px-8">
+      <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">
         <div className="mb-8 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0">
-          <h1 className="flex-1 font-title text-4xl font-extrabold text-white md:text-5xl">
+          <h1 className="font-title flex-1 text-4xl font-extrabold text-white md:text-5xl">
             cEDH Tournaments
           </h1>
 
@@ -165,29 +163,36 @@ function TournamentsPageShell({
   );
 }
 
-const TournamentsQuery = graphql`
-  query tournaments_TournamentsQuery(
-    $timePeriod: TimePeriod!
-    $sortBy: TournamentSortBy!
-    $minSize: Int!
-  ) {
-    ...tournaments_Tournaments
-  }
-`;
+/** @resource m#tournaments */
+export const TournamentsPage: EntryPointComponent<
+  { tournamentQueryRef: tournaments_TournamentsQuery },
+  {}
+> = ({ queries }) => {
+  const query = usePreloadedQuery(
+    graphql`
+      query tournaments_TournamentsQuery(
+        $timePeriod: TimePeriod!
+        $sortBy: TournamentSortBy!
+        $minSize: Int!
+      ) @preloadable {
+        ...tournaments_Tournaments
+      }
+    `,
+    queries.tournamentQueryRef,
+  );
 
-function TournamentsPage({
-  preloadedQuery,
-}: RelayProps<{}, tournaments_TournamentsQuery>) {
-  const query = usePreloadedQuery(TournamentsQuery, preloadedQuery);
-
-  const router = useRouter();
+  const nav = useRouter();
   const setQueryVariable = useCallback(
     (key: string, value: string) => {
-      const nextUrl = new URL(window.location.href);
-      nextUrl.searchParams.set(key, value);
-      router.replace(nextUrl, undefined, { shallow: true, scroll: false });
+      nav.replace((url) => {
+        if (value == null) {
+          url.searchParams.delete(key);
+        } else {
+          url.searchParams.set(key, value);
+        }
+      });
     },
-    [router],
+    [nav],
   );
 
   const { data, loadNext, isLoadingNext, hasNext } = usePaginationFragment<
@@ -221,9 +226,9 @@ function TournamentsPage({
 
   return (
     <TournamentsPageShell
-      sortBy={preloadedQuery.variables.sortBy}
-      timePeriod={preloadedQuery.variables.timePeriod}
-      minSize={`${preloadedQuery.variables.minSize}`}
+      sortBy={queries.tournamentQueryRef.variables.sortBy}
+      timePeriod={queries.tournamentQueryRef.variables.timePeriod}
+      minSize={`${queries.tournamentQueryRef.variables.minSize}`}
       onUpdateQueryParam={setQueryVariable}
     >
       <div className="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
@@ -241,41 +246,4 @@ function TournamentsPage({
       <Footer />
     </TournamentsPageShell>
   );
-}
-
-function TournamentsPagePlaceholder() {
-  const router = useRouter();
-
-  return (
-    <TournamentsPageShell
-      sortBy={(router.query.sortBy as TournamentSortBy | undefined) ?? "DATE"}
-      timePeriod={
-        (router.query.timePeriod as TimePeriod | undefined) ?? "SIX_MONTHS"
-      }
-      minSize={(router.query.minSize as string | undefined) ?? "60"}
-    >
-      <div className="flex w-full justify-center pt-24 text-white">
-        <FireIcon className="h-12 w-12 animate-pulse" />
-      </div>
-    </TournamentsPageShell>
-  );
-}
-
-export default withRelay(TournamentsPage, TournamentsQuery, {
-  fallback: <TournamentsPagePlaceholder />,
-  createClientEnvironment: () => getClientEnvironment()!,
-  createServerEnvironment: async () => {
-    const { createServerEnvironment } = await import(
-      "../lib/server/relay_server_environment"
-    );
-
-    return createServerEnvironment();
-  },
-  variablesFromContext: (ctx) => {
-    return {
-      timePeriod: (ctx.query.timePeriod as TimePeriod) ?? "SIX_MONTHS",
-      sortBy: (ctx.query.sortBy as TournamentSortBy) ?? "DATE",
-      minSize: Number((ctx.query.minSize as string) ?? 60),
-    };
-  },
-});
+};
