@@ -1,5 +1,5 @@
 import DataLoader from "dataloader";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 export type TopdeckTournamentTable = z.infer<
   typeof topdeckTournamentTableSchema
