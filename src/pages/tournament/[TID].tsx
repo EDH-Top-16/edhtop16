@@ -238,7 +238,7 @@ function TournamentBanner(props: { tournament: TID_TournamentBanner$key }) {
         )}
 
         {bracketUrl && (
-          <div className="absolute top-0 right-4 z-10 text-xs md:text-sm">
+          <div className="absolute top-4 right-4 z-10 text-xs md:text-sm">
             <a
               href={bracketUrl.href}
               target="_blank"
