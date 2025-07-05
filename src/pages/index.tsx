@@ -179,7 +179,7 @@ function CommandersPageShell({
           </button>
         </div>
 
-        <div className="mb-8 flex flex-col items-start space-y-4 lg:flex-row lg:items-end">
+        <div className="mb-8 flex flex-col items-start space-y-4 lg:flex-row lg:items-end lg:space-y-0">
           <div className="flex-1">
             <ColorSelection
               selected={colorId}
