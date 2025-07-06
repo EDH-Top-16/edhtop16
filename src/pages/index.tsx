@@ -6,7 +6,7 @@ import {
 import { pages_topCommanders$key } from "#genfiles/queries/pages_topCommanders.graphql";
 import { pages_TopCommandersCard$key } from "#genfiles/queries/pages_TopCommandersCard.graphql";
 import { TopCommandersQuery } from "#genfiles/queries/TopCommandersQuery.graphql";
-import { Link, QueryParamKind, useRouter } from "#genfiles/river/router";
+import { Link, useRouter } from "#genfiles/river/router";
 import RectangleStackIcon from "@heroicons/react/24/solid/RectangleStackIcon";
 import TableCellsIcon from "@heroicons/react/24/solid/TableCellsIcon";
 import { useSeoMeta } from "@unhead/react";
@@ -260,10 +260,8 @@ function CommandersPageShell({
 }
 
 function useCommandersDisplay() {
-  const { parseQuery, replace } = useRouter();
-  const { display } = parseQuery({
-    display: QueryParamKind.STRING,
-  });
+  const { asRoute, replace } = useRouter();
+  const { display } = asRoute("/");
 
   const toggleDisplay = useCallback(() => {
     replace((url) => {

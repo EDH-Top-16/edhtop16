@@ -4,33 +4,31 @@ import {
   TimePeriod,
 } from "#genfiles/queries/pages_CommandersQuery.graphql";
 import { JSResource, ModuleType } from "#genfiles/river/js_resource";
-import { EntryPointParams, QueryParamKind } from "#genfiles/river/router";
+import { EntryPointParams } from "#genfiles/river/router";
 import { EntryPoint } from "react-relay";
 
 /**
  * @route /
- * @param {number[]} minEntries
- * @param {number} minSize
+ * @param {number?} minSize
+ * @param {number?} minEntries
+ * @param {string?} sortBy
+ * @param {string?} timePeriod
+ * @param {string?} colorId
+ * @param {string?} display
  */
 export const entrypoint: EntryPoint<
   ModuleType<"m#index">,
   EntryPointParams<"/">
 > = {
   root: JSResource.fromModuleId("m#index"),
-  getPreloadProps({ router, params }) {
+  getPreloadProps({ schema, params }) {
     const {
       sortBy = "POPULARITY",
       timePeriod = "SIX_MONTHS",
       minEntries = 20,
       minSize: minTournamentSize = 60,
       colorId,
-    } = router.parseQuery({
-      sortBy: QueryParamKind.STRING,
-      timePeriod: QueryParamKind.STRING,
-      minEntries: QueryParamKind.NUMBER,
-      minSize: QueryParamKind.NUMBER,
-      colorId: QueryParamKind.STRING,
-    });
+    } = schema.parse(params);
 
     return {
       queries: {

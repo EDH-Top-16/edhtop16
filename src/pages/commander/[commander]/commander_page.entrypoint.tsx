@@ -4,7 +4,7 @@ import {
   TimePeriod,
 } from "#genfiles/queries/Commander_CommanderQuery.graphql";
 import { JSResource, ModuleType } from "#genfiles/river/js_resource";
-import { EntryPointParams, QueryParamKind } from "#genfiles/river/router";
+import { EntryPointParams } from "#genfiles/river/router";
 import { EntryPoint } from "react-relay";
 
 /**

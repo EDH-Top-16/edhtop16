@@ -49,8 +49,12 @@ const ROUTER_CONF = {
     "/": {
             entrypoint: e1,
             schema: z.object({
-              minEntries: z.array(z.coerce.number()),
-              minSize: z.coerce.number(),
+              minSize: z.union([z.undefined(), z.coerce.number()]),
+              minEntries: z.union([z.undefined(), z.coerce.number()]),
+              sortBy: z.union([z.undefined(), z.string().transform(decodeURIComponent)]),
+              timePeriod: z.union([z.undefined(), z.string().transform(decodeURIComponent)]),
+              colorId: z.union([z.undefined(), z.string().transform(decodeURIComponent)]),
+              display: z.union([z.undefined(), z.string().transform(decodeURIComponent)]),
             })
         } as const,
     "/tournaments": {
@@ -59,7 +63,11 @@ const ROUTER_CONF = {
         } as const,
     "/tournament/:tid": {
             entrypoint: e3,
-            schema: z.object({})
+            schema: z.object({
+              tid: z.string().transform(decodeURIComponent),
+              commander: z.union([z.undefined(), z.string().transform(decodeURIComponent)]),
+              tab: z.union([z.undefined(), z.string().transform(decodeURIComponent)]),
+            })
         } as const,
     "/commander/:commander": {
             entrypoint: e4,
@@ -165,12 +173,9 @@ export class Router {
     return params;
   }
 
-  parseQuery = <T extends AnyParamMapping>(params: T) =>
-    parseQuery(this.history.location.search, params);
-
-  asRoute<R extends RouteId | undefined>(
+  asRoute = <R extends RouteId | undefined>(
     route?: R,
-  ): R extends RouteId ? z.Infer<RouterConf[R]["schema"]> : any {
+  ): R extends RouteId ? z.Infer<RouterConf[R]["schema"]> : any => {
     const params = { ...this.currentRoute.params, ...this.searchParams() };
     const schema =
       route == null ? this.currentRoute.schema : ROUTER_CONF[route].schema;
@@ -178,7 +183,7 @@ export class Router {
     return schema.parse(params) as R extends RouteId
       ? z.Infer<RouterConf[R]["schema"]>
       : any;
-  }
+  };
 
   private hydrateStore(
     provider: IEnvironmentProvider<EnvironmentProviderOptions>,
@@ -199,7 +204,7 @@ export class Router {
     await initialRoute.entrypoint?.root.load();
 
     return loadEntryPoint(env, initialRoute?.entrypoint, {
-      params: initialRoute.params,
+      params: initialRoute.params ?? {},
       schema: initialRoute.schema,
       router: this,
     });
@@ -225,7 +230,7 @@ export class Router {
 
       useEffect(() => {
         loadEntryPointRef({
-          params: route.params,
+          params: route.params ?? {},
           schema: route.schema,
           router,
         });
@@ -293,117 +298,4 @@ export function Link({
   );
 
   return <a {...props} href={href} target={target} onClick={handleClick} />;
-}
-
-/** Configuration for how a value will be encoded and decoded into the URL. */
-export enum QueryParamKind {
-  /** Immediately flushed single string value. */
-  STRING = 1,
-  /** Value is set multiple times in the URL, decoded as a list. */
-  STRING_LIST,
-  /** Value is set multiple times in the URL, decoded as a set. */
-  STRING_SET,
-  /** Value is undefined when not present, a list when it is. */
-  STRING_LIST_DEFAULT_UNDEFINED,
-  /** String value that will throw an error if not found. */
-  STRING_REQUIRED,
-  /** Parsed and serialized as a number. */
-  NUMBER,
-}
-
-type DecodedQueryParamKind<Kind extends QueryParamKind> =
-  Kind extends QueryParamKind.STRING
-    ? string | undefined
-    : Kind extends QueryParamKind.NUMBER
-      ? number | undefined
-      : Kind extends QueryParamKind.STRING_LIST
-        ? string[]
-        : Kind extends QueryParamKind.STRING_LIST_DEFAULT_UNDEFINED
-          ? string[] | undefined
-          : Kind extends QueryParamKind.STRING_REQUIRED
-            ? string
-            : Set<string>;
-
-interface AnyParamMapping {
-  [param: string]: QueryParamKind;
-}
-
-export type DecodedParamMapping<ParamMapping extends AnyParamMapping> = {
-  [Param in keyof ParamMapping]: DecodedQueryParamKind<ParamMapping[Param]>;
-};
-
-export type DecodedParamUpdate<ParamMapping extends AnyParamMapping> = {
-  [Param in keyof ParamMapping]?:
-    | DecodedQueryParamKind<ParamMapping[Param]>
-    | null
-    | undefined;
-};
-
-function defaultNaNToUndefined(n: number): number | undefined {
-  return Number.isNaN(n) ? undefined : n;
-}
-
-export function parseQuery<ParamMapping extends AnyParamMapping>(
-  searchString: string,
-  params: ParamMapping,
-): DecodedParamMapping<ParamMapping> {
-  const search = new URLSearchParams(searchString);
-  const valueMapping = {} as DecodedParamMapping<ParamMapping>;
-
-  for (const [name, kind] of Object.entries(params)) {
-    const queryParamValue = search.getAll(name);
-    switch (kind) {
-      case QueryParamKind.STRING:
-      case QueryParamKind.STRING_REQUIRED:
-        valueMapping[name as keyof ParamMapping] = (
-          Array.isArray(queryParamValue) ? queryParamValue[0] : queryParamValue
-        ) as DecodedQueryParamKind<ParamMapping[keyof ParamMapping]>;
-        break;
-      case QueryParamKind.NUMBER:
-        valueMapping[name as keyof ParamMapping] = (
-          Array.isArray(queryParamValue)
-            ? defaultNaNToUndefined(Number(queryParamValue[0]))
-            : defaultNaNToUndefined(Number(queryParamValue))
-        ) as DecodedQueryParamKind<ParamMapping[keyof ParamMapping]>;
-        break;
-      case QueryParamKind.STRING_LIST:
-        valueMapping[name as keyof ParamMapping] = (
-          queryParamValue == null
-            ? []
-            : Array.isArray(queryParamValue)
-              ? queryParamValue
-              : [queryParamValue]
-        ) as DecodedQueryParamKind<ParamMapping[keyof ParamMapping]>;
-        break;
-      case QueryParamKind.STRING_SET:
-        valueMapping[name as keyof ParamMapping] = (
-          queryParamValue == null
-            ? new Set()
-            : Array.isArray(queryParamValue)
-              ? new Set(queryParamValue)
-              : new Set([queryParamValue])
-        ) as DecodedQueryParamKind<ParamMapping[keyof ParamMapping]>;
-        break;
-      case QueryParamKind.STRING_LIST_DEFAULT_UNDEFINED:
-        valueMapping[name as keyof ParamMapping] = (
-          queryParamValue == null
-            ? undefined
-            : Array.isArray(queryParamValue)
-              ? queryParamValue
-              : [queryParamValue]
-        ) as DecodedQueryParamKind<ParamMapping[keyof ParamMapping]>;
-        break;
-      default:
-        break;
-    }
-
-    if (
-      kind === QueryParamKind.STRING_REQUIRED &&
-      typeof valueMapping[name] !== "string"
-    ) {
-      throw new Error(`Expected to find required string: ${name}`);
-    }
-  }
-
-  return valueMapping;
 }
