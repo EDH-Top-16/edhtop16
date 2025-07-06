@@ -3,8 +3,9 @@ import {
   createMemoryHistory,
   History,
   Listener,
+  Location,
 } from "history";
-import { createRouter } from "radix3";
+import { createRouter, MatchedRoute } from "radix3";
 import {
   AnchorHTMLAttributes,
   createContext,
@@ -20,22 +21,27 @@ import {
   loadEntryPoint,
   PreloadedEntryPoint,
   useEntryPointLoader,
+  EntryPoint,
 } from "react-relay";
 import { OperationDescriptor, PayloadData } from "relay-runtime";
 import type { Manifest } from "vite";
+import * as z from "zod/v4";
 
 export type AnyPreloadedEntryPoint = PreloadedEntryPoint<any>;
 export type RiverOps = [OperationDescriptor, PayloadData][];
 
 type RouterConf = typeof ROUTER_CONF;
-const ROUTER_CONF = {} as const;
+const ROUTER_CONF = {
+  noop: { entrypoint: null! as EntryPoint<unknown>, schema: z.any() },
+} as const;
 
+export type RouteId = keyof RouterConf;
 type NavigationDirection = string | URL | ((nextUrl: URL) => void);
 
 export class Router {
   static routes = Object.keys(ROUTER_CONF);
 
-  private currentRoute;
+  private currentRoute: Location & MatchedRoute<RouterConf[RouteId]>;
   constructor(staticInit?: string) {
     if (staticInit == null) {
       this.history = createBrowserHistory();
@@ -43,9 +49,11 @@ export class Router {
       this.history = createMemoryHistory({ initialEntries: [staticInit] });
     }
 
+    const route = this.radixRouter.lookup(this.history.location.pathname)!;
     this.currentRoute = {
       ...this.history.location,
-      ...this.radixRouter.lookup(this.history.location.pathname),
+      ...route,
+      params: { ...route.params, ...this.searchParams() },
     };
   }
 
@@ -91,17 +99,48 @@ export class Router {
 
   listen = (listener: Listener) => {
     return this.history.listen((update) => {
+      const route = this.radixRouter.lookup(this.history.location.pathname)!;
       this.currentRoute = {
         ...this.history.location,
-        ...this.radixRouter.lookup(this.history.location.pathname),
+        ...route,
+        params: { ...route.params, ...this.searchParams() },
       };
 
       listener(update);
     });
   };
 
+  private searchParams() {
+    const params: Record<string, string | string[]> = {};
+
+    const search = new URLSearchParams(this.history.location.search);
+    search.forEach((value, key) => {
+      if (params[key] == null) {
+        params[key] = value;
+      } else if (Array.isArray(params[key])) {
+        params[key].push(value);
+      } else {
+        params[key] = [params[key], value];
+      }
+    });
+
+    return params;
+  }
+
   parseQuery = <T extends AnyParamMapping>(params: T) =>
     parseQuery(this.history.location.search, params);
+
+  asRoute<R extends RouteId | undefined>(
+    route?: R,
+  ): R extends RouteId ? z.Infer<RouterConf[R]["schema"]> : any {
+    const params = { ...this.currentRoute.params, ...this.searchParams() };
+    const schema =
+      route == null ? this.currentRoute.schema : ROUTER_CONF[route].schema;
+
+    return schema.parse(params) as R extends RouteId
+      ? z.Infer<RouterConf[R]["schema"]>
+      : any;
+  }
 
   private hydrateStore(
     provider: IEnvironmentProvider<EnvironmentProviderOptions>,
@@ -123,6 +162,7 @@ export class Router {
 
     return loadEntryPoint(env, initialRoute?.entrypoint, {
       params: initialRoute.params,
+      schema: initialRoute.schema,
       router: this,
     });
   }
@@ -146,7 +186,11 @@ export class Router {
       );
 
       useEffect(() => {
-        loadEntryPointRef({ params: route.params, router });
+        loadEntryPointRef({
+          params: route.params,
+          schema: route.schema,
+          router,
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [route]);
 
@@ -175,9 +219,10 @@ export function useRouter() {
   return useContext(Router.Context);
 }
 
-export interface EntryPointParams {
+export interface EntryPointParams<R extends RouteId> {
   router: Router;
-  params?: Record<string, any>;
+  params: Record<string, any>;
+  schema: RouterConf[R]["schema"];
 }
 
 export function Link({

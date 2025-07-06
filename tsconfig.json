@@ -23,8 +23,10 @@
   },
   "include": [
     "scripts/rivergen.mts",
-    "__generated__/**/*.tsx?",
-    "src/**/*.tsx?",
+    "__generated__/**/*.ts",
+    "__generated__/**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     "types/*.ts",
     "src/entry-client.tsx",
     "src/entry-server.tsx",

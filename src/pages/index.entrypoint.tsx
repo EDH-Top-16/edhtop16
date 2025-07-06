@@ -7,10 +7,17 @@ import { JSResource, ModuleType } from "#genfiles/river/js_resource";
 import { EntryPointParams, QueryParamKind } from "#genfiles/river/router";
 import { EntryPoint } from "react-relay";
 
-/** @route / */
-export const entrypoint: EntryPoint<ModuleType<"m#index">, EntryPointParams> = {
+/**
+ * @route /
+ * @param {number[]} minEntries
+ * @param {number} minSize
+ */
+export const entrypoint: EntryPoint<
+  ModuleType<"m#index">,
+  EntryPointParams<"/">
+> = {
   root: JSResource.fromModuleId("m#index"),
-  getPreloadProps({ router }) {
+  getPreloadProps({ router, params }) {
     const {
       sortBy = "POPULARITY",
       timePeriod = "SIX_MONTHS",

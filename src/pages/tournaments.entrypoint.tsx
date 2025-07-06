@@ -10,7 +10,7 @@ import { EntryPoint } from "react-relay";
 /** @route /tournaments */
 export const entrypoint: EntryPoint<
   ModuleType<"m#tournaments">,
-  EntryPointParams
+  EntryPointParams<"/tournaments">
 > = {
   root: JSResource.fromModuleId("m#tournaments"),
   getPreloadProps({ router }) {
