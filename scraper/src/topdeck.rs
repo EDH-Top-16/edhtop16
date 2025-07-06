@@ -108,7 +108,10 @@ impl TournamentEntry {
         };
 
         if let Some(deck) = &self.deck {
-            doc.insert("deckObj", mongodb::bson::to_bson(deck).unwrap_or(mongodb::bson::Bson::Null));
+            doc.insert(
+                "deckObj",
+                mongodb::bson::to_bson(deck).unwrap_or(mongodb::bson::Bson::Null),
+            );
         }
 
         doc

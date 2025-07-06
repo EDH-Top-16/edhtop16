@@ -234,16 +234,25 @@ const entrySchema = z.object({
   colorID: z.string().nullable().optional(),
   commander: z.string().nullable().optional(),
   mainDeck: z.array(z.string()).nullish(),
-  deckObj: z.object({
-    Commanders: z.record(z.string(), z.object({
-      id: z.string(),
-      count: z.number().int(),
-    })),
-    Mainboard: z.record(z.string(), z.object({
-      id: z.string(),
-      count: z.number().int(),
-    })),
-  }).nullable().optional(),
+  deckObj: z
+    .object({
+      Commanders: z.record(
+        z.string(),
+        z.object({
+          id: z.string(),
+          count: z.number().int(),
+        }),
+      ),
+      Mainboard: z.record(
+        z.string(),
+        z.object({
+          id: z.string(),
+          count: z.number().int(),
+        }),
+      ),
+    })
+    .nullable()
+    .optional(),
 });
 
 async function getTournamentEntries(tournamentId: string) {
@@ -448,13 +457,13 @@ async function loadEntries(
   return Array.from(entriesByTid).flatMap(([TID, entries]) => {
     return entries.flatMap((e) => {
       const entry = { ...e, TID };
-      
+
       // First check if we have structured deckObj data
       if (entry.deckObj) {
         // Extract commander data from deckObj
         const commanderNames: string[] = [];
         const colorIdentities: string[] = [];
-        
+
         for (const commanderData of Object.values(entry.deckObj.Commanders)) {
           const oracleCard = oracleCards.cardByOracleId.get(commanderData.id);
           if (oracleCard) {
@@ -464,7 +473,7 @@ async function loadEntries(
             }
           }
         }
-        
+
         // Extract mainboard data from deckObj
         const maindeckIds: string[] = [];
         for (const cardData of Object.values(entry.deckObj.Mainboard)) {
@@ -476,7 +485,7 @@ async function loadEntries(
             }
           }
         }
-        
+
         // Set the processed data
         entry.commander = commanderNames.sort().join(" / ");
         entry.colorID = wubrgify(Array.from(new Set(colorIdentities)));
