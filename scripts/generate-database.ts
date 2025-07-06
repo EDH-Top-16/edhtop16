@@ -231,8 +231,8 @@ const entrySchema = z.object({
   lossesSwiss: z.number().int(),
   lossesBracket: z.number().int(),
   standing: z.number().int(),
-  colorID: z.string(),
-  commander: z.string(),
+  colorID: z.string().nullable().optional(),
+  commander: z.string().nullable().optional(),
   mainDeck: z.array(z.string()).nullish(),
   deckObj: z.object({
     Commanders: z.record(z.string(), z.object({
@@ -448,7 +448,41 @@ async function loadEntries(
   return Array.from(entriesByTid).flatMap(([TID, entries]) => {
     return entries.flatMap((e) => {
       const entry = { ...e, TID };
-      if (entry.decklist?.startsWith(`~~`)) {
+      
+      // First check if we have structured deckObj data
+      if (entry.deckObj) {
+        // Extract commander data from deckObj
+        const commanderNames: string[] = [];
+        const colorIdentities: string[] = [];
+        
+        for (const commanderData of Object.values(entry.deckObj.Commanders)) {
+          const oracleCard = oracleCards.cardByOracleId.get(commanderData.id);
+          if (oracleCard) {
+            commanderNames.push(oracleCard.name);
+            if (oracleCard.color_identity) {
+              colorIdentities.push(...oracleCard.color_identity);
+            }
+          }
+        }
+        
+        // Extract mainboard data from deckObj
+        const maindeckIds: string[] = [];
+        for (const cardData of Object.values(entry.deckObj.Mainboard)) {
+          const oracleCard = oracleCards.cardByOracleId.get(cardData.id);
+          if (oracleCard) {
+            // Add multiple copies based on count
+            for (let i = 0; i < cardData.count; i++) {
+              maindeckIds.push(oracleCard.id);
+            }
+          }
+        }
+        
+        // Set the processed data
+        entry.commander = commanderNames.sort().join(" / ");
+        entry.colorID = wubrgify(Array.from(new Set(colorIdentities)));
+        entry.mainDeck = maindeckIds;
+      } else if (entry.decklist?.startsWith(`~~`)) {
+        // Fallback to raw decklist parsing if no deckObj
         const parsedDecklist = parseRawDecklist(
           entry.decklist,
           defaultCards,
@@ -478,6 +512,7 @@ async function createCommanders(entries: EntryWithTid[]) {
   const commanderIdByName = new Map<string, number>();
   db.transaction(() => {
     for (const entry of entries) {
+      if (!entry.commander || !entry.colorID) continue;
       if (commanderIdByName.has(entry.commander)) continue;
 
       console.log(`Creating commander: ${pc.cyan(entry.commander)}`);
@@ -509,7 +544,7 @@ async function createCards(
 
   const mainDeckCards = entries.flatMap((e) => e.mainDeck ?? []);
   const commanderCards = entries
-    .flatMap((e) => e.commander.split(" / "))
+    .flatMap((e) => e.commander?.split(" / ") ?? [])
     .map((c) => defaultCards.cardByName.get(c)?.id)
     .filter((id) => id != null);
 
@@ -609,6 +644,11 @@ async function createPlayers(
       const tournamentId = tournamentIdByTid.get(entry.TID);
       if (tournamentId == null) {
         console.error(`Could not find ID for tournament: ${entry.TID}`);
+        continue;
+      }
+
+      if (!entry.commander) {
+        console.error(`Entry has no commander: ${entry.TID}/${entry.name}`);
         continue;
       }
 

@@ -57,6 +57,7 @@ async fn unprocessed_standings(
     let standings: Collection<Document> = db.collection(tid);
     let mut cursor = standings
         .find(doc! {
+            "deckObj": doc! { "$exists": false },
             "commander": doc! { "$exists": false },
             "colorID": doc! { "$exists": false },
             "mainDeck": doc! { "$exists": false },
