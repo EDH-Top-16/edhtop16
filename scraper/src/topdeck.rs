@@ -95,7 +95,7 @@ pub struct TournamentDecklistEntry {
 
 impl TournamentEntry {
     pub fn into_doc(&self, index: i32) -> mongodb::bson::Document {
-        mongodb::bson::doc! {
+        let mut doc = mongodb::bson::doc! {
             "name": self.name.clone(),
             "decklist": self.decklist.clone(),
             "winsSwiss": self.wins_swiss,
@@ -105,7 +105,13 @@ impl TournamentEntry {
             "lossesBracket": self.losses_bracket,
             "standing": index + 1,
             "profile": self.id.clone()
+        };
+
+        if let Some(deck) = &self.deck {
+            doc.insert("deckObj", mongodb::bson::to_bson(deck).unwrap_or(mongodb::bson::Bson::Null));
         }
+
+        doc
     }
 }
 

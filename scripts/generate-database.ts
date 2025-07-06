@@ -234,6 +234,16 @@ const entrySchema = z.object({
   colorID: z.string(),
   commander: z.string(),
   mainDeck: z.array(z.string()).nullish(),
+  deckObj: z.object({
+    Commanders: z.record(z.string(), z.object({
+      id: z.string(),
+      count: z.number().int(),
+    })),
+    Mainboard: z.record(z.string(), z.object({
+      id: z.string(),
+      count: z.number().int(),
+    })),
+  }).nullable().optional(),
 });
 
 async function getTournamentEntries(tournamentId: string) {
