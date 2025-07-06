@@ -73,6 +73,7 @@ export class Router {
     }
 
     this.history.push(nextUrl.pathname + nextUrl.search);
+    window.scrollTo(0, 0);
   };
 
   replace = (nav: NavigationDirection) => {
