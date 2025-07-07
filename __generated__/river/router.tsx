@@ -261,7 +261,6 @@ export class Router {
     return loadEntryPoint(env, initialRoute?.entrypoint, {
       params: initialRoute.params ?? {},
       schema: initialRoute.schema,
-      router: this,
     });
   }
 
@@ -287,7 +286,6 @@ export class Router {
         loadEntryPointRef({
           params: route.params ?? {},
           schema: route.schema,
-          router,
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [route]);
@@ -318,7 +316,6 @@ export function useRouter() {
 }
 
 export interface EntryPointParams<R extends RouteId> {
-  router: Router;
   params: Record<string, any>;
   schema: RouterConf[R]["schema"];
 }
