@@ -41,21 +41,6 @@ const ROUTER_CONF = {
 export type RouteId = keyof RouterConf;
 type NavigationDirection = string | URL | ((nextUrl: URL) => void);
 
-// Utility type to make only union-with-undefined properties optional and allow null
-type OptionalizeUndefined<T> = {
-  [K in keyof T as T[K] extends undefined | infer U
-    ? undefined extends T[K]
-      ? K
-      : never
-    : never]?: T[K] | null;
-} & {
-  [K in keyof T as T[K] extends undefined | infer U
-    ? undefined extends T[K]
-      ? never
-      : K
-    : K]: T[K];
-};
-
 export class Router {
   static routes = Object.keys(ROUTER_CONF);
 
@@ -138,7 +123,7 @@ export class Router {
 
   pushRoute = <R extends RouteId>(
     routeName: R,
-    params: OptionalizeUndefined<z.input<RouterConf[R]["schema"]>>,
+    params: z.input<RouterConf[R]["schema"]>,
   ) => {
     const schema = ROUTER_CONF[routeName].schema;
     const validatedParams = schema.parse({
@@ -151,7 +136,7 @@ export class Router {
 
   replaceRoute = <R extends RouteId>(
     routeName: R,
-    params: OptionalizeUndefined<z.input<RouterConf[R]["schema"]>>,
+    params: z.input<RouterConf[R]["schema"]>,
   ) => {
     const schema = ROUTER_CONF[routeName].schema;
     const validatedParams = schema.parse({
