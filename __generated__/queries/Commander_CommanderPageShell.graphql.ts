@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<e62bf4de555a8259cab4a27d0fc81883>>
+ * @generated SignedSource<<215d74e6b243c81ec23fa31e663bc29d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -12,6 +12,7 @@ import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type Commander_CommanderPageShell$data = {
   readonly breakdownUrl: string;
+  readonly name: string;
   readonly promo: {
     readonly " $fragmentSpreads": FragmentRefs<"promo_EmbededPromo">;
   } | null | undefined;
@@ -29,6 +30,13 @@ const node: ReaderFragment = {
   "metadata": null,
   "name": "Commander_CommanderPageShell",
   "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
     {
       "alias": null,
       "args": null,
@@ -67,6 +75,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "36c64f9ad4e40c380aec302f443d97c4";
+(node as any).hash = "011cfed20ab1347f49689d7285e3d107";
 
 export default node;

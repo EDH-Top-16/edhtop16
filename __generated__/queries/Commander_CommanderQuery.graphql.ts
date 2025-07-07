@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<6a41faf92037c568ed2ce4b67bf729f0>>
- * @relayHash 44fd64595812c138718233ad2b365250
+ * @generated SignedSource<<3f7b88fe077e2112112193690958a9ad>>
+ * @relayHash c27c0cba9db03edad5bfb37497e5960c
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 44fd64595812c138718233ad2b365250
+// @relayRequestID c27c0cba9db03edad5bfb37497e5960c
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -171,6 +171,7 @@ return {
         "name": "commander",
         "plural": false,
         "selections": [
+          (v6/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -178,7 +179,6 @@ return {
             "name": "breakdownUrl",
             "storageKey": null
           },
-          (v6/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -484,7 +484,7 @@ return {
     ]
   },
   "params": {
-    "id": "44fd64595812c138718233ad2b365250",
+    "id": "c27c0cba9db03edad5bfb37497e5960c",
     "metadata": {},
     "name": "Commander_CommanderQuery",
     "operationKind": "query",

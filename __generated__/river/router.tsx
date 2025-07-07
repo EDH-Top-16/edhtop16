@@ -49,40 +49,59 @@ const ROUTER_CONF = {
     "/": {
             entrypoint: e1,
             schema: z.object({
-              minSize: z.union([z.undefined(), z.coerce.number()]),
-              minEntries: z.union([z.undefined(), z.coerce.number()]),
-              sortBy: z.union([z.undefined(), z.string().transform(decodeURIComponent)]),
-              timePeriod: z.union([z.undefined(), z.string().transform(decodeURIComponent)]),
-              colorId: z.union([z.undefined(), z.string().transform(decodeURIComponent)]),
-              display: z.union([z.undefined(), z.string().transform(decodeURIComponent)]),
+              minSize: z.nullish(z.coerce.number<number>()).transform(s => s == null ? undefined : s),
+              minEntries: z.nullish(z.coerce.number<number>()).transform(s => s == null ? undefined : s),
+              sortBy: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              timePeriod: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              colorId: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              display: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
             })
         } as const,
     "/tournaments": {
             entrypoint: e2,
-            schema: z.object({})
+            schema: z.object({
+              minSize: z.nullish(z.coerce.number<number>()).transform(s => s == null ? undefined : s),
+              sortBy: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              timePeriod: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+            })
         } as const,
     "/tournament/:tid": {
             entrypoint: e3,
             schema: z.object({
               tid: z.string().transform(decodeURIComponent),
-              commander: z.union([z.undefined(), z.string().transform(decodeURIComponent)]),
-              tab: z.union([z.undefined(), z.string().transform(decodeURIComponent)]),
+              commander: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              tab: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
             })
         } as const,
     "/commander/:commander": {
             entrypoint: e4,
             schema: z.object({
               commander: z.string().transform(decodeURIComponent),
-              sortBy: z.union([z.undefined(), z.string().transform(decodeURIComponent)]),
-              timePeriod: z.union([z.undefined(), z.string().transform(decodeURIComponent)]),
-              maxStanding: z.union([z.undefined(), z.coerce.number()]),
-              minEventSize: z.union([z.undefined(), z.coerce.number()]),
+              sortBy: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              timePeriod: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              maxStanding: z.nullish(z.coerce.number<number>()).transform(s => s == null ? undefined : s),
+              minEventSize: z.nullish(z.coerce.number<number>()).transform(s => s == null ? undefined : s),
             })
         } as const
 } as const;
 
 export type RouteId = keyof RouterConf;
 type NavigationDirection = string | URL | ((nextUrl: URL) => void);
+
+// Utility type to make only union-with-undefined properties optional and allow null
+type OptionalizeUndefined<T> = {
+  [K in keyof T as T[K] extends undefined | infer U
+    ? undefined extends T[K]
+      ? K
+      : never
+    : never]?: T[K] | null;
+} & {
+  [K in keyof T as T[K] extends undefined | infer U
+    ? undefined extends T[K]
+      ? never
+      : K
+    : K]: T[K];
+};
 
 export class Router {
   static routes = Object.keys(ROUTER_CONF);
@@ -137,6 +156,57 @@ export class Router {
     }
 
     this.history.replace(nextUrl.pathname + nextUrl.search);
+  };
+
+  private navigateParams(routeName: RouteId, params: Record<string, any>) {
+    return (url: URL) => {
+      let pathname = routeName as string;
+      const searchParams = new URLSearchParams();
+
+      Object.entries(params).forEach(([key, value]) => {
+        if (value != null) {
+          const paramPattern = `:${key}`;
+          if (pathname.includes(paramPattern)) {
+            // Replace route parameter in pathname
+            pathname = pathname.replace(
+              paramPattern,
+              encodeURIComponent(String(value)),
+            );
+          } else {
+            searchParams.set(key, String(value));
+          }
+        }
+      });
+
+      url.pathname = pathname;
+      url.search = searchParams.toString();
+    };
+  }
+
+  pushRoute = <R extends RouteId>(
+    routeName: R,
+    params: OptionalizeUndefined<z.input<RouterConf[R]["schema"]>>,
+  ) => {
+    const schema = ROUTER_CONF[routeName].schema;
+    const validatedParams = schema.parse({
+      ...this.currentRoute.params,
+      ...params,
+    });
+
+    this.push(this.navigateParams(routeName, validatedParams));
+  };
+
+  replaceRoute = <R extends RouteId>(
+    routeName: R,
+    params: OptionalizeUndefined<z.input<RouterConf[R]["schema"]>>,
+  ) => {
+    const schema = ROUTER_CONF[routeName].schema;
+    const validatedParams = schema.parse({
+      ...this.currentRoute.params,
+      ...params,
+    });
+
+    this.replace(this.navigateParams(routeName, validatedParams));
   };
 
   route = () => {

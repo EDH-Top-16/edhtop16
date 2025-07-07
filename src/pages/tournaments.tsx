@@ -86,18 +86,18 @@ function TournamentsPageShell({
   sortBy,
   timePeriod,
   minSize,
-  onUpdateQueryParam,
   children,
 }: PropsWithChildren<{
   sortBy: TournamentSortBy;
   timePeriod: TimePeriod;
   minSize: string;
-  onUpdateQueryParam?: (key: string, value: string) => void;
 }>) {
   useSeoMeta({
     title: "cEDH Tournaments",
     description: "Discover top and recent cEDH tournaments!",
   });
+
+  const { replaceRoute } = useRouter();
 
   return (
     <>
@@ -114,9 +114,8 @@ function TournamentsPageShell({
               id="tournaments-sort-by"
               label="Sort By"
               value={sortBy}
-              disabled={onUpdateQueryParam == null}
               onChange={(value) => {
-                onUpdateQueryParam?.("sortBy", value);
+                replaceRoute("/tournaments", { sortBy: value });
               }}
             >
               <option value="PLAYERS">Tournament Size</option>
@@ -127,9 +126,8 @@ function TournamentsPageShell({
               id="tournaments-players"
               label="Players"
               value={minSize}
-              disabled={onUpdateQueryParam == null}
               onChange={(value) => {
-                onUpdateQueryParam?.("minSize", value);
+                replaceRoute("/tournaments", { minSize: Number(value) });
               }}
             >
               <option value="0">All Tournaments</option>
@@ -142,9 +140,8 @@ function TournamentsPageShell({
               id="tournaments-time-period"
               label="Time Period"
               value={timePeriod}
-              disabled={onUpdateQueryParam == null}
               onChange={(value) => {
-                onUpdateQueryParam?.("timePeriod", value);
+                replaceRoute("/tournaments", { timePeriod: value });
               }}
             >
               <option value="ONE_MONTH">1 Month</option>
@@ -181,20 +178,6 @@ export const TournamentsPage: EntryPointComponent<
     queries.tournamentQueryRef,
   );
 
-  const nav = useRouter();
-  const setQueryVariable = useCallback(
-    (key: string, value: string) => {
-      nav.replace((url) => {
-        if (value == null) {
-          url.searchParams.delete(key);
-        } else {
-          url.searchParams.set(key, value);
-        }
-      });
-    },
-    [nav],
-  );
-
   const { data, loadNext, isLoadingNext, hasNext } = usePaginationFragment<
     AllTournamentsQuery,
     tournaments_Tournaments$key
@@ -229,7 +212,6 @@ export const TournamentsPage: EntryPointComponent<
       sortBy={queries.tournamentQueryRef.variables.sortBy}
       timePeriod={queries.tournamentQueryRef.variables.timePeriod}
       minSize={`${queries.tournamentQueryRef.variables.minSize}`}
-      onUpdateQueryParam={setQueryVariable}
     >
       <div className="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
         {data.tournaments.edges.map((edge) => (

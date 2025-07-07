@@ -117,11 +117,23 @@ function zodSchemaOfType(tc: ts.TypeChecker, t: ts.Type): string {
   if (t.getFlags() & TypeFlags.String) {
     return `z.string().transform(decodeURIComponent)`;
   } else if (t.getFlags() & TypeFlags.Number) {
-    return `z.coerce.number()`;
+    return `z.coerce.number<number>()`;
   } else if (t.getFlags() & TypeFlags.Null) {
-    return `z.undefined()`;
+    return `z.preprocess(s => s == null ? undefined : s, z.undefined())`;
   } else if (t.isUnion()) {
-    return `z.union([${t.types.map((it) => zodSchemaOfType(tc, it)).join(", ")}])`;
+    const isRepresentingOptional =
+      t.types.length === 2 &&
+      t.types.some((s) => s.getFlags() & TypeFlags.Null);
+
+    if (isRepresentingOptional) {
+      const nonOptionalType = t.types.find(
+        (s) => !(s.getFlags() & TypeFlags.Null),
+      )!;
+
+      return `z.nullish(${zodSchemaOfType(tc, nonOptionalType)}).transform(s => s == null ? undefined : s)`;
+    } else {
+      return `z.union([${t.types.map((it) => zodSchemaOfType(tc, it)).join(", ")}])`;
+    }
   } else if (tc.isArrayLikeType(t)) {
     const typeArg = tc.getTypeArguments(t as ts.TypeReference)[0];
     const argZodSchema =

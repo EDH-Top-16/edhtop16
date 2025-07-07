@@ -41,6 +41,21 @@ const ROUTER_CONF = {
 export type RouteId = keyof RouterConf;
 type NavigationDirection = string | URL | ((nextUrl: URL) => void);
 
+// Utility type to make only union-with-undefined properties optional and allow null
+type OptionalizeUndefined<T> = {
+  [K in keyof T as T[K] extends undefined | infer U
+    ? undefined extends T[K]
+      ? K
+      : never
+    : never]?: T[K] | null;
+} & {
+  [K in keyof T as T[K] extends undefined | infer U
+    ? undefined extends T[K]
+      ? never
+      : K
+    : K]: T[K];
+};
+
 export class Router {
   static routes = Object.keys(ROUTER_CONF);
 
@@ -94,6 +109,57 @@ export class Router {
     }
 
     this.history.replace(nextUrl.pathname + nextUrl.search);
+  };
+
+  private navigateParams(routeName: RouteId, params: Record<string, any>) {
+    return (url: URL) => {
+      let pathname = routeName as string;
+      const searchParams = new URLSearchParams();
+
+      Object.entries(params).forEach(([key, value]) => {
+        if (value != null) {
+          const paramPattern = `:${key}`;
+          if (pathname.includes(paramPattern)) {
+            // Replace route parameter in pathname
+            pathname = pathname.replace(
+              paramPattern,
+              encodeURIComponent(String(value)),
+            );
+          } else {
+            searchParams.set(key, String(value));
+          }
+        }
+      });
+
+      url.pathname = pathname;
+      url.search = searchParams.toString();
+    };
+  }
+
+  pushRoute = <R extends RouteId>(
+    routeName: R,
+    params: OptionalizeUndefined<z.input<RouterConf[R]["schema"]>>,
+  ) => {
+    const schema = ROUTER_CONF[routeName].schema;
+    const validatedParams = schema.parse({
+      ...this.currentRoute.params,
+      ...params,
+    });
+
+    this.push(this.navigateParams(routeName, validatedParams));
+  };
+
+  replaceRoute = <R extends RouteId>(
+    routeName: R,
+    params: OptionalizeUndefined<z.input<RouterConf[R]["schema"]>>,
+  ) => {
+    const schema = ROUTER_CONF[routeName].schema;
+    const validatedParams = schema.parse({
+      ...this.currentRoute.params,
+      ...params,
+    });
+
+    this.replace(this.navigateParams(routeName, validatedParams));
   };
 
   route = () => {

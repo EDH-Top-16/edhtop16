@@ -7,7 +7,12 @@ import { JSResource, ModuleType } from "#genfiles/river/js_resource";
 import { EntryPointParams } from "#genfiles/river/router";
 import { EntryPoint } from "react-relay";
 
-/** @route /tournaments */
+/**
+ * @route /tournaments
+ * @param {number?} minSize
+ * @param {string?} sortBy
+ * @param {string?} timePeriod
+ */
 export const entrypoint: EntryPoint<
   ModuleType<"m#tournaments">,
   EntryPointParams<"/tournaments">

@@ -13,8 +13,7 @@ import { Link, useRouter } from "#genfiles/river/router";
 import { useSeoMeta } from "@unhead/react";
 import cn from "classnames";
 import { format } from "date-fns";
-import { ParsedUrlQuery } from "querystring";
-import { PropsWithChildren, useCallback } from "react";
+import { PropsWithChildren } from "react";
 import {
   EntryPointComponent,
   useFragment,
@@ -219,6 +218,7 @@ export function CommanderPageShell({
   const commander = useFragment(
     graphql`
       fragment Commander_CommanderPageShell on Commander {
+        name
         breakdownUrl
         ...Commander_CommanderBanner
         ...Commander_CommanderMeta
@@ -232,20 +232,7 @@ export function CommanderPageShell({
   );
 
   useCommanderMeta(commander);
-
-  const { replace } = useRouter();
-  const setQueryVariable = useCallback(
-    (key: string, value: string | null) => {
-      replace((url) => {
-        if (value == null) {
-          url.searchParams.delete(key);
-        } else {
-          url.searchParams.set(key, value);
-        }
-      });
-    },
-    [replace],
-  );
+  const { replaceRoute } = useRouter();
 
   return (
     <>
@@ -258,9 +245,11 @@ export function CommanderPageShell({
           id="commander-sort-by"
           label="Sort By"
           value={sortBy}
-          disabled={setQueryVariable == null}
           onChange={(e) => {
-            setQueryVariable?.("sortBy", e);
+            replaceRoute("/commander/:commander", {
+              commander: commander.name,
+              sortBy: e,
+            });
           }}
         >
           <option value="TOP">Top Performing</option>
@@ -271,9 +260,11 @@ export function CommanderPageShell({
           id="commanders-time-period"
           label="Time Period"
           value={timePeriod}
-          disabled={setQueryVariable == null}
           onChange={(e) => {
-            setQueryVariable?.("timePeriod", e);
+            replaceRoute("/commander/:commander", {
+              commander: commander.name,
+              timePeriod: e,
+            });
           }}
         >
           <option value="ONE_MONTH">1 Month</option>
@@ -288,9 +279,11 @@ export function CommanderPageShell({
           id="commander-event-size"
           label="Event Size"
           value={`${minEventSize}`}
-          disabled={setQueryVariable == null}
           onChange={(e) => {
-            setQueryVariable?.("minEventSize", e);
+            replaceRoute("/commander/:commander", {
+              commander: commander.name,
+              minEventSize: Number(e),
+            });
           }}
         >
           <option value="0">All Events</option>
@@ -303,9 +296,11 @@ export function CommanderPageShell({
           id="commander-event-size"
           label="Standing"
           value={`${maxStanding}`}
-          disabled={setQueryVariable == null}
           onChange={(e) => {
-            setQueryVariable?.("maxStanding", e ? e : null);
+            replaceRoute("/commander/:commander", {
+              commander: commander.name,
+              maxStanding: Number(e),
+            });
           }}
         >
           <option value="">All Players</option>
@@ -317,20 +312,6 @@ export function CommanderPageShell({
       {children}
     </>
   );
-}
-
-function queryVariablesFromParsedUrlQuery(query: ParsedUrlQuery) {
-  const commander = query.commander as string;
-  const timePeriod = (query.timePeriod as TimePeriod) ?? "ONE_YEAR";
-  const sortBy = (query.sortBy as EntriesSortBy) ?? "TOP";
-  const minEventSize =
-    typeof query.minEventSize === "string" ? Number(query.minEventSize) : 60;
-  const maxStanding =
-    typeof query.maxStanding === "string"
-      ? Number(query.maxStanding)
-      : undefined;
-
-  return { commander, timePeriod, sortBy, minEventSize, maxStanding };
 }
 
 /** @resource m#commander_page */
