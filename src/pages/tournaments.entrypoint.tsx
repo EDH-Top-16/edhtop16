@@ -4,25 +4,26 @@ import type {
 } from "#genfiles/queries/AllTournamentsQuery.graphql";
 import TournamentsQueryParameters from "#genfiles/queries/tournaments_TournamentsQuery$parameters";
 import { JSResource, ModuleType } from "#genfiles/river/js_resource";
-import { EntryPointParams, QueryParamKind } from "#genfiles/river/router";
+import { EntryPointParams } from "#genfiles/river/router";
 import { EntryPoint } from "react-relay";
 
-/** @route /tournaments */
+/**
+ * @route /tournaments
+ * @param {number?} minSize
+ * @param {string?} sortBy
+ * @param {string?} timePeriod
+ */
 export const entrypoint: EntryPoint<
   ModuleType<"m#tournaments">,
-  EntryPointParams
+  EntryPointParams<"/tournaments">
 > = {
   root: JSResource.fromModuleId("m#tournaments"),
-  getPreloadProps({ router }) {
+  getPreloadProps({ params, schema }) {
     const {
       sortBy = "DATE",
       minSize = 0,
       timePeriod = "ALL_TIME",
-    } = router.parseQuery({
-      sortBy: QueryParamKind.STRING,
-      minSize: QueryParamKind.NUMBER,
-      timePeriod: QueryParamKind.STRING,
-    });
+    } = schema.parse(params);
 
     return {
       queries: {

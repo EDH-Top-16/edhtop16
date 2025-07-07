@@ -281,18 +281,17 @@ function useTournamentMeta(tournamentFromProps: TID_TournamentMeta$key) {
 function TournamentPageShell({
   tab,
   commanderName,
-  onUpdateQueryParam,
   children,
   ...props
 }: PropsWithChildren<{
   tab: string;
   commanderName?: string | null;
   tournament: TID_TournamentPageShell$key;
-  onUpdateQueryParam?: (keys: [key: string, value: string | null][]) => void;
 }>) {
   const tournament = useFragment(
     graphql`
       fragment TID_TournamentPageShell on Tournament {
+        TID
         ...TID_TournamentBanner
         ...TID_TournamentMeta
 
@@ -306,17 +305,19 @@ function TournamentPageShell({
 
   useTournamentMeta(tournament);
 
+  const { replaceRoute } = useRouter();
   const setSelectedTab = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       const nextKey = (e.target as HTMLButtonElement).id;
-      const nextParams: [key: string, value: string | null][] = [
-        ["tab", nextKey as string | null],
-      ];
+      console.log({ nextKey });
 
-      if (nextKey !== "commander") nextParams.push(["commander", null]);
-      onUpdateQueryParam?.(nextParams);
+      replaceRoute("/tournament/:tid", {
+        tid: tournament.TID,
+        tab: nextKey,
+        commander: null,
+      });
     },
-    [onUpdateQueryParam],
+    [replaceRoute, tournament.TID],
   );
 
   return (
@@ -326,31 +327,20 @@ function TournamentPageShell({
       {tournament.promo && <FirstPartyPromo promo={tournament.promo} />}
 
       <TabList className="mx-auto max-w-(--breakpoint-md)">
-        <Tab
-          id="entries"
-          selected={tab === "entries"}
-          disabled={onUpdateQueryParam == null}
-          onClick={setSelectedTab}
-        >
+        <Tab id="entries" selected={tab === "entries"} onClick={setSelectedTab}>
           Standings
         </Tab>
 
         <Tab
           id="breakdown"
           selected={tab === "breakdown"}
-          disabled={onUpdateQueryParam == null}
           onClick={setSelectedTab}
         >
           Metagame Breakdown
         </Tab>
 
         {commanderName != null && (
-          <Tab
-            id="commander"
-            selected={tab === "commander"}
-            disabled={onUpdateQueryParam == null}
-            onClick={setSelectedTab}
-          >
+          <Tab id="commander" selected={tab === "commander"}>
             {commanderName}
           </Tab>
         )}
@@ -402,21 +392,7 @@ export const TournamentViewPage: EntryPointComponent<
     queries.tournamentQueryRef,
   );
 
-  const nav = useRouter();
-  const setQueryVariable = useCallback(
-    (vars: [string, string | null][]) => {
-      nav.replace((url) => {
-        for (const [key, value] of vars) {
-          if (value == null) {
-            url.searchParams.delete(key);
-          } else {
-            url.searchParams.set(key, value);
-          }
-        }
-      });
-    },
-    [nav],
-  );
+  const { replaceRoute } = useRouter();
 
   return (
     <TournamentPageShell
@@ -429,7 +405,6 @@ export const TournamentViewPage: EntryPointComponent<
             ? "commander"
             : "entries"
       }
-      onUpdateQueryParam={setQueryVariable}
     >
       <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
         {queries.tournamentQueryRef.variables.showStandings &&
@@ -445,10 +420,11 @@ export const TournamentViewPage: EntryPointComponent<
               key={group.commander.id}
               group={group}
               onClickGroup={(commanderName) => {
-                setQueryVariable([
-                  ["tab", "commander"],
-                  ["commander", commanderName],
-                ]);
+                replaceRoute("/tournament/:tid", {
+                  tid: queries.tournamentQueryRef.variables.TID,
+                  tab: "commander",
+                  commander: commanderName,
+                });
               }}
             />
           ))}

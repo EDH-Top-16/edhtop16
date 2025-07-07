@@ -1,7 +1,14 @@
 import { readFile } from "node:fs/promises";
-import { Project, SourceFile, Symbol, SyntaxKind, ts } from "ts-morph";
 import path from "node:path";
 import pc from "picocolors";
+import {
+  Project,
+  SourceFile,
+  Symbol,
+  SyntaxKind,
+  ts,
+  TypeFlags,
+} from "ts-morph";
 
 const JS_RESOURCE_FILENAME = "__generated__/river/js_resource.ts";
 const JS_RESOURCE_TEMPLATE = "scripts/templates/js_resource.ts";
@@ -43,6 +50,7 @@ type RiverRoute = {
   routeName: string;
   sourceFile: SourceFile;
   symbol: Symbol;
+  params: Map<string, ts.Type>;
 };
 
 function collectRiverNodes(project: Project) {
@@ -51,26 +59,53 @@ function collectRiverNodes(project: Project) {
 
   function visitRiverNodes(sourceFile: SourceFile) {
     sourceFile.getExportSymbols().forEach((symbol) => {
-      for (const tag of symbol.getJsDocTags()) {
-        switch (tag.getName()) {
-          case "route": {
-            routes.push({
-              routeName: tag.getText().at(0)?.text!,
-              sourceFile,
-              symbol,
-            });
-            break;
-          }
-          case "resource": {
-            resources.push({
-              resourceName: tag.getText().at(0)?.text!,
-              sourceFile,
-              symbol,
-            });
-            break;
+      let riverResource = null as RiverResource | null;
+      let riverRoute = null as RiverRoute | null;
+      const routeParams = new Map<string, ts.Type>();
+
+      function visitJSDocTags(tag: ts.JSDoc | ts.JSDocTag) {
+        if (ts.isJSDoc(tag)) {
+          tag.tags?.forEach(visitJSDocTags);
+        } else if (ts.isJSDocParameterTag(tag)) {
+          const typeNode = tag.typeExpression?.type;
+          const tc = project.getTypeChecker().compilerObject;
+
+          const type =
+            typeNode == null
+              ? tc.getUnknownType()
+              : tc.getTypeFromTypeNode(typeNode);
+
+          routeParams.set(tag.name.getText(), type);
+        } else if (typeof tag.comment === "string") {
+          switch (tag.tagName.getText()) {
+            case "route": {
+              riverRoute = {
+                routeName: tag.comment,
+                sourceFile,
+                symbol,
+                params: routeParams,
+              };
+              break;
+            }
+            case "resource": {
+              riverResource = {
+                resourceName: tag.comment,
+                sourceFile,
+                symbol,
+              };
+              break;
+            }
           }
         }
       }
+
+      symbol
+        .getDeclarations()
+        .flatMap((decl) => ts.getJSDocCommentsAndTags(decl.compilerNode))
+        .forEach(visitJSDocTags);
+
+      if (riverRoute != null) routes.push(riverRoute);
+      if (riverResource != null) resources.push(riverResource);
     });
   }
 
@@ -78,8 +113,43 @@ function collectRiverNodes(project: Project) {
   return { resources, routes } as const;
 }
 
+function zodSchemaOfType(tc: ts.TypeChecker, t: ts.Type): string {
+  if (t.getFlags() & TypeFlags.String) {
+    return `z.string().transform(decodeURIComponent)`;
+  } else if (t.getFlags() & TypeFlags.Number) {
+    return `z.coerce.number<number>()`;
+  } else if (t.getFlags() & TypeFlags.Null) {
+    return `z.preprocess(s => s == null ? undefined : s, z.undefined())`;
+  } else if (t.isUnion()) {
+    const isRepresentingOptional =
+      t.types.length === 2 &&
+      t.types.some((s) => s.getFlags() & TypeFlags.Null);
+
+    if (isRepresentingOptional) {
+      const nonOptionalType = t.types.find(
+        (s) => !(s.getFlags() & TypeFlags.Null),
+      )!;
+
+      return `z.nullish(${zodSchemaOfType(tc, nonOptionalType)}).transform(s => s == null ? undefined : s)`;
+    } else {
+      return `z.union([${t.types.map((it) => zodSchemaOfType(tc, it)).join(", ")}])`;
+    }
+  } else if (tc.isArrayLikeType(t)) {
+    const typeArg = tc.getTypeArguments(t as ts.TypeReference)[0];
+    const argZodSchema =
+      typeArg == null ? `z.any()` : zodSchemaOfType(tc, typeArg);
+
+    return `z.array(${argZodSchema})`;
+  } else {
+    console.log("Could not handle type:", tc.typeToString(t));
+    return `z.any()`;
+  }
+}
+
 async function main() {
   const project = new Project({ tsConfigFilePath: "tsconfig.json" });
+  const tc = project.getTypeChecker().compilerObject;
+
   const riverFiles = await loadRiverFiles(project);
   const riverNodes = collectRiverNodes(project);
 
@@ -124,8 +194,10 @@ async function main() {
     .getInitializerIfKindOrThrow(SyntaxKind.AsExpression)
     .getExpressionIfKindOrThrow(SyntaxKind.ObjectLiteralExpression);
 
+  routerConf.getPropertyOrThrow("noop").remove();
+
   let entryPointImportIndex = 0;
-  for (const { routeName, sourceFile, symbol } of riverNodes.routes) {
+  for (const { routeName, sourceFile, symbol, params } of riverNodes.routes) {
     const importAlias = `e${entryPointImportIndex++}`;
     const filePath = path.relative(process.cwd(), sourceFile.getFilePath());
     const moduleSpecifier =
@@ -146,7 +218,24 @@ async function main() {
     routerConf.addPropertyAssignment({
       name: `"${routeName}"`,
       initializer: (writer) => {
-        writer.write(`{ entrypoint: ${importAlias} } as const`);
+        writer
+          .write("{")
+          .indent(() => {
+            writer.writeLine(`entrypoint: ${importAlias},`);
+            if (params.size === 0) {
+              writer.writeLine(`schema: z.object({})`);
+            } else {
+              writer.writeLine(`schema: z.object({`);
+              for (const [paramName, paramType] of params) {
+                writer.writeLine(
+                  `  ${paramName}: ${zodSchemaOfType(tc, paramType)},`,
+                );
+              }
+
+              writer.writeLine("})");
+            }
+          })
+          .write("} as const");
       },
     });
 

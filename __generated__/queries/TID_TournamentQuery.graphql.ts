@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<14f00629c126fee42c8045cd18a3c06b>>
- * @relayHash fe1e8f08fa7b139ed855da81a339195a
+ * @generated SignedSource<<46381e7d2dc4f38625c490f30bb04d4c>>
+ * @relayHash 00ff8482d58f2750e72dcfc8b9880052
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID fe1e8f08fa7b139ed855da81a339195a
+// @relayRequestID 00ff8482d58f2750e72dcfc8b9880052
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -327,6 +327,13 @@ return {
         "name": "tournament",
         "plural": false,
         "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "TID",
+            "storageKey": null
+          },
           (v9/*: any*/),
           {
             "alias": null,
@@ -535,7 +542,7 @@ return {
     ]
   },
   "params": {
-    "id": "fe1e8f08fa7b139ed855da81a339195a",
+    "id": "00ff8482d58f2750e72dcfc8b9880052",
     "metadata": {},
     "name": "TID_TournamentQuery",
     "operationKind": "query",

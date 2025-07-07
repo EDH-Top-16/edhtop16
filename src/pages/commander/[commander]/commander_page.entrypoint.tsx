@@ -4,30 +4,30 @@ import {
   TimePeriod,
 } from "#genfiles/queries/Commander_CommanderQuery.graphql";
 import { JSResource, ModuleType } from "#genfiles/river/js_resource";
-import { EntryPointParams, QueryParamKind } from "#genfiles/river/router";
+import { EntryPointParams } from "#genfiles/river/router";
 import { EntryPoint } from "react-relay";
 
-/** @route /commander/:commander */
+/**
+ * @route /commander/:commander
+ * @param {string} commander
+ * @param {string?} sortBy
+ * @param {string?} timePeriod
+ * @param {number?} maxStanding
+ * @param {number?} minEventSize
+ */
 export const entrypoint: EntryPoint<
   ModuleType<"m#commander_page">,
-  EntryPointParams
+  EntryPointParams<"/commander/:commander">
 > = {
   root: JSResource.fromModuleId("m#commander_page"),
-  getPreloadProps({ params, router }) {
-    const commander = decodeURIComponent(
-      (params as { commander: string })["commander"],
-    );
+  getPreloadProps({ params, schema }) {
     const {
+      commander,
       sortBy = "TOP",
       timePeriod = "ONE_YEAR",
       maxStanding,
       minEventSize = 60,
-    } = router.parseQuery({
-      sortBy: QueryParamKind.STRING,
-      timePeriod: QueryParamKind.STRING,
-      maxStanding: QueryParamKind.NUMBER,
-      minEventSize: QueryParamKind.NUMBER,
-    });
+    } = schema.parse(params);
 
     return {
       queries: {

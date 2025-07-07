@@ -8,8 +8,9 @@ import {
   createMemoryHistory,
   History,
   Listener,
+  Location,
 } from "history";
-import { createRouter } from "radix3";
+import { createRouter, MatchedRoute } from "radix3";
 import {
   AnchorHTMLAttributes,
   createContext,
@@ -25,9 +26,11 @@ import {
   loadEntryPoint,
   PreloadedEntryPoint,
   useEntryPointLoader,
+  EntryPoint,
 } from "react-relay";
 import { OperationDescriptor, PayloadData } from "relay-runtime";
 import type { Manifest } from "vite";
+import * as z from "zod/v4";
 import { entrypoint as e0 } from "../../src/pages/about.entrypoint";
 import { entrypoint as e1 } from "../../src/pages/index.entrypoint";
 import { entrypoint as e2 } from "../../src/pages/tournaments.entrypoint";
@@ -39,19 +42,56 @@ export type RiverOps = [OperationDescriptor, PayloadData][];
 
 type RouterConf = typeof ROUTER_CONF;
 const ROUTER_CONF = {
-    "/about": { entrypoint: e0 } as const,
-    "/": { entrypoint: e1 } as const,
-    "/tournaments": { entrypoint: e2 } as const,
-    "/tournament/:tid": { entrypoint: e3 } as const,
-    "/commander/:commander": { entrypoint: e4 } as const
+    "/about": {
+            entrypoint: e0,
+            schema: z.object({})
+        } as const,
+    "/": {
+            entrypoint: e1,
+            schema: z.object({
+              minSize: z.nullish(z.coerce.number<number>()).transform(s => s == null ? undefined : s),
+              minEntries: z.nullish(z.coerce.number<number>()).transform(s => s == null ? undefined : s),
+              sortBy: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              timePeriod: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              colorId: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              display: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+            })
+        } as const,
+    "/tournaments": {
+            entrypoint: e2,
+            schema: z.object({
+              minSize: z.nullish(z.coerce.number<number>()).transform(s => s == null ? undefined : s),
+              sortBy: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              timePeriod: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+            })
+        } as const,
+    "/tournament/:tid": {
+            entrypoint: e3,
+            schema: z.object({
+              tid: z.string().transform(decodeURIComponent),
+              commander: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              tab: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+            })
+        } as const,
+    "/commander/:commander": {
+            entrypoint: e4,
+            schema: z.object({
+              commander: z.string().transform(decodeURIComponent),
+              sortBy: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              timePeriod: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              maxStanding: z.nullish(z.coerce.number<number>()).transform(s => s == null ? undefined : s),
+              minEventSize: z.nullish(z.coerce.number<number>()).transform(s => s == null ? undefined : s),
+            })
+        } as const
 } as const;
 
+export type RouteId = keyof RouterConf;
 type NavigationDirection = string | URL | ((nextUrl: URL) => void);
 
 export class Router {
   static routes = Object.keys(ROUTER_CONF);
 
-  private currentRoute;
+  private currentRoute: Location & MatchedRoute<RouterConf[RouteId]>;
   constructor(staticInit?: string) {
     if (staticInit == null) {
       this.history = createBrowserHistory();
@@ -59,9 +99,11 @@ export class Router {
       this.history = createMemoryHistory({ initialEntries: [staticInit] });
     }
 
+    const route = this.radixRouter.lookup(this.history.location.pathname)!;
     this.currentRoute = {
       ...this.history.location,
-      ...this.radixRouter.lookup(this.history.location.pathname),
+      ...route,
+      params: { ...route.params, ...this.searchParams() },
     };
   }
 
@@ -101,23 +143,102 @@ export class Router {
     this.history.replace(nextUrl.pathname + nextUrl.search);
   };
 
+  private navigateParams(routeName: RouteId, params: Record<string, any>) {
+    return (url: URL) => {
+      let pathname = routeName as string;
+      const searchParams = new URLSearchParams();
+
+      Object.entries(params).forEach(([key, value]) => {
+        if (value != null) {
+          const paramPattern = `:${key}`;
+          if (pathname.includes(paramPattern)) {
+            // Replace route parameter in pathname
+            pathname = pathname.replace(
+              paramPattern,
+              encodeURIComponent(String(value)),
+            );
+          } else {
+            searchParams.set(key, String(value));
+          }
+        }
+      });
+
+      url.pathname = pathname;
+      url.search = searchParams.toString();
+    };
+  }
+
+  pushRoute = <R extends RouteId>(
+    routeName: R,
+    params: z.input<RouterConf[R]["schema"]>,
+  ) => {
+    const schema = ROUTER_CONF[routeName].schema;
+    const validatedParams = schema.parse({
+      ...this.currentRoute.params,
+      ...params,
+    });
+
+    this.push(this.navigateParams(routeName, validatedParams));
+  };
+
+  replaceRoute = <R extends RouteId>(
+    routeName: R,
+    params: z.input<RouterConf[R]["schema"]>,
+  ) => {
+    const schema = ROUTER_CONF[routeName].schema;
+    const validatedParams = schema.parse({
+      ...this.currentRoute.params,
+      ...params,
+    });
+
+    this.replace(this.navigateParams(routeName, validatedParams));
+  };
+
   route = () => {
     return this.currentRoute;
   };
 
   listen = (listener: Listener) => {
     return this.history.listen((update) => {
+      const route = this.radixRouter.lookup(this.history.location.pathname)!;
       this.currentRoute = {
         ...this.history.location,
-        ...this.radixRouter.lookup(this.history.location.pathname),
+        ...route,
+        params: { ...route.params, ...this.searchParams() },
       };
 
       listener(update);
     });
   };
 
-  parseQuery = <T extends AnyParamMapping>(params: T) =>
-    parseQuery(this.history.location.search, params);
+  private searchParams() {
+    const params: Record<string, string | string[]> = {};
+
+    const search = new URLSearchParams(this.history.location.search);
+    search.forEach((value, key) => {
+      if (params[key] == null) {
+        params[key] = value;
+      } else if (Array.isArray(params[key])) {
+        params[key].push(value);
+      } else {
+        params[key] = [params[key], value];
+      }
+    });
+
+    return params;
+  }
+
+  asRoute = <R extends RouteId | undefined>(
+    route?: R,
+  ): R extends RouteId ? z.Infer<RouterConf[R]["schema"]> : any => {
+    const params = { ...this.currentRoute.params, ...this.searchParams() };
+    const schema =
+      route == null ? this.currentRoute.schema : ROUTER_CONF[route].schema;
+
+    return schema.parse(params) as R extends RouteId
+      ? z.Infer<RouterConf[R]["schema"]>
+      : any;
+  };
 
   private hydrateStore(
     provider: IEnvironmentProvider<EnvironmentProviderOptions>,
@@ -138,7 +259,8 @@ export class Router {
     await initialRoute.entrypoint?.root.load();
 
     return loadEntryPoint(env, initialRoute?.entrypoint, {
-      params: initialRoute.params,
+      params: initialRoute.params ?? {},
+      schema: initialRoute.schema,
       router: this,
     });
   }
@@ -162,7 +284,11 @@ export class Router {
       );
 
       useEffect(() => {
-        loadEntryPointRef({ params: route.params, router });
+        loadEntryPointRef({
+          params: route.params ?? {},
+          schema: route.schema,
+          router,
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [route]);
 
@@ -191,9 +317,10 @@ export function useRouter() {
   return useContext(Router.Context);
 }
 
-export interface EntryPointParams {
+export interface EntryPointParams<R extends RouteId> {
   router: Router;
-  params?: Record<string, any>;
+  params: Record<string, any>;
+  schema: RouterConf[R]["schema"];
 }
 
 export function Link({
@@ -226,117 +353,4 @@ export function Link({
   );
 
   return <a {...props} href={href} target={target} onClick={handleClick} />;
-}
-
-/** Configuration for how a value will be encoded and decoded into the URL. */
-export enum QueryParamKind {
-  /** Immediately flushed single string value. */
-  STRING = 1,
-  /** Value is set multiple times in the URL, decoded as a list. */
-  STRING_LIST,
-  /** Value is set multiple times in the URL, decoded as a set. */
-  STRING_SET,
-  /** Value is undefined when not present, a list when it is. */
-  STRING_LIST_DEFAULT_UNDEFINED,
-  /** String value that will throw an error if not found. */
-  STRING_REQUIRED,
-  /** Parsed and serialized as a number. */
-  NUMBER,
-}
-
-type DecodedQueryParamKind<Kind extends QueryParamKind> =
-  Kind extends QueryParamKind.STRING
-    ? string | undefined
-    : Kind extends QueryParamKind.NUMBER
-      ? number | undefined
-      : Kind extends QueryParamKind.STRING_LIST
-        ? string[]
-        : Kind extends QueryParamKind.STRING_LIST_DEFAULT_UNDEFINED
-          ? string[] | undefined
-          : Kind extends QueryParamKind.STRING_REQUIRED
-            ? string
-            : Set<string>;
-
-interface AnyParamMapping {
-  [param: string]: QueryParamKind;
-}
-
-export type DecodedParamMapping<ParamMapping extends AnyParamMapping> = {
-  [Param in keyof ParamMapping]: DecodedQueryParamKind<ParamMapping[Param]>;
-};
-
-export type DecodedParamUpdate<ParamMapping extends AnyParamMapping> = {
-  [Param in keyof ParamMapping]?:
-    | DecodedQueryParamKind<ParamMapping[Param]>
-    | null
-    | undefined;
-};
-
-function defaultNaNToUndefined(n: number): number | undefined {
-  return Number.isNaN(n) ? undefined : n;
-}
-
-export function parseQuery<ParamMapping extends AnyParamMapping>(
-  searchString: string,
-  params: ParamMapping,
-): DecodedParamMapping<ParamMapping> {
-  const search = new URLSearchParams(searchString);
-  const valueMapping = {} as DecodedParamMapping<ParamMapping>;
-
-  for (const [name, kind] of Object.entries(params)) {
-    const queryParamValue = search.getAll(name);
-    switch (kind) {
-      case QueryParamKind.STRING:
-      case QueryParamKind.STRING_REQUIRED:
-        valueMapping[name as keyof ParamMapping] = (
-          Array.isArray(queryParamValue) ? queryParamValue[0] : queryParamValue
-        ) as DecodedQueryParamKind<ParamMapping[keyof ParamMapping]>;
-        break;
-      case QueryParamKind.NUMBER:
-        valueMapping[name as keyof ParamMapping] = (
-          Array.isArray(queryParamValue)
-            ? defaultNaNToUndefined(Number(queryParamValue[0]))
-            : defaultNaNToUndefined(Number(queryParamValue))
-        ) as DecodedQueryParamKind<ParamMapping[keyof ParamMapping]>;
-        break;
-      case QueryParamKind.STRING_LIST:
-        valueMapping[name as keyof ParamMapping] = (
-          queryParamValue == null
-            ? []
-            : Array.isArray(queryParamValue)
-              ? queryParamValue
-              : [queryParamValue]
-        ) as DecodedQueryParamKind<ParamMapping[keyof ParamMapping]>;
-        break;
-      case QueryParamKind.STRING_SET:
-        valueMapping[name as keyof ParamMapping] = (
-          queryParamValue == null
-            ? new Set()
-            : Array.isArray(queryParamValue)
-              ? new Set(queryParamValue)
-              : new Set([queryParamValue])
-        ) as DecodedQueryParamKind<ParamMapping[keyof ParamMapping]>;
-        break;
-      case QueryParamKind.STRING_LIST_DEFAULT_UNDEFINED:
-        valueMapping[name as keyof ParamMapping] = (
-          queryParamValue == null
-            ? undefined
-            : Array.isArray(queryParamValue)
-              ? queryParamValue
-              : [queryParamValue]
-        ) as DecodedQueryParamKind<ParamMapping[keyof ParamMapping]>;
-        break;
-      default:
-        break;
-    }
-
-    if (
-      kind === QueryParamKind.STRING_REQUIRED &&
-      typeof valueMapping[name] !== "string"
-    ) {
-      throw new Error(`Expected to find required string: ${name}`);
-    }
-  }
-
-  return valueMapping;
 }

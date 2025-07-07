@@ -6,7 +6,7 @@ import {
 import { pages_topCommanders$key } from "#genfiles/queries/pages_topCommanders.graphql";
 import { pages_TopCommandersCard$key } from "#genfiles/queries/pages_TopCommandersCard.graphql";
 import { TopCommandersQuery } from "#genfiles/queries/TopCommandersQuery.graphql";
-import { Link, QueryParamKind, useRouter } from "#genfiles/river/router";
+import { Link, useRouter } from "#genfiles/river/router";
 import RectangleStackIcon from "@heroicons/react/24/solid/RectangleStackIcon";
 import TableCellsIcon from "@heroicons/react/24/solid/TableCellsIcon";
 import { useSeoMeta } from "@unhead/react";
@@ -143,7 +143,6 @@ function CommandersPageShell({
   colorId,
   minEntries,
   minTournamentSize,
-  onUpdateQueryParam,
   children,
 }: PropsWithChildren<{
   colorId: string;
@@ -151,13 +150,13 @@ function CommandersPageShell({
   minTournamentSize: number;
   sortBy: CommandersSortBy;
   timePeriod: TimePeriod;
-  onUpdateQueryParam?: (key: string, value: string | null) => void;
 }>) {
   useSeoMeta({
     title: "cEDH Commanders",
     description: "Discover top performing commanders in cEDH!",
   });
 
+  const { replaceRoute } = useRouter();
   const [display, toggleDisplay] = useCommandersDisplay();
 
   return (
@@ -184,7 +183,7 @@ function CommandersPageShell({
             <ColorSelection
               selected={colorId}
               onChange={(value) => {
-                onUpdateQueryParam?.("colorId", value || null);
+                replaceRoute("/", { colorId: value || null });
               }}
             />
           </div>
@@ -194,9 +193,8 @@ function CommandersPageShell({
               id="commanders-sort-by"
               label="Sort By"
               value={sortBy}
-              disabled={onUpdateQueryParam == null}
               onChange={(value) => {
-                onUpdateQueryParam?.("sortBy", value);
+                replaceRoute("/", { sortBy: value });
               }}
             >
               <option value="CONVERSION">Conversion Rate</option>
@@ -208,9 +206,8 @@ function CommandersPageShell({
               id="commanders-time-period"
               label="Time Period"
               value={timePeriod}
-              disabled={onUpdateQueryParam == null}
               onChange={(value) => {
-                onUpdateQueryParam?.("timePeriod", value);
+                replaceRoute("/", { timePeriod: value });
               }}
             >
               <option value="ONE_MONTH">1 Month</option>
@@ -225,9 +222,8 @@ function CommandersPageShell({
               id="commanders-min-entries"
               label="Min. Entries"
               value={`${minEntries}`}
-              disabled={onUpdateQueryParam == null}
               onChange={(value) => {
-                onUpdateQueryParam?.("minEntries", value);
+                replaceRoute("/", { minEntries: Number(value) });
               }}
             >
               <option value="0">All Commanders</option>
@@ -240,9 +236,8 @@ function CommandersPageShell({
               id="commanders-min-size"
               label="Tournament Size"
               value={`${minTournamentSize}`}
-              disabled={onUpdateQueryParam == null}
               onChange={(value) => {
-                onUpdateQueryParam?.("minSize", value);
+                replaceRoute("/", { minSize: Number(value) });
               }}
             >
               <option value="0">All Tournaments</option>
@@ -260,38 +255,16 @@ function CommandersPageShell({
 }
 
 function useCommandersDisplay() {
-  const { parseQuery, replace } = useRouter();
-  const { display } = parseQuery({
-    display: QueryParamKind.STRING,
-  });
+  const { asRoute, replaceRoute } = useRouter();
+  const { display } = asRoute("/");
 
   const toggleDisplay = useCallback(() => {
-    replace((url) => {
-      url.searchParams.set("display", display === "table" ? "card" : "table");
-    });
-  }, [display, replace]);
+    replaceRoute("/", { display: display === "table" ? "card" : "table" });
+  }, [display, replaceRoute]);
 
   return useMemo(() => {
     return [display === "table" ? "table" : "card", toggleDisplay] as const;
   }, [display, toggleDisplay]);
-}
-
-function useSetQueryVariable() {
-  const { replace } = useRouter();
-  return useCallback(
-    (key: string, value: string | null) => {
-      startTransition(() => {
-        replace((url) => {
-          if (value == null) {
-            url.searchParams.delete(key);
-          } else {
-            url.searchParams.set(key, value);
-          }
-        });
-      });
-    },
-    [replace],
-  );
 }
 
 /** @resource m#index */
@@ -314,7 +287,6 @@ export const CommandersPage: EntryPointComponent<
     queries.commandersQueryRef,
   );
 
-  const setQueryVariable = useSetQueryVariable();
   const [display] = useCommandersDisplay();
 
   const { data, loadNext, isLoadingNext, hasNext } = usePaginationFragment<
@@ -356,7 +328,6 @@ export const CommandersPage: EntryPointComponent<
       colorId={queries.commandersQueryRef.variables.colorId || ""}
       minEntries={queries.commandersQueryRef.variables.minEntries}
       minTournamentSize={queries.commandersQueryRef.variables.minTournamentSize}
-      onUpdateQueryParam={setQueryVariable}
     >
       <div
         className={cn(

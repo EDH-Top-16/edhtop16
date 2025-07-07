@@ -6,7 +6,7 @@
     "generate:db": "rm -f edhtop16.db && node -r ts-node/register scripts/generate-database.ts",
     "generate:dbtypes": "DATABASE_URL=edhtop16.db kysely-codegen --out-file=./__generated__/db/types.d.ts",
     "generate:schema": "node -r ts-node/register scripts/print-schema.ts",
-    "generate:relay": "relay-compiler --repersist",
+    "generate:relay": "relay-compiler",
     "generate:river": "node --experimental-strip-types scripts/rivergen.mts",
     "build:client": "vite build --outDir dist/client",
     "build:server": "vite build --outDir dist/server --ssr src/entry-server.tsx",
