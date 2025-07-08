@@ -11,11 +11,6 @@ export default {
     manifest: true,
     ssrManifest: true,
   },
-  // resolve: {
-  //   alias: {
-  //     "react-relay": "react-relay/hooks",
-  //   },
-  // },
   plugins: [
     unheadVite(),
     tailwindcss(),
