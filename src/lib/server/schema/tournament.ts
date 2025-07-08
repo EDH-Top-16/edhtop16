@@ -1,23 +1,23 @@
-import { DB } from "#genfiles/db/types";
-import { resolveOffsetConnection } from "@pothos/plugin-relay";
-import { sql } from "kysely";
-import { db } from "../db";
-import { builder } from "./builder";
-import { Commander } from "./commander";
-import { Entry } from "./entry";
-import { FirstPartyPromoRef, getActivePromotions } from "./promo";
+import {DB} from '#genfiles/db/types';
+import {resolveOffsetConnection} from '@pothos/plugin-relay';
+import {sql} from 'kysely';
+import {db} from '../db';
+import {builder} from './builder';
+import {Commander} from './commander';
+import {Entry} from './entry';
+import {FirstPartyPromoRef, getActivePromotions} from './promo';
 import {
   minDateFromTimePeriod,
   TimePeriod,
   TopdeckTournamentRoundType,
   TopdeckTournamentTableType,
   TournamentBreakdownGroupType,
-} from "./types";
+} from './types';
 
 TopdeckTournamentTableType.implement({
   fields: (t) => ({
-    table: t.exposeInt("table"),
-    roundName: t.exposeString("roundName"),
+    table: t.exposeInt('table'),
+    roundName: t.exposeString('roundName'),
     entries: t.loadable({
       type: [Entry],
       resolve: (parent) => {
@@ -26,8 +26,8 @@ TopdeckTournamentTableType.implement({
           profile: p.id,
         }));
       },
-      load: async (keys: { TID: string; profile: string }[]) => {
-        const entries = await sql<DB["Entry"] & { key: string }>`
+      load: async (keys: {TID: string; profile: string}[]) => {
+        const entries = await sql<DB['Entry'] & {key: string}>`
           select e.*, t."TID" || ':' || p."topdeckProfile" as key
           from "Entry" as e
           left join "Tournament" t on t.id = e."tournamentId"
@@ -65,12 +65,12 @@ TopdeckTournamentTableType.implement({
         }
 
         return db
-          .selectFrom("Entry")
-          .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
-          .leftJoin("Player", "Player.id", "Entry.playerId")
-          .selectAll("Entry")
-          .where("Tournament.TID", "=", parent.TID)
-          .where("Player.topdeckProfile", "=", winnerPlayer.id)
+          .selectFrom('Entry')
+          .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+          .leftJoin('Player', 'Player.id', 'Entry.playerId')
+          .selectAll('Entry')
+          .where('Tournament.TID', '=', parent.TID)
+          .where('Player.topdeckProfile', '=', winnerPlayer.id)
           .executeTakeFirst();
       },
     }),
@@ -97,9 +97,9 @@ TopdeckTournamentRoundType.implement({
 
 TournamentBreakdownGroupType.implement({
   fields: (t) => ({
-    topCuts: t.exposeInt("topCuts"),
-    entries: t.exposeInt("entries"),
-    conversionRate: t.exposeFloat("conversionRate"),
+    topCuts: t.exposeInt('topCuts'),
+    entries: t.exposeInt('entries'),
+    conversionRate: t.exposeFloat('conversionRate'),
     commander: t.field({
       type: Commander,
       resolve: (parent, _args, ctx) => {
@@ -109,13 +109,13 @@ TournamentBreakdownGroupType.implement({
   }),
 });
 
-export const Tournament = builder.loadableNodeRef("Tournament", {
-  id: { parse: (id) => Number(id), resolve: (parent) => parent.id },
+export const Tournament = builder.loadableNodeRef('Tournament', {
+  id: {parse: (id) => Number(id), resolve: (parent) => parent.id},
   load: async (ids: number[]) => {
     const nodes = await db
-      .selectFrom("Tournament")
+      .selectFrom('Tournament')
       .selectAll()
-      .where("id", "in", ids)
+      .where('id', 'in', ids)
       .execute();
 
     const nodesById = new Map<number, (typeof nodes)[number]>();
@@ -127,32 +127,32 @@ export const Tournament = builder.loadableNodeRef("Tournament", {
 
 Tournament.implement({
   fields: (t) => ({
-    TID: t.exposeString("TID"),
-    name: t.exposeString("name"),
-    size: t.exposeInt("size"),
-    swissRounds: t.exposeInt("swissRounds"),
-    topCut: t.exposeInt("topCut"),
+    TID: t.exposeString('TID'),
+    name: t.exposeString('name'),
+    size: t.exposeInt('size'),
+    swissRounds: t.exposeInt('swissRounds'),
+    topCut: t.exposeInt('topCut'),
     tournamentDate: t.string({
       resolve: (tournament) => tournament.tournamentDate,
     }),
     entries: t.field({
       type: [Entry],
-      args: { maxStanding: t.arg.int(), commander: t.arg.string() },
+      args: {maxStanding: t.arg.int(), commander: t.arg.string()},
       resolve: (parent, args) => {
         let query = db
-          .selectFrom("Entry")
-          .leftJoin("Commander", "Commander.id", "Entry.commanderId")
-          .selectAll("Entry")
-          .where("Entry.tournamentId", "=", parent.id);
+          .selectFrom('Entry')
+          .leftJoin('Commander', 'Commander.id', 'Entry.commanderId')
+          .selectAll('Entry')
+          .where('Entry.tournamentId', '=', parent.id);
 
         if (args.maxStanding) {
-          query = query.where("Entry.standing", "<=", args.maxStanding);
+          query = query.where('Entry.standing', '<=', args.maxStanding);
         }
         if (args.commander) {
-          query = query.where("Commander.name", "=", args.commander);
+          query = query.where('Commander.name', '=', args.commander);
         }
 
-        return query.orderBy("standing asc").execute();
+        return query.orderBy('standing asc').execute();
       },
     }),
     rounds: t.field({
@@ -168,7 +168,7 @@ Tournament.implement({
       },
     }),
     bracketUrl: t.field({
-      type: "String",
+      type: 'String',
       resolve: (parent) => {
         return parent.bracketUrl ?? `https://topdeck.gg/bracket/${parent.TID}`;
       },
@@ -176,7 +176,7 @@ Tournament.implement({
     breakdown: t.field({
       type: t.listRef(TournamentBreakdownGroupType),
       resolve: async (parent) => {
-        type Group = (typeof TournamentBreakdownGroupType)["$inferType"];
+        type Group = (typeof TournamentBreakdownGroupType)['$inferType'];
         const groups = await sql<Group>`
           select
             e."commanderId",
@@ -199,19 +199,19 @@ Tournament.implement({
       type: FirstPartyPromoRef,
       nullable: true,
       resolve: (parent) => {
-        return getActivePromotions({ tid: parent.TID })[0];
+        return getActivePromotions({tid: parent.TID})[0];
       },
     }),
   }),
 });
 
-const TournamentSortBy = builder.enumType("TournamentSortBy", {
-  values: ["PLAYERS", "DATE"] as const,
+const TournamentSortBy = builder.enumType('TournamentSortBy', {
+  values: ['PLAYERS', 'DATE'] as const,
 });
 
-const TournamentFiltersInput = builder.inputType("TournamentFilters", {
+const TournamentFiltersInput = builder.inputType('TournamentFilters', {
   fields: (t) => ({
-    timePeriod: t.field({ type: TimePeriod }),
+    timePeriod: t.field({type: TimePeriod}),
     minDate: t.string(),
     maxDate: t.string(),
     minSize: t.int(),
@@ -219,26 +219,26 @@ const TournamentFiltersInput = builder.inputType("TournamentFilters", {
   }),
 });
 
-builder.queryField("tournaments", (t) =>
+builder.queryField('tournaments', (t) =>
   t.connection({
     type: Tournament,
     args: {
       search: t.arg.string(),
-      filters: t.arg({ type: TournamentFiltersInput }),
-      sortBy: t.arg({ type: TournamentSortBy, defaultValue: "DATE" }),
+      filters: t.arg({type: TournamentFiltersInput}),
+      sortBy: t.arg({type: TournamentSortBy, defaultValue: 'DATE'}),
     },
     resolve: async (_, args) =>
-      resolveOffsetConnection({ args }, ({ limit, offset }) => {
-        let query = db.selectFrom("Tournament").selectAll();
+      resolveOffsetConnection({args}, ({limit, offset}) => {
+        let query = db.selectFrom('Tournament').selectAll();
 
         if (args.search) {
-          query = query.where("name", "like", `%${args.search}%`);
+          query = query.where('name', 'like', `%${args.search}%`);
         }
         if (args.filters?.minSize) {
-          query = query.where("size", ">=", args.filters.minSize);
+          query = query.where('size', '>=', args.filters.minSize);
         }
         if (args.filters?.maxSize) {
-          query = query.where("size", "<=", args.filters.maxSize);
+          query = query.where('size', '<=', args.filters.maxSize);
         }
         if (args.filters?.timePeriod || args.filters?.minDate) {
           const minDate =
@@ -246,17 +246,17 @@ builder.queryField("tournaments", (t) =>
               ? new Date(args.filters?.minDate ?? 0)
               : minDateFromTimePeriod(args.filters?.timePeriod);
 
-          query = query.where("tournamentDate", ">=", minDate.toISOString());
+          query = query.where('tournamentDate', '>=', minDate.toISOString());
         }
         const maxDate = args.filters?.maxDate
           ? new Date(args.filters.maxDate)
           : new Date();
-        query = query.where("tournamentDate", "<=", maxDate.toISOString());
+        query = query.where('tournamentDate', '<=', maxDate.toISOString());
 
-        if (args.sortBy === "PLAYERS") {
-          query = query.orderBy(["size desc", "tournamentDate desc"]);
+        if (args.sortBy === 'PLAYERS') {
+          query = query.orderBy(['size desc', 'tournamentDate desc']);
         } else {
-          query = query.orderBy(["tournamentDate desc", "size desc"]);
+          query = query.orderBy(['tournamentDate desc', 'size desc']);
         }
 
         return query.limit(limit).offset(offset).execute();
@@ -264,15 +264,15 @@ builder.queryField("tournaments", (t) =>
   }),
 );
 
-builder.queryField("tournament", (t) =>
+builder.queryField('tournament', (t) =>
   t.field({
     type: Tournament,
-    args: { TID: t.arg.string({ required: true }) },
+    args: {TID: t.arg.string({required: true})},
     resolve: async (_root, args) => {
       return db
-        .selectFrom("Tournament")
+        .selectFrom('Tournament')
         .selectAll()
-        .where("TID", "=", args.TID)
+        .where('TID', '=', args.TID)
         .executeTakeFirstOrThrow();
     },
   }),

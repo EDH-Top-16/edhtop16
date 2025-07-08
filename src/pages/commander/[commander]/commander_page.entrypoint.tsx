@@ -1,11 +1,11 @@
-import CommanderQueryParameters from "#genfiles/queries/Commander_CommanderQuery$parameters";
+import CommanderQueryParameters from '#genfiles/queries/Commander_CommanderQuery$parameters';
 import {
   EntriesSortBy,
   TimePeriod,
-} from "#genfiles/queries/Commander_CommanderQuery.graphql";
-import { JSResource, ModuleType } from "#genfiles/river/js_resource";
-import { EntryPointParams } from "#genfiles/river/router";
-import { EntryPoint } from "react-relay/hooks";
+} from '#genfiles/queries/Commander_CommanderQuery.graphql';
+import {JSResource, ModuleType} from '#genfiles/river/js_resource';
+import {EntryPointParams} from '#genfiles/river/router';
+import {EntryPoint} from 'react-relay/hooks';
 
 /**
  * @route /commander/:commander
@@ -16,15 +16,15 @@ import { EntryPoint } from "react-relay/hooks";
  * @param {number?} minEventSize
  */
 export const entrypoint: EntryPoint<
-  ModuleType<"m#commander_page">,
-  EntryPointParams<"/commander/:commander">
+  ModuleType<'m#commander_page'>,
+  EntryPointParams<'/commander/:commander'>
 > = {
-  root: JSResource.fromModuleId("m#commander_page"),
-  getPreloadProps({ params, schema }) {
+  root: JSResource.fromModuleId('m#commander_page'),
+  getPreloadProps({params, schema}) {
     const {
       commander,
-      sortBy = "TOP",
-      timePeriod = "ONE_YEAR",
+      sortBy = 'TOP',
+      timePeriod = 'ONE_YEAR',
       maxStanding,
       minEventSize = 60,
     } = schema.parse(params);

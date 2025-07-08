@@ -1,14 +1,14 @@
-import { Link } from "#genfiles/river/router";
-import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
-import XMarkIcon from "@heroicons/react/24/solid/XMarkIcon";
-import cn from "classnames";
-import { useCallback, useState } from "react";
-import { Searchbar } from "./searchbar";
+import {Link} from '#genfiles/river/router';
+import MagnifyingGlassIcon from '@heroicons/react/24/solid/MagnifyingGlassIcon';
+import XMarkIcon from '@heroicons/react/24/solid/XMarkIcon';
+import cn from 'classnames';
+import {useCallback, useState} from 'react';
+import {Searchbar} from './searchbar';
 
 export function Navigation({
   searchType,
 }: {
-  searchType?: "commander" | "tournament";
+  searchType?: 'commander' | 'tournament';
 }) {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const toggleSearch = useCallback(() => {
@@ -48,8 +48,8 @@ export function Navigation({
 
       <div
         className={cn(
-          "col-span-4 justify-end md:col-span-1 md:flex",
-          mobileSearchOpen ? "flex" : "hidden",
+          'col-span-4 justify-end md:col-span-1 md:flex',
+          mobileSearchOpen ? 'flex' : 'hidden',
         )}
       >
         <Searchbar searchType={searchType} />

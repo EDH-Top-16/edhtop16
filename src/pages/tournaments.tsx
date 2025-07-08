@@ -1,29 +1,29 @@
-import { AllTournamentsQuery } from "#genfiles/queries/AllTournamentsQuery.graphql";
-import { tournaments_TournamentCard$key } from "#genfiles/queries/tournaments_TournamentCard.graphql";
-import { tournaments_Tournaments$key } from "#genfiles/queries/tournaments_Tournaments.graphql";
+import {AllTournamentsQuery} from '#genfiles/queries/AllTournamentsQuery.graphql';
+import {tournaments_TournamentCard$key} from '#genfiles/queries/tournaments_TournamentCard.graphql';
+import {tournaments_Tournaments$key} from '#genfiles/queries/tournaments_Tournaments.graphql';
 import {
   TimePeriod,
   tournaments_TournamentsQuery,
   TournamentSortBy,
-} from "#genfiles/queries/tournaments_TournamentsQuery.graphql";
-import { Link, useRouter } from "#genfiles/river/router";
-import { useSeoMeta } from "@unhead/react";
-import { format } from "date-fns";
-import { PropsWithChildren, useCallback, useMemo } from "react";
+} from '#genfiles/queries/tournaments_TournamentsQuery.graphql';
+import {Link, useRouter} from '#genfiles/river/router';
+import {useSeoMeta} from '@unhead/react';
+import {format} from 'date-fns';
+import {PropsWithChildren, useCallback, useMemo} from 'react';
 import {
   EntryPointComponent,
   graphql,
   useFragment,
   usePaginationFragment,
   usePreloadedQuery,
-} from "react-relay/hooks";
-import { Card } from "../components/card";
-import { Footer } from "../components/footer";
-import { LoadMoreButton } from "../components/load_more";
-import { Navigation } from "../components/navigation";
-import { Select } from "../components/select";
+} from 'react-relay/hooks';
+import {Card} from '../components/card';
+import {Footer} from '../components/footer';
+import {LoadMoreButton} from '../components/load_more';
+import {Navigation} from '../components/navigation';
+import {Select} from '../components/select';
 
-function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
+function TournamentCard(props: {commander: tournaments_TournamentCard$key}) {
   const tournament = useFragment(
     graphql`
       fragment tournaments_TournamentCard on Tournament {
@@ -76,7 +76,7 @@ function TournamentCard(props: { commander: tournaments_TournamentCard$key }) {
           {tournament.name}
         </Link>
 
-        <span>{format(tournament.tournamentDate, "MMMM do yyyy")}</span>
+        <span>{format(tournament.tournamentDate, 'MMMM do yyyy')}</span>
       </div>
     </Card>
   );
@@ -93,11 +93,11 @@ function TournamentsPageShell({
   minSize: string;
 }>) {
   useSeoMeta({
-    title: "cEDH Tournaments",
-    description: "Discover top and recent cEDH tournaments!",
+    title: 'cEDH Tournaments',
+    description: 'Discover top and recent cEDH tournaments!',
   });
 
-  const { replaceRoute } = useRouter();
+  const {replaceRoute} = useRouter();
 
   return (
     <>
@@ -115,7 +115,7 @@ function TournamentsPageShell({
               label="Sort By"
               value={sortBy}
               onChange={(value) => {
-                replaceRoute("/tournaments", { sortBy: value });
+                replaceRoute('/tournaments', {sortBy: value});
               }}
             >
               <option value="PLAYERS">Tournament Size</option>
@@ -127,7 +127,7 @@ function TournamentsPageShell({
               label="Players"
               value={minSize}
               onChange={(value) => {
-                replaceRoute("/tournaments", { minSize: Number(value) });
+                replaceRoute('/tournaments', {minSize: Number(value)});
               }}
             >
               <option value="0">All Tournaments</option>
@@ -141,7 +141,7 @@ function TournamentsPageShell({
               label="Time Period"
               value={timePeriod}
               onChange={(value) => {
-                replaceRoute("/tournaments", { timePeriod: value });
+                replaceRoute('/tournaments', {timePeriod: value});
               }}
             >
               <option value="ONE_MONTH">1 Month</option>
@@ -162,9 +162,9 @@ function TournamentsPageShell({
 
 /** @resource m#tournaments */
 export const TournamentsPage: EntryPointComponent<
-  { tournamentQueryRef: tournaments_TournamentsQuery },
+  {tournamentQueryRef: tournaments_TournamentsQuery},
   {}
-> = ({ queries }) => {
+> = ({queries}) => {
   const query = usePreloadedQuery(
     graphql`
       query tournaments_TournamentsQuery(
@@ -178,21 +178,21 @@ export const TournamentsPage: EntryPointComponent<
     queries.tournamentQueryRef,
   );
 
-  const { data, loadNext, isLoadingNext, hasNext } = usePaginationFragment<
+  const {data, loadNext, isLoadingNext, hasNext} = usePaginationFragment<
     AllTournamentsQuery,
     tournaments_Tournaments$key
   >(
     graphql`
       fragment tournaments_Tournaments on Query
       @argumentDefinitions(
-        cursor: { type: "String" }
-        count: { type: "Int", defaultValue: 100 }
+        cursor: {type: "String"}
+        count: {type: "Int", defaultValue: 100}
       )
       @refetchable(queryName: "AllTournamentsQuery") {
         tournaments(
           first: $count
           after: $cursor
-          filters: { timePeriod: $timePeriod, minSize: $minSize }
+          filters: {timePeriod: $timePeriod, minSize: $minSize}
           sortBy: $sortBy
         ) @connection(key: "tournaments__tournaments") {
           edges {

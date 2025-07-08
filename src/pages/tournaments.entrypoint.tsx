@@ -1,11 +1,11 @@
 import type {
   TimePeriod,
   TournamentSortBy,
-} from "#genfiles/queries/AllTournamentsQuery.graphql";
-import TournamentsQueryParameters from "#genfiles/queries/tournaments_TournamentsQuery$parameters";
-import { JSResource, ModuleType } from "#genfiles/river/js_resource";
-import { EntryPointParams } from "#genfiles/river/router";
-import { EntryPoint } from "react-relay/hooks";
+} from '#genfiles/queries/AllTournamentsQuery.graphql';
+import TournamentsQueryParameters from '#genfiles/queries/tournaments_TournamentsQuery$parameters';
+import {JSResource, ModuleType} from '#genfiles/river/js_resource';
+import {EntryPointParams} from '#genfiles/river/router';
+import {EntryPoint} from 'react-relay/hooks';
 
 /**
  * @route /tournaments
@@ -14,15 +14,15 @@ import { EntryPoint } from "react-relay/hooks";
  * @param {string?} timePeriod
  */
 export const entrypoint: EntryPoint<
-  ModuleType<"m#tournaments">,
-  EntryPointParams<"/tournaments">
+  ModuleType<'m#tournaments'>,
+  EntryPointParams<'/tournaments'>
 > = {
-  root: JSResource.fromModuleId("m#tournaments"),
-  getPreloadProps({ params, schema }) {
+  root: JSResource.fromModuleId('m#tournaments'),
+  getPreloadProps({params, schema}) {
     const {
-      sortBy = "DATE",
+      sortBy = 'DATE',
       minSize = 0,
-      timePeriod = "ALL_TIME",
+      timePeriod = 'ALL_TIME',
     } = schema.parse(params);
 
     return {

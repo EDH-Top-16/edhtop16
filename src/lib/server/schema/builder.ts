@@ -1,7 +1,7 @@
-import SchemaBuilder from "@pothos/core";
-import DataloaderPlugin from "@pothos/plugin-dataloader";
-import RelayPlugin from "@pothos/plugin-relay";
-import { TopdeckClient } from "../topdeck";
+import SchemaBuilder from '@pothos/core';
+import DataloaderPlugin from '@pothos/plugin-dataloader';
+import RelayPlugin from '@pothos/plugin-relay';
+import {TopdeckClient} from '../topdeck';
 
 export interface Context {
   topdeckClient: TopdeckClient;

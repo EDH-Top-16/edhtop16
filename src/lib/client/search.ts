@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import {useEffect, useMemo, useState} from 'react';
 
-const FuseLib = import("fuse.js").then((mod) => mod.default);
+const FuseLib = import('fuse.js').then((mod) => mod.default);
 
-type SearchOp = (term: string) => { name: string; url: string }[];
+type SearchOp = (term: string) => {name: string; url: string}[];
 function defaultSearchOperator(
-  list: readonly { name: string; url: string }[],
+  list: readonly {name: string; url: string}[],
 ): SearchOp {
   return (term: string) => {
     return list.filter((c) =>
@@ -14,7 +14,7 @@ function defaultSearchOperator(
 }
 
 export function useSearch(
-  list: readonly { name: string; url: string }[],
+  list: readonly {name: string; url: string}[],
   term: string,
 ) {
   const [searchOp, setSearchOp] = useState<SearchOp>(() =>
@@ -25,7 +25,7 @@ export function useSearch(
     FuseLib.then((Fuse) => {
       const fuse = new Fuse(list, {
         threshold: 0.3,
-        keys: ["name"],
+        keys: ['name'],
       });
 
       setSearchOp(() => (term: string) => {

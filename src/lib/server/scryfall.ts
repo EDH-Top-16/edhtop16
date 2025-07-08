@@ -1,4 +1,4 @@
-import { z } from "zod/v4";
+import {z} from 'zod/v4';
 
 const scryfallCardFaceSchema = z.object({
   image_uris: z
@@ -15,7 +15,7 @@ const scryfallCardFaceSchema = z.object({
 
 export type ScryfallCard = z.infer<typeof scryfallCardSchema>;
 export const scryfallCardSchema = scryfallCardFaceSchema.extend({
-  object: z.literal("card"),
+  object: z.literal('card'),
   id: z.string().uuid(),
   oracle_id: z.string().uuid(),
   name: z.string(),

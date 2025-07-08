@@ -1,5 +1,5 @@
-import DataLoader from "dataloader";
-import { z } from "zod/v4";
+import DataLoader from 'dataloader';
+import {z} from 'zod/v4';
 
 export type TopdeckTournamentTable = z.infer<
   typeof topdeckTournamentTableSchema
@@ -29,7 +29,7 @@ const topdeckTournamentSchema = z.object({
   TID: z.string(),
   rounds: z
     .union([z.array(topdeckTournamentRoundSchema), z.string()])
-    .transform((data) => (typeof data === "string" ? [] : data)),
+    .transform((data) => (typeof data === 'string' ? [] : data)),
   tournamentName: z.string(),
   swissNum: z.number().int(),
   startDate: z.number().int().optional(),
@@ -39,17 +39,17 @@ const topdeckTournamentSchema = z.object({
 export class TopdeckClient {
   private readonly roundsLoader = new DataLoader(
     async (tournmentIds: readonly string[]) => {
-      const res = await fetch("https://topdeck.gg/api/v2/tournaments", {
-        method: "POST",
+      const res = await fetch('https://topdeck.gg/api/v2/tournaments', {
+        method: 'POST',
         headers: {
           Authorization: this.apiKey,
-          "Content-Type": "application/json",
-          Accept: "application/json",
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
         body: JSON.stringify({
           TID: tournmentIds,
           rounds: true,
-          players: ["id", "name"],
+          players: ['id', 'name'],
           columns: [],
         }),
       });
@@ -70,7 +70,7 @@ export class TopdeckClient {
 
   constructor(private readonly apiKey = process.env.TOPDECK_GG_API_KEY!) {
     if (!this.apiKey) {
-      throw new Error("Must provide `apiKey` or set TOPDECK_GG_API_KEY");
+      throw new Error('Must provide `apiKey` or set TOPDECK_GG_API_KEY');
     }
   }
 

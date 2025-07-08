@@ -1,19 +1,19 @@
-import { ServerRouter } from "#genfiles/river/server_router";
-import { usePersistedOperations } from "@graphql-yoga/plugin-persisted-operations";
+import {ServerRouter} from '#genfiles/river/server_router';
+import {usePersistedOperations} from '@graphql-yoga/plugin-persisted-operations';
 import {
   createHead,
   transformHtmlTemplate,
   UnheadProvider,
-} from "@unhead/react/server";
-import express from "express";
-import { createYoga, GraphQLParams } from "graphql-yoga";
-import { StrictMode } from "react";
-import { renderToString } from "react-dom/server";
-import { RelayEnvironmentProvider } from "react-relay/hooks";
-import type { Manifest } from "vite";
-import { createServerEnvironment } from "./lib/server/relay_server_environment";
-import { schema } from "./lib/server/schema";
-import { App } from "./pages/_app";
+} from '@unhead/react/server';
+import express from 'express';
+import {createYoga, GraphQLParams} from 'graphql-yoga';
+import {StrictMode} from 'react';
+import {renderToString} from 'react-dom/server';
+import {RelayEnvironmentProvider} from 'react-relay/hooks';
+import type {Manifest} from 'vite';
+import {createServerEnvironment} from './lib/server/relay_server_environment';
+import {schema} from './lib/server/schema';
+import {App} from './pages/_app';
 
 export function createHandler(
   template: string,
@@ -27,8 +27,8 @@ export function createHandler(
       usePersistedOperations({
         allowArbitraryOperations: true,
         extractPersistedOperationId: (
-          params: GraphQLParams & { id?: unknown },
-        ) => (typeof params.id === "string" ? params.id : null),
+          params: GraphQLParams & {id?: unknown},
+        ) => (typeof params.id === 'string' ? params.id : null),
         getPersistedOperation: (key) => persistedQueries[key] ?? null,
       }),
     ],
@@ -38,11 +38,11 @@ export function createHandler(
     const head = createHead();
     const env = createServerEnvironment(schema, persistedQueries);
     const router = new ServerRouter(req.originalUrl);
-    const RiverApp = await router.createApp({ getEnvironment: () => env });
+    const RiverApp = await router.createApp({getEnvironment: () => env});
 
     function evaluateRiverDirective(match: string, directive: string) {
       switch (directive) {
-        case "render":
+        case 'render':
           return renderToString(
             <StrictMode>
               <UnheadProvider value={head}>
@@ -54,7 +54,7 @@ export function createHandler(
               </UnheadProvider>
             </StrictMode>,
           );
-        case "bootstrap":
+        case 'bootstrap':
           return RiverApp.bootstrap(manifest) ?? match;
         default:
           return match;
@@ -66,11 +66,11 @@ export function createHandler(
       template.replace(/<!--\s*@river:(\w+)\s*-->/g, evaluateRiverDirective),
     );
 
-    res.status(200).set({ "Content-Type": "text/html" }).end(renderedHtml);
+    res.status(200).set({'Content-Type': 'text/html'}).end(renderedHtml);
   };
 
   const r = express.Router();
-  r.use("/api/graphql", graphqlHandler);
+  r.use('/api/graphql', graphqlHandler);
   for (const route of ServerRouter.routes) {
     r.get(route, entryPointHandler);
   }

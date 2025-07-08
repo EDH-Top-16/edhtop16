@@ -1,28 +1,28 @@
-import { TID_BreakdownGroupCard$key } from "#genfiles/queries/TID_BreakdownGroupCard.graphql";
-import { TID_EntryCard$key } from "#genfiles/queries/TID_EntryCard.graphql";
-import { TID_TournamentBanner$key } from "#genfiles/queries/TID_TournamentBanner.graphql";
-import { TID_TournamentMeta$key } from "#genfiles/queries/TID_TournamentMeta.graphql";
-import { TID_TournamentPageShell$key } from "#genfiles/queries/TID_TournamentPageShell.graphql";
-import { TID_TournamentQuery } from "#genfiles/queries/TID_TournamentQuery.graphql";
-import { Link, useRouter } from "#genfiles/river/router";
-import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
-import { useSeoMeta } from "@unhead/react";
-import cn from "classnames";
-import { format } from "date-fns";
-import { MouseEvent, PropsWithChildren, useCallback, useMemo } from "react";
+import {TID_BreakdownGroupCard$key} from '#genfiles/queries/TID_BreakdownGroupCard.graphql';
+import {TID_EntryCard$key} from '#genfiles/queries/TID_EntryCard.graphql';
+import {TID_TournamentBanner$key} from '#genfiles/queries/TID_TournamentBanner.graphql';
+import {TID_TournamentMeta$key} from '#genfiles/queries/TID_TournamentMeta.graphql';
+import {TID_TournamentPageShell$key} from '#genfiles/queries/TID_TournamentPageShell.graphql';
+import {TID_TournamentQuery} from '#genfiles/queries/TID_TournamentQuery.graphql';
+import {Link, useRouter} from '#genfiles/river/router';
+import ArrowRightIcon from '@heroicons/react/24/solid/ArrowRightIcon';
+import {useSeoMeta} from '@unhead/react';
+import cn from 'classnames';
+import {format} from 'date-fns';
+import {MouseEvent, PropsWithChildren, useCallback, useMemo} from 'react';
 import {
   EntryPointComponent,
   useFragment,
   usePreloadedQuery,
-} from "react-relay/hooks";
-import { graphql } from "relay-runtime";
-import { ColorIdentity } from "../../assets/icons/colors";
-import { Card } from "../../components/card";
-import { Footer } from "../../components/footer";
-import { Navigation } from "../../components/navigation";
-import { FirstPartyPromo } from "../../components/promo";
-import { Tab, TabList } from "../../components/tabs";
-import { formatOrdinals, formatPercent } from "../../lib/client/format";
+} from 'react-relay/hooks';
+import {graphql} from 'relay-runtime';
+import {ColorIdentity} from '../../assets/icons/colors';
+import {Card} from '../../components/card';
+import {Footer} from '../../components/footer';
+import {Navigation} from '../../components/navigation';
+import {FirstPartyPromo} from '../../components/promo';
+import {Tab, TabList} from '../../components/tabs';
+import {formatOrdinals, formatPercent} from '../../lib/client/format';
 
 function EntryCard({
   highlightFirst = true,
@@ -57,7 +57,7 @@ function EntryCard({
     props.entry,
   );
 
-  let entryName = `${entry.player?.name ?? "Unknown Player"}`;
+  let entryName = `${entry.player?.name ?? 'Unknown Player'}`;
   if (entry.standing === 1) {
     entryName = `🥇 ${entryName}`;
   } else if (entry.standing === 2) {
@@ -89,9 +89,9 @@ function EntryCard({
   return (
     <Card
       className={cn(
-        "group",
+        'group',
         highlightFirst &&
-          "md:first:col-span-2 lg:max-w-3xl lg:first:col-span-3 lg:first:w-full lg:first:justify-self-center",
+          'md:first:col-span-2 lg:max-w-3xl lg:first:col-span-3 lg:first:w-full lg:first:justify-self-center',
       )}
       bottomText={bottomText}
       images={entry.commander.cards
@@ -132,7 +132,7 @@ function BreakdownGroupCard({
   onClickGroup?: (groupName: string) => void;
   group: TID_BreakdownGroupCard$key;
 }) {
-  const { commander, conversionRate, entries, topCuts } = useFragment(
+  const {commander, conversionRate, entries, topCuts} = useFragment(
     graphql`
       fragment TID_BreakdownGroupCard on TournamentBreakdownGroup {
         commander {
@@ -184,7 +184,7 @@ function BreakdownGroupCard({
   );
 }
 
-function TournamentBanner(props: { tournament: TID_TournamentBanner$key }) {
+function TournamentBanner(props: {tournament: TID_TournamentBanner$key}) {
   const tournament = useFragment(
     graphql`
       fragment TID_TournamentBanner on Tournament {
@@ -221,12 +221,12 @@ function TournamentBanner(props: { tournament: TID_TournamentBanner$key }) {
           <div className="absolute top-0 left-0 flex h-full w-full brightness-40">
             {tournament.winner[0].commander.cards
               .flatMap((c) => c.imageUrls)
-              .map((src, _i, { length }) => {
+              .map((src, _i, {length}) => {
                 return (
                   <img
                     className={cn(
-                      "flex-1 object-cover object-top",
-                      length === 2 ? "w-1/2" : "w-full",
+                      'flex-1 object-cover object-top',
+                      length === 2 ? 'w-1/2' : 'w-full',
                     )}
                     key={src}
                     src={src}
@@ -254,7 +254,7 @@ function TournamentBanner(props: { tournament: TID_TournamentBanner$key }) {
           {tournament.name}
         </h1>
         <div className="relative flex w-full max-w-(--breakpoint-md) flex-col items-center justify-evenly gap-1 text-base text-white md:flex-row md:text-lg lg:text-xl">
-          <span>{format(tournament.tournamentDate, "MMMM do yyyy")}</span>
+          <span>{format(tournament.tournamentDate, 'MMMM do yyyy')}</span>
           <span>{tournament.size} Players</span>
         </div>
       </div>
@@ -305,13 +305,13 @@ function TournamentPageShell({
 
   useTournamentMeta(tournament);
 
-  const { replaceRoute } = useRouter();
+  const {replaceRoute} = useRouter();
   const setSelectedTab = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       const nextKey = (e.target as HTMLButtonElement).id;
-      console.log({ nextKey });
+      console.log({nextKey});
 
-      replaceRoute("/tournament/:tid", {
+      replaceRoute('/tournament/:tid', {
         tid: tournament.TID,
         tab: nextKey,
         commander: null,
@@ -327,20 +327,20 @@ function TournamentPageShell({
       {tournament.promo && <FirstPartyPromo promo={tournament.promo} />}
 
       <TabList className="mx-auto max-w-(--breakpoint-md)">
-        <Tab id="entries" selected={tab === "entries"} onClick={setSelectedTab}>
+        <Tab id="entries" selected={tab === 'entries'} onClick={setSelectedTab}>
           Standings
         </Tab>
 
         <Tab
           id="breakdown"
-          selected={tab === "breakdown"}
+          selected={tab === 'breakdown'}
           onClick={setSelectedTab}
         >
           Metagame Breakdown
         </Tab>
 
         {commanderName != null && (
-          <Tab id="commander" selected={tab === "commander"}>
+          <Tab id="commander" selected={tab === 'commander'}>
             {commanderName}
           </Tab>
         )}
@@ -353,10 +353,10 @@ function TournamentPageShell({
 
 /** @resource m#tournament_view */
 export const TournamentViewPage: EntryPointComponent<
-  { tournamentQueryRef: TID_TournamentQuery },
+  {tournamentQueryRef: TID_TournamentQuery},
   {}
-> = ({ queries }) => {
-  const { tournament } = usePreloadedQuery(
+> = ({queries}) => {
+  const {tournament} = usePreloadedQuery(
     graphql`
       query TID_TournamentQuery(
         $TID: String!
@@ -392,7 +392,7 @@ export const TournamentViewPage: EntryPointComponent<
     queries.tournamentQueryRef,
   );
 
-  const { replaceRoute } = useRouter();
+  const {replaceRoute} = useRouter();
 
   return (
     <TournamentPageShell
@@ -400,10 +400,10 @@ export const TournamentViewPage: EntryPointComponent<
       commanderName={queries.tournamentQueryRef.variables.commander}
       tab={
         queries.tournamentQueryRef.variables.showBreakdown
-          ? "breakdown"
+          ? 'breakdown'
           : queries.tournamentQueryRef.variables.showBreakdownCommander
-            ? "commander"
-            : "entries"
+            ? 'commander'
+            : 'entries'
       }
     >
       <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
@@ -420,9 +420,9 @@ export const TournamentViewPage: EntryPointComponent<
               key={group.commander.id}
               group={group}
               onClickGroup={(commanderName) => {
-                replaceRoute("/tournament/:tid", {
+                replaceRoute('/tournament/:tid', {
                   tid: queries.tournamentQueryRef.variables.TID,
-                  tab: "commander",
+                  tab: 'commander',
                   commander: commanderName,
                 });
               }}

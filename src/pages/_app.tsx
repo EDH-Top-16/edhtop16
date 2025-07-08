@@ -1,21 +1,21 @@
-import { useHead } from "@unhead/react";
-import { PropsWithChildren } from "react";
+import {useHead} from '@unhead/react';
+import {PropsWithChildren} from 'react';
 
-export function App({ children }: PropsWithChildren<{}>) {
+export function App({children}: PropsWithChildren<{}>) {
   useHead({
     link: [
       {
-        rel: "preconnect",
-        href: "https://fonts.googleapis.com",
+        rel: 'preconnect',
+        href: 'https://fonts.googleapis.com',
       },
       {
-        rel: "preconnect",
-        href: "https://fonts.gstatic.com",
-        crossorigin: "",
+        rel: 'preconnect',
+        href: 'https://fonts.gstatic.com',
+        crossorigin: '',
       },
       {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap",
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap',
       },
     ],
   });

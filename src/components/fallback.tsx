@@ -1,6 +1,6 @@
-import FireIcon from "@heroicons/react/24/solid/FireIcon";
-import cn from "classnames";
-import { Navigation } from "./navigation";
+import FireIcon from '@heroicons/react/24/solid/FireIcon';
+import cn from 'classnames';
+import {Navigation} from './navigation';
 
 export function LoadingIcon({
   padding = true,
@@ -12,8 +12,8 @@ export function LoadingIcon({
   return (
     <div
       className={cn(
-        "flex w-full justify-center text-white",
-        padding && "pt-24",
+        'flex w-full justify-center text-white',
+        padding && 'pt-24',
         className,
       )}
     >

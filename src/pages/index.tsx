@@ -2,44 +2,39 @@ import {
   CommandersSortBy,
   pages_CommandersQuery,
   TimePeriod,
-} from "#genfiles/queries/pages_CommandersQuery.graphql";
-import { pages_topCommanders$key } from "#genfiles/queries/pages_topCommanders.graphql";
-import { pages_TopCommandersCard$key } from "#genfiles/queries/pages_TopCommandersCard.graphql";
-import { TopCommandersQuery } from "#genfiles/queries/TopCommandersQuery.graphql";
-import { Link, useRouter } from "#genfiles/river/router";
-import RectangleStackIcon from "@heroicons/react/24/solid/RectangleStackIcon";
-import TableCellsIcon from "@heroicons/react/24/solid/TableCellsIcon";
-import { useSeoMeta } from "@unhead/react";
-import cn from "classnames";
-import {
-  PropsWithChildren,
-  startTransition,
-  useCallback,
-  useMemo,
-} from "react";
+} from '#genfiles/queries/pages_CommandersQuery.graphql';
+import {pages_topCommanders$key} from '#genfiles/queries/pages_topCommanders.graphql';
+import {pages_TopCommandersCard$key} from '#genfiles/queries/pages_TopCommandersCard.graphql';
+import {TopCommandersQuery} from '#genfiles/queries/TopCommandersQuery.graphql';
+import {Link, useRouter} from '#genfiles/river/router';
+import RectangleStackIcon from '@heroicons/react/24/solid/RectangleStackIcon';
+import TableCellsIcon from '@heroicons/react/24/solid/TableCellsIcon';
+import {useSeoMeta} from '@unhead/react';
+import cn from 'classnames';
+import {PropsWithChildren, startTransition, useCallback, useMemo} from 'react';
 import {
   EntryPointComponent,
   graphql,
   useFragment,
   usePaginationFragment,
   usePreloadedQuery,
-} from "react-relay/hooks";
-import { ColorIdentity } from "../assets/icons/colors";
-import { Card } from "../components/card";
-import { ColorSelection } from "../components/color_selection";
-import { Footer } from "../components/footer";
-import { LoadMoreButton } from "../components/load_more";
-import { Navigation } from "../components/navigation";
-import { Select } from "../components/select";
-import { formatPercent } from "../lib/client/format";
+} from 'react-relay/hooks';
+import {ColorIdentity} from '../assets/icons/colors';
+import {Card} from '../components/card';
+import {ColorSelection} from '../components/color_selection';
+import {Footer} from '../components/footer';
+import {LoadMoreButton} from '../components/load_more';
+import {Navigation} from '../components/navigation';
+import {Select} from '../components/select';
+import {formatPercent} from '../lib/client/format';
 
 function TopCommandersCard({
-  display = "card",
+  display = 'card',
   secondaryStatistic,
   ...props
 }: {
-  display?: "table" | "card";
-  secondaryStatistic: "topCuts" | "count";
+  display?: 'table' | 'card';
+  secondaryStatistic: 'topCuts' | 'count';
   commander: pages_TopCommandersCard$key;
 }) {
   const commander = useFragment(
@@ -48,9 +43,7 @@ function TopCommandersCard({
         name
         colorId
         breakdownUrl
-        stats(
-          filters: { timePeriod: $timePeriod, minSize: $minTournamentSize }
-        ) {
+        stats(filters: {timePeriod: $timePeriod, minSize: $minTournamentSize}) {
           conversionRate
           topCuts
           count
@@ -68,22 +61,22 @@ function TopCommandersCard({
   const commanderStats = useMemo(() => {
     const stats: string[] = [];
 
-    if (secondaryStatistic === "count") {
+    if (secondaryStatistic === 'count') {
       stats.push(
         `Meta Share: ${formatPercent(commander.stats.metaShare)}`,
         `Entries: ${commander.stats.count}`,
       );
-    } else if (secondaryStatistic === "topCuts") {
+    } else if (secondaryStatistic === 'topCuts') {
       stats.push(
         `Conversion Rate: ${formatPercent(commander.stats.conversionRate)}`,
         `Top Cuts: ${commander.stats.topCuts}`,
       );
     }
 
-    return stats.join(" / ");
+    return stats.join(' / ');
   }, [commander, secondaryStatistic]);
 
-  if (display === "table") {
+  if (display === 'table') {
     return (
       <div className="grid w-full grid-cols-[130px_1fr] items-center gap-x-2 overflow-x-hidden rounded-sm bg-[#312d5a]/50 p-4 text-white shadow-md lg:grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px]">
         <div>
@@ -152,11 +145,11 @@ function CommandersPageShell({
   timePeriod: TimePeriod;
 }>) {
   useSeoMeta({
-    title: "cEDH Commanders",
-    description: "Discover top performing commanders in cEDH!",
+    title: 'cEDH Commanders',
+    description: 'Discover top performing commanders in cEDH!',
   });
 
-  const { replaceRoute } = useRouter();
+  const {replaceRoute} = useRouter();
   const [display, toggleDisplay] = useCommandersDisplay();
 
   return (
@@ -170,7 +163,7 @@ function CommandersPageShell({
           </h1>
 
           <button className="cursor-pointer" onClick={toggleDisplay}>
-            {display === "card" ? (
+            {display === 'card' ? (
               <TableCellsIcon className="h-6 w-6 text-white" />
             ) : (
               <RectangleStackIcon className="h-6 w-6 text-white" />
@@ -183,7 +176,7 @@ function CommandersPageShell({
             <ColorSelection
               selected={colorId}
               onChange={(value) => {
-                replaceRoute("/", { colorId: value || null });
+                replaceRoute('/', {colorId: value || null});
               }}
             />
           </div>
@@ -194,7 +187,7 @@ function CommandersPageShell({
               label="Sort By"
               value={sortBy}
               onChange={(value) => {
-                replaceRoute("/", { sortBy: value });
+                replaceRoute('/', {sortBy: value});
               }}
             >
               <option value="CONVERSION">Conversion Rate</option>
@@ -207,7 +200,7 @@ function CommandersPageShell({
               label="Time Period"
               value={timePeriod}
               onChange={(value) => {
-                replaceRoute("/", { timePeriod: value });
+                replaceRoute('/', {timePeriod: value});
               }}
             >
               <option value="ONE_MONTH">1 Month</option>
@@ -223,7 +216,7 @@ function CommandersPageShell({
               label="Min. Entries"
               value={`${minEntries}`}
               onChange={(value) => {
-                replaceRoute("/", { minEntries: Number(value) });
+                replaceRoute('/', {minEntries: Number(value)});
               }}
             >
               <option value="0">All Commanders</option>
@@ -237,7 +230,7 @@ function CommandersPageShell({
               label="Tournament Size"
               value={`${minTournamentSize}`}
               onChange={(value) => {
-                replaceRoute("/", { minSize: Number(value) });
+                replaceRoute('/', {minSize: Number(value)});
               }}
             >
               <option value="0">All Tournaments</option>
@@ -255,23 +248,23 @@ function CommandersPageShell({
 }
 
 function useCommandersDisplay() {
-  const { asRoute, replaceRoute } = useRouter();
-  const { display } = asRoute("/");
+  const {asRoute, replaceRoute} = useRouter();
+  const {display} = asRoute('/');
 
   const toggleDisplay = useCallback(() => {
-    replaceRoute("/", { display: display === "table" ? "card" : "table" });
+    replaceRoute('/', {display: display === 'table' ? 'card' : 'table'});
   }, [display, replaceRoute]);
 
   return useMemo(() => {
-    return [display === "table" ? "table" : "card", toggleDisplay] as const;
+    return [display === 'table' ? 'table' : 'card', toggleDisplay] as const;
   }, [display, toggleDisplay]);
 }
 
 /** @resource m#index */
 export const CommandersPage: EntryPointComponent<
-  { commandersQueryRef: pages_CommandersQuery },
+  {commandersQueryRef: pages_CommandersQuery},
   {}
-> = ({ queries }) => {
+> = ({queries}) => {
   const query = usePreloadedQuery(
     graphql`
       query pages_CommandersQuery(
@@ -289,15 +282,15 @@ export const CommandersPage: EntryPointComponent<
 
   const [display] = useCommandersDisplay();
 
-  const { data, loadNext, isLoadingNext, hasNext } = usePaginationFragment<
+  const {data, loadNext, isLoadingNext, hasNext} = usePaginationFragment<
     TopCommandersQuery,
     pages_topCommanders$key
   >(
     graphql`
       fragment pages_topCommanders on Query
       @argumentDefinitions(
-        cursor: { type: "String" }
-        count: { type: "Int", defaultValue: 48 }
+        cursor: {type: "String"}
+        count: {type: "Int", defaultValue: 48}
       )
       @refetchable(queryName: "TopCommandersQuery") {
         commanders(
@@ -325,19 +318,19 @@ export const CommandersPage: EntryPointComponent<
     <CommandersPageShell
       sortBy={queries.commandersQueryRef.variables.sortBy}
       timePeriod={queries.commandersQueryRef.variables.timePeriod}
-      colorId={queries.commandersQueryRef.variables.colorId || ""}
+      colorId={queries.commandersQueryRef.variables.colorId || ''}
       minEntries={queries.commandersQueryRef.variables.minEntries}
       minTournamentSize={queries.commandersQueryRef.variables.minTournamentSize}
     >
       <div
         className={cn(
-          "mx-auto grid w-full pb-4",
-          display === "table"
-            ? "w-full grid-cols-1 gap-2"
-            : "w-fit gap-4 md:grid-cols-2 xl:grid-cols-3",
+          'mx-auto grid w-full pb-4',
+          display === 'table'
+            ? 'w-full grid-cols-1 gap-2'
+            : 'w-fit gap-4 md:grid-cols-2 xl:grid-cols-3',
         )}
       >
-        {display === "table" && (
+        {display === 'table' && (
           <div className="sticky top-[68px] hidden w-full grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px] items-center gap-x-2 overflow-x-hidden bg-[#514f86] p-4 text-sm text-white lg:grid">
             <div>Color</div>
             <div>Commander</div>
@@ -348,16 +341,16 @@ export const CommandersPage: EntryPointComponent<
           </div>
         )}
 
-        {data.commanders.edges.map(({ node }) => (
+        {data.commanders.edges.map(({node}) => (
           <TopCommandersCard
             key={node.id}
             display={display}
             commander={node}
             secondaryStatistic={
-              queries.commandersQueryRef.variables.sortBy === "CONVERSION" ||
-              queries.commandersQueryRef.variables.sortBy === "TOP_CUTS"
-                ? "topCuts"
-                : "count"
+              queries.commandersQueryRef.variables.sortBy === 'CONVERSION' ||
+              queries.commandersQueryRef.variables.sortBy === 'TOP_CUTS'
+                ? 'topCuts'
+                : 'count'
             }
           />
         ))}

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 function DeckIcon(props: React.SVGProps<SVGSVGElement>) {
   return (

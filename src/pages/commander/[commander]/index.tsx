@@ -1,36 +1,36 @@
-import { Commander_CommanderBanner$key } from "#genfiles/queries/Commander_CommanderBanner.graphql";
-import { Commander_CommanderMeta$key } from "#genfiles/queries/Commander_CommanderMeta.graphql";
-import { Commander_CommanderPageShell$key } from "#genfiles/queries/Commander_CommanderPageShell.graphql";
+import {Commander_CommanderBanner$key} from '#genfiles/queries/Commander_CommanderBanner.graphql';
+import {Commander_CommanderMeta$key} from '#genfiles/queries/Commander_CommanderMeta.graphql';
+import {Commander_CommanderPageShell$key} from '#genfiles/queries/Commander_CommanderPageShell.graphql';
 import {
   Commander_CommanderQuery,
   EntriesSortBy,
   TimePeriod,
-} from "#genfiles/queries/Commander_CommanderQuery.graphql";
-import { Commander_entries$key } from "#genfiles/queries/Commander_entries.graphql";
-import { Commander_EntryCard$key } from "#genfiles/queries/Commander_EntryCard.graphql";
-import { CommanderEntriesQuery } from "#genfiles/queries/CommanderEntriesQuery.graphql";
-import { Link, useRouter } from "#genfiles/river/router";
-import { useSeoMeta } from "@unhead/react";
-import cn from "classnames";
-import { format } from "date-fns";
-import { PropsWithChildren } from "react";
+} from '#genfiles/queries/Commander_CommanderQuery.graphql';
+import {Commander_entries$key} from '#genfiles/queries/Commander_entries.graphql';
+import {Commander_EntryCard$key} from '#genfiles/queries/Commander_EntryCard.graphql';
+import {CommanderEntriesQuery} from '#genfiles/queries/CommanderEntriesQuery.graphql';
+import {Link, useRouter} from '#genfiles/river/router';
+import {useSeoMeta} from '@unhead/react';
+import cn from 'classnames';
+import {format} from 'date-fns';
+import {PropsWithChildren} from 'react';
 import {
   EntryPointComponent,
   useFragment,
   usePaginationFragment,
   usePreloadedQuery,
-} from "react-relay/hooks";
-import { graphql } from "relay-runtime";
-import { ColorIdentity } from "../../../assets/icons/colors";
-import { Card } from "../../../components/card";
-import { Footer } from "../../../components/footer";
-import { LoadMoreButton } from "../../../components/load_more";
-import { Navigation } from "../../../components/navigation";
-import { FirstPartyPromo } from "../../../components/promo";
-import { Select } from "../../../components/select";
-import { formatOrdinals, formatPercent } from "../../../lib/client/format";
+} from 'react-relay/hooks';
+import {graphql} from 'relay-runtime';
+import {ColorIdentity} from '../../../assets/icons/colors';
+import {Card} from '../../../components/card';
+import {Footer} from '../../../components/footer';
+import {LoadMoreButton} from '../../../components/load_more';
+import {Navigation} from '../../../components/navigation';
+import {FirstPartyPromo} from '../../../components/promo';
+import {Select} from '../../../components/select';
+import {formatOrdinals, formatPercent} from '../../../lib/client/format';
 
-function EntryCard(props: { entry: Commander_EntryCard$key }) {
+function EntryCard(props: {entry: Commander_EntryCard$key}) {
   const entry = useFragment(
     graphql`
       fragment Commander_EntryCard on Entry {
@@ -56,7 +56,7 @@ function EntryCard(props: { entry: Commander_EntryCard$key }) {
     props.entry,
   );
 
-  let entryName = `${entry.player?.name ?? "Unknown Player"}`;
+  let entryName = `${entry.player?.name ?? 'Unknown Player'}`;
   if (entry.standing === 1) {
     entryName = `🥇 ${entryName}`;
   } else if (entry.standing <= 4) {
@@ -111,14 +111,14 @@ function EntryCard(props: { entry: Commander_EntryCard$key }) {
           {entry.tournament.name}
         </Link>
         <span className="line-clamp-1 text-sm opacity-70">
-          {format(entry.tournament.tournamentDate, "MMMM do yyyy")}
+          {format(entry.tournament.tournamentDate, 'MMMM do yyyy')}
         </span>
       </div>
     </Card>
   );
 }
 
-function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
+function CommanderBanner(props: {commander: Commander_CommanderBanner$key}) {
   const commander = useFragment(
     graphql`
       fragment Commander_CommanderBanner on Commander {
@@ -128,7 +128,7 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
           imageUrls
         }
 
-        stats(filters: { timePeriod: $timePeriod, minSize: $minEventSize }) {
+        stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {
           conversionRate
           metaShare
           count
@@ -144,12 +144,12 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
         <div className="absolute top-0 left-0 flex h-full w-full brightness-40">
           {commander.cards
             .flatMap((c) => c.imageUrls)
-            .map((src, _i, { length }) => {
+            .map((src, _i, {length}) => {
               return (
                 <img
                   className={cn(
-                    "flex-1 object-cover object-top",
-                    length === 2 ? "w-1/2" : "w-full",
+                    'flex-1 object-cover object-top',
+                    length === 2 ? 'w-1/2' : 'w-full',
                   )}
                   key={src}
                   src={src}
@@ -171,11 +171,11 @@ function CommanderBanner(props: { commander: Commander_CommanderBanner$key }) {
           {commander.stats.count} Entries
           <div className="mr-1 ml-2 border-l border-white/60 py-2">
             &nbsp;
-          </div>{" "}
+          </div>{' '}
           {formatPercent(commander.stats.metaShare)} Meta%
           <div className="mr-1 ml-2 border-l border-white/60 py-2">
             &nbsp;
-          </div>{" "}
+          </div>{' '}
           {formatPercent(commander.stats.conversionRate)} Conversion
         </div>
       </div>
@@ -232,7 +232,7 @@ export function CommanderPageShell({
   );
 
   useCommanderMeta(commander);
-  const { replaceRoute } = useRouter();
+  const {replaceRoute} = useRouter();
 
   return (
     <>
@@ -246,7 +246,7 @@ export function CommanderPageShell({
           label="Sort By"
           value={sortBy}
           onChange={(e) => {
-            replaceRoute("/commander/:commander", {
+            replaceRoute('/commander/:commander', {
               commander: commander.name,
               sortBy: e,
             });
@@ -261,7 +261,7 @@ export function CommanderPageShell({
           label="Time Period"
           value={timePeriod}
           onChange={(e) => {
-            replaceRoute("/commander/:commander", {
+            replaceRoute('/commander/:commander', {
               commander: commander.name,
               timePeriod: e,
             });
@@ -280,7 +280,7 @@ export function CommanderPageShell({
           label="Event Size"
           value={`${minEventSize}`}
           onChange={(e) => {
-            replaceRoute("/commander/:commander", {
+            replaceRoute('/commander/:commander', {
               commander: commander.name,
               minEventSize: Number(e),
             });
@@ -297,7 +297,7 @@ export function CommanderPageShell({
           label="Standing"
           value={`${maxStanding}`}
           onChange={(e) => {
-            replaceRoute("/commander/:commander", {
+            replaceRoute('/commander/:commander', {
               commander: commander.name,
               maxStanding: Number(e),
             });
@@ -316,10 +316,10 @@ export function CommanderPageShell({
 
 /** @resource m#commander_page */
 export const CommanderPage: EntryPointComponent<
-  { commanderQueryRef: Commander_CommanderQuery },
+  {commanderQueryRef: Commander_CommanderQuery},
   {}
-> = ({ queries }) => {
-  const { commander } = usePreloadedQuery(
+> = ({queries}) => {
+  const {commander} = usePreloadedQuery(
     graphql`
       query Commander_CommanderQuery(
         $commander: String!
@@ -337,15 +337,15 @@ export const CommanderPage: EntryPointComponent<
     queries.commanderQueryRef,
   );
 
-  const { data, loadNext, isLoadingNext, hasNext } = usePaginationFragment<
+  const {data, loadNext, isLoadingNext, hasNext} = usePaginationFragment<
     CommanderEntriesQuery,
     Commander_entries$key
   >(
     graphql`
       fragment Commander_entries on Commander
       @argumentDefinitions(
-        cursor: { type: "String" }
-        count: { type: "Int", defaultValue: 48 }
+        cursor: {type: "String"}
+        count: {type: "Int", defaultValue: 48}
       )
       @refetchable(queryName: "CommanderEntriesQuery") {
         entries(
@@ -379,7 +379,7 @@ export const CommanderPage: EntryPointComponent<
       timePeriod={queries.commanderQueryRef.variables.timePeriod}
     >
       <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
-        {data.entries.edges.map(({ node }) => (
+        {data.entries.edges.map(({node}) => (
           <EntryCard key={node.id} entry={node} />
         ))}
       </div>

@@ -1,18 +1,18 @@
-import { isAfter } from "date-fns";
-import { db } from "../db";
-import { builder } from "./builder";
-import { Entry } from "./entry";
+import {isAfter} from 'date-fns';
+import {db} from '../db';
+import {builder} from './builder';
+import {Entry} from './entry';
 
-const ALL_KNOWN_CHEATERS: { topdeckProfile: string; expiration: Date }[] = [
+const ALL_KNOWN_CHEATERS: {topdeckProfile: string; expiration: Date}[] = [
   // https://docs.google.com/document/d/1m7aHiwIl11RKnpp7aYVzOA8daPijgbygbLreWi5cmeM/edit?tab=t.0
   {
-    topdeckProfile: "eUiV4NK8aWXDzUpX8ieUCC8C9On1",
-    expiration: new Date("2026-03-21"),
+    topdeckProfile: 'eUiV4NK8aWXDzUpX8ieUCC8C9On1',
+    expiration: new Date('2026-03-21'),
   },
   // https://docs.google.com/document/d/1HVo6lrWz252eu-8eNVzjY0MPddOt-uucFQobKDMI7Zk/edit?usp=drivesdk
   {
-    topdeckProfile: "QnHqzI3FgmgQsJOLZNU9CuizkKC3",
-    expiration: new Date("2025-01-01"),
+    topdeckProfile: 'QnHqzI3FgmgQsJOLZNU9CuizkKC3',
+    expiration: new Date('2025-01-01'),
   },
 ];
 
@@ -23,13 +23,13 @@ const UNEXPIRED_CHEATERS = new Set(
   ),
 );
 
-export const Player = builder.loadableNodeRef("Player", {
-  id: { parse: (id) => Number(id), resolve: (parent) => parent.id },
+export const Player = builder.loadableNodeRef('Player', {
+  id: {parse: (id) => Number(id), resolve: (parent) => parent.id},
   load: async (ids: number[]) => {
     const nodes = await db
-      .selectFrom("Player")
+      .selectFrom('Player')
       .selectAll()
-      .where("id", "in", ids)
+      .where('id', 'in', ids)
       .execute();
 
     const nodesById = new Map<number, (typeof nodes)[number]>();
@@ -41,30 +41,30 @@ export const Player = builder.loadableNodeRef("Player", {
 
 Player.implement({
   fields: (t) => ({
-    name: t.exposeString("name"),
-    topdeckProfile: t.exposeString("topdeckProfile", { nullable: true }),
+    name: t.exposeString('name'),
+    topdeckProfile: t.exposeString('topdeckProfile', {nullable: true}),
     entries: t.field({
       type: [Entry],
       resolve: (parent) => {
         return db
-          .selectFrom("Entry")
+          .selectFrom('Entry')
           .selectAll()
-          .where("Entry.playerId", "=", parent.id)
+          .where('Entry.playerId', '=', parent.id)
           .execute();
       },
     }),
     wins: t.int({
       resolve: async (parent) => {
-        const { wins } = await db
-          .selectFrom("Entry")
+        const {wins} = await db
+          .selectFrom('Entry')
           .select((eb) =>
             eb(
-              eb.fn.sum<number>("winsBracket"),
-              "+",
-              eb.fn.sum<number>("winsSwiss"),
-            ).as("wins"),
+              eb.fn.sum<number>('winsBracket'),
+              '+',
+              eb.fn.sum<number>('winsSwiss'),
+            ).as('wins'),
           )
-          .where("playerId", "=", parent.id)
+          .where('playerId', '=', parent.id)
           .executeTakeFirstOrThrow();
 
         return wins;
@@ -72,16 +72,16 @@ Player.implement({
     }),
     losses: t.int({
       resolve: async (parent, _args) => {
-        const { losses } = await db
-          .selectFrom("Entry")
+        const {losses} = await db
+          .selectFrom('Entry')
           .select((eb) =>
             eb(
-              eb.fn.sum<number>("lossesBracket"),
-              "+",
-              eb.fn.sum<number>("lossesSwiss"),
-            ).as("losses"),
+              eb.fn.sum<number>('lossesBracket'),
+              '+',
+              eb.fn.sum<number>('lossesSwiss'),
+            ).as('losses'),
           )
-          .where("playerId", "=", parent.id)
+          .where('playerId', '=', parent.id)
           .executeTakeFirstOrThrow();
 
         return losses;
@@ -89,10 +89,10 @@ Player.implement({
     }),
     draws: t.int({
       resolve: async (parent) => {
-        const { draws } = await db
-          .selectFrom("Entry")
-          .select((eb) => eb.fn.sum<number>("draws").as("draws"))
-          .where("playerId", "=", parent.id)
+        const {draws} = await db
+          .selectFrom('Entry')
+          .select((eb) => eb.fn.sum<number>('draws').as('draws'))
+          .where('playerId', '=', parent.id)
           .executeTakeFirstOrThrow();
 
         return draws;
@@ -100,13 +100,13 @@ Player.implement({
     }),
     topCuts: t.int({
       resolve: async (parent) => {
-        const { topCuts } = await db
-          .selectFrom("Entry")
-          .select((eb) => eb.fn.count<number>("Entry.id").as("topCuts"))
-          .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
-          .where("Entry.playerId", "=", parent.id)
+        const {topCuts} = await db
+          .selectFrom('Entry')
+          .select((eb) => eb.fn.count<number>('Entry.id').as('topCuts'))
+          .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+          .where('Entry.playerId', '=', parent.id)
           .where((eb) =>
-            eb("Entry.standing", "<=", eb.ref("Tournament.topCut")),
+            eb('Entry.standing', '<=', eb.ref('Tournament.topCut')),
           )
           .executeTakeFirstOrThrow();
 
@@ -115,36 +115,36 @@ Player.implement({
     }),
     winRate: t.float({
       resolve: async (parent) => {
-        const { winRate } = await db
-          .selectFrom("Entry")
+        const {winRate} = await db
+          .selectFrom('Entry')
           .select((eb) =>
             eb(
               eb(
-                eb.fn.sum<number>("winsBracket"),
-                "+",
-                eb.fn.sum<number>("winsSwiss"),
+                eb.fn.sum<number>('winsBracket'),
+                '+',
+                eb.fn.sum<number>('winsSwiss'),
               ),
-              "/",
+              '/',
               eb(
-                eb.fn.sum<number>("winsBracket"),
-                "+",
+                eb.fn.sum<number>('winsBracket'),
+                '+',
                 eb(
-                  eb.fn.sum<number>("winsSwiss"),
-                  "+",
+                  eb.fn.sum<number>('winsSwiss'),
+                  '+',
                   eb(
-                    eb.fn.sum<number>("lossesBracket"),
-                    "+",
+                    eb.fn.sum<number>('lossesBracket'),
+                    '+',
                     eb(
-                      eb.fn.sum<number>("lossesSwiss"),
-                      "+",
-                      eb.fn.sum<number>("draws"),
+                      eb.fn.sum<number>('lossesSwiss'),
+                      '+',
+                      eb.fn.sum<number>('draws'),
                     ),
                   ),
                 ),
               ),
-            ).as("winRate"),
+            ).as('winRate'),
           )
-          .where("Entry.playerId", "=", parent.id)
+          .where('Entry.playerId', '=', parent.id)
           .executeTakeFirstOrThrow();
 
         return winRate;
@@ -152,27 +152,27 @@ Player.implement({
     }),
     conversionRate: t.float({
       resolve: async (parent) => {
-        const { conversionRate } = await db
-          .selectFrom("Entry")
-          .leftJoin("Tournament", "Tournament.id", "Entry.tournamentId")
+        const {conversionRate} = await db
+          .selectFrom('Entry')
+          .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
           .select((eb) =>
             eb(
               eb.cast<number>(
                 eb.fn.sum<number>(
                   eb
                     .case()
-                    .when("Entry.standing", "<=", eb.ref("Tournament.topCut"))
+                    .when('Entry.standing', '<=', eb.ref('Tournament.topCut'))
                     .then(1)
                     .else(0)
                     .end(),
                 ),
-                "real",
+                'real',
               ),
-              "/",
-              eb.fn.count<number>("Entry.id"),
-            ).as("conversionRate"),
+              '/',
+              eb.fn.count<number>('Entry.id'),
+            ).as('conversionRate'),
           )
-          .where("Entry.playerId", "=", parent.id)
+          .where('Entry.playerId', '=', parent.id)
           .executeTakeFirstOrThrow();
 
         return conversionRate;
@@ -189,21 +189,21 @@ Player.implement({
   }),
 });
 
-builder.queryField("player", (t) =>
+builder.queryField('player', (t) =>
   t.field({
     type: Player,
-    args: { profile: t.arg.string({ required: true }) },
+    args: {profile: t.arg.string({required: true})},
     resolve: async (_root, args) => {
       return db
-        .selectFrom("Player")
+        .selectFrom('Player')
         .selectAll()
-        .where("topdeckProfile", "=", args.profile)
+        .where('topdeckProfile', '=', args.profile)
         .executeTakeFirstOrThrow();
     },
   }),
 );
 
-builder.queryField("cheaters", (t) =>
+builder.queryField('cheaters', (t) =>
   t.field({
     type: t.listRef(Player),
     resolve: async () => {
@@ -211,9 +211,9 @@ builder.queryField("cheaters", (t) =>
       if (allCheaters.length === 0) return [];
 
       return db
-        .selectFrom("Player")
+        .selectFrom('Player')
         .selectAll()
-        .where("topdeckProfile", "in", allCheaters)
+        .where('topdeckProfile', 'in', allCheaters)
         .execute();
     },
   }),

@@ -1,4 +1,4 @@
-import { LoadingIcon } from "./fallback";
+import {LoadingIcon} from './fallback';
 
 export function LoadMoreButton({
   hasNext,

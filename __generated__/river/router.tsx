@@ -9,8 +9,8 @@ import {
   History,
   Listener,
   Location,
-} from "history";
-import { createRouter, MatchedRoute } from "radix3";
+} from 'history';
+import {createRouter, MatchedRoute} from 'radix3';
 import {
   AnchorHTMLAttributes,
   createContext,
@@ -18,7 +18,7 @@ import {
   useContext,
   useEffect,
   useSyncExternalStore,
-} from "react";
+} from 'react';
 import {
   EntryPoint,
   EntryPointContainer,
@@ -27,10 +27,10 @@ import {
   loadEntryPoint,
   PreloadedEntryPoint,
   useEntryPointLoader,
-} from "react-relay/hooks";
-import { OperationDescriptor, PayloadData } from "relay-runtime";
-import type { Manifest } from "vite";
-import * as z from "zod/v4-mini";
+} from 'react-relay/hooks';
+import {OperationDescriptor, PayloadData} from 'relay-runtime';
+import type {Manifest} from 'vite';
+import * as z from 'zod/v4-mini';
 import { entrypoint as e0 } from "../../src/pages/about.entrypoint";
 import { entrypoint as e1 } from "../../src/pages/index.entrypoint";
 import { entrypoint as e2 } from "../../src/pages/tournaments.entrypoint";
@@ -96,14 +96,14 @@ export class Router {
     if (staticInit == null) {
       this.history = createBrowserHistory();
     } else {
-      this.history = createMemoryHistory({ initialEntries: [staticInit] });
+      this.history = createMemoryHistory({initialEntries: [staticInit]});
     }
 
     const route = this.radixRouter.lookup(this.history.location.pathname)!;
     this.currentRoute = {
       ...this.history.location,
       ...route,
-      params: { ...route.params, ...this.searchParams() },
+      params: {...route.params, ...this.searchParams()},
     };
   }
 
@@ -113,7 +113,7 @@ export class Router {
   });
 
   private evaluationNavigationDirection(nav: NavigationDirection): URL {
-    if (typeof nav === "string") {
+    if (typeof nav === 'string') {
       return new URL(nav, window.location.href);
     } else if (nav instanceof URL) {
       return nav;
@@ -127,7 +127,7 @@ export class Router {
   push = (nav: NavigationDirection) => {
     const nextUrl = this.evaluationNavigationDirection(nav);
     if (window.location.origin !== nextUrl.origin) {
-      throw new Error("Cannot navigate to a different origin.");
+      throw new Error('Cannot navigate to a different origin.');
     }
 
     this.history.push(nextUrl.pathname + nextUrl.search);
@@ -137,7 +137,7 @@ export class Router {
   replace = (nav: NavigationDirection) => {
     const nextUrl = this.evaluationNavigationDirection(nav);
     if (window.location.origin !== nextUrl.origin) {
-      throw new Error("Cannot navigate to a different origin.");
+      throw new Error('Cannot navigate to a different origin.');
     }
 
     this.history.replace(nextUrl.pathname + nextUrl.search);
@@ -170,7 +170,7 @@ export class Router {
 
   pushRoute = <R extends RouteId>(
     routeName: R,
-    params: z.input<RouterConf[R]["schema"]>,
+    params: z.input<RouterConf[R]['schema']>,
   ) => {
     const schema = ROUTER_CONF[routeName].schema;
     const validatedParams = schema.parse({
@@ -183,7 +183,7 @@ export class Router {
 
   replaceRoute = <R extends RouteId>(
     routeName: R,
-    params: z.input<RouterConf[R]["schema"]>,
+    params: z.input<RouterConf[R]['schema']>,
   ) => {
     const schema = ROUTER_CONF[routeName].schema;
     const validatedParams = schema.parse({
@@ -204,7 +204,7 @@ export class Router {
       this.currentRoute = {
         ...this.history.location,
         ...route,
-        params: { ...route.params, ...this.searchParams() },
+        params: {...route.params, ...this.searchParams()},
       };
 
       listener(update);
@@ -230,13 +230,13 @@ export class Router {
 
   asRoute = <R extends RouteId | undefined>(
     route?: R,
-  ): R extends RouteId ? z.infer<RouterConf[R]["schema"]> : any => {
-    const params = { ...this.currentRoute.params, ...this.searchParams() };
+  ): R extends RouteId ? z.infer<RouterConf[R]['schema']> : any => {
+    const params = {...this.currentRoute.params, ...this.searchParams()};
     const schema =
       route == null ? this.currentRoute.schema : ROUTER_CONF[route].schema;
 
     return schema.parse(params) as R extends RouteId
-      ? z.infer<RouterConf[R]["schema"]>
+      ? z.infer<RouterConf[R]['schema']>
       : any;
   };
 
@@ -244,7 +244,7 @@ export class Router {
     provider: IEnvironmentProvider<EnvironmentProviderOptions>,
   ) {
     const env = provider.getEnvironment(null);
-    if ("__river_ops" in window) {
+    if ('__river_ops' in window) {
       const ops = (window as any).__river_ops as RiverOps;
       for (const [op, payload] of ops) {
         env.commitPayload(op, payload);
@@ -264,7 +264,7 @@ export class Router {
     });
   }
 
-  static Context = createContext(new Router("/"));
+  static Context = createContext(new Router('/'));
 
   protected createRiverAppFromEntryPoint(
     env: IEnvironmentProvider<EnvironmentProviderOptions>,
@@ -317,7 +317,7 @@ export function useRouter() {
 
 export interface EntryPointParams<R extends RouteId> {
   params: Record<string, any>;
-  schema: RouterConf[R]["schema"];
+  schema: RouterConf[R]['schema'];
 }
 
 export function Link({
@@ -326,7 +326,7 @@ export function Link({
   onClick,
   ...props
 }: AnchorHTMLAttributes<HTMLAnchorElement>) {
-  const { push } = useRouter();
+  const {push} = useRouter();
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
       onClick?.(e);
@@ -335,7 +335,7 @@ export function Link({
       // See https://github.com/remix-run/react-router/blob/main/packages/react-router/lib/dom/dom.ts#L34
       const shouldHandle =
         e.button === 0 &&
-        (!target || target === "_self") &&
+        (!target || target === '_self') &&
         !(e.metaKey || e.altKey || e.ctrlKey || e.shiftKey);
 
       if (!shouldHandle) return;

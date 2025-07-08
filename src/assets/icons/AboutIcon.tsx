@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 function AboutIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
