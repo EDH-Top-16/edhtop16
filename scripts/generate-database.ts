@@ -3,27 +3,27 @@
  * well-shaped form.
  */
 
-import { faker } from "@faker-js/faker";
-import { workerPool } from "@reverecre/promise";
-import Database from "better-sqlite3";
-import { subYears } from "date-fns";
-import { MongoClient } from "mongodb";
-import { createWriteStream } from "node:fs";
-import fs from "node:fs/promises";
-import { parseArgs } from "node:util";
-import pc from "picocolors";
-import * as undici from "undici";
-import { z } from "zod/v4";
-import { ScryfallCard, scryfallCardSchema } from "../src/lib/server/scryfall";
+import {faker} from '@faker-js/faker';
+import {workerPool} from '@reverecre/promise';
+import Database from 'better-sqlite3';
+import {subYears} from 'date-fns';
+import {MongoClient} from 'mongodb';
+import {createWriteStream} from 'node:fs';
+import fs from 'node:fs/promises';
+import {parseArgs} from 'node:util';
+import pc from 'picocolors';
+import * as undici from 'undici';
+import {z} from 'zod/v4';
+import {ScryfallCard, scryfallCardSchema} from '../src/lib/server/scryfall';
 
 const args = parseArgs({
   options: {
     tid: {
-      type: "string",
+      type: 'string',
       multiple: true,
     },
     anonymize: {
-      type: "boolean",
+      type: 'boolean',
     },
   },
 });
@@ -31,7 +31,7 @@ const args = parseArgs({
 if (!process.env.ENTRIES_DB_URL) {
   console.log(
     pc.red(
-      "Could not generate database!\nMust provide ENTRIES_DB_URL environment variable",
+      'Could not generate database!\nMust provide ENTRIES_DB_URL environment variable',
     ),
   );
 
@@ -42,28 +42,28 @@ if (!process.env.ENTRIES_DB_URL) {
 const mongo = new MongoClient(process.env.ENTRIES_DB_URL);
 
 /** Connection to local SQLite database seeded from data warehouse. */
-const db = new Database("edhtop16.db");
+const db = new Database('edhtop16.db');
 
 // Turn off journalizing and start a transaction for faster inserts.
 console.log(pc.green(`Connected to local SQLite database!`));
-db.pragma("journal_mode = OFF");
-db.pragma("synchronous = 0");
-db.pragma("cache_size = 1000000");
-db.pragma("locking_mode = EXCLUSIVE");
-db.pragma("temp_store = MEMORY");
+db.pragma('journal_mode = OFF');
+db.pragma('synchronous = 0');
+db.pragma('cache_size = 1000000');
+db.pragma('locking_mode = EXCLUSIVE');
+db.pragma('temp_store = MEMORY');
 
 class ScryfallDatabase {
   private static scryfallBulkDataSchema = z.object({
-    object: z.literal("list"),
+    object: z.literal('list'),
     data: z.array(
       z.object({
-        object: z.literal("bulk_data"),
+        object: z.literal('bulk_data'),
         type: z.enum([
-          "oracle_cards",
-          "unique_artwork",
-          "default_cards",
-          "all_cards",
-          "rulings",
+          'oracle_cards',
+          'unique_artwork',
+          'default_cards',
+          'all_cards',
+          'rulings',
         ]),
         download_uri: z.string().url(),
         content_type: z.string(),
@@ -72,7 +72,7 @@ class ScryfallDatabase {
     ),
   });
 
-  static async create(kind: "default_cards" | "oracle_cards") {
+  static async create(kind: 'default_cards' | 'oracle_cards') {
     const databaseFileName = `./${kind}.scryfall.json`;
 
     try {
@@ -83,21 +83,21 @@ class ScryfallDatabase {
         ),
       );
     } catch (e) {
-      console.log(pc.cyan("Requesting Scryfall bulk data URL..."));
+      console.log(pc.cyan('Requesting Scryfall bulk data URL...'));
       const scryfallBulkDataResponse = await undici.request(
-        "https://api.scryfall.com/bulk-data",
-        { headers: { Accept: "*/*", "User-Agent": "edhtop16/2.0" } },
+        'https://api.scryfall.com/bulk-data',
+        {headers: {Accept: '*/*', 'User-Agent': 'edhtop16/2.0'}},
       );
 
       if (scryfallBulkDataResponse.statusCode >= 400) {
         throw new Error(
-          "Could not load bulk data: " +
+          'Could not load bulk data: ' +
             (await scryfallBulkDataResponse.body.text()),
         );
       }
 
       const scryfallBulkDataJson = await scryfallBulkDataResponse.body.json();
-      const { data: scryfallBulkData } =
+      const {data: scryfallBulkData} =
         ScryfallDatabase.scryfallBulkDataSchema.parse(scryfallBulkDataJson);
 
       const databaseUrl = scryfallBulkData.find(
@@ -116,7 +116,7 @@ class ScryfallDatabase {
         )}`,
       );
 
-      await undici.stream(databaseUrl, { method: "GET" }, () =>
+      await undici.stream(databaseUrl, {method: 'GET'}, () =>
         createWriteStream(databaseFileName),
       );
     }
@@ -182,14 +182,14 @@ async function getTournaments(
 
   const metadataFilters: Record<string, unknown> = {};
   if (tids) {
-    metadataFilters.TID = { $in: tids };
+    metadataFilters.TID = {$in: tids};
   }
 
   const tournaments = mongo
-    .db("cedhtop16")
-    .collection("metadata")
+    .db('cedhtop16')
+    .collection('metadata')
     .find(metadataFilters)
-    .sort({ date: "desc" })
+    .sort({date: 'desc'})
     .map((doc) => {
       const result = tournamentSchema.safeParse(doc);
       if (!result.success) {
@@ -206,7 +206,7 @@ async function getTournaments(
   return (await tournaments.toArray())
     .filter((t) => t !== false)
     .map((t) => {
-      if ("players" in t) return t;
+      if ('players' in t) return t;
 
       return {
         TID: t.TID,
@@ -257,7 +257,7 @@ const entrySchema = z.object({
 
 async function getTournamentEntries(tournamentId: string) {
   const entries = mongo
-    .db("cedhtop16")
+    .db('cedhtop16')
     .collection(tournamentId)
     .find()
     .map((doc) => {
@@ -298,7 +298,7 @@ async function createTournaments(tids?: string[]) {
         )}`,
       );
 
-      const { lastInsertRowid } = insertTournament.run(
+      const {lastInsertRowid} = insertTournament.run(
         t.TID,
         t.tournamentName,
         new Date(t.startDate * 1000).toISOString(),
@@ -316,26 +316,26 @@ async function createTournaments(tids?: string[]) {
 }
 
 function wubrgify(colorIdentity: string[]): string {
-  let buf = "";
+  let buf = '';
 
-  if (colorIdentity.includes("W")) {
-    buf += "W";
+  if (colorIdentity.includes('W')) {
+    buf += 'W';
   }
-  if (colorIdentity.includes("U")) {
-    buf += "U";
+  if (colorIdentity.includes('U')) {
+    buf += 'U';
   }
-  if (colorIdentity.includes("B")) {
-    buf += "B";
+  if (colorIdentity.includes('B')) {
+    buf += 'B';
   }
-  if (colorIdentity.includes("R")) {
-    buf += "R";
+  if (colorIdentity.includes('R')) {
+    buf += 'R';
   }
-  if (colorIdentity.includes("G")) {
-    buf += "G";
+  if (colorIdentity.includes('G')) {
+    buf += 'G';
   }
 
   if (buf.length === 0) {
-    return "C";
+    return 'C';
   } else {
     return buf;
   }
@@ -374,26 +374,26 @@ function parseRawDecklist(
   // grab the ID based on the card name in `oracleCards`, making sure to add
   // duplicate items in the array for card counts >1.
 
-  const lines = decklist.trim().replaceAll("\\n", "\n").split("\n");
-  let currentSection = "";
+  const lines = decklist.trim().replaceAll('\\n', '\n').split('\n');
+  let currentSection = '';
   const commanderNames: string[] = [];
   const maindeckLines: string[] = [];
   let decklistUrl: string | null = null;
 
   for (const line of lines) {
     const trimmedLine = line.trim();
-    if (trimmedLine.startsWith("~~") && trimmedLine.endsWith("~~")) {
+    if (trimmedLine.startsWith('~~') && trimmedLine.endsWith('~~')) {
       currentSection = trimmedLine.toLowerCase();
-    } else if (trimmedLine.startsWith("Imported from")) {
+    } else if (trimmedLine.startsWith('Imported from')) {
       const decklistUrlMatch = trimmedLine.match(/https?:\/\/[\w\W]*$/g);
       decklistUrl = decklistUrlMatch?.[0] ?? null;
-    } else if (currentSection === "~~commanders~~" && trimmedLine) {
+    } else if (currentSection === '~~commanders~~' && trimmedLine) {
       // Extract card name from "1 Commander Name" format
       const match = trimmedLine.match(/^\d+\s+(.+)$/);
       if (match && match[1]) {
         commanderNames.push(match[1].replaceAll(`’`, `'`));
       }
-    } else if (currentSection === "~~mainboard~~" && trimmedLine) {
+    } else if (currentSection === '~~mainboard~~' && trimmedLine) {
       maindeckLines.push(trimmedLine);
     }
   }
@@ -415,7 +415,7 @@ function parseRawDecklist(
     }
   }
 
-  const commander = commanderIds.sort().join(" / ");
+  const commander = commanderIds.sort().join(' / ');
   const uniqueColors = Array.from(new Set(colorIdentities));
   const colorID = wubrgify(uniqueColors);
 
@@ -443,7 +443,7 @@ function parseRawDecklist(
   };
 }
 
-type EntryWithTid = Entry & { TID: string };
+type EntryWithTid = Entry & {TID: string};
 async function loadEntries(
   tids: string[],
   defaultCards: ScryfallDatabase,
@@ -456,7 +456,7 @@ async function loadEntries(
 
   return Array.from(entriesByTid).flatMap(([TID, entries]) => {
     return entries.flatMap((e) => {
-      const entry = { ...e, TID };
+      const entry = {...e, TID};
 
       // First check if we have structured deckObj data
       if (entry.deckObj) {
@@ -487,7 +487,7 @@ async function loadEntries(
         }
 
         // Set the processed data
-        entry.commander = commanderNames.sort().join(" / ");
+        entry.commander = commanderNames.sort().join(' / ');
         entry.colorID = wubrgify(Array.from(new Set(colorIdentities)));
         entry.mainDeck = maindeckIds;
       } else if (entry.decklist?.startsWith(`~~`)) {
@@ -525,7 +525,7 @@ async function createCommanders(entries: EntryWithTid[]) {
       if (commanderIdByName.has(entry.commander)) continue;
 
       console.log(`Creating commander: ${pc.cyan(entry.commander)}`);
-      const { lastInsertRowid } = insertCommander.run(
+      const {lastInsertRowid} = insertCommander.run(
         entry.commander,
         entry.colorID,
       );
@@ -553,11 +553,11 @@ async function createCards(
 
   const mainDeckCards = entries.flatMap((e) => e.mainDeck ?? []);
   const commanderCards = entries
-    .flatMap((e) => e.commander?.split(" / ") ?? [])
+    .flatMap((e) => e.commander?.split(' / ') ?? [])
     .map((c) => defaultCards.cardByName.get(c)?.id)
     .filter((id) => id != null);
 
-  const defaultCommander = defaultCards.cardByName.get("The Prismatic Piper");
+  const defaultCommander = defaultCards.cardByName.get('The Prismatic Piper');
 
   if (defaultCommander) commanderCards.push(defaultCommander.id);
 
@@ -584,12 +584,12 @@ async function createCards(
       const card = oracleCards.cardByOracleId.get(oracleId);
       if (card == null) continue;
 
-      let colorId: string = "";
-      for (const c of ["W", "U", "B", "R", "G", "C"]) {
+      let colorId: string = '';
+      for (const c of ['W', 'U', 'B', 'R', 'G', 'C']) {
         if (card.color_identity.includes(c)) colorId += c;
       }
 
-      const { lastInsertRowid } = insertCard.run(
+      const {lastInsertRowid} = insertCard.run(
         card.oracle_id,
         card.name,
         JSON.stringify(card),
@@ -624,7 +624,7 @@ async function createPlayers(
     commanderIdByName: Map<string, number>;
     cardIdByScryfallId: Map<string, number>;
   },
-  { anonymizeNames }: { anonymizeNames: boolean },
+  {anonymizeNames}: {anonymizeNames: boolean},
 ) {
   const insertPlayer = db.prepare(`
     INSERT INTO "Player"
@@ -672,10 +672,10 @@ async function createPlayers(
         if (playerIdByTopdeckId.has(entry.profile)) {
           playerId = playerIdByTopdeckId.get(entry.profile)!;
         } else {
-          const { lastInsertRowid } = insertPlayer.run(
+          const {lastInsertRowid} = insertPlayer.run(
             anonymizeNames
               ? faker.person.fullName()
-              : entry.name || "Unknown Player",
+              : entry.name || 'Unknown Player',
             anonymizeNames ? faker.string.nanoid() : entry.profile,
           );
 
@@ -683,10 +683,10 @@ async function createPlayers(
           playerIdByTopdeckId.set(entry.profile, lastInsertRowid as number);
         }
       } else {
-        const { lastInsertRowid } = insertPlayer.run(
+        const {lastInsertRowid} = insertPlayer.run(
           anonymizeNames
             ? faker.person.fullName()
-            : entry.name || "Unknown Player",
+            : entry.name || 'Unknown Player',
           null,
         );
 
@@ -705,7 +705,7 @@ async function createPlayers(
         decklistUrl = `https://topdeck.gg/deck/${entry.TID}/${entry.profile}`;
       }
 
-      const { lastInsertRowid } = insertEntry.run(
+      const {lastInsertRowid} = insertEntry.run(
         decklistUrl,
         entry.draws,
         entry.lossesBracket,
@@ -816,14 +816,14 @@ function addCardPlayRates(cardIds: number[]) {
 
   const getCard = db.prepare<
     [number],
-    { id: number; name: string; data: string }
+    {id: number; name: string; data: string}
   >(`SELECT * FROM "Card" WHERE "id" = ?`);
 
   const setCardPlayRate = db.prepare<[number, number]>(
     `UPDATE "Card" set "playRateLastYear" = ? where "id" = ?`,
   );
 
-  const getEntriesForColorId = db.prepare<[string, string], { total: number }>(`
+  const getEntriesForColorId = db.prepare<[string, string], {total: number}>(`
     SELECT COUNT(*) AS total
     FROM "Entry" AS e
     LEFT JOIN "Commander" c on c.id = e."commanderId"
@@ -833,7 +833,7 @@ function addCardPlayRates(cardIds: number[]) {
     AND t."tournamentDate" >= ?
   `);
 
-  const getEntriesForCard = db.prepare<[number, string], { total: number }>(`
+  const getEntriesForCard = db.prepare<[number, string], {total: number}>(`
     SELECT COUNT(*) AS total
     FROM "DecklistItem" di
     LEFT JOIN "Entry" e on e.id = di."entryId"
@@ -852,20 +852,20 @@ function addCardPlayRates(cardIds: number[]) {
 
     const colorId = scryfallCardSchema
       .parse(JSON.parse(card.data))
-      .color_identity.join("");
+      .color_identity.join('');
 
     if (!memoEntriesForColorId.has(colorId)) {
-      let colorIdMatch = "";
-      if (colorId && colorId !== "C") {
-        for (const color of ["W", "U", "B", "R", "G"]) {
+      let colorIdMatch = '';
+      if (colorId && colorId !== 'C') {
+        for (const color of ['W', 'U', 'B', 'R', 'G']) {
           if (colorId.includes(color)) {
             colorIdMatch += color;
           } else {
-            colorIdMatch += "%";
+            colorIdMatch += '%';
           }
         }
       } else {
-        colorIdMatch = "%";
+        colorIdMatch = '%';
       }
 
       const totalForColorId = getEntriesForColorId.get(
@@ -898,8 +898,8 @@ async function main({
 }) {
   createSchema();
   const [oracleCards, defaultCards] = await Promise.all([
-    ScryfallDatabase.create("oracle_cards"),
-    ScryfallDatabase.create("default_cards"),
+    ScryfallDatabase.create('oracle_cards'),
+    ScryfallDatabase.create('default_cards'),
   ]);
 
   const tournamentIdByTid = await createTournaments(importedTids);
@@ -925,7 +925,7 @@ async function main({
       commanderIdByName,
       cardIdByScryfallId,
     },
-    { anonymizeNames },
+    {anonymizeNames},
   );
 
   createIndexes();
@@ -934,15 +934,15 @@ async function main({
 
 main(args.values)
   .catch((e) => {
-    console.error("Error during script generation:");
+    console.error('Error during script generation:');
     console.error(e);
     process.exit(1);
   })
   .finally(async () => {
     await mongo.close();
 
-    console.log(pc.yellow("Closing database connection..."));
+    console.log(pc.yellow('Closing database connection...'));
     db.close();
 
-    console.log(pc.green("Database creation succeeded!"));
+    console.log(pc.green('Database creation succeeded!'));
   });

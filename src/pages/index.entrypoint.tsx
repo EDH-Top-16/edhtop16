@@ -1,11 +1,11 @@
-import CommandersQueryParameters from "#genfiles/queries/pages_CommandersQuery$parameters";
+import CommandersQueryParameters from '#genfiles/queries/pages_CommandersQuery$parameters';
 import {
   CommandersSortBy,
   TimePeriod,
-} from "#genfiles/queries/pages_CommandersQuery.graphql";
-import { JSResource, ModuleType } from "#genfiles/river/js_resource";
-import { EntryPointParams } from "#genfiles/river/router";
-import { EntryPoint } from "react-relay/hooks";
+} from '#genfiles/queries/pages_CommandersQuery.graphql';
+import {JSResource, ModuleType} from '#genfiles/river/js_resource';
+import {EntryPointParams} from '#genfiles/river/router';
+import {EntryPoint} from 'react-relay/hooks';
 
 /**
  * @route /
@@ -17,14 +17,14 @@ import { EntryPoint } from "react-relay/hooks";
  * @param {string?} display
  */
 export const entrypoint: EntryPoint<
-  ModuleType<"m#index">,
-  EntryPointParams<"/">
+  ModuleType<'m#index'>,
+  EntryPointParams<'/'>
 > = {
-  root: JSResource.fromModuleId("m#index"),
-  getPreloadProps({ schema, params }) {
+  root: JSResource.fromModuleId('m#index'),
+  getPreloadProps({schema, params}) {
     const {
-      sortBy = "POPULARITY",
-      timePeriod = "SIX_MONTHS",
+      sortBy = 'POPULARITY',
+      timePeriod = 'SIX_MONTHS',
       minEntries = 20,
       minSize: minTournamentSize = 60,
       colorId,

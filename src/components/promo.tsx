@@ -1,7 +1,7 @@
-import { promo_EmbededPromo$key } from "#genfiles/queries/promo_EmbededPromo.graphql";
-import { graphql, useFragment } from "react-relay/hooks";
+import {promo_EmbededPromo$key} from '#genfiles/queries/promo_EmbededPromo.graphql';
+import {graphql, useFragment} from 'react-relay/hooks';
 
-export function FirstPartyPromo(props: { promo: promo_EmbededPromo$key }) {
+export function FirstPartyPromo(props: {promo: promo_EmbededPromo$key}) {
   const promo = useFragment(
     graphql`
       fragment promo_EmbededPromo on FirstPartyPromo {
@@ -21,7 +21,7 @@ export function FirstPartyPromo(props: { promo: promo_EmbededPromo$key }) {
       <div className="absolute top-0 left-0 flex h-full w-full brightness-40">
         <img
           alt="promo"
-          className={"w-full flex-1 object-cover object-center"}
+          className={'w-full flex-1 object-cover object-center'}
           src={promo.backgroundImageUrl}
         />
       </div>
@@ -58,7 +58,7 @@ export function FirstPartyPromo(props: { promo: promo_EmbededPromo$key }) {
             <div
               className="h-min-content flex-1 -rotate-12 bg-contain bg-center bg-no-repeat transition group-hover:scale-110 group-hover:rotate-6"
               style={{
-                maxWidth: "13rem",
+                maxWidth: '13rem',
                 backgroundImage: `url('${promo.imageUrl}')`,
               }}
             />

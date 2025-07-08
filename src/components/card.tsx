@@ -1,5 +1,5 @@
-import cn from "classnames";
-import { PropsWithChildren, ReactNode } from "react";
+import cn from 'classnames';
+import {PropsWithChildren, ReactNode} from 'react';
 
 export function Card({
   bottomText,
@@ -9,34 +9,34 @@ export function Card({
   children,
 }: PropsWithChildren<{
   bottomText?: ReactNode;
-  images?: { src: string; alt: string }[];
+  images?: {src: string; alt: string}[];
   hoverEffect?: boolean;
   className?: string;
 }>) {
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-lg bg-white shadow-sm transition-shadow",
-        hoverEffect && "cursor-pointer hover:shadow-lg",
+        'group relative overflow-hidden rounded-lg bg-white shadow-sm transition-shadow',
+        hoverEffect && 'cursor-pointer hover:shadow-lg',
         className,
       )}
     >
       <div
         className={cn(
-          "absolute top-0 left-0 flex h-full w-full bg-[#312d5a] transition",
-          images.length > 0 && "brightness-50",
+          'absolute top-0 left-0 flex h-full w-full bg-[#312d5a] transition',
+          images.length > 0 && 'brightness-50',
           hoverEffect &&
             (images.length > 0
-              ? "group-hover:brightness-40"
-              : "group-hover:brightness-80"),
+              ? 'group-hover:brightness-40'
+              : 'group-hover:brightness-80'),
         )}
       >
-        {images.map(({ src, alt }, _i, { length }) => {
+        {images.map(({src, alt}, _i, {length}) => {
           return (
             <img
               className={cn(
-                "flex-1 object-cover object-top",
-                length === 2 ? "w-1/2" : "w-full",
+                'flex-1 object-cover object-top',
+                length === 2 ? 'w-1/2' : 'w-full',
               )}
               key={src}
               src={src}

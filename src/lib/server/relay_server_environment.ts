@@ -1,12 +1,12 @@
-import { graphql, GraphQLSchema } from "graphql";
+import {graphql, GraphQLSchema} from 'graphql';
 import {
   Environment,
   FetchFunction,
   Network,
   RecordSource,
   Store,
-} from "relay-runtime";
-import { createContext } from "./context";
+} from 'relay-runtime';
+import {createContext} from './context';
 
 export function createServerEnvironment(
   schema: GraphQLSchema,

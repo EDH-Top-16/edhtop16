@@ -1,50 +1,50 @@
-import { sql } from "kysely";
-import { db } from "../db";
-import { builder } from "./builder";
+import {sql} from 'kysely';
+import {db} from '../db';
+import {builder} from './builder';
 
 const SearchResult = builder
-  .objectRef<{ name: string; url: string }>("SearchResult")
+  .objectRef<{name: string; url: string}>('SearchResult')
   .implement({
     fields: (t) => ({
-      name: t.exposeString("name"),
-      url: t.exposeString("url"),
+      name: t.exposeString('name'),
+      url: t.exposeString('url'),
     }),
   });
 
-const SearchResultType = builder.enumType("SearchResultType", {
-  values: ["COMMANDER", "TOURNAMENT"] as const,
+const SearchResultType = builder.enumType('SearchResultType', {
+  values: ['COMMANDER', 'TOURNAMENT'] as const,
 });
 
-builder.queryField("searchResults", (t) =>
+builder.queryField('searchResults', (t) =>
   t.field({
     type: t.listRef(SearchResult),
-    args: { types: t.arg({ type: [SearchResultType] }) },
-    resolve: async (_root, { types }) => {
+    args: {types: t.arg({type: [SearchResultType]})},
+    resolve: async (_root, {types}) => {
       const commandersQuery = db
-        .selectFrom("Commander")
+        .selectFrom('Commander')
         .select((eb) => [
-          eb.ref("Commander.name").as("name"),
-          sql.lit("/commander/").as("prefix"),
-          eb.ref("Commander.name").as("suffix"),
+          eb.ref('Commander.name').as('name'),
+          sql.lit('/commander/').as('prefix'),
+          eb.ref('Commander.name').as('suffix'),
         ]);
 
       const tournamentsQuery = db
-        .selectFrom("Tournament")
+        .selectFrom('Tournament')
         .select((eb) => [
-          eb.ref("Tournament.name").as("name"),
-          sql.lit("/tournament/").as("prefix"),
-          eb.ref("Tournament.TID").as("suffix"),
+          eb.ref('Tournament.name').as('name'),
+          sql.lit('/tournament/').as('prefix'),
+          eb.ref('Tournament.TID').as('suffix'),
         ])
-        .orderBy("Tournament.size desc");
+        .orderBy('Tournament.size desc');
 
       const queryParts: (typeof commandersQuery | typeof tournamentsQuery)[] =
         [];
 
-      if (types == null || types.includes("COMMANDER")) {
+      if (types == null || types.includes('COMMANDER')) {
         queryParts.push(commandersQuery);
       }
 
-      if (types == null || types.includes("TOURNAMENT")) {
+      if (types == null || types.includes('TOURNAMENT')) {
         queryParts.push(tournamentsQuery);
       }
 

@@ -2,7 +2,7 @@ import {
   EnvironmentProviderOptions,
   IEnvironmentProvider,
   PreloadedQuery,
-} from "react-relay/hooks";
+} from 'react-relay/hooks';
 import {
   createOperationDescriptor,
   GraphQLResponse,
@@ -11,11 +11,11 @@ import {
   OperationType,
   PayloadData,
   PreloadableQueryRegistry,
-} from "relay-runtime";
-import serialize from "serialize-javascript";
-import type { Manifest } from "vite";
-import { JSResource } from "./js_resource";
-import { AnyPreloadedEntryPoint, RiverOps, Router } from "./router";
+} from 'relay-runtime';
+import serialize from 'serialize-javascript';
+import type {Manifest} from 'vite';
+import {JSResource} from './js_resource';
+import {AnyPreloadedEntryPoint, RiverOps, Router} from './router';
 
 export class ServerRouter extends Router {
   async createApp(env: IEnvironmentProvider<EnvironmentProviderOptions>) {
@@ -90,7 +90,7 @@ async function ensureQueryFlushed(
 ): Promise<GraphQLResponse> {
   return new Promise((resolve, reject) => {
     if (query.source == null) {
-      resolve({ data: {} });
+      resolve({data: {}});
     } else {
       query.source.subscribe({
         next: resolve,

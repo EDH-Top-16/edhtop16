@@ -1,11 +1,11 @@
-import { useSeoMeta } from "@unhead/react";
-import { Navigation } from "../components/navigation";
+import {useSeoMeta} from '@unhead/react';
+import {Navigation} from '../components/navigation';
 
 /** @resource m#about */
 export function AboutPage() {
   useSeoMeta({
-    title: "About",
-    description: "About Us",
+    title: 'About',
+    description: 'About Us',
   });
 
   return (
@@ -26,7 +26,7 @@ export function AboutPage() {
         </p>
 
         <p>
-          Our platform is sponsored by{" "}
+          Our platform is sponsored by{' '}
           <a
             href="https://topdeck.gg/subscribe"
             className="underline"
@@ -46,17 +46,17 @@ export function AboutPage() {
           to access and utilize our extensive database for various applications
           and customizations. Our mission is to foster a thriving EDH community
           by presenting accurate, up-to-date, and relevant information to
-          enhance players&apos; understanding and enjoyment of the game.{" "}
+          enhance players&apos; understanding and enjoyment of the game.{' '}
         </p>
 
         <p className="w-full">
-          Feel free to{" "}
+          Feel free to{' '}
           <a
             href="https://github.com/EDH-Top-16/edhtop16/issues"
             className="underline"
           >
             submit an issue
-          </a>{" "}
+          </a>{' '}
           if you see a bug or think of a feature you&apos;d like to see.
         </p>
 
@@ -64,10 +64,10 @@ export function AboutPage() {
           If you would like to see a tournament added to our site, please
           contact us! We wish to grow our dataset and have the most complete and
           accurate view of tournament EDH possible. Do note, all Command Tower
-          events are automatically added. You can contact us in our{" "}
+          events are automatically added. You can contact us in our{' '}
           <a href="https://discord.gg/UwbA42nruw" className="underline">
             Discord server
-          </a>{" "}
+          </a>{' '}
           for further questions.
         </p>
 

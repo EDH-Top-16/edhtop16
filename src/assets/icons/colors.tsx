@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 export function BlackIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -106,29 +106,29 @@ export function WhiteIcon(props: React.SVGProps<SVGSVGElement>) {
 export function ColorIcon({
   color,
   ...props
-}: { color: string } & React.SVGProps<SVGSVGElement>) {
+}: {color: string} & React.SVGProps<SVGSVGElement>) {
   switch (color) {
-    case "W":
+    case 'W':
       return <WhiteIcon height={20} width={20} {...props} />;
-    case "U":
+    case 'U':
       return <BlueIcon height={20} width={20} {...props} />;
-    case "B":
+    case 'B':
       return <BlackIcon height={20} width={20} {...props} />;
-    case "R":
+    case 'R':
       return <RedIcon height={20} width={20} {...props} />;
-    case "G":
+    case 'G':
       return <GreenIcon height={20} width={20} {...props} />;
-    case "C":
+    case 'C':
       return <ColorlessIcon height={20} width={20} {...props} />;
     default:
       return null;
   }
 }
 
-export function ColorIdentity({ identity }: { identity: string }) {
+export function ColorIdentity({identity}: {identity: string}) {
   return (
     <span className="flex space-x-1">
-      {identity.split("").map((char) => (
+      {identity.split('').map((char) => (
         <ColorIcon key={char} color={char} />
       ))}
     </span>
