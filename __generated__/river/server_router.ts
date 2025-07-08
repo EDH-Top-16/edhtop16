@@ -75,12 +75,16 @@ export class ServerRouter extends Router {
     const rootModuleSrc = JSResource.srcOfModuleId(entryPoint.rootModuleID);
     if (rootModuleSrc == null) return bootstrap;
 
-    const chunk = manifest?.[rootModuleSrc];
-    if (chunk == null) return bootstrap;
+    function crawlImports(moduleName: string) {
+      const chunk = manifest?.[moduleName];
+      if (!chunk) return;
 
-    bootstrap =
-      `<link rel="modulepreload" href="${chunk.file}" />\n` + bootstrap;
+      chunk.imports?.forEach(crawlImports);
+      bootstrap =
+        `<link rel="modulepreload" href="${chunk.file}" />\n` + bootstrap;
+    }
 
+    crawlImports(rootModuleSrc);
     return bootstrap;
   }
 }
