@@ -2,7 +2,7 @@ import { searchbar_CommanderNamesQuery } from "#genfiles/queries/searchbar_Comma
 import { Link } from "#genfiles/river/router";
 import cn from "classnames";
 import { useMemo, useRef, useState } from "react";
-import { graphql, useLazyLoadQuery } from "react-relay";
+import { graphql, useLazyLoadQuery } from "react-relay/hooks";
 import { useSearch } from "../lib/client/search";
 import { ServerSafeSuspense } from "../lib/client/suspense";
 

@@ -16,7 +16,7 @@ import {
   useFragment,
   usePaginationFragment,
   usePreloadedQuery,
-} from "react-relay";
+} from "react-relay/hooks";
 import { Card } from "../components/card";
 import { Footer } from "../components/footer";
 import { LoadMoreButton } from "../components/load_more";

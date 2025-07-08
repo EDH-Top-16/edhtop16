@@ -11,12 +11,17 @@ export default {
     manifest: true,
     ssrManifest: true,
   },
+  // resolve: {
+  //   alias: {
+  //     "react-relay": "react-relay/hooks",
+  //   },
+  // },
   plugins: [
     unheadVite(),
     tailwindcss(),
     react({ babel: { plugins: ["relay"] } }),
     cjsInterop({
-      dependencies: ["react-relay", "relay-runtime"],
+      dependencies: ["react-relay", "react-relay/hooks", "relay-runtime"],
     }),
   ],
 } satisfies UserConfig;

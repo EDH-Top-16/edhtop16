@@ -1,4 +1,4 @@
-import type { JSResourceReference } from "react-relay";
+import type { JSResourceReference } from "react-relay/hooks";
 
 type ResourceConf = typeof RESOURCE_CONF;
 const RESOURCE_CONF = {
@@ -13,6 +13,10 @@ export type ModuleType<M extends ModuleId> = Awaited<
 export class JSResource<M extends ModuleId>
   implements JSResourceReference<ModuleType<M>>
 {
+  static srcOfModuleId(id: string): string | null {
+    return RESOURCE_CONF[id as ModuleId].src;
+  }
+
   private static readonly resourceCache = new Map<ModuleId, JSResource<any>>();
   static fromModuleId<M extends ModuleId>(moduleId: M) {
     if (JSResource.resourceCache.has(moduleId)) {
