@@ -15,17 +15,17 @@ import {
   useSyncExternalStore,
 } from "react";
 import {
+  EntryPoint,
   EntryPointContainer,
   EnvironmentProviderOptions,
   IEnvironmentProvider,
   loadEntryPoint,
   PreloadedEntryPoint,
   useEntryPointLoader,
-  EntryPoint,
-} from "react-relay";
+} from "react-relay/hooks";
 import { OperationDescriptor, PayloadData } from "relay-runtime";
 import type { Manifest } from "vite";
-import * as z from "zod/v4";
+import * as z from "zod/v4-mini";
 
 export type AnyPreloadedEntryPoint = PreloadedEntryPoint<any>;
 export type RiverOps = [OperationDescriptor, PayloadData][];
@@ -183,13 +183,13 @@ export class Router {
 
   asRoute = <R extends RouteId | undefined>(
     route?: R,
-  ): R extends RouteId ? z.Infer<RouterConf[R]["schema"]> : any => {
+  ): R extends RouteId ? z.infer<RouterConf[R]["schema"]> : any => {
     const params = { ...this.currentRoute.params, ...this.searchParams() };
     const schema =
       route == null ? this.currentRoute.schema : ROUTER_CONF[route].schema;
 
     return schema.parse(params) as R extends RouteId
-      ? z.Infer<RouterConf[R]["schema"]>
+      ? z.infer<RouterConf[R]["schema"]>
       : any;
   };
 

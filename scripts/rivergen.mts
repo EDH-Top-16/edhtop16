@@ -115,7 +115,7 @@ function collectRiverNodes(project: Project) {
 
 function zodSchemaOfType(tc: ts.TypeChecker, t: ts.Type): string {
   if (t.getFlags() & TypeFlags.String) {
-    return `z.string().transform(decodeURIComponent)`;
+    return `z.pipe(z.string(), z.transform(decodeURIComponent))`;
   } else if (t.getFlags() & TypeFlags.Number) {
     return `z.coerce.number<number>()`;
   } else if (t.getFlags() & TypeFlags.Null) {
@@ -130,7 +130,7 @@ function zodSchemaOfType(tc: ts.TypeChecker, t: ts.Type): string {
         (s) => !(s.getFlags() & TypeFlags.Null),
       )!;
 
-      return `z.nullish(${zodSchemaOfType(tc, nonOptionalType)}).transform(s => s == null ? undefined : s)`;
+      return `z.pipe(z.nullish(${zodSchemaOfType(tc, nonOptionalType)}), z.transform(s => s == null ? undefined : s))`;
     } else {
       return `z.union([${t.types.map((it) => zodSchemaOfType(tc, it)).join(", ")}])`;
     }

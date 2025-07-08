@@ -7,7 +7,7 @@ import {
   EnvironmentProviderOptions,
   IEnvironmentProvider,
   PreloadedQuery,
-} from "react-relay";
+} from "react-relay/hooks";
 import {
   createOperationDescriptor,
   GraphQLResponse,
@@ -19,6 +19,7 @@ import {
 } from "relay-runtime";
 import serialize from "serialize-javascript";
 import type { Manifest } from "vite";
+import { JSResource } from "./js_resource";
 import { AnyPreloadedEntryPoint, RiverOps, Router } from "./router";
 
 export class ServerRouter extends Router {
@@ -66,16 +67,21 @@ export class ServerRouter extends Router {
     ops: RiverOps,
     manifest?: Manifest,
   ) {
-    const rootModule = entryPoint.rootModuleID;
-    const preloadModuleFile =
-      Object.values(manifest ?? {}).find((s) => s.name === rootModule)?.file ??
-      null;
-
-    return `
-      <!-- I SHOULD PRELOAD THESE: ${JSON.stringify(preloadModuleFile)} -->
+    let bootstrap = `
       <script type="text/javascript">
         window.__river_ops = ${serialize(ops)};
       </script>`;
+
+    const rootModuleSrc = JSResource.srcOfModuleId(entryPoint.rootModuleID);
+    if (rootModuleSrc == null) return bootstrap;
+
+    const chunk = manifest?.[rootModuleSrc];
+    if (chunk == null) return bootstrap;
+
+    bootstrap =
+      `<link rel="modulepreload" href="${chunk.file}" />\n` + bootstrap;
+
+    return bootstrap;
   }
 }
 

@@ -14,7 +14,7 @@ import {
   EntryPointComponent,
   useFragment,
   usePreloadedQuery,
-} from "react-relay";
+} from "react-relay/hooks";
 import { graphql } from "relay-runtime";
 import { ColorIdentity } from "../../assets/icons/colors";
 import { Card } from "../../components/card";

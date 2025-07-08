@@ -1,5 +1,5 @@
 import { promo_EmbededPromo$key } from "#genfiles/queries/promo_EmbededPromo.graphql";
-import { graphql, useFragment } from "react-relay";
+import { graphql, useFragment } from "react-relay/hooks";
 
 export function FirstPartyPromo(props: { promo: promo_EmbededPromo$key }) {
   const promo = useFragment(

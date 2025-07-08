@@ -20,17 +20,17 @@ import {
   useSyncExternalStore,
 } from "react";
 import {
+  EntryPoint,
   EntryPointContainer,
   EnvironmentProviderOptions,
   IEnvironmentProvider,
   loadEntryPoint,
   PreloadedEntryPoint,
   useEntryPointLoader,
-  EntryPoint,
-} from "react-relay";
+} from "react-relay/hooks";
 import { OperationDescriptor, PayloadData } from "relay-runtime";
 import type { Manifest } from "vite";
-import * as z from "zod/v4";
+import * as z from "zod/v4-mini";
 import { entrypoint as e0 } from "../../src/pages/about.entrypoint";
 import { entrypoint as e1 } from "../../src/pages/index.entrypoint";
 import { entrypoint as e2 } from "../../src/pages/tournaments.entrypoint";
@@ -49,38 +49,38 @@ const ROUTER_CONF = {
     "/": {
             entrypoint: e1,
             schema: z.object({
-              minSize: z.nullish(z.coerce.number<number>()).transform(s => s == null ? undefined : s),
-              minEntries: z.nullish(z.coerce.number<number>()).transform(s => s == null ? undefined : s),
-              sortBy: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
-              timePeriod: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
-              colorId: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
-              display: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              minSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
+              minEntries: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
+              sortBy: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+              timePeriod: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+              colorId: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+              display: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
             })
         } as const,
     "/tournaments": {
             entrypoint: e2,
             schema: z.object({
-              minSize: z.nullish(z.coerce.number<number>()).transform(s => s == null ? undefined : s),
-              sortBy: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
-              timePeriod: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              minSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
+              sortBy: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+              timePeriod: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
             })
         } as const,
     "/tournament/:tid": {
             entrypoint: e3,
             schema: z.object({
-              tid: z.string().transform(decodeURIComponent),
-              commander: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
-              tab: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
+              tid: z.pipe(z.string(), z.transform(decodeURIComponent)),
+              commander: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+              tab: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
             })
         } as const,
     "/commander/:commander": {
             entrypoint: e4,
             schema: z.object({
-              commander: z.string().transform(decodeURIComponent),
-              sortBy: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
-              timePeriod: z.nullish(z.string().transform(decodeURIComponent)).transform(s => s == null ? undefined : s),
-              maxStanding: z.nullish(z.coerce.number<number>()).transform(s => s == null ? undefined : s),
-              minEventSize: z.nullish(z.coerce.number<number>()).transform(s => s == null ? undefined : s),
+              commander: z.pipe(z.string(), z.transform(decodeURIComponent)),
+              sortBy: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+              timePeriod: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+              maxStanding: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
+              minEventSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
             })
         } as const
 } as const;
@@ -230,13 +230,13 @@ export class Router {
 
   asRoute = <R extends RouteId | undefined>(
     route?: R,
-  ): R extends RouteId ? z.Infer<RouterConf[R]["schema"]> : any => {
+  ): R extends RouteId ? z.infer<RouterConf[R]["schema"]> : any => {
     const params = { ...this.currentRoute.params, ...this.searchParams() };
     const schema =
       route == null ? this.currentRoute.schema : ROUTER_CONF[route].schema;
 
     return schema.parse(params) as R extends RouteId
-      ? z.Infer<RouterConf[R]["schema"]>
+      ? z.infer<RouterConf[R]["schema"]>
       : any;
   };
 

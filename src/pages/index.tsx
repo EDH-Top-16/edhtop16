@@ -23,7 +23,7 @@ import {
   useFragment,
   usePaginationFragment,
   usePreloadedQuery,
-} from "react-relay";
+} from "react-relay/hooks";
 import { ColorIdentity } from "../assets/icons/colors";
 import { Card } from "../components/card";
 import { ColorSelection } from "../components/color_selection";

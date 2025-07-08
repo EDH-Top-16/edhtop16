@@ -2,7 +2,7 @@ import { Router } from "#genfiles/river/router";
 import { createHead, UnheadProvider } from "@unhead/react/client";
 import { StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
-import { RelayEnvironmentProvider } from "react-relay";
+import { RelayEnvironmentProvider } from "react-relay/hooks";
 import { getClientEnvironment } from "./lib/client/relay_client_environment";
 import { App } from "./pages/_app";
 
