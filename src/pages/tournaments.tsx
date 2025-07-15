@@ -6,7 +6,7 @@ import {
   tournaments_TournamentsQuery,
   TournamentSortBy,
 } from '#genfiles/queries/tournaments_TournamentsQuery.graphql';
-import {Link, useRouter} from '#genfiles/river/router';
+import {Link, RouteLink, useRouter} from '#genfiles/river/router';
 import {useSeoMeta} from '@unhead/react';
 import {format} from 'date-fns';
 import {PropsWithChildren, useCallback, useMemo} from 'react';
@@ -69,12 +69,13 @@ function TournamentCard(props: {commander: tournaments_TournamentCard$key}) {
         }))}
     >
       <div className="flex h-32 flex-col space-y-2">
-        <Link
-          href={`/tournament/${tournament.TID}`}
+        <RouteLink
+          route="/tournament/:tid"
+          params={{tid: tournament.TID}}
           className="line-clamp-2 text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
         >
           {tournament.name}
-        </Link>
+        </RouteLink>
 
         <span>{format(tournament.tournamentDate, 'MMMM do yyyy')}</span>
       </div>
