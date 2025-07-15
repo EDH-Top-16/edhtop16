@@ -21,9 +21,10 @@
  * TypeScript types, enabling runtime validation and type safety.
  *
  * Roadmap:
- * 1. Type-safe router APIs - Generate strongly typed navigation functions
+ * 1. [DONE] Type-safe router APIs - Generate strongly typed navigation functions
  * 2. Support for useTransition during routing - React 19 concurrent features
- * 3. HTML manual generator suitable to be read by LLMs - Auto-generated docs
+ * 3. Support for metadata management in <head>
+ * 4. HTML manual generator suitable to be read by LLMs - Auto-generated docs
  */
 
 import {readFile} from 'node:fs/promises';

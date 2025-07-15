@@ -14,9 +14,11 @@ import {createRouter, MatchedRoute} from 'radix3';
 import {
   AnchorHTMLAttributes,
   createContext,
+  PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useSyncExternalStore,
 } from 'react';
 import {
@@ -112,86 +114,80 @@ export class Router {
     routes: ROUTER_CONF,
   });
 
-  private evaluationNavigationDirection(nav: NavigationDirection): URL {
-    if (typeof nav === 'string') {
-      return new URL(nav, window.location.href);
-    } else if (nav instanceof URL) {
-      return nav;
-    } else {
-      const nextUrl = new URL(window.location.href);
-      nav(nextUrl);
-      return nextUrl;
-    }
-  }
+  private createNavigator(method: 'push' | 'replace') {
+    return (nav: NavigationDirection) => {
+      let nextUrl: URL;
+      if (typeof nav === 'string') {
+        nextUrl = new URL(nav, window.location.href);
+      } else if (nav instanceof URL) {
+        nextUrl = nav;
+      } else {
+        nextUrl = new URL(window.location.href);
+        nav(nextUrl);
+      }
 
-  push = (nav: NavigationDirection) => {
-    const nextUrl = this.evaluationNavigationDirection(nav);
-    if (window.location.origin !== nextUrl.origin) {
-      throw new Error('Cannot navigate to a different origin.');
-    }
+      if (window.location.origin !== nextUrl.origin) {
+        throw new Error('Cannot navigate to a different origin.');
+      }
 
-    this.history.push(nextUrl.pathname + nextUrl.search);
-    window.scrollTo(0, 0);
-  };
-
-  replace = (nav: NavigationDirection) => {
-    const nextUrl = this.evaluationNavigationDirection(nav);
-    if (window.location.origin !== nextUrl.origin) {
-      throw new Error('Cannot navigate to a different origin.');
-    }
-
-    this.history.replace(nextUrl.pathname + nextUrl.search);
-  };
-
-  private navigateParams(routeName: RouteId, params: Record<string, any>) {
-    return (url: URL) => {
-      let pathname = routeName as string;
-      const searchParams = new URLSearchParams();
-
-      Object.entries(params).forEach(([key, value]) => {
-        if (value != null) {
-          const paramPattern = `:${key}`;
-          if (pathname.includes(paramPattern)) {
-            // Replace route parameter in pathname
-            pathname = pathname.replace(
-              paramPattern,
-              encodeURIComponent(String(value)),
-            );
-          } else {
-            searchParams.set(key, String(value));
-          }
-        }
-      });
-
-      url.pathname = pathname;
-      url.search = searchParams.toString();
+      if (method === 'push') {
+        this.history.push(nextUrl.pathname + nextUrl.search);
+        window.scrollTo(0, 0);
+      } else {
+        this.history.replace(nextUrl.pathname + nextUrl.search);
+      }
     };
   }
 
-  pushRoute = <R extends RouteId>(
+  readonly push = this.createNavigator('push');
+  readonly replace = this.createNavigator('replace');
+
+  createUrlForRoute = <R extends RouteId>(
     routeName: R,
-    params: z.input<RouterConf[R]['schema']>,
-  ) => {
+    inputParams: z.input<RouterConf[R]['schema']>,
+  ): URL => {
     const schema = ROUTER_CONF[routeName].schema;
-    const validatedParams = schema.parse({
+    const params = schema.parse({
       ...this.currentRoute.params,
-      ...params,
+      ...inputParams,
     });
 
-    this.push(this.navigateParams(routeName, validatedParams));
+    const url = new URL(window.location.href);
+
+    let pathname = routeName as string;
+    const searchParams = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value != null) {
+        const paramPattern = `:${key}`;
+        if (pathname.includes(paramPattern)) {
+          pathname = pathname.replace(
+            paramPattern,
+            encodeURIComponent(String(value)),
+          );
+        } else {
+          searchParams.set(key, String(value));
+        }
+      }
+    });
+
+    url.pathname = pathname;
+    url.search = searchParams.toString();
+    return url;
   };
 
-  replaceRoute = <R extends RouteId>(
+  readonly pushRoute = <R extends RouteId>(
     routeName: R,
     params: z.input<RouterConf[R]['schema']>,
   ) => {
-    const schema = ROUTER_CONF[routeName].schema;
-    const validatedParams = schema.parse({
-      ...this.currentRoute.params,
-      ...params,
-    });
+    this.push(this.createUrlForRoute(routeName, params));
+  };
 
-    this.replace(this.navigateParams(routeName, validatedParams));
+  readonly replaceRoute = <R extends RouteId>(
+    routeName: R,
+    params: z.input<RouterConf[R]['schema']>,
+  ) => {
+    this.replace(this.createUrlForRoute(routeName, params));
   };
 
   route = () => {
@@ -239,18 +235,6 @@ export class Router {
       ? z.infer<RouterConf[R]['schema']>
       : any;
   };
-
-  private hydrateStore(
-    provider: IEnvironmentProvider<EnvironmentProviderOptions>,
-  ) {
-    const env = provider.getEnvironment(null);
-    if ('__river_ops' in window) {
-      const ops = (window as any).__river_ops as RiverOps;
-      for (const [op, payload] of ops) {
-        env.commitPayload(op, payload);
-      }
-    }
-  }
 
   protected async loadEntryPoint(
     env: IEnvironmentProvider<EnvironmentProviderOptions>,
@@ -304,6 +288,18 @@ export class Router {
     return RiverApp;
   }
 
+  private hydrateStore(
+    provider: IEnvironmentProvider<EnvironmentProviderOptions>,
+  ) {
+    const env = provider.getEnvironment(null);
+    if ('__river_ops' in window) {
+      const ops = (window as any).__river_ops as RiverOps;
+      for (const [op, payload] of ops) {
+        env.commitPayload(op, payload);
+      }
+    }
+  }
+
   async createApp(env: IEnvironmentProvider<EnvironmentProviderOptions>) {
     this.hydrateStore(env);
     const ep = await this.loadEntryPoint(env);
@@ -327,6 +323,7 @@ export function Link({
   ...props
 }: AnchorHTMLAttributes<HTMLAnchorElement>) {
   const {push} = useRouter();
+
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
       onClick?.(e);
@@ -350,4 +347,25 @@ export function Link({
   );
 
   return <a {...props} href={href} target={target} onClick={handleClick} />;
+}
+
+export interface LinkProps<R extends RouteId>
+  extends AnchorHTMLAttributes<HTMLAnchorElement> {
+  route: R;
+  params: z.input<RouterConf[R]['schema']>;
+  href?: never;
+}
+
+export function RouteLink<R extends RouteId>({
+  route,
+  params,
+  ...props
+}: PropsWithChildren<LinkProps<R>>) {
+  const {createUrlForRoute} = useRouter();
+  const href = useMemo(
+    () => createUrlForRoute(route, params).toString(),
+    [createUrlForRoute, params, route],
+  );
+
+  return <Link {...props} href={href} />;
 }
