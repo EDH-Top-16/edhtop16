@@ -1,3 +1,31 @@
+/**
+ * @fileoverview River Router Code Generator
+ *
+ * This script generates type-safe router configuration files by scanning TypeScript
+ * source code for JSDoc annotations. It's part of the "River" routing framework.
+ *
+ * How it works:
+ * 1. Scans all TypeScript files in the project for exported functions/classes
+ * 2. Looks for JSDoc tags: @route, @resource, and @param
+ * 3. Generates three files from templates:
+ *    - js_resource.ts: Resource configuration for lazy loading
+ *    - router.tsx: Client-side router with type-safe routes
+ *    - server_router.ts: Server-side router configuration
+ *
+ * Usage:
+ * - Add @route <route-name> to functions to create routes
+ * - Add @param <name> <type> to document route parameters
+ * - Add @resource <resource-name> to exports for lazy loading
+ *
+ * The generator automatically creates Zod schemas for route parameters based on
+ * TypeScript types, enabling runtime validation and type safety.
+ *
+ * Roadmap:
+ * 1. Type-safe router APIs - Generate strongly typed navigation functions
+ * 2. Support for useTransition during routing - React 19 concurrent features
+ * 3. HTML manual generator suitable to be read by LLMs - Auto-generated docs
+ */
+
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 import pc from 'picocolors';
