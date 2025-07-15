@@ -98,14 +98,12 @@ export class Router {
   createUrlForRoute = <R extends RouteId>(
     routeName: R,
     inputParams: z.input<RouterConf[R]['schema']>,
-  ): URL => {
+  ) => {
     const schema = ROUTER_CONF[routeName].schema;
     const params = schema.parse({
       ...this.currentRoute.params,
       ...inputParams,
     });
-
-    const url = new URL(window.location.href);
 
     let pathname = routeName as string;
     const searchParams = new URLSearchParams();
@@ -124,9 +122,7 @@ export class Router {
       }
     });
 
-    url.pathname = pathname;
-    url.search = searchParams.toString();
-    return url;
+    return pathname + '?' + searchParams.toString();
   };
 
   readonly pushRoute = <R extends RouteId>(
