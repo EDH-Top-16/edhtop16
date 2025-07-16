@@ -169,7 +169,11 @@ export class Router {
       }
     });
 
-    return pathname + '?' + searchParams.toString();
+    if (searchParams.size > 0) {
+      return pathname + '?' + searchParams.toString();
+    } else {
+      return pathname;
+    }
   };
 
   readonly pushRoute = <R extends RouteId>(
