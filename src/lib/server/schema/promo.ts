@@ -16,6 +16,45 @@ export interface FirstPartyPromo {
 
 const promos: FirstPartyPromo[] = [
   {
+    commander: `Kraum, Ludevic's Opus / Tymna the Weaver`,
+    activeFrom: new Date('2025-07-15'),
+    activeUntil: new Date('2025-07-23'),
+    title: 'Looking to up your Bling Game?',
+    description: [
+      'No-nonsense feed of rare non-english foils, alters, and signed cards for cEDH players! Updated weekly.',
+    ],
+    buttonText: 'Join Now!',
+    backgroundImageUrl: '/promos/dootlootcardbackground.webp',
+    imageUrl: '/promos/dootyloottransparent.webp',
+    href: 'https://edhtop16tnk.doot-loot.com/',
+  },
+  {
+    commander: `Rograkh, Son of Rohgahh / Silas Renn, Seeker Adept`,
+    activeFrom: new Date('2025-07-24'),
+    activeUntil: new Date('2025-07-31'),
+    title: 'Looking to up your Bling Game?',
+    description: [
+      'No-nonsense feed of rare non-english foils, alters, and signed cards for cEDH players! Updated weekly.',
+    ],
+    buttonText: 'Join Now!',
+    backgroundImageUrl: '/promos/dootlootcardbackground.webp',
+    imageUrl: '/promos/dootyloottransparent.webp',
+    href: 'https://edhtop16rogsi.doot-loot.com/',
+  },
+  {
+    commander: 'Rograkh, Son of Rohgahh / Thrasios, Triton Hero',
+    activeFrom: new Date('2025-08-01'),
+    activeUntil: new Date('2025-08-07'),
+    title: 'Looking to up your Bling Game?',
+    description: [
+      'No-nonsense feed of rare non-english foils, alters, and signed cards for cEDH players! Updated weekly.',
+    ],
+    buttonText: 'Join Now!',
+    backgroundImageUrl: '/promos/dootlootcardbackground.webp',
+    imageUrl: '/promos/dootyloottransparent.webp',
+    href: 'https://edhtop16rogthras.doot-loot.com/',
+  },
+  {
     commander: 'Rograkh, Son of Rohgahh / Thrasios, Triton Hero',
     activeFrom: new Date('2025-05-23'),
     activeUntil: new Date('2025-06-06'),
