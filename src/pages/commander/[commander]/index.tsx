@@ -9,7 +9,7 @@ import {
 import {Commander_entries$key} from '#genfiles/queries/Commander_entries.graphql';
 import {Commander_EntryCard$key} from '#genfiles/queries/Commander_EntryCard.graphql';
 import {CommanderEntriesQuery} from '#genfiles/queries/CommanderEntriesQuery.graphql';
-import {Link, useRouter} from '#genfiles/river/router';
+import {Link, useNavigation} from '#genfiles/river/router';
 import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
 import {format} from 'date-fns';
@@ -232,7 +232,7 @@ export function CommanderPageShell({
   );
 
   useCommanderMeta(commander);
-  const {replaceRoute} = useRouter();
+  const {replaceRoute} = useNavigation();
 
   return (
     <>
