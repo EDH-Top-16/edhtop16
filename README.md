@@ -4,7 +4,7 @@
   <a href="https://edhtop16.com">https://edhtop16.com</a>
 </h1>
 
-EDHTop16 is a powerful containerized application that utilizes Apollo GraphQL to provide curated data to analyze trends in competitive Elder Dragon Highlander (cEDH). The SSR front-end provides standard summaries for commanders (`/commanders`) including: conversion rate, entries, meta share, and conversion bias to inform new and experienced players about commander performance. Additionally decks and commanders can be accessed by tournament (`/tournaments`) to provide easier access to specific decks and players.
+EDHTop16 is a powerful containerized application that utilizes Apollo GraphQL to provide curated data for competitive Elder Dragon Highlander (cEDH). The SSR front-end provides standard summaries for commanders (`/commanders`) including: conversion rate, entries, meta share, and conversion bias to inform new and experienced players about commander performance. Additionally decks and commanders can be accessed by tournament (`/tournaments`) to provide easier access to specific decks and players.
 
 ## Contributing
 
@@ -18,7 +18,7 @@ development:
 
 ### Running in Development
 
-As a first step contact @rrdelaney to recieve a `edhtop16.db` file for prototyping.
+As a first step contact the development team to recieve a `edhtop16.db` file for prototyping.
 
 To run the application:
 
@@ -35,6 +35,22 @@ npm run dev
 ```
 
 *if this complains about `TOPDECK_GG_API_KEY` just export an env var with an arbitrary value*
+
+### Adding Apollo GraphQL Abstractions 
+
+1) Contruct the sqlite3 query you would like to select the data.
+2) Modify the code (`src/lib/server/schema`) for the appropriate object. The queries are built using the Kysely expression builder.
+3) Modify the code (`/src/pages`) to add your new abstractions to the site.
+4) Enure that you modify `/src/pages/index.ts` to include your new abstractions.
+
+### Rebuilding the Schema, Relay, and River to Reflect Changes
+
+```sh
+npm run generate:schem
+npm run generate:relay
+npm run generate:river
+npm run dev
+```
 
 ### Running using Docker
 
