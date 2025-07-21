@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<03fbf598441669551608d9cf3794ebcc>>
- * @relayHash 5ff9379fd35615befef7fb22ec8f0e00
+ * @generated SignedSource<<787d517f0eba3c70febae974035e35dd>>
+ * @relayHash 11342905070fcbccc8e690acfd303860
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 5ff9379fd35615befef7fb22ec8f0e00
+// @relayRequestID 11342905070fcbccc8e690acfd303860
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -242,6 +242,13 @@ return {
                         "kind": "ScalarField",
                         "name": "metaShare",
                         "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "topCutBias",
+                        "storageKey": null
                       }
                     ],
                     "storageKey": null
@@ -331,7 +338,7 @@ return {
     ]
   },
   "params": {
-    "id": "5ff9379fd35615befef7fb22ec8f0e00",
+    "id": "11342905070fcbccc8e690acfd303860",
     "metadata": {},
     "name": "TopCommandersQuery",
     "operationKind": "query",

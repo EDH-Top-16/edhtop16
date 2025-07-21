@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<685170f9fd97bad5189959f9174aa3d1>>
+ * @generated SignedSource<<ded9fcd937e01cd0f8804dd2fe756e71>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -20,6 +20,8 @@ export type Commander_CommanderBanner$data = {
     readonly conversionRate: number;
     readonly count: number;
     readonly metaShare: number;
+    readonly topCutBias: number;
+    readonly topCuts: number;
   };
   readonly " $fragmentType": "Commander_CommanderBanner";
 };
@@ -120,6 +122,20 @@ const node: ReaderFragment = {
           "kind": "ScalarField",
           "name": "count",
           "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "topCuts",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "topCutBias",
+          "storageKey": null
         }
       ],
       "storageKey": null
@@ -129,6 +145,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "77be2ab72bef33263eb6f012ee2615e4";
+(node as any).hash = "5e203ca776d6c37107567128263bd501";
 
 export default node;

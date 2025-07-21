@@ -132,6 +132,8 @@ function CommanderBanner(props: {commander: Commander_CommanderBanner$key}) {
           conversionRate
           metaShare
           count
+          topCuts
+          topCutBias
         }
       }
     `,
@@ -177,6 +179,10 @@ function CommanderBanner(props: {commander: Commander_CommanderBanner$key}) {
             &nbsp;
           </div>{' '}
           {formatPercent(commander.stats.conversionRate)} Conversion
+          <div className="mr-1 ml-2 border-l border-white/60 py-2">
+            &nbsp;
+          </div>{' '}
+          {commander.stats.topCutBias > 0 ? (commander.stats.topCuts/commander.stats.topCutBias).toFixed(1) : '0.0'} Top Cut Bias
         </div>
       </div>
     </div>

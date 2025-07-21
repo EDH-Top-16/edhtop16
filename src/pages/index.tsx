@@ -48,6 +48,7 @@ function TopCommandersCard({
           topCuts
           count
           metaShare
+          topCutBias
         }
 
         cards {

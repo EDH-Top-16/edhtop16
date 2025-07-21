@@ -340,6 +340,7 @@ interface CommanderCalculatedStats {
   topCuts: number;
   conversionRate: number;
   metaShare: number;
+  topCutBias: number;
 }
 
 const CommanderStats = builder
@@ -348,6 +349,7 @@ const CommanderStats = builder
     fields: (t) => ({
       count: t.exposeInt('count'),
       topCuts: t.exposeInt('topCuts'),
+      topCutBias: t.exposeFloat('topCutBias'),
       conversionRate: t.exposeFloat('conversionRate'),
       metaShare: t.exposeFloat('metaShare'),
     }),
@@ -387,6 +389,16 @@ builder.objectField(Commander, 'stats', (t) =>
             'Commander.name',
             'Commander.colorId',
             (eb) => eb.fn.count<number>('Commander.id').as('count'),
+            (eb) =>
+              eb.fn
+                .sum<number>(
+                  eb(
+                    eb.cast(eb.ref('Tournament.topCut'), 'real'),
+                    '/',
+                    eb.cast(eb.ref('Tournament.size'), 'real'),
+                  ),
+                )
+                .as('topCutBias'),
             (eb) =>
               eb.fn
                 .sum<number>(
@@ -437,6 +449,7 @@ builder.objectField(Commander, 'stats', (t) =>
         (id) =>
           statsByCommanderId.get(id) ?? {
             topCuts: 0,
+            topCutBias: 0,
             conversionRate: 0,
             count: 0,
             metaShare: 0,
