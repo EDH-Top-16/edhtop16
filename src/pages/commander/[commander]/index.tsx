@@ -210,7 +210,7 @@ export function CommanderPageShell({
 }: PropsWithChildren<{
   disableNavigation?: boolean;
   maxStanding?: number | null;
-  minEventSize: number;
+  minEventSize?: number | null;
   sortBy: EntriesSortBy;
   timePeriod: TimePeriod;
   commander: Commander_CommanderPageShell$key;
@@ -275,25 +275,103 @@ export function CommanderPageShell({
           <option value="POST_BAN">Post Ban</option>
         </Select>
 
-        <Select
-          id="commander-event-size"
-          label="Event Size"
-          value={`${minEventSize}`}
-          onChange={(e) => {
-            replaceRoute('/commander/:commander', {
-              commander: commander.name,
-              minEventSize: Number(e),
-            });
-          }}
-        >
-          <option value="0">All Events</option>
-          <option value="32">32+ Players</option>
-          <option value="60">60+ Players</option>
-          <option value="100">100+ Players</option>
-        </Select>
+        <div className="relative flex flex-col">
+          <label htmlFor="commander-event-size" className="text-sm font-medium mb-1 text-white">
+            Event Size
+          </label>
+          <div className="relative">
+            <input
+              id="commander-event-size"
+              type="number"
+              min="0"
+              value={minEventSize || ''}
+              onChange={(e) => {
+                const inputValue = e.target.value;
+                
+                if (inputValue === '') {
+                  replaceRoute('/commander/:commander', {
+                    commander: commander.name,
+                    minEventSize: null,
+                  });
+                } else {
+                  const value = parseInt(inputValue, 10);
+                  if (!isNaN(value) && value >= 0) {
+                    replaceRoute('/commander/:commander', {
+                      commander: commander.name,
+                      minEventSize: value,
+                    });
+                  }
+                }
+              }}
+              onFocus={(e) => {
+                const dropdown = e.target.parentElement?.querySelector('.event-size-dropdown');
+                if (dropdown) {
+                  dropdown.classList.remove('hidden');
+                }
+              }}
+              onBlur={(e) => {
+                // Delay hiding to allow clicking on dropdown options
+                setTimeout(() => {
+                  const dropdown = e.target.parentElement?.querySelector('.event-size-dropdown');
+                  if (dropdown) {
+                    dropdown.classList.add('hidden');
+                  }
+                }, 150);
+              }}
+              className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"
+              placeholder="Minimum players (0 for all)"
+            />
+            <div className="event-size-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
+              <div
+                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                onMouseDown={() => {
+                  replaceRoute('/commander/:commander', {
+                    commander: commander.name,
+                    minEventSize: 0,
+                  });
+                }}
+              >
+                0 - All Events
+              </div>
+              <div
+                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                onMouseDown={() => {
+                  replaceRoute('/commander/:commander', {
+                    commander: commander.name,
+                    minEventSize: 32,
+                  });
+                }}
+              >
+                32 - Medium Events
+              </div>
+              <div
+                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                onMouseDown={() => {
+                  replaceRoute('/commander/:commander', {
+                    commander: commander.name,
+                    minEventSize: 60,
+                  });
+                }}
+              >
+                60 - Large Events
+              </div>
+              <div
+                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer"
+                onMouseDown={() => {
+                  replaceRoute('/commander/:commander', {
+                    commander: commander.name,
+                    minEventSize: 100,
+                  });
+                }}
+              >
+                100 - Major Events
+              </div>
+            </div>
+          </div>
+        </div>
 
         <Select
-          id="commander-event-size"
+          id="commander-max-standing"
           label="Standing"
           value={`${maxStanding}`}
           onChange={(e) => {
@@ -324,7 +402,7 @@ export const CommanderPage: EntryPointComponent<
       query Commander_CommanderQuery(
         $commander: String!
         $sortBy: EntriesSortBy!
-        $minEventSize: Int!
+        $minEventSize: Int
         $maxStanding: Int
         $timePeriod: TimePeriod!
       ) @preloadable {

@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<3f7b88fe077e2112112193690958a9ad>>
- * @relayHash c27c0cba9db03edad5bfb37497e5960c
+ * @generated SignedSource<<26b94ae2f9f2a615fe563acda5d5f011>>
+ * @relayHash 4386fd077f564d4980122096f595d5c6
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID c27c0cba9db03edad5bfb37497e5960c
+// @relayRequestID 4386fd077f564d4980122096f595d5c6
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -18,7 +18,7 @@ export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "S
 export type Commander_CommanderQuery$variables = {
   commander: string;
   maxStanding?: number | null | undefined;
-  minEventSize: number;
+  minEventSize?: number | null | undefined;
   sortBy: EntriesSortBy;
   timePeriod: TimePeriod;
 };
@@ -484,7 +484,7 @@ return {
     ]
   },
   "params": {
-    "id": "c27c0cba9db03edad5bfb37497e5960c",
+    "id": "4386fd077f564d4980122096f595d5c6",
     "metadata": {},
     "name": "Commander_CommanderQuery",
     "operationKind": "query",
@@ -493,7 +493,7 @@ return {
 };
 })();
 
-(node as any).hash = "9d0a57bb7408f4160b8eb2b11afdc110";
+(node as any).hash = "1c8dc10b97acee5166a8f1fa420adf66";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

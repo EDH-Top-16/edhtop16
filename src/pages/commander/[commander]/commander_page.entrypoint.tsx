@@ -26,7 +26,7 @@ export const entrypoint: EntryPoint<
       sortBy = 'TOP',
       timePeriod = 'ONE_YEAR',
       maxStanding,
-      minEventSize = 60,
+      minEventSize,
     } = schema.parse(params);
 
     return {

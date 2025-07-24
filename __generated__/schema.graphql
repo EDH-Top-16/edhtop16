@@ -217,6 +217,7 @@ type Query {
   nodes(ids: [ID!]!): [Node]!
   player(profile: String!): Player!
   searchResults(types: [SearchResultType!]): [SearchResult!]!
+  staples: [Card!]!
   tournament(TID: String!): Tournament!
   tournaments(
     after: String
