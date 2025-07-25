@@ -13,7 +13,7 @@ import {Link, useRouter} from '#genfiles/river/router';
 import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
 import {format} from 'date-fns';
-import {PropsWithChildren} from 'react';
+import {PropsWithChildren, useState, useEffect, useCallback} from 'react';
 import {
   EntryPointComponent,
   useFragment,
@@ -29,6 +29,14 @@ import {Navigation} from '../../../components/navigation';
 import {FirstPartyPromo} from '../../../components/promo';
 import {Select} from '../../../components/select';
 import {formatOrdinals, formatPercent} from '../../../lib/client/format';
+
+function debounce<T extends (...args: any[]) => any>(func: T, delay: number): T {
+  let timeoutId: NodeJS.Timeout;
+  return ((...args: any[]) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  }) as T;
+}
 
 function EntryCard(props: {entry: Commander_EntryCard$key}) {
   const entry = useFragment(
@@ -138,6 +146,8 @@ function CommanderBanner(props: {commander: Commander_CommanderBanner$key}) {
     props.commander,
   );
 
+  
+
   return (
     <div className="h-64 w-full bg-black/60 md:h-80">
       <div className="relative mx-auto flex h-full w-full max-w-(--breakpoint-xl) flex-col items-center justify-center">
@@ -231,8 +241,63 @@ export function CommanderPageShell({
     props.commander,
   );
 
-  useCommanderMeta(commander);
+useCommanderMeta(commander);
   const {replaceRoute} = useRouter();
+
+  // Add local state for both input values
+  const [localEventSize, setLocalEventSize] = useState(minEventSize?.toString() || '');
+  const [localMaxStanding, setLocalMaxStanding] = useState(maxStanding?.toString() || '');
+
+  // Update local state when props change
+  useEffect(() => {
+    setLocalEventSize(minEventSize?.toString() || '');
+  }, [minEventSize]);
+
+  useEffect(() => {
+    setLocalMaxStanding(maxStanding?.toString() || '');
+  }, [maxStanding]);
+
+  // Create debounced route update function for event size
+  const debouncedEventSizeUpdate = useCallback(
+    debounce((value: string) => {
+      if (value === '') {
+        replaceRoute('/commander/:commander', {
+          commander: commander.name,
+          minEventSize: null,
+        });
+      } else {
+        const numValue = parseInt(value, 10);
+        if (!isNaN(numValue) && numValue >= 0) {
+          replaceRoute('/commander/:commander', {
+            commander: commander.name,
+            minEventSize: numValue,
+          });
+        }
+      }
+    }, 300),
+    [commander.name, replaceRoute]
+  );
+
+  // Create debounced route update function for max standing
+  const debouncedMaxStandingUpdate = useCallback(
+    debounce((value: string) => {
+      if (value === '') {
+        replaceRoute('/commander/:commander', {
+          commander: commander.name,
+          maxStanding: null,
+        });
+      } else {
+        const numValue = parseInt(value, 10);
+        if (!isNaN(numValue) && numValue >= 1) {
+          replaceRoute('/commander/:commander', {
+            commander: commander.name,
+            maxStanding: numValue,
+          });
+        }
+      }
+    }, 300),
+    [commander.name, replaceRoute]
+  );
 
   return (
     <>
@@ -265,7 +330,7 @@ export function CommanderPageShell({
                   if (dropdown) {
                     dropdown.classList.add('hidden');
                   }
-                }, 75);
+                }, 10);
               }}
               className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
             />
@@ -308,22 +373,19 @@ export function CommanderPageShell({
               id="commander-event-size"
               type="number"
               min="0"
-              value={minEventSize || ''}
+              value={localEventSize || ''}
               onChange={(e) => {
-                const inputValue = e.target.value;
-                
-                if (inputValue === '') {
-                  replaceRoute('/commander/:commander', {
-                    commander: commander.name,
-                    minEventSize: null,
-                  });
-                } else {
-                  const value = parseInt(inputValue, 10);
-                  if (!isNaN(value) && value >= 0) {
-                    replaceRoute('/commander/:commander', {
-                      commander: commander.name,
-                      minEventSize: value,
-                    });
+                // Update local state immediately for responsive UI
+                setLocalEventSize(e.target.value);
+                // Debounce the route update
+                debouncedEventSizeUpdate(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === 'Go') {
+                  (e.target as HTMLInputElement).blur();
+                  const dropdown = (e.target as HTMLElement).parentElement?.querySelector('.event-size-dropdown');
+                  if (dropdown) {
+                    dropdown.classList.add('hidden');
                   }
                 }
               }}
@@ -340,7 +402,7 @@ export function CommanderPageShell({
                   if (dropdown) {
                     dropdown.classList.add('hidden');
                   }
-                }, 75);
+                }, 10);
               }}
               className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
               placeholder="Minimum players (0 for all)"
@@ -349,6 +411,7 @@ export function CommanderPageShell({
               <div
                 className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                 onMouseDown={() => {
+                  setLocalEventSize('');
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
                     minEventSize: 0,
@@ -360,6 +423,7 @@ export function CommanderPageShell({
               <div
                 className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                 onMouseDown={() => {
+                  setLocalEventSize('32');
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
                     minEventSize: 32,
@@ -371,6 +435,7 @@ export function CommanderPageShell({
               <div
                 className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                 onMouseDown={() => {
+                  setLocalEventSize('60');
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
                     minEventSize: 60,
@@ -382,6 +447,7 @@ export function CommanderPageShell({
               <div
                 className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer"
                 onMouseDown={() => {
+                  setLocalEventSize('100');
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
                     minEventSize: 100,
@@ -404,22 +470,19 @@ export function CommanderPageShell({
               id="commander-max-standing"
               type="number"
               min="1"
-              value={maxStanding || ''}
+              value={localMaxStanding || ''}
               onChange={(e) => {
-                const inputValue = e.target.value;
-                
-                if (inputValue === '') {
-                  replaceRoute('/commander/:commander', {
-                    commander: commander.name,
-                    maxStanding: null,
-                  });
-                } else {
-                  const value = parseInt(inputValue, 10);
-                  if (!isNaN(value) && value >= 1) {
-                    replaceRoute('/commander/:commander', {
-                      commander: commander.name,
-                      maxStanding: value,
-                    });
+                // Update local state immediately for responsive UI
+                setLocalMaxStanding(e.target.value);
+                // Debounce the route update
+                debouncedMaxStandingUpdate(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === 'Go') {
+                  (e.target as HTMLInputElement).blur();
+                  const dropdown = (e.target as HTMLElement).parentElement?.querySelector('.max-standing-dropdown');
+                  if (dropdown) {
+                    dropdown.classList.add('hidden');
                   }
                 }
               }}
@@ -436,7 +499,7 @@ export function CommanderPageShell({
                   if (dropdown) {
                     dropdown.classList.add('hidden');
                   }
-                }, 75);
+                }, 10);
               }}
               className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
               placeholder="Standing Cutoff"
@@ -445,6 +508,7 @@ export function CommanderPageShell({
               <div
                 className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                 onMouseDown={() => {
+                  setLocalMaxStanding('');
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
                     maxStanding: null,
@@ -456,6 +520,7 @@ export function CommanderPageShell({
               <div
                 className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                 onMouseDown={() => {
+                  setLocalMaxStanding('1');
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
                     maxStanding: 1,
@@ -467,6 +532,7 @@ export function CommanderPageShell({
               <div
                 className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                 onMouseDown={() => {
+                  setLocalMaxStanding('4');
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
                     maxStanding: 4,
@@ -478,6 +544,7 @@ export function CommanderPageShell({
               <div
                 className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer"
                 onMouseDown={() => {
+                  setLocalMaxStanding('16');
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
                     maxStanding: 16,
