@@ -6,12 +6,12 @@ import {
 import {pages_topCommanders$key} from '#genfiles/queries/pages_topCommanders.graphql';
 import {pages_TopCommandersCard$key} from '#genfiles/queries/pages_TopCommandersCard.graphql';
 import {TopCommandersQuery} from '#genfiles/queries/TopCommandersQuery.graphql';
-import {Link, useRouter} from '#genfiles/river/router';
+import {Link, useNavigation, useRouteParams} from '#genfiles/river/router';
 import RectangleStackIcon from '@heroicons/react/24/solid/RectangleStackIcon';
 import TableCellsIcon from '@heroicons/react/24/solid/TableCellsIcon';
 import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
-import {PropsWithChildren, startTransition, useCallback, useMemo} from 'react';
+import {PropsWithChildren, useCallback, useMemo} from 'react';
 import {
   EntryPointComponent,
   graphql,
@@ -149,7 +149,7 @@ function CommandersPageShell({
     description: 'Discover top performing commanders in cEDH!',
   });
 
-  const {replaceRoute} = useRouter();
+  const {replaceRoute} = useNavigation();
   const [display, toggleDisplay] = useCommandersDisplay();
 
   return (
@@ -533,8 +533,8 @@ function CommandersPageShell({
 }
 
 function useCommandersDisplay() {
-  const {asRoute, replaceRoute} = useRouter();
-  const {display} = asRoute('/');
+  const {display} = useRouteParams('/');
+  const {replaceRoute} = useNavigation();
 
   const toggleDisplay = useCallback(() => {
     replaceRoute('/', {display: display === 'table' ? 'card' : 'table'});
