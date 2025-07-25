@@ -1,4 +1,5 @@
-import {ServerRouter} from '#genfiles/river/server_router';
+import {listRoutes} from '#genfiles/river/router';
+import {createRiverServerApp} from '#genfiles/river/server_router';
 import {usePersistedOperations} from '@graphql-yoga/plugin-persisted-operations';
 import {
   createHead,
@@ -37,8 +38,10 @@ export function createHandler(
   const entryPointHandler: express.Handler = async (req, res) => {
     const head = createHead();
     const env = createServerEnvironment(schema, persistedQueries);
-    const router = new ServerRouter(req.originalUrl);
-    const RiverApp = await router.createApp({getEnvironment: () => env});
+    const RiverApp = await createRiverServerApp(
+      {getEnvironment: () => env},
+      req.originalUrl,
+    );
 
     function evaluateRiverDirective(match: string, directive: string) {
       switch (directive) {
@@ -71,7 +74,7 @@ export function createHandler(
 
   const r = express.Router();
   r.use('/api/graphql', graphqlHandler);
-  for (const route of ServerRouter.routes) {
+  for (const route of listRoutes()) {
     r.get(route, entryPointHandler);
   }
 
