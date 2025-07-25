@@ -240,40 +240,62 @@ export function CommanderPageShell({
       <CommanderBanner commander={commander} />
       {commander.promo && <FirstPartyPromo promo={commander.promo} />}
 
-      <div className="mx-auto grid max-w-(--breakpoint-md) grid-cols-2 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
-        <Select
-          id="commander-sort-by"
-          label="Sort By"
-          value={sortBy}
-          onChange={(e) => {
-            replaceRoute('/commander/:commander', {
-              commander: commander.name,
-              sortBy: e,
-            });
-          }}
-        >
-          <option value="TOP">Top Performing</option>
-          <option value="NEW">Recent</option>
-        </Select>
+      <div className="mx-auto grid max-w-(--breakpoint-md) grid-cols-1 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center sm:gap-4">
+        <div className="relative flex flex-col">
+          <label htmlFor="commander-sort-by" className="text-sm font-medium mb-1 text-white">
+            Sort By
+          </label>
+          <div className="relative">
+            <input
+              id="commander-sort-by"
+              type="text"
+              value={sortBy === 'TOP' ? 'Top Performing' : 'Recent'}
+              readOnly
+              onFocus={(e) => {
+                const dropdown = e.target.parentElement?.querySelector('.sort-by-dropdown');
+                if (dropdown) {
+                  dropdown.classList.remove('hidden');
+                }
+              }}
+              onBlur={(e) => {
+                // Delay hiding to allow clicking on dropdown options
+                setTimeout(() => {
+                  const dropdown = e.target.parentElement?.querySelector('.sort-by-dropdown');
+                  if (dropdown) {
+                    dropdown.classList.add('hidden');
+                  }
+                }, 150);
+              }}
+              className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
+            />
+            <div className="sort-by-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
+              <div
+                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                onMouseDown={() => {
+                  replaceRoute('/commander/:commander', {
+                    commander: commander.name,
+                    sortBy: 'TOP' as EntriesSortBy,
+                  });
+                }}
+              >
+                Top Performing
+              </div>
+              <div
+                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer"
+                onMouseDown={() => {
+                  replaceRoute('/commander/:commander', {
+                    commander: commander.name,
+                    sortBy: 'NEW' as EntriesSortBy,
+                  });
+                }}
+              >
+                Recent
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <Select
-          id="commanders-time-period"
-          label="Time Period"
-          value={timePeriod}
-          onChange={(e) => {
-            replaceRoute('/commander/:commander', {
-              commander: commander.name,
-              timePeriod: e,
-            });
-          }}
-        >
-          <option value="ONE_MONTH">1 Month</option>
-          <option value="THREE_MONTHS">3 Months</option>
-          <option value="SIX_MONTHS">6 Months</option>
-          <option value="ONE_YEAR">1 Year</option>
-          <option value="ALL_TIME">All Time</option>
-          <option value="POST_BAN">Post Ban</option>
-        </Select>
+       
 
         <div className="relative flex flex-col">
           <label htmlFor="commander-event-size" className="text-sm font-medium mb-1 text-white">
@@ -318,7 +340,7 @@ export function CommanderPageShell({
                   }
                 }, 150);
               }}
-              className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"
+              className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
               placeholder="Minimum players (0 for all)"
             />
             <div className="event-size-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
@@ -331,7 +353,7 @@ export function CommanderPageShell({
                   });
                 }}
               >
-                0 - All Events
+                All Events
               </div>
               <div
                 className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
@@ -342,7 +364,7 @@ export function CommanderPageShell({
                   });
                 }}
               >
-                32 - Medium Events
+                32+ - Medium Events
               </div>
               <div
                 className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
@@ -353,7 +375,7 @@ export function CommanderPageShell({
                   });
                 }}
               >
-                60 - Large Events
+                60+ - Large Events
               </div>
               <div
                 className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer"
@@ -364,28 +386,106 @@ export function CommanderPageShell({
                   });
                 }}
               >
-                100 - Major Events
+                100+ - Major Events
               </div>
             </div>
           </div>
         </div>
 
-        <Select
-          id="commander-max-standing"
-          label="Standing"
-          value={`${maxStanding}`}
-          onChange={(e) => {
-            replaceRoute('/commander/:commander', {
-              commander: commander.name,
-              maxStanding: Number(e),
-            });
-          }}
-        >
-          <option value="">All Players</option>
-          <option value="16">Top 16</option>
-          <option value="4">Top 4</option>
-          <option value="1">Winner</option>
-        </Select>
+        <div className="relative flex flex-col">
+          <label htmlFor="commander-max-standing" className="text-sm font-medium mb-1 text-white">
+            Standing Cutoff
+          </label>
+          <div className="relative">
+            <input
+              id="commander-max-standing"
+              type="number"
+              min="1"
+              value={maxStanding || ''}
+              onChange={(e) => {
+                const inputValue = e.target.value;
+                
+                if (inputValue === '') {
+                  replaceRoute('/commander/:commander', {
+                    commander: commander.name,
+                    maxStanding: null,
+                  });
+                } else {
+                  const value = parseInt(inputValue, 10);
+                  if (!isNaN(value) && value >= 1) {
+                    replaceRoute('/commander/:commander', {
+                      commander: commander.name,
+                      maxStanding: value,
+                    });
+                  }
+                }
+              }}
+              onFocus={(e) => {
+                const dropdown = e.target.parentElement?.querySelector('.max-standing-dropdown');
+                if (dropdown) {
+                  dropdown.classList.remove('hidden');
+                }
+              }}
+              onBlur={(e) => {
+                // Delay hiding to allow clicking on dropdown options
+                setTimeout(() => {
+                  const dropdown = e.target.parentElement?.querySelector('.max-standing-dropdown');
+                  if (dropdown) {
+                    dropdown.classList.add('hidden');
+                  }
+                }, 150);
+              }}
+              className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
+              placeholder="Standing Cutoff"
+            />
+            <div className="max-standing-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
+              <div
+                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                onMouseDown={() => {
+                  replaceRoute('/commander/:commander', {
+                    commander: commander.name,
+                    maxStanding: null,
+                  });
+                }}
+              >
+                All Players
+              </div>
+              <div
+                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                onMouseDown={() => {
+                  replaceRoute('/commander/:commander', {
+                    commander: commander.name,
+                    maxStanding: 1,
+                  });
+                }}
+              >
+                Tournament Winners
+              </div>
+              <div
+                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                onMouseDown={() => {
+                  replaceRoute('/commander/:commander', {
+                    commander: commander.name,
+                    maxStanding: 4,
+                  });
+                }}
+              >
+                4 - Top 4
+              </div>
+              <div
+                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer"
+                onMouseDown={() => {
+                  replaceRoute('/commander/:commander', {
+                    commander: commander.name,
+                    maxStanding: 16,
+                  });
+                }}
+              >
+                16 - Top 16
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       {children}
     </>

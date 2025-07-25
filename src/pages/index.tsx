@@ -139,7 +139,7 @@ function CommandersPageShell({
   children,
 }: PropsWithChildren<{
   colorId: string;
-  minEntries: number;
+  minEntries?: number | null;
   minTournamentSize: number;
   sortBy: CommandersSortBy;
   timePeriod: TimePeriod;
@@ -182,62 +182,347 @@ function CommandersPageShell({
           </div>
 
           <div className="flex flex-wrap gap-x-4 gap-y-2 lg:flex-nowrap">
-            <Select
-              id="commanders-sort-by"
-              label="Sort By"
-              value={sortBy}
-              onChange={(value) => {
-                replaceRoute('/', {sortBy: value});
-              }}
-            >
-              <option value="CONVERSION">Conversion Rate</option>
-              <option value="POPULARITY">Popularity</option>
-              <option value="TOP_CUTS">Top Cuts</option>
-            </Select>
+            <div className="relative flex flex-col">
+              <label htmlFor="commanders-sort-by" className="text-sm font-medium mb-1 text-white">
+                Sort By
+              </label>
+              <div className="relative">
+                <input
+                  id="commanders-sort-by"
+                  type="text"
+                  value={sortBy === 'POPULARITY' ? 'Most Popular' : 'Top Performing'}
+                  readOnly
+                  onFocus={(e) => {
+                    const dropdown = e.target.parentElement?.querySelector('.sort-by-dropdown');
+                    if (dropdown) {
+                      dropdown.classList.remove('hidden');
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Delay hiding to allow clicking on dropdown options
+                    setTimeout(() => {
+                      const dropdown = e.target.parentElement?.querySelector('.sort-by-dropdown');
+                      if (dropdown) {
+                        dropdown.classList.add('hidden');
+                      }
+                    }, 150);
+                  }}
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
+                />
+                <div className="sort-by-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        sortBy: 'CONVERSION' as CommandersSortBy,
+                      });
+                    }}
+                  >
+                    Top Performing
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        sortBy: 'POPULARITY' as CommandersSortBy,
+                      });
+                    }}
+                  >
+                    Most Popular
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            <Select
-              id="commanders-time-period"
-              label="Time Period"
-              value={timePeriod}
-              onChange={(value) => {
-                replaceRoute('/', {timePeriod: value});
-              }}
-            >
-              <option value="ONE_MONTH">1 Month</option>
-              <option value="THREE_MONTHS">3 Months</option>
-              <option value="SIX_MONTHS">6 Months</option>
-              <option value="ONE_YEAR">1 Year</option>
-              <option value="ALL_TIME">All Time</option>
-              <option value="POST_BAN">Post Ban</option>
-            </Select>
+            <div className="relative flex flex-col">
+              <label htmlFor="commanders-time-period" className="text-sm font-medium mb-1 text-white">
+                Time Period
+              </label>
+              <div className="relative">
+                <input
+                  id="commanders-time-period"
+                  type="text"
+                  value={timePeriod === 'ONE_MONTH' ? '1 Month' : timePeriod === 'THREE_MONTHS' ? '3 Months' : timePeriod === 'SIX_MONTHS' ? '6 Months' : timePeriod === 'ONE_YEAR' ? '1 Year' : timePeriod === 'ALL_TIME' ? 'All Time' : 'Post Ban'}
+                  readOnly
+                  onFocus={(e) => {
+                    const dropdown = e.target.parentElement?.querySelector('.time-period-dropdown');
+                    if (dropdown) {
+                      dropdown.classList.remove('hidden');
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Delay hiding to allow clicking on dropdown options
+                    setTimeout(() => {
+                      const dropdown = e.target.parentElement?.querySelector('.time-period-dropdown');
+                      if (dropdown) {
+                        dropdown.classList.add('hidden');
+                      }
+                    }, 150);
+                  }}
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
+                />
+                <div className="time-period-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        timePeriod: 'ONE_MONTH',
+                      });
+                    }}
+                  >
+                    1 Month
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        timePeriod: 'THREE_MONTHS',
+                      });
+                    }}
+                  >
+                    3 Months
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        timePeriod: 'SIX_MONTHS',
+                      });
+                    }}
+                  >
+                    6 Months
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        timePeriod: 'ONE_YEAR',
+                      });
+                    }}
+                  >
+                    1 Year
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        timePeriod: 'ALL_TIME',
+                      });
+                    }}
+                  >
+                    All Time
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        timePeriod: 'POST_BAN',
+                      });
+                    }}
+                  >
+                    Post Ban
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            <Select
-              id="commanders-min-entries"
-              label="Min. Entries"
-              value={`${minEntries}`}
-              onChange={(value) => {
-                replaceRoute('/', {minEntries: Number(value)});
-              }}
-            >
-              <option value="0">All Commanders</option>
-              <option value="20">20+ Entries</option>
-              <option value="60">60+ Entries</option>
-              <option value="120">120+ Entries</option>
-            </Select>
+            <div className="relative flex flex-col">
+              <label htmlFor="commanders-min-entries" className="text-sm font-medium mb-1 text-white">
+                Commander Entries
+              </label>
+              <div className="relative">
+                <input
+                  id="commanders-min-entries"
+                  type="number"
+                  min="1"
+                  value={minEntries || ''}
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    
+                    if (inputValue === '') {
+                      replaceRoute('/', {
+                        minEntries: null,
+                      });
+                    } else {
+                      const value = parseInt(inputValue, 10);
+                      if (!isNaN(value) && value >= 1) {
+                        replaceRoute('/', {
+                          minEntries: value,
+                        });
+                      }
+                    }
+                  }}
+                  onFocus={(e) => {
+                    const dropdown = e.target.parentElement?.querySelector('.min-entries-dropdown');
+                    if (dropdown) {
+                      dropdown.classList.remove('hidden');
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Delay hiding to allow clicking on dropdown options
+                    setTimeout(() => {
+                      const dropdown = e.target.parentElement?.querySelector('.min-entries-dropdown');
+                      if (dropdown) {
+                        dropdown.classList.add('hidden');
+                      }
+                    }, 150);
+                  }}
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
+                  placeholder="Commander Entries"
+                />
+                <div className="min-entries-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        minEntries: null,
+                      });
+                    }}
+                  >
+                    All Entries
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        minEntries: 20,
+                      });
+                    }}
+                  >
+                    20+ Entries
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        minEntries: 40,
+                      });
+                    }}
+                  >
+                    40+ Entries
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        minEntries: 60,
+                      });
+                    }}
+                  >
+                    60+ Entries
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        minEntries: 100,
+                      });
+                    }}
+                  >
+                    100+ Entries
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            <Select
-              id="commanders-min-size"
-              label="Tournament Size"
-              value={`${minTournamentSize}`}
-              onChange={(value) => {
-                replaceRoute('/', {minSize: Number(value)});
-              }}
-            >
-              <option value="0">All Tournaments</option>
-              <option value="32">32+ Players</option>
-              <option value="60">60+ Players</option>
-              <option value="100">100+ Players</option>
-            </Select>
+            <div className="relative flex flex-col">
+              <label htmlFor="commanders-event-size" className="text-sm font-medium mb-1 text-white">
+                Event Size
+              </label>
+              <div className="relative">
+                <input
+                  id="commanders-event-size"
+                  type="number"
+                  min="1"
+                  value={minTournamentSize || ''}
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    
+                    if (inputValue === '') {
+                      replaceRoute('/', {
+                        minSize: null,
+                      });
+                    } else {
+                      const value = parseInt(inputValue, 10);
+                      if (!isNaN(value) && value >= 1) {
+                        replaceRoute('/', {
+                          minSize: value,
+                        });
+                      }
+                    }
+                  }}
+                  onFocus={(e) => {
+                    const dropdown = e.target.parentElement?.querySelector('.event-size-dropdown');
+                    if (dropdown) {
+                      dropdown.classList.remove('hidden');
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Delay hiding to allow clicking on dropdown options
+                    setTimeout(() => {
+                      const dropdown = e.target.parentElement?.querySelector('.event-size-dropdown');
+                      if (dropdown) {
+                        dropdown.classList.add('hidden');
+                      }
+                    }, 150);
+                  }}
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
+                  placeholder="Event Size"
+                />
+                <div className="event-size-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        minSize: null,
+                      });
+                    }}
+                  >
+                    All Tournaments
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        minSize: 20,
+                      });
+                    }}
+                  >
+                    20+ Players
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        minSize: 40,
+                      });
+                    }}
+                  >
+                    40+ Players
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        minSize: 60,
+                      });
+                    }}
+                  >
+                    60+ Players
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        minSize: 120,
+                      });
+                    }}
+                  >
+                    120+ Players
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -270,7 +555,7 @@ export const CommandersPage: EntryPointComponent<
       query pages_CommandersQuery(
         $timePeriod: TimePeriod!
         $sortBy: CommandersSortBy!
-        $minEntries: Int!
+        $minEntries: Int
         $minTournamentSize: Int!
         $colorId: String
       ) @preloadable {

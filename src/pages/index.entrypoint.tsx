@@ -25,8 +25,8 @@ export const entrypoint: EntryPoint<
     const {
       sortBy = 'POPULARITY',
       timePeriod = 'SIX_MONTHS',
-      minEntries = 20,
-      minSize: minTournamentSize = 60,
+      minEntries,
+      minSize: minTournamentSize = 0,
       colorId,
     } = schema.parse(params);
 
