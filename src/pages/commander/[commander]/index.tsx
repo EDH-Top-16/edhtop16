@@ -240,13 +240,14 @@ export function CommanderPageShell({
       <CommanderBanner commander={commander} />
       {commander.promo && <FirstPartyPromo promo={commander.promo} />}
 
-      <div className="mx-auto grid max-w-(--breakpoint-md) grid-cols-1 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center sm:gap-4">
+      <div className="mx-auto flex flex-wrap justify-center gap-x-4 gap-y-4 lg:flex-nowrap">
         <div className="relative flex flex-col">
-          <label htmlFor="commander-sort-by" className="text-sm font-medium mb-1 text-white">
+          <label htmlFor="commander-sort-by" className="text-center text-sm font-medium mb-1 text-white">
             Sort By
           </label>
           <div className="relative">
             <input
+              style={{ textAlign: 'center' }}
               id="commander-sort-by"
               type="text"
               value={sortBy === 'TOP' ? 'Top Performing' : 'Recent'}
@@ -264,13 +265,13 @@ export function CommanderPageShell({
                   if (dropdown) {
                     dropdown.classList.add('hidden');
                   }
-                }, 150);
+                }, 75);
               }}
               className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
             />
             <div className="sort-by-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
               <div
-                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                 onMouseDown={() => {
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
@@ -281,7 +282,7 @@ export function CommanderPageShell({
                 Top Performing
               </div>
               <div
-                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer"
+                className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                 onMouseDown={() => {
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
@@ -298,11 +299,12 @@ export function CommanderPageShell({
        
 
         <div className="relative flex flex-col">
-          <label htmlFor="commander-event-size" className="text-sm font-medium mb-1 text-white">
+          <label htmlFor="commander-event-size" className="text-center text-sm font-medium mb-1 text-white">
             Event Size
           </label>
           <div className="relative">
             <input
+              style={{ textAlign: 'center' }}
               id="commander-event-size"
               type="number"
               min="0"
@@ -338,14 +340,14 @@ export function CommanderPageShell({
                   if (dropdown) {
                     dropdown.classList.add('hidden');
                   }
-                }, 150);
+                }, 75);
               }}
-              className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
+              className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
               placeholder="Minimum players (0 for all)"
             />
             <div className="event-size-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
               <div
-                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                 onMouseDown={() => {
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
@@ -356,7 +358,7 @@ export function CommanderPageShell({
                 All Events
               </div>
               <div
-                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                 onMouseDown={() => {
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
@@ -367,7 +369,7 @@ export function CommanderPageShell({
                 32+ - Medium Events
               </div>
               <div
-                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                 onMouseDown={() => {
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
@@ -378,7 +380,7 @@ export function CommanderPageShell({
                 60+ - Large Events
               </div>
               <div
-                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer"
+                className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer"
                 onMouseDown={() => {
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
@@ -393,11 +395,12 @@ export function CommanderPageShell({
         </div>
 
         <div className="relative flex flex-col">
-          <label htmlFor="commander-max-standing" className="text-sm font-medium mb-1 text-white">
+          <label htmlFor="commander-max-standing" className="text-sm text-center font-medium mb-1 text-white">
             Standing Cutoff
           </label>
           <div className="relative">
             <input
+              style={{ textAlign: 'center' }}
               id="commander-max-standing"
               type="number"
               min="1"
@@ -433,14 +436,14 @@ export function CommanderPageShell({
                   if (dropdown) {
                     dropdown.classList.add('hidden');
                   }
-                }, 150);
+                }, 75);
               }}
-              className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
+              className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
               placeholder="Standing Cutoff"
             />
             <div className="max-standing-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
               <div
-                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                 onMouseDown={() => {
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
@@ -451,7 +454,7 @@ export function CommanderPageShell({
                 All Players
               </div>
               <div
-                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                 onMouseDown={() => {
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
@@ -462,7 +465,7 @@ export function CommanderPageShell({
                 Tournament Winners
               </div>
               <div
-                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                 onMouseDown={() => {
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
@@ -470,10 +473,10 @@ export function CommanderPageShell({
                   });
                 }}
               >
-                4 - Top 4
+                Top 4
               </div>
               <div
-                className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer"
+                className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer"
                 onMouseDown={() => {
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
@@ -481,7 +484,7 @@ export function CommanderPageShell({
                   });
                 }}
               >
-                16 - Top 16
+                Top 16
               </div>
             </div>
           </div>
