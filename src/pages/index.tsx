@@ -11,7 +11,7 @@ import RectangleStackIcon from '@heroicons/react/24/solid/RectangleStackIcon';
 import TableCellsIcon from '@heroicons/react/24/solid/TableCellsIcon';
 import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
-import {PropsWithChildren, useCallback, useMemo} from 'react';
+import {PropsWithChildren, useCallback, useMemo, useState, useEffect} from 'react';
 import {
   EntryPointComponent,
   graphql,
@@ -27,6 +27,15 @@ import {LoadMoreButton} from '../components/load_more';
 import {Navigation} from '../components/navigation';
 import {Select} from '../components/select';
 import {formatPercent} from '../lib/client/format';
+
+// Add debounce function
+function debounce<T extends (...args: any[]) => any>(func: T, delay: number): T {
+  let timeoutId: NodeJS.Timeout;
+  return ((...args: any[]) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  }) as T;
+}
 
 function TopCommandersCard({
   display = 'card',
@@ -152,6 +161,56 @@ function CommandersPageShell({
   const {replaceRoute} = useNavigation();
   const [display, toggleDisplay] = useCommandersDisplay();
 
+  // Add local state for debounced inputs
+  const [localMinEntries, setLocalMinEntries] = useState(minEntries?.toString() || '');
+  const [localEventSize, setLocalEventSize] = useState(minTournamentSize?.toString() || '');
+
+  // Update local state when props change
+  useEffect(() => {
+    setLocalMinEntries(minEntries?.toString() || '');
+  }, [minEntries]);
+
+  useEffect(() => {
+    setLocalEventSize(minTournamentSize?.toString() || '');
+  }, [minTournamentSize]);
+
+  // Create debounced route update functions
+  const debouncedMinEntriesUpdate = useCallback(
+    debounce((value: string) => {
+      if (value === '') {
+        replaceRoute('/', {
+          minEntries: null,
+        });
+      } else {
+        const numValue = parseInt(value, 10);
+        if (!isNaN(numValue) && numValue >= 1) {
+          replaceRoute('/', {
+            minEntries: numValue,
+          });
+        }
+      }
+    }, 300),
+    [replaceRoute]
+  );
+
+  const debouncedEventSizeUpdate = useCallback(
+    debounce((value: string) => {
+      if (value === '') {
+        replaceRoute('/', {
+          minSize: null,
+        });
+      } else {
+        const numValue = parseInt(value, 10);
+        if (!isNaN(numValue) && numValue >= 1) {
+          replaceRoute('/', {
+            minSize: numValue,
+          });
+        }
+      }
+    }, 300),
+    [replaceRoute]
+  );
+
   return (
     <>
       <Navigation />
@@ -181,9 +240,9 @@ function CommandersPageShell({
             />
           </div>
 
-          <div className="flex flex-wrap gap-x-4 gap-y-2 lg:flex-nowrap">
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-4 lg:flex-nowrap lg:justify-end">
             <div className="relative flex flex-col">
-              <label htmlFor="commanders-sort-by" className="text-sm font-medium mb-1 text-white">
+              <label htmlFor="commanders-sort-by" className="text-sm font-medium mb-1 text-white text-center">
                 Sort By
               </label>
               <div className="relative">
@@ -207,11 +266,11 @@ function CommandersPageShell({
                       }
                     }, 150);
                   }}
-                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
                 />
                 <div className="sort-by-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                     onMouseDown={(e) => {
                       replaceRoute('/', {
                         sortBy: 'CONVERSION' as CommandersSortBy,
@@ -221,7 +280,7 @@ function CommandersPageShell({
                     Top Performing
                   </div>
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer"
                     onMouseDown={(e) => {
                       replaceRoute('/', {
                         sortBy: 'POPULARITY' as CommandersSortBy,
@@ -235,7 +294,7 @@ function CommandersPageShell({
             </div>
 
             <div className="relative flex flex-col">
-              <label htmlFor="commanders-time-period" className="text-sm font-medium mb-1 text-white">
+              <label htmlFor="commanders-time-period" className="text-sm font-medium mb-1 text-white text-center">
                 Time Period
               </label>
               <div className="relative">
@@ -259,11 +318,11 @@ function CommandersPageShell({
                       }
                     }, 150);
                   }}
-                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
                 />
                 <div className="time-period-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                     onMouseDown={(e) => {
                       replaceRoute('/', {
                         timePeriod: 'ONE_MONTH',
@@ -273,7 +332,7 @@ function CommandersPageShell({
                     1 Month
                   </div>
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                     onMouseDown={(e) => {
                       replaceRoute('/', {
                         timePeriod: 'THREE_MONTHS',
@@ -283,7 +342,7 @@ function CommandersPageShell({
                     3 Months
                   </div>
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                     onMouseDown={(e) => {
                       replaceRoute('/', {
                         timePeriod: 'SIX_MONTHS',
@@ -293,7 +352,7 @@ function CommandersPageShell({
                     6 Months
                   </div>
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                     onMouseDown={(e) => {
                       replaceRoute('/', {
                         timePeriod: 'ONE_YEAR',
@@ -303,7 +362,7 @@ function CommandersPageShell({
                     1 Year
                   </div>
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                     onMouseDown={(e) => {
                       replaceRoute('/', {
                         timePeriod: 'ALL_TIME',
@@ -313,7 +372,7 @@ function CommandersPageShell({
                     All Time
                   </div>
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                     onMouseDown={(e) => {
                       replaceRoute('/', {
                         timePeriod: 'POST_BAN',
@@ -327,7 +386,7 @@ function CommandersPageShell({
             </div>
 
             <div className="relative flex flex-col">
-              <label htmlFor="commanders-min-entries" className="text-sm font-medium mb-1 text-white">
+              <label htmlFor="commanders-min-entries" className="text-sm font-medium mb-1 text-white text-center">
                 Commander Entries
               </label>
               <div className="relative">
@@ -335,20 +394,19 @@ function CommandersPageShell({
                   id="commanders-min-entries"
                   type="number"
                   min="1"
-                  value={minEntries || ''}
+                  value={localMinEntries || ''}
                   onChange={(e) => {
-                    const inputValue = e.target.value;
-                    
-                    if (inputValue === '') {
-                      replaceRoute('/', {
-                        minEntries: null,
-                      });
-                    } else {
-                      const value = parseInt(inputValue, 10);
-                      if (!isNaN(value) && value >= 1) {
-                        replaceRoute('/', {
-                          minEntries: value,
-                        });
+                    // Update local state immediately for responsive UI
+                    setLocalMinEntries(e.target.value);
+                    // Debounce the route update
+                    debouncedMinEntriesUpdate(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === 'Go') {
+                      (e.target as HTMLInputElement).blur();
+                      const dropdown = (e.target as HTMLElement).parentElement?.querySelector('.min-entries-dropdown');
+                      if (dropdown) {
+                        dropdown.classList.add('hidden');
                       }
                     }
                   }}
@@ -367,13 +425,14 @@ function CommandersPageShell({
                       }
                     }, 150);
                   }}
-                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
                   placeholder="Commander Entries"
                 />
                 <div className="min-entries-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                     onMouseDown={(e) => {
+                      setLocalMinEntries('')
                       replaceRoute('/', {
                         minEntries: null,
                       });
@@ -382,8 +441,9 @@ function CommandersPageShell({
                     All Entries
                   </div>
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                     onMouseDown={(e) => {
+                      setLocalMinEntries('20');
                       replaceRoute('/', {
                         minEntries: 20,
                       });
@@ -392,8 +452,9 @@ function CommandersPageShell({
                     20+ Entries
                   </div>
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                     onMouseDown={(e) => {
+                      setLocalMinEntries('40');
                       replaceRoute('/', {
                         minEntries: 40,
                       });
@@ -402,8 +463,9 @@ function CommandersPageShell({
                     40+ Entries
                   </div>
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                     onMouseDown={(e) => {
+                      setLocalMinEntries('60');
                       replaceRoute('/', {
                         minEntries: 60,
                       });
@@ -412,8 +474,9 @@ function CommandersPageShell({
                     60+ Entries
                   </div>
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                     onMouseDown={(e) => {
+                      setLocalMinEntries('100');
                       replaceRoute('/', {
                         minEntries: 100,
                       });
@@ -426,7 +489,7 @@ function CommandersPageShell({
             </div>
 
             <div className="relative flex flex-col">
-              <label htmlFor="commanders-event-size" className="text-sm font-medium mb-1 text-white">
+              <label htmlFor="commanders-event-size" className="text-sm font-medium mb-1 text-white text-center">
                 Event Size
               </label>
               <div className="relative">
@@ -434,20 +497,19 @@ function CommandersPageShell({
                   id="commanders-event-size"
                   type="number"
                   min="1"
-                  value={minTournamentSize || ''}
+                  value={localEventSize || ''}
                   onChange={(e) => {
-                    const inputValue = e.target.value;
-                    
-                    if (inputValue === '') {
-                      replaceRoute('/', {
-                        minSize: null,
-                      });
-                    } else {
-                      const value = parseInt(inputValue, 10);
-                      if (!isNaN(value) && value >= 1) {
-                        replaceRoute('/', {
-                          minSize: value,
-                        });
+                    // Update local state immediately for responsive UI
+                    setLocalEventSize(e.target.value);
+                    // Debounce the route update
+                    debouncedEventSizeUpdate(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === 'Go') {
+                      (e.target as HTMLInputElement).blur();
+                      const dropdown = (e.target as HTMLElement).parentElement?.querySelector('.event-size-dropdown');
+                      if (dropdown) {
+                        dropdown.classList.add('hidden');
                       }
                     }
                   }}
@@ -466,13 +528,14 @@ function CommandersPageShell({
                       }
                     }, 150);
                   }}
-                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
                   placeholder="Event Size"
                 />
                 <div className="event-size-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                     onMouseDown={(e) => {
+                      setLocalEventSize('');
                       replaceRoute('/', {
                         minSize: null,
                       });
@@ -481,45 +544,38 @@ function CommandersPageShell({
                     All Tournaments
                   </div>
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                     onMouseDown={(e) => {
+                      setLocalEventSize('30');
                       replaceRoute('/', {
-                        minSize: 20,
+                        minSize: 30,
                       });
                     }}
                   >
-                    20+ Players
+                    30+ - Medium Events
                   </div>
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                     onMouseDown={(e) => {
-                      replaceRoute('/', {
-                        minSize: 40,
-                      });
-                    }}
-                  >
-                    40+ Players
-                  </div>
-                  <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
+                      setLocalEventSize('60');
                       replaceRoute('/', {
                         minSize: 60,
                       });
                     }}
                   >
-                    60+ Players
+                    60+ - Large Events
                   </div>
                   <div
-                    className="px-3 py-2 text-white hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                     onMouseDown={(e) => {
+                      setLocalEventSize('100');
                       replaceRoute('/', {
-                        minSize: 120,
+                        minSize: 100,
                       });
                     }}
                   >
-                    120+ Players
-                  </div>
+                    100+ - Major Events
+                  </div>                
                 </div>
               </div>
             </div>

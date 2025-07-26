@@ -13,7 +13,7 @@ import {Link, useNavigation} from '#genfiles/river/router';
 import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
 import {format} from 'date-fns';
-import {PropsWithChildren, useState, useEffect, useCallback} from 'react';
+import {PropsWithChildren, useState, useEffect, useCallback, startTransition} from 'react';
 import {
   EntryPointComponent,
   useFragment,
@@ -241,7 +241,7 @@ export function CommanderPageShell({
     props.commander,
   );
 
-useCommanderMeta(commander);
+  useCommanderMeta(commander);
   const {replaceRoute} = useNavigation();
 
   // Add local state for both input values
@@ -338,9 +338,11 @@ useCommanderMeta(commander);
               <div
                 className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
                 onMouseDown={() => {
-                  replaceRoute('/commander/:commander', {
-                    commander: commander.name,
-                    sortBy: 'TOP' as EntriesSortBy,
+                  startTransition(() => {
+                    replaceRoute('/commander/:commander', {
+                      commander: commander.name,
+                      sortBy: 'TOP' as EntriesSortBy,
+                    });
                   });
                 }}
               >
