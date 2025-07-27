@@ -6,12 +6,12 @@ import {
 import {pages_topCommanders$key} from '#genfiles/queries/pages_topCommanders.graphql';
 import {pages_TopCommandersCard$key} from '#genfiles/queries/pages_TopCommandersCard.graphql';
 import {TopCommandersQuery} from '#genfiles/queries/TopCommandersQuery.graphql';
-import {Link, useRouter} from '#genfiles/river/router';
+import {Link, useNavigation, useRouteParams} from '#genfiles/river/router';
 import RectangleStackIcon from '@heroicons/react/24/solid/RectangleStackIcon';
 import TableCellsIcon from '@heroicons/react/24/solid/TableCellsIcon';
 import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
-import {PropsWithChildren, startTransition, useCallback, useMemo} from 'react';
+import {PropsWithChildren, useCallback, useMemo, useState, useEffect} from 'react';
 import {
   EntryPointComponent,
   graphql,
@@ -27,6 +27,15 @@ import {LoadMoreButton} from '../components/load_more';
 import {Navigation} from '../components/navigation';
 import {Select} from '../components/select';
 import {formatPercent} from '../lib/client/format';
+
+// Add debounce function
+function debounce<T extends (...args: any[]) => any>(func: T, delay: number): T {
+  let timeoutId: NodeJS.Timeout;
+  return ((...args: any[]) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  }) as T;
+}
 
 function TopCommandersCard({
   display = 'card',
@@ -140,7 +149,7 @@ function CommandersPageShell({
   children,
 }: PropsWithChildren<{
   colorId: string;
-  minEntries: number;
+  minEntries?: number | null;
   minTournamentSize: number;
   sortBy: CommandersSortBy;
   timePeriod: TimePeriod;
@@ -150,8 +159,58 @@ function CommandersPageShell({
     description: 'Discover top performing commanders in cEDH!',
   });
 
-  const {replaceRoute} = useRouter();
+  const {replaceRoute} = useNavigation();
   const [display, toggleDisplay] = useCommandersDisplay();
+
+  // Add local state for debounced inputs
+  const [localMinEntries, setLocalMinEntries] = useState(minEntries?.toString() || '');
+  const [localEventSize, setLocalEventSize] = useState(minTournamentSize?.toString() || '');
+
+  // Update local state when props change
+  useEffect(() => {
+    setLocalMinEntries(minEntries?.toString() || '');
+  }, [minEntries]);
+
+  useEffect(() => {
+    setLocalEventSize(minTournamentSize?.toString() || '');
+  }, [minTournamentSize]);
+
+  // Create debounced route update functions
+  const debouncedMinEntriesUpdate = useCallback(
+    debounce((value: string) => {
+      if (value === '') {
+        replaceRoute('/', {
+          minEntries: null,
+        });
+      } else {
+        const numValue = parseInt(value, 10);
+        if (!isNaN(numValue) && numValue >= 1) {
+          replaceRoute('/', {
+            minEntries: numValue,
+          });
+        }
+      }
+    }, 300),
+    [replaceRoute]
+  );
+
+  const debouncedEventSizeUpdate = useCallback(
+    debounce((value: string) => {
+      if (value === '') {
+        replaceRoute('/', {
+          minSize: null,
+        });
+      } else {
+        const numValue = parseInt(value, 10);
+        if (!isNaN(numValue) && numValue >= 1) {
+          replaceRoute('/', {
+            minSize: numValue,
+          });
+        }
+      }
+    }, 300),
+    [replaceRoute]
+  );
 
   return (
     <>
@@ -182,63 +241,345 @@ function CommandersPageShell({
             />
           </div>
 
-          <div className="flex flex-wrap gap-x-4 gap-y-2 lg:flex-nowrap">
-            <Select
-              id="commanders-sort-by"
-              label="Sort By"
-              value={sortBy}
-              onChange={(value) => {
-                replaceRoute('/', {sortBy: value});
-              }}
-            >
-              <option value="CONVERSION">Conversion Rate</option>
-              <option value="POPULARITY">Popularity</option>
-              <option value="TOP_CUTS">Top Cuts</option>
-            </Select>
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-4 lg:flex-nowrap lg:justify-end">
+            <div className="relative flex flex-col">
+              <label htmlFor="commanders-sort-by" className="text-sm font-medium mb-1 text-white text-center">
+                Sort By
+              </label>
+              <div className="relative">
+                <input
+                  id="commanders-sort-by"
+                  type="text"
+                  value={sortBy === 'POPULARITY' ? 'Most Popular' : 'Top Performing'}
+                  readOnly
+                  onFocus={(e) => {
+                    const dropdown = e.target.parentElement?.querySelector('.sort-by-dropdown');
+                    if (dropdown) {
+                      dropdown.classList.remove('hidden');
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Delay hiding to allow clicking on dropdown options
+                    setTimeout(() => {
+                      const dropdown = e.target.parentElement?.querySelector('.sort-by-dropdown');
+                      if (dropdown) {
+                        dropdown.classList.add('hidden');
+                      }
+                    }, 150);
+                  }}
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
+                />
+                <div className="sort-by-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        sortBy: 'CONVERSION' as CommandersSortBy,
+                      });
+                    }}
+                  >
+                    Top Performing
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        sortBy: 'POPULARITY' as CommandersSortBy,
+                      });
+                    }}
+                  >
+                    Most Popular
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            <Select
-              id="commanders-time-period"
-              label="Time Period"
-              value={timePeriod}
-              onChange={(value) => {
-                replaceRoute('/', {timePeriod: value});
-              }}
-            >
-              <option value="ONE_MONTH">1 Month</option>
-              <option value="THREE_MONTHS">3 Months</option>
-              <option value="SIX_MONTHS">6 Months</option>
-              <option value="ONE_YEAR">1 Year</option>
-              <option value="ALL_TIME">All Time</option>
-              <option value="POST_BAN">Post Ban</option>
-            </Select>
+            <div className="relative flex flex-col">
+              <label htmlFor="commanders-time-period" className="text-sm font-medium mb-1 text-white text-center">
+                Time Period
+              </label>
+              <div className="relative">
+                <input
+                  id="commanders-time-period"
+                  type="text"
+                  value={timePeriod === 'ONE_MONTH' ? '1 Month' : timePeriod === 'THREE_MONTHS' ? '3 Months' : timePeriod === 'SIX_MONTHS' ? '6 Months' : timePeriod === 'ONE_YEAR' ? '1 Year' : timePeriod === 'ALL_TIME' ? 'All Time' : 'Post Ban'}
+                  readOnly
+                  onFocus={(e) => {
+                    const dropdown = e.target.parentElement?.querySelector('.time-period-dropdown');
+                    if (dropdown) {
+                      dropdown.classList.remove('hidden');
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Delay hiding to allow clicking on dropdown options
+                    setTimeout(() => {
+                      const dropdown = e.target.parentElement?.querySelector('.time-period-dropdown');
+                      if (dropdown) {
+                        dropdown.classList.add('hidden');
+                      }
+                    }, 150);
+                  }}
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
+                />
+                <div className="time-period-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        timePeriod: 'ONE_MONTH',
+                      });
+                    }}
+                  >
+                    1 Month
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        timePeriod: 'THREE_MONTHS',
+                      });
+                    }}
+                  >
+                    3 Months
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        timePeriod: 'SIX_MONTHS',
+                      });
+                    }}
+                  >
+                    6 Months
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        timePeriod: 'ONE_YEAR',
+                      });
+                    }}
+                  >
+                    1 Year
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        timePeriod: 'ALL_TIME',
+                      });
+                    }}
+                  >
+                    All Time
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      replaceRoute('/', {
+                        timePeriod: 'POST_BAN',
+                      });
+                    }}
+                  >
+                    Post Ban
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            <Select
-              id="commanders-min-entries"
-              label="Min. Entries"
-              value={`${minEntries}`}
-              onChange={(value) => {
-                replaceRoute('/', {minEntries: Number(value)});
-              }}
-            >
-              <option value="0">All Commanders</option>
-              <option value="20">20+ Entries</option>
-              <option value="60">60+ Entries</option>
-              <option value="120">120+ Entries</option>
-            </Select>
+            <div className="relative flex flex-col">
+              <label htmlFor="commanders-min-entries" className="text-sm font-medium mb-1 text-white text-center">
+                Commander Entries
+              </label>
+              <div className="relative">
+                <input
+                  id="commanders-min-entries"
+                  type="number"
+                  min="1"
+                  value={localMinEntries || ''}
+                  onChange={(e) => {
+                    // Update local state immediately for responsive UI
+                    setLocalMinEntries(e.target.value);
+                    // Debounce the route update
+                    debouncedMinEntriesUpdate(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === 'Go') {
+                      (e.target as HTMLInputElement).blur();
+                      const dropdown = (e.target as HTMLElement).parentElement?.querySelector('.min-entries-dropdown');
+                      if (dropdown) {
+                        dropdown.classList.add('hidden');
+                      }
+                    }
+                  }}
+                  onFocus={(e) => {
+                    const dropdown = e.target.parentElement?.querySelector('.min-entries-dropdown');
+                    if (dropdown) {
+                      dropdown.classList.remove('hidden');
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Delay hiding to allow clicking on dropdown options
+                    setTimeout(() => {
+                      const dropdown = e.target.parentElement?.querySelector('.min-entries-dropdown');
+                      if (dropdown) {
+                        dropdown.classList.add('hidden');
+                      }
+                    }, 150);
+                  }}
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
+                  placeholder="Commander Entries"
+                />
+                <div className="min-entries-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      setLocalMinEntries('')
+                      replaceRoute('/', {
+                        minEntries: null,
+                      });
+                    }}
+                  >
+                    All Entries
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      setLocalMinEntries('20');
+                      replaceRoute('/', {
+                        minEntries: 20,
+                      });
+                    }}
+                  >
+                    20+ Entries
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      setLocalMinEntries('40');
+                      replaceRoute('/', {
+                        minEntries: 40,
+                      });
+                    }}
+                  >
+                    40+ Entries
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      setLocalMinEntries('60');
+                      replaceRoute('/', {
+                        minEntries: 60,
+                      });
+                    }}
+                  >
+                    60+ Entries
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      setLocalMinEntries('100');
+                      replaceRoute('/', {
+                        minEntries: 100,
+                      });
+                    }}
+                  >
+                    100+ Entries
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            <Select
-              id="commanders-min-size"
-              label="Tournament Size"
-              value={`${minTournamentSize}`}
-              onChange={(value) => {
-                replaceRoute('/', {minSize: Number(value)});
-              }}
-            >
-              <option value="0">All Tournaments</option>
-              <option value="32">32+ Players</option>
-              <option value="60">60+ Players</option>
-              <option value="100">100+ Players</option>
-            </Select>
+            <div className="relative flex flex-col">
+              <label htmlFor="commanders-event-size" className="text-sm font-medium mb-1 text-white text-center">
+                Event Size
+              </label>
+              <div className="relative">
+                <input
+                  id="commanders-event-size"
+                  type="number"
+                  min="1"
+                  value={localEventSize || ''}
+                  onChange={(e) => {
+                    // Update local state immediately for responsive UI
+                    setLocalEventSize(e.target.value);
+                    // Debounce the route update
+                    debouncedEventSizeUpdate(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === 'Go') {
+                      (e.target as HTMLInputElement).blur();
+                      const dropdown = (e.target as HTMLElement).parentElement?.querySelector('.event-size-dropdown');
+                      if (dropdown) {
+                        dropdown.classList.add('hidden');
+                      }
+                    }
+                  }}
+                  onFocus={(e) => {
+                    const dropdown = e.target.parentElement?.querySelector('.event-size-dropdown');
+                    if (dropdown) {
+                      dropdown.classList.remove('hidden');
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Delay hiding to allow clicking on dropdown options
+                    setTimeout(() => {
+                      const dropdown = e.target.parentElement?.querySelector('.event-size-dropdown');
+                      if (dropdown) {
+                        dropdown.classList.add('hidden');
+                      }
+                    }, 150);
+                  }}
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
+                  placeholder="Event Size"
+                />
+                <div className="event-size-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      setLocalEventSize('');
+                      replaceRoute('/', {
+                        minSize: null,
+                      });
+                    }}
+                  >
+                    All Tournaments
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      setLocalEventSize('30');
+                      replaceRoute('/', {
+                        minSize: 30,
+                      });
+                    }}
+                  >
+                    30+ - Medium Events
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      setLocalEventSize('60');
+                      replaceRoute('/', {
+                        minSize: 60,
+                      });
+                    }}
+                  >
+                    60+ - Large Events
+                  </div>
+                  <div
+                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
+                    onMouseDown={(e) => {
+                      setLocalEventSize('100');
+                      replaceRoute('/', {
+                        minSize: 100,
+                      });
+                    }}
+                  >
+                    100+ - Major Events
+                  </div>                
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -249,8 +590,8 @@ function CommandersPageShell({
 }
 
 function useCommandersDisplay() {
-  const {asRoute, replaceRoute} = useRouter();
-  const {display} = asRoute('/');
+  const {display} = useRouteParams('/');
+  const {replaceRoute} = useNavigation();
 
   const toggleDisplay = useCallback(() => {
     replaceRoute('/', {display: display === 'table' ? 'card' : 'table'});
@@ -271,7 +612,7 @@ export const CommandersPage: EntryPointComponent<
       query pages_CommandersQuery(
         $timePeriod: TimePeriod!
         $sortBy: CommandersSortBy!
-        $minEntries: Int!
+        $minEntries: Int
         $minTournamentSize: Int!
         $colorId: String
       ) @preloadable {

@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<c14f2ef735762d3867fcc186cb1262ff>>
- * @relayHash 229cb6a9b2f2124a9f047ef47d18c2c6
+ * @generated SignedSource<<011aefdec93dc516cc29f8ae725a5766>>
+ * @relayHash 02c6612a4f56165aa036a80398bfaf6b
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 229cb6a9b2f2124a9f047ef47d18c2c6
+// @relayRequestID 02c6612a4f56165aa036a80398bfaf6b
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -17,7 +17,7 @@ export type CommandersSortBy = "CONVERSION" | "POPULARITY" | "TOP_CUTS" | "%futu
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type pages_CommandersQuery$variables = {
   colorId?: string | null | undefined;
-  minEntries: number;
+  minEntries?: number | null | undefined;
   minTournamentSize: number;
   sortBy: CommandersSortBy;
   timePeriod: TimePeriod;
@@ -320,7 +320,7 @@ return {
     ]
   },
   "params": {
-    "id": "229cb6a9b2f2124a9f047ef47d18c2c6",
+    "id": "02c6612a4f56165aa036a80398bfaf6b",
     "metadata": {},
     "name": "pages_CommandersQuery",
     "operationKind": "query",
@@ -329,7 +329,7 @@ return {
 };
 })();
 
-(node as any).hash = "a1ee982ceaef8e5eb98991f6761fa30f";
+(node as any).hash = "24fe27d06e769c9158d04264503cfb96";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

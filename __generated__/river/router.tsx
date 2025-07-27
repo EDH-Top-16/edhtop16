@@ -3,14 +3,7 @@
  * Do not modify this file directly. Instead, edit the template at scripts/templates/router.tsx.
  */
 
-import {
-  createBrowserHistory,
-  createMemoryHistory,
-  History,
-  Listener,
-  Location,
-} from 'history';
-import {createRouter, MatchedRoute} from 'radix3';
+import {createRouter} from 'radix3';
 import {
   AnchorHTMLAttributes,
   createContext,
@@ -19,7 +12,7 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useSyncExternalStore,
+  useState,
 } from 'react';
 import {
   EntryPoint,
@@ -88,232 +81,295 @@ const ROUTER_CONF = {
 } as const;
 
 export type RouteId = keyof RouterConf;
-type NavigationDirection = string | URL | ((nextUrl: URL) => void);
-
-export class Router {
-  static routes = Object.keys(ROUTER_CONF);
-
-  private currentRoute: Location & MatchedRoute<RouterConf[RouteId]>;
-  constructor(staticInit?: string) {
-    if (staticInit == null) {
-      this.history = createBrowserHistory();
-    } else {
-      this.history = createMemoryHistory({initialEntries: [staticInit]});
-    }
-
-    const route = this.radixRouter.lookup(this.history.location.pathname)!;
-    this.currentRoute = {
-      ...this.history.location,
-      ...route,
-      params: {...route.params, ...this.searchParams()},
-    };
-  }
-
-  private readonly history: History;
-  private readonly radixRouter = createRouter<RouterConf[keyof RouterConf]>({
-    routes: ROUTER_CONF,
-  });
-
-  private createNavigator(method: 'push' | 'replace') {
-    return (nav: NavigationDirection) => {
-      let nextUrl: URL;
-      if (typeof nav === 'string') {
-        nextUrl = new URL(nav, window.location.href);
-      } else if (nav instanceof URL) {
-        nextUrl = nav;
-      } else {
-        nextUrl = new URL(window.location.href);
-        nav(nextUrl);
-      }
-
-      if (window.location.origin !== nextUrl.origin) {
-        throw new Error('Cannot navigate to a different origin.');
-      }
-
-      if (method === 'push') {
-        this.history.push(nextUrl.pathname + nextUrl.search);
-        window.scrollTo(0, 0);
-      } else {
-        this.history.replace(nextUrl.pathname + nextUrl.search);
-      }
-    };
-  }
-
-  readonly push = this.createNavigator('push');
-  readonly replace = this.createNavigator('replace');
-
-  createUrlForRoute = <R extends RouteId>(
-    routeName: R,
-    inputParams: z.input<RouterConf[R]['schema']>,
-  ) => {
-    const schema = ROUTER_CONF[routeName].schema;
-    const params = schema.parse({
-      ...this.currentRoute.params,
-      ...inputParams,
-    });
-
-    let pathname = routeName as string;
-    const searchParams = new URLSearchParams();
-
-    Object.entries(params).forEach(([key, value]) => {
-      if (value != null) {
-        const paramPattern = `:${key}`;
-        if (pathname.includes(paramPattern)) {
-          pathname = pathname.replace(
-            paramPattern,
-            encodeURIComponent(String(value)),
-          );
-        } else {
-          searchParams.set(key, String(value));
-        }
-      }
-    });
-
-    if (searchParams.size > 0) {
-      return pathname + '?' + searchParams.toString();
-    } else {
-      return pathname;
-    }
-  };
-
-  readonly pushRoute = <R extends RouteId>(
-    routeName: R,
-    params: z.input<RouterConf[R]['schema']>,
-  ) => {
-    this.push(this.createUrlForRoute(routeName, params));
-  };
-
-  readonly replaceRoute = <R extends RouteId>(
-    routeName: R,
-    params: z.input<RouterConf[R]['schema']>,
-  ) => {
-    this.replace(this.createUrlForRoute(routeName, params));
-  };
-
-  route = () => {
-    return this.currentRoute;
-  };
-
-  listen = (listener: Listener) => {
-    return this.history.listen((update) => {
-      const route = this.radixRouter.lookup(this.history.location.pathname)!;
-      this.currentRoute = {
-        ...this.history.location,
-        ...route,
-        params: {...route.params, ...this.searchParams()},
-      };
-
-      listener(update);
-    });
-  };
-
-  private searchParams() {
-    const params: Record<string, string | string[]> = {};
-
-    const search = new URLSearchParams(this.history.location.search);
-    search.forEach((value, key) => {
-      if (params[key] == null) {
-        params[key] = value;
-      } else if (Array.isArray(params[key])) {
-        params[key].push(value);
-      } else {
-        params[key] = [params[key], value];
-      }
-    });
-
-    return params;
-  }
-
-  asRoute = <R extends RouteId | undefined>(
-    route?: R,
-  ): R extends RouteId ? z.infer<RouterConf[R]['schema']> : any => {
-    const params = {...this.currentRoute.params, ...this.searchParams()};
-    const schema =
-      route == null ? this.currentRoute.schema : ROUTER_CONF[route].schema;
-
-    return schema.parse(params) as R extends RouteId
-      ? z.infer<RouterConf[R]['schema']>
-      : any;
-  };
-
-  protected async loadEntryPoint(
-    env: IEnvironmentProvider<EnvironmentProviderOptions>,
-  ) {
-    const initialRoute = this.route();
-    await initialRoute.entrypoint?.root.load();
-
-    return loadEntryPoint(env, initialRoute?.entrypoint, {
-      params: initialRoute.params ?? {},
-      schema: initialRoute.schema,
-    });
-  }
-
-  static Context = createContext(new Router('/'));
-
-  protected createRiverAppFromEntryPoint(
-    env: IEnvironmentProvider<EnvironmentProviderOptions>,
-    initialEntryPoint: PreloadedEntryPoint<any>,
-  ) {
-    const router = this;
-    function RiverApp() {
-      const route = useSyncExternalStore(
-        router.listen,
-        router.route,
-        router.route,
-      );
-      const [entryPointRef, loadEntryPointRef, _dispose] = useEntryPointLoader(
-        env,
-        route?.entrypoint,
-      );
-
-      useEffect(() => {
-        loadEntryPointRef({
-          params: route.params ?? {},
-          schema: route.schema,
-        });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [route]);
-
-      const entryPoint = entryPointRef ?? initialEntryPoint;
-      return entryPoint == null ? (
-        <div>Not found...</div>
-      ) : (
-        <Router.Context value={router}>
-          <EntryPointContainer entryPointReference={entryPoint} props={{}} />
-        </Router.Context>
-      );
-    }
-
-    RiverApp.bootstrap = (manifest?: Manifest): string | null => null;
-    return RiverApp;
-  }
-
-  private hydrateStore(
-    provider: IEnvironmentProvider<EnvironmentProviderOptions>,
-  ) {
-    const env = provider.getEnvironment(null);
-    if ('__river_ops' in window) {
-      const ops = (window as any).__river_ops as RiverOps;
-      for (const [op, payload] of ops) {
-        env.commitPayload(op, payload);
-      }
-    }
-  }
-
-  async createApp(env: IEnvironmentProvider<EnvironmentProviderOptions>) {
-    this.hydrateStore(env);
-    const ep = await this.loadEntryPoint(env);
-    return this.createRiverAppFromEntryPoint(env, ep);
-  }
-}
-
-export function useRouter() {
-  return useContext(Router.Context);
-}
+export type NavigationDirection = string | URL | ((nextUrl: URL) => void);
 
 export interface EntryPointParams<R extends RouteId> {
   params: Record<string, any>;
   schema: RouterConf[R]['schema'];
+}
+
+const ROUTER = createRouter<RouterConf[keyof RouterConf]>({
+  routes: ROUTER_CONF,
+});
+
+class RouterLocation {
+  private constructor(
+    readonly pathname: string,
+    readonly searchParams: URLSearchParams,
+    readonly method?: 'push' | 'replace' | 'popstate',
+  ) {}
+
+  href() {
+    if (this.searchParams.size > 0) {
+      return this.pathname + '?' + this.searchParams.toString();
+    }
+
+    return this.pathname;
+  }
+
+  route() {
+    return ROUTER.lookup(this.pathname);
+  }
+
+  params() {
+    const matchedRoute = this.route();
+    const params = {
+      ...matchedRoute?.params,
+      ...Object.fromEntries(this.searchParams),
+    };
+
+    if (matchedRoute?.schema) {
+      return matchedRoute.schema.parse(params);
+    } else {
+      return params;
+    }
+  }
+
+  static parse(path: string, method?: 'push' | 'replace' | 'popstate') {
+    if (path.startsWith('/')) {
+      path = 'river:' + path;
+    }
+
+    const parsed = URL.parse(path);
+    if (parsed != null) {
+      return new RouterLocation(parsed.pathname, parsed.searchParams, method);
+    }
+
+    return new RouterLocation(path, new URLSearchParams(), method);
+  }
+}
+
+function useLocation(initialPath?: string) {
+  const [location, setLocation] = useState((): RouterLocation => {
+    return RouterLocation.parse(initialPath ?? window.location.href);
+  });
+
+  useEffect(() => {
+    function listener(e: PopStateEvent) {
+      setLocation(RouterLocation.parse(window.location.href, 'popstate'));
+    }
+
+    window.addEventListener('popstate', listener);
+    return () => {
+      window.removeEventListener('popstate', listener);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (location.method === 'push') {
+      window.history.pushState({}, '', location.href());
+      window.scrollTo(0, 0);
+    } else if (location.method === 'replace') {
+      window.history.replaceState({}, '', location.href());
+    }
+  }, [location]);
+
+  return [location, setLocation] as const;
+}
+
+export function river__hydrateStore(
+  provider: IEnvironmentProvider<EnvironmentProviderOptions>,
+) {
+  const env = provider.getEnvironment(null);
+  if ('__river_ops' in window) {
+    const ops = (window as any).__river_ops as RiverOps;
+    for (const [op, payload] of ops) {
+      env.commitPayload(op, payload);
+    }
+  }
+}
+
+export async function river__loadEntryPoint(
+  provider: IEnvironmentProvider<EnvironmentProviderOptions>,
+  initialPath?: string,
+) {
+  if (!initialPath) initialPath = window.location.pathname;
+  const initialLocation = RouterLocation.parse(initialPath);
+  const initialRoute = initialLocation.route();
+  if (!initialRoute) return null;
+
+  await initialRoute.entrypoint?.root.load();
+  return loadEntryPoint(provider, initialRoute.entrypoint, {
+    params: initialLocation.params(),
+    schema: initialRoute.schema,
+  });
+}
+
+interface RouterContextValue {
+  location: RouterLocation;
+  setLocation: React.Dispatch<React.SetStateAction<RouterLocation>>;
+}
+
+const RiverRouterContext = createContext<RouterContextValue>({
+  location: RouterLocation.parse('/'),
+  setLocation: () => {},
+});
+
+export function river__createAppFromEntryPoint(
+  provider: IEnvironmentProvider<EnvironmentProviderOptions>,
+  initialEntryPoint: AnyPreloadedEntryPoint | null,
+  initialPath?: string,
+) {
+  function RiverApp() {
+    const [location, setLocation] = useLocation(initialPath);
+    const routerContextValue = useMemo(
+      (): RouterContextValue => ({
+        location,
+        setLocation,
+      }),
+      [location, setLocation],
+    );
+
+    const [entryPointRef, loadEntryPointRef, _dispose] = useEntryPointLoader(
+      provider,
+      location.route()?.entrypoint,
+    );
+
+    useEffect(() => {
+      const schema = location.route()?.schema;
+      if (schema) {
+        loadEntryPointRef({
+          params: location.params(),
+          schema,
+        });
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [location]);
+
+    const entryPoint = entryPointRef ?? initialEntryPoint;
+    return entryPoint == null ? (
+      <div>Not found...</div>
+    ) : (
+      <RiverRouterContext value={routerContextValue}>
+        <EntryPointContainer entryPointReference={entryPoint} props={{}} />
+      </RiverRouterContext>
+    );
+  }
+
+  RiverApp.bootstrap = (manifest?: Manifest): string | null => null;
+  return RiverApp;
+}
+
+export async function createRiverApp(
+  provider: IEnvironmentProvider<EnvironmentProviderOptions>,
+) {
+  river__hydrateStore(provider);
+  const ep = await river__loadEntryPoint(provider);
+  return river__createAppFromEntryPoint(provider, ep);
+}
+
+export function usePath() {
+  const {location} = useContext(RiverRouterContext);
+  return location.pathname;
+}
+
+export function useRouteParams<R extends RouteId>(
+  routeId: R,
+): z.infer<RouterConf[R]['schema']> {
+  const schema = ROUTER_CONF[routeId].schema;
+  const {location} = useContext(RiverRouterContext);
+
+  return schema.parse(location.params()) as z.infer<RouterConf[R]['schema']>;
+}
+
+function river__createPathForRoute(
+  routeId: RouteId,
+  inputParams: Record<string, any>,
+): string {
+  const schema = ROUTER_CONF[routeId].schema;
+  const params = schema.parse(inputParams);
+
+  let pathname = routeId as string;
+  const searchParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value != null) {
+      const paramPattern = `:${key}`;
+      if (pathname.includes(paramPattern)) {
+        pathname = pathname.replace(
+          paramPattern,
+          encodeURIComponent(String(value)),
+        );
+      } else {
+        searchParams.set(key, String(value));
+      }
+    }
+  });
+
+  if (searchParams.size > 0) {
+    return pathname + '?' + searchParams.toString();
+  } else {
+    return pathname;
+  }
+}
+
+function river__evaluateNavigationDirection(nav: NavigationDirection) {
+  let nextUrl: URL;
+  if (typeof nav === 'string') {
+    nextUrl = new URL(nav, window.location.origin);
+  } else if (nav instanceof URL) {
+    nextUrl = nav;
+  } else {
+    nextUrl = new URL(window.location.href);
+    nav(nextUrl);
+  }
+
+  if (window.location.origin !== nextUrl.origin) {
+    throw new Error('Cannot navigate to a different origin.');
+  }
+
+  if (nextUrl.searchParams.size > 0) {
+    return nextUrl.pathname + '?' + nextUrl.searchParams.toString();
+  } else {
+    return nextUrl.pathname;
+  }
+}
+
+export function useNavigation() {
+  const {setLocation} = useContext(RiverRouterContext);
+
+  return useMemo(() => {
+    function push(nav: NavigationDirection) {
+      setLocation(
+        RouterLocation.parse(river__evaluateNavigationDirection(nav), 'push'),
+      );
+    }
+
+    function replace(nav: NavigationDirection) {
+      setLocation(
+        RouterLocation.parse(
+          river__evaluateNavigationDirection(nav),
+          'replace',
+        ),
+      );
+    }
+
+    function pushRoute<R extends RouteId>(
+      routeId: R,
+      params: z.input<RouterConf[R]['schema']>,
+    ) {
+      setLocation(
+        RouterLocation.parse(
+          river__createPathForRoute(routeId, params),
+          'push',
+        ),
+      );
+    }
+
+    function replaceRoute<R extends RouteId>(
+      routeId: R,
+      params: z.input<RouterConf[R]['schema']>,
+    ) {
+      setLocation((prevLoc) =>
+        RouterLocation.parse(
+          river__createPathForRoute(routeId, {...prevLoc.params(), ...params}),
+          'replace',
+        ),
+      );
+    }
+
+    return {push, replace, pushRoute, replaceRoute} as const;
+  }, [setLocation]);
 }
 
 export function Link({
@@ -322,7 +378,7 @@ export function Link({
   onClick,
   ...props
 }: AnchorHTMLAttributes<HTMLAnchorElement>) {
-  const {push} = useRouter();
+  const {push} = useNavigation();
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
@@ -361,11 +417,14 @@ export function RouteLink<R extends RouteId>({
   params,
   ...props
 }: PropsWithChildren<LinkProps<R>>) {
-  const {createUrlForRoute} = useRouter();
   const href = useMemo(
-    () => createUrlForRoute(route, params).toString(),
-    [createUrlForRoute, params, route],
+    () => river__createPathForRoute(route, params).toString(),
+    [params, route],
   );
 
   return <Link {...props} href={href} />;
+}
+
+export function listRoutes() {
+  return Object.keys(ROUTER_CONF);
 }

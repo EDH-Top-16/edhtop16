@@ -6,10 +6,10 @@ import {
   tournaments_TournamentsQuery,
   TournamentSortBy,
 } from '#genfiles/queries/tournaments_TournamentsQuery.graphql';
-import {Link, RouteLink, useRouter} from '#genfiles/river/router';
+import {RouteLink, useNavigation} from '#genfiles/river/router';
 import {useSeoMeta} from '@unhead/react';
 import {format} from 'date-fns';
-import {PropsWithChildren, useCallback, useMemo} from 'react';
+import {PropsWithChildren, useMemo} from 'react';
 import {
   EntryPointComponent,
   graphql,
@@ -98,7 +98,7 @@ function TournamentsPageShell({
     description: 'Discover top and recent cEDH tournaments!',
   });
 
-  const {replaceRoute} = useRouter();
+  const {replaceRoute} = useNavigation();
 
   return (
     <>

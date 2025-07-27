@@ -4,7 +4,7 @@ import {TID_TournamentBanner$key} from '#genfiles/queries/TID_TournamentBanner.g
 import {TID_TournamentMeta$key} from '#genfiles/queries/TID_TournamentMeta.graphql';
 import {TID_TournamentPageShell$key} from '#genfiles/queries/TID_TournamentPageShell.graphql';
 import {TID_TournamentQuery} from '#genfiles/queries/TID_TournamentQuery.graphql';
-import {Link, useRouter} from '#genfiles/river/router';
+import {Link, useNavigation} from '#genfiles/river/router';
 import ArrowRightIcon from '@heroicons/react/24/solid/ArrowRightIcon';
 import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
@@ -305,7 +305,7 @@ function TournamentPageShell({
 
   useTournamentMeta(tournament);
 
-  const {replaceRoute} = useRouter();
+  const {replaceRoute} = useNavigation();
   const setSelectedTab = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       const nextKey = (e.target as HTMLButtonElement).id;
@@ -392,7 +392,7 @@ export const TournamentViewPage: EntryPointComponent<
     queries.tournamentQueryRef,
   );
 
-  const {replaceRoute} = useRouter();
+  const {replaceRoute} = useNavigation();
 
   return (
     <TournamentPageShell

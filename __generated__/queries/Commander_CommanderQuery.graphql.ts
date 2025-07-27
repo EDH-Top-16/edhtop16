@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<02ccd0284456ae84a44022e2327f41a3>>
- * @relayHash 4d4cb5a7f294c2a0539a4cf90f680466
+ * @generated SignedSource<<649763c2eaac29a0e0252aa66f21047c>>
+ * @relayHash d14bceddd8ad6f225207db2604c4f6b4
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 4d4cb5a7f294c2a0539a4cf90f680466
+// @relayRequestID d14bceddd8ad6f225207db2604c4f6b4
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -18,7 +18,7 @@ export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "S
 export type Commander_CommanderQuery$variables = {
   commander: string;
   maxStanding?: number | null | undefined;
-  minEventSize: number;
+  minEventSize?: number | null | undefined;
   sortBy: EntriesSortBy;
   timePeriod: TimePeriod;
 };
@@ -498,7 +498,7 @@ return {
     ]
   },
   "params": {
-    "id": "4d4cb5a7f294c2a0539a4cf90f680466",
+    "id": "d14bceddd8ad6f225207db2604c4f6b4",
     "metadata": {},
     "name": "Commander_CommanderQuery",
     "operationKind": "query",
@@ -507,7 +507,7 @@ return {
 };
 })();
 
-(node as any).hash = "9d0a57bb7408f4160b8eb2b11afdc110";
+(node as any).hash = "1c8dc10b97acee5166a8f1fa420adf66";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);
