@@ -25,6 +25,7 @@ import {ColorSelection} from '../components/color_selection';
 import {Footer} from '../components/footer';
 import {LoadMoreButton} from '../components/load_more';
 import {Navigation} from '../components/navigation';
+import {NumberInputDropdown} from '../components/number_input_dropdown';
 import {Select} from '../components/select';
 import {formatPercent} from '../lib/client/format';
 
@@ -159,12 +160,15 @@ function CommandersPageShell({
     description: 'Discover top performing commanders in cEDH!',
   });
 
-  const {replaceRoute} = useNavigation();
+const {replaceRoute} = useNavigation();
   const [display, toggleDisplay] = useCommandersDisplay();
 
   // Add local state for debounced inputs
   const [localMinEntries, setLocalMinEntries] = useState(minEntries?.toString() || '');
   const [localEventSize, setLocalEventSize] = useState(minTournamentSize?.toString() || '');
+  
+  // Add state for dropdown management
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   // Update local state when props change
   useEffect(() => {
@@ -211,6 +215,43 @@ function CommandersPageShell({
     }, 300),
     [replaceRoute]
   );
+
+  // Add missing handler functions for NumberInputDropdown
+  const handleEventSizeChange = useCallback((value: string) => {
+    setLocalEventSize(value);
+    debouncedEventSizeUpdate(value);
+  }, [debouncedEventSizeUpdate]);
+
+  const handleEventSizeSelect = useCallback((value: number | null) => {
+    const stringValue = value?.toString() || '';
+    setLocalEventSize(stringValue);
+    setOpenDropdown(null);
+    replaceRoute('/', {
+      minSize: value,
+    });
+  }, [replaceRoute]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === 'Go') {
+      (e.target as HTMLInputElement).blur();
+      setOpenDropdown(null);
+    }
+  }, []);
+
+  // Add missing handler functions for min entries (in case you want to convert that to NumberInputDropdown too)
+  const handleMinEntriesChange = useCallback((value: string) => {
+    setLocalMinEntries(value);
+    debouncedMinEntriesUpdate(value);
+  }, [debouncedMinEntriesUpdate]);
+
+  const handleMinEntriesSelect = useCallback((value: number | null) => {
+    const stringValue = value?.toString() || '';
+    setLocalMinEntries(stringValue);
+    setOpenDropdown(null);
+    replaceRoute('/', {
+      minEntries: value,
+    });
+  }, [replaceRoute]);
 
   return (
     <>
@@ -385,200 +426,45 @@ function CommandersPageShell({
                 </div>
               </div>
             </div>
-
             <div className="relative flex flex-col">
-              <label htmlFor="commanders-min-entries" className="text-sm font-medium mb-1 text-white text-center">
-                Commander Entries
-              </label>
-              <div className="relative">
-                <input
-                  id="commanders-min-entries"
-                  type="number"
-                  min="1"
-                  value={localMinEntries || ''}
-                  onChange={(e) => {
-                    // Update local state immediately for responsive UI
-                    setLocalMinEntries(e.target.value);
-                    // Debounce the route update
-                    debouncedMinEntriesUpdate(e.target.value);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === 'Go') {
-                      (e.target as HTMLInputElement).blur();
-                      const dropdown = (e.target as HTMLElement).parentElement?.querySelector('.min-entries-dropdown');
-                      if (dropdown) {
-                        dropdown.classList.add('hidden');
-                      }
-                    }
-                  }}
-                  onFocus={(e) => {
-                    const dropdown = e.target.parentElement?.querySelector('.min-entries-dropdown');
-                    if (dropdown) {
-                      dropdown.classList.remove('hidden');
-                    }
-                  }}
-                  onBlur={(e) => {
-                    // Delay hiding to allow clicking on dropdown options
-                    setTimeout(() => {
-                      const dropdown = e.target.parentElement?.querySelector('.min-entries-dropdown');
-                      if (dropdown) {
-                        dropdown.classList.add('hidden');
-                      }
-                    }, 150);
-                  }}
-                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
-                  placeholder="Commander Entries"
-                />
-                <div className="min-entries-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
-                      setLocalMinEntries('')
-                      replaceRoute('/', {
-                        minEntries: null,
-                      });
-                    }}
-                  >
-                    All Entries
-                  </div>
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
-                      setLocalMinEntries('20');
-                      replaceRoute('/', {
-                        minEntries: 20,
-                      });
-                    }}
-                  >
-                    20+ Entries
-                  </div>
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
-                      setLocalMinEntries('40');
-                      replaceRoute('/', {
-                        minEntries: 40,
-                      });
-                    }}
-                  >
-                    40+ Entries
-                  </div>
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
-                      setLocalMinEntries('60');
-                      replaceRoute('/', {
-                        minEntries: 60,
-                      });
-                    }}
-                  >
-                    60+ Entries
-                  </div>
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
-                      setLocalMinEntries('100');
-                      replaceRoute('/', {
-                        minEntries: 100,
-                      });
-                    }}
-                  >
-                    100+ Entries
-                  </div>
-                </div>
-              </div>
+              <NumberInputDropdown
+                id="commanders-min-entries"
+                label="Commander Entries"
+                value={localMinEntries || ''}
+                placeholder="Commander Entries"
+                min="1"
+                dropdownClassName="min-entries-dropdown"
+                options={[
+                  { value: null, label: 'All Entries' },
+                  { value: 20, label: '20+ Entries' },
+                  { value: 40, label: '40+ Entries' },
+                  { value: 60, label: '60+ Entries' },
+                  { value: 100, label: '100+ Entries' }
+                ]}
+                onChange={handleMinEntriesChange}
+                onSelect={handleMinEntriesSelect}
+                onKeyDown={handleKeyDown}
+              />
             </div>
 
             <div className="relative flex flex-col">
-              <label htmlFor="commanders-event-size" className="text-sm font-medium mb-1 text-white text-center">
-                Event Size
-              </label>
-              <div className="relative">
-                <input
-                  id="commanders-event-size"
-                  type="number"
-                  min="1"
-                  value={localEventSize || ''}
-                  onChange={(e) => {
-                    // Update local state immediately for responsive UI
-                    setLocalEventSize(e.target.value);
-                    // Debounce the route update
-                    debouncedEventSizeUpdate(e.target.value);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === 'Go') {
-                      (e.target as HTMLInputElement).blur();
-                      const dropdown = (e.target as HTMLElement).parentElement?.querySelector('.event-size-dropdown');
-                      if (dropdown) {
-                        dropdown.classList.add('hidden');
-                      }
-                    }
-                  }}
-                  onFocus={(e) => {
-                    const dropdown = e.target.parentElement?.querySelector('.event-size-dropdown');
-                    if (dropdown) {
-                      dropdown.classList.remove('hidden');
-                    }
-                  }}
-                  onBlur={(e) => {
-                    // Delay hiding to allow clicking on dropdown options
-                    setTimeout(() => {
-                      const dropdown = e.target.parentElement?.querySelector('.event-size-dropdown');
-                      if (dropdown) {
-                        dropdown.classList.add('hidden');
-                      }
-                    }, 150);
-                  }}
-                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
-                  placeholder="Event Size"
-                />
-                <div className="event-size-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
-                      setLocalEventSize('');
-                      replaceRoute('/', {
-                        minSize: null,
-                      });
-                    }}
-                  >
-                    All Tournaments
-                  </div>
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
-                      setLocalEventSize('30');
-                      replaceRoute('/', {
-                        minSize: 30,
-                      });
-                    }}
-                  >
-                    30+ - Medium Events
-                  </div>
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
-                      setLocalEventSize('60');
-                      replaceRoute('/', {
-                        minSize: 60,
-                      });
-                    }}
-                  >
-                    60+ - Large Events
-                  </div>
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
-                      setLocalEventSize('100');
-                      replaceRoute('/', {
-                        minSize: 100,
-                      });
-                    }}
-                  >
-                    100+ - Major Events
-                  </div>                
-                </div>
-              </div>
+              <NumberInputDropdown
+                id="commanders-event-size"
+                label="Event Size"
+                value={localEventSize}
+                placeholder="Event Size"
+                min="1"
+                dropdownClassName="event-size-dropdown"
+                options={[
+                  { value: null, label: 'All Tournaments' },
+                  { value: 30, label: '30+ - Medium Events' },
+                  { value: 60, label: '60+ - Large Events' },
+                  { value: 100, label: '100+ - Major Events' }
+                ]}
+                onChange={handleEventSizeChange}
+                onSelect={handleEventSizeSelect}
+                onKeyDown={handleKeyDown}
+              />
             </div>
           </div>
         </div>
