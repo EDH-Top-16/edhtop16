@@ -46,9 +46,8 @@ npm run dev
 ### Rebuilding the Schema, Relay, and River to Reflect Changes
 
 ```sh
-npm run generate:schem
-npm run generate:relay
-npm run generate:river
+npm run generate:schema \
+npm run generate:relay \
 npm run dev
 ```
 
