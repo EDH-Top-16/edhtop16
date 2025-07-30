@@ -26,6 +26,7 @@ import {Footer} from '../components/footer';
 import {LoadMoreButton} from '../components/load_more';
 import {Navigation} from '../components/navigation';
 import {NumberInputDropdown} from '../components/number_input_dropdown';
+import {Dropdown} from '../components/dropdown';
 import {Select} from '../components/select';
 import {formatPercent} from '../lib/client/format';
 
@@ -284,147 +285,48 @@ const {replaceRoute} = useNavigation();
 
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-4 lg:flex-nowrap lg:justify-end">
             <div className="relative flex flex-col">
-              <label htmlFor="commanders-sort-by" className="text-sm font-medium mb-1 text-white text-center">
-                Sort By
-              </label>
-              <div className="relative">
-                <input
-                  id="commanders-sort-by"
-                  type="text"
-                  value={sortBy === 'POPULARITY' ? 'Most Popular' : 'Top Performing'}
-                  readOnly
-                  onFocus={(e) => {
-                    const dropdown = e.target.parentElement?.querySelector('.sort-by-dropdown');
-                    if (dropdown) {
-                      dropdown.classList.remove('hidden');
-                    }
-                  }}
-                  onBlur={(e) => {
-                    // Delay hiding to allow clicking on dropdown options
-                    setTimeout(() => {
-                      const dropdown = e.target.parentElement?.querySelector('.sort-by-dropdown');
-                      if (dropdown) {
-                        dropdown.classList.add('hidden');
-                      }
-                    }, 150);
-                  }}
-                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
+              <Dropdown
+                id="commanders-sort-by"
+                label="Sort By"
+                value={sortBy === 'POPULARITY' ? 'Most Popular' : 'Top Performing'}
+                options={[
+                  { value: 'CONVERSION' as CommandersSortBy, label: 'Top Performing' },
+                  { value: 'POPULARITY' as CommandersSortBy, label: 'Most Popular' }
+                ]}
+                onSelect={(value) => {
+                  replaceRoute('/', {
+                    sortBy: value,
+                  });
+                }}
                 />
-                <div className="sort-by-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
-                      replaceRoute('/', {
-                        sortBy: 'CONVERSION' as CommandersSortBy,
-                      });
-                    }}
-                  >
-                    Top Performing
-                  </div>
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer"
-                    onMouseDown={(e) => {
-                      replaceRoute('/', {
-                        sortBy: 'POPULARITY' as CommandersSortBy,
-                      });
-                    }}
-                  >
-                    Most Popular
-                  </div>
-                </div>
-              </div>
             </div>
 
             <div className="relative flex flex-col">
-              <label htmlFor="commanders-time-period" className="text-sm font-medium mb-1 text-white text-center">
-                Time Period
-              </label>
-              <div className="relative">
-                <input
-                  id="commanders-time-period"
-                  type="text"
-                  value={timePeriod === 'ONE_MONTH' ? '1 Month' : timePeriod === 'THREE_MONTHS' ? '3 Months' : timePeriod === 'SIX_MONTHS' ? '6 Months' : timePeriod === 'ONE_YEAR' ? '1 Year' : timePeriod === 'ALL_TIME' ? 'All Time' : 'Post Ban'}
-                  readOnly
-                  onFocus={(e) => {
-                    const dropdown = e.target.parentElement?.querySelector('.time-period-dropdown');
-                    if (dropdown) {
-                      dropdown.classList.remove('hidden');
-                    }
-                  }}
-                  onBlur={(e) => {
-                    // Delay hiding to allow clicking on dropdown options
-                    setTimeout(() => {
-                      const dropdown = e.target.parentElement?.querySelector('.time-period-dropdown');
-                      if (dropdown) {
-                        dropdown.classList.add('hidden');
-                      }
-                    }, 150);
-                  }}
-                  className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 cursor-pointer"
-                />
-                <div className="time-period-dropdown absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden">
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
-                      replaceRoute('/', {
-                        timePeriod: 'ONE_MONTH',
-                      });
-                    }}
-                  >
-                    1 Month
-                  </div>
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
-                      replaceRoute('/', {
-                        timePeriod: 'THREE_MONTHS',
-                      });
-                    }}
-                  >
-                    3 Months
-                  </div>
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
-                      replaceRoute('/', {
-                        timePeriod: 'SIX_MONTHS',
-                      });
-                    }}
-                  >
-                    6 Months
-                  </div>
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
-                      replaceRoute('/', {
-                        timePeriod: 'ONE_YEAR',
-                      });
-                    }}
-                  >
-                    1 Year
-                  </div>
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
-                      replaceRoute('/', {
-                        timePeriod: 'ALL_TIME',
-                      });
-                    }}
-                  >
-                    All Time
-                  </div>
-                  <div
-                    className="px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer border-b border-gray-600"
-                    onMouseDown={(e) => {
-                      replaceRoute('/', {
-                        timePeriod: 'POST_BAN',
-                      });
-                    }}
-                  >
-                    Post Ban
-                  </div>
-                </div>
-              </div>
+              <Dropdown
+                id="commanders-time-period"
+                label="Time Period"
+                value={
+                  timePeriod === 'ONE_MONTH' ? '1 Month' : 
+                  timePeriod === 'THREE_MONTHS' ? '3 Months' : 
+                  timePeriod === 'SIX_MONTHS' ? '6 Months' : 
+                  timePeriod === 'ONE_YEAR' ? '1 Year' : 
+                  timePeriod === 'ALL_TIME' ? 'All Time' : 
+                  'Post Ban'
+                }
+                options={[
+                  { value: 'ONE_MONTH', label: '1 Month' },
+                  { value: 'THREE_MONTHS', label: '3 Months' },
+                  { value: 'SIX_MONTHS', label: '6 Months' },
+                  { value: 'ONE_YEAR', label: '1 Year' },
+                  { value: 'ALL_TIME', label: 'All Time' },
+                  { value: 'POST_BAN', label: 'Post Ban' }
+                ]}
+                onSelect={(value) => {
+                  replaceRoute('/', {
+                    timePeriod: value,
+                  });
+                }}
+              />
             </div>
             <div className="relative flex flex-col">
               <NumberInputDropdown
