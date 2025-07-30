@@ -9,7 +9,13 @@ import {
 import {RouteLink, useNavigation} from '#genfiles/river/router';
 import {useSeoMeta} from '@unhead/react';
 import {format} from 'date-fns';
-import {PropsWithChildren, useMemo, useState, useEffect, useCallback} from 'react';
+import {
+  PropsWithChildren,
+  useMemo,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 import {
   EntryPointComponent,
   graphql,
@@ -24,7 +30,10 @@ import {LoadMoreButton} from '../components/load_more';
 import {Navigation} from '../components/navigation';
 import {NumberInputDropdown} from '../components/number_input_dropdown';
 
-function debounce<T extends (...args: any[]) => any>(func: T, delay: number): T {
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  delay: number,
+): T {
   let timeoutId: NodeJS.Timeout;
   return ((...args: any[]) => {
     clearTimeout(timeoutId);
@@ -110,13 +119,11 @@ function TournamentsPageShell({
   const {replaceRoute} = useNavigation();
 
   const [localMinSize, setLocalMinSize] = useState(
-    minSize && parseInt(minSize, 10) > 0 ? minSize : ''
+    minSize && parseInt(minSize, 10) > 0 ? minSize : '',
   );
 
   useEffect(() => {
-    setLocalMinSize(
-      minSize && parseInt(minSize, 10) > 0 ? minSize : ''
-    );
+    setLocalMinSize(minSize && parseInt(minSize, 10) > 0 ? minSize : '');
   }, [minSize]);
 
   const debouncedMinSizeUpdate = useCallback(
@@ -130,19 +137,25 @@ function TournamentsPageShell({
         }
       }
     }, 300),
-    [replaceRoute]
+    [replaceRoute],
   );
 
-  const handleMinSizeChange = useCallback((value: string) => {
-    setLocalMinSize(value);
-    debouncedMinSizeUpdate(value);
-  }, [debouncedMinSizeUpdate]);
+  const handleMinSizeChange = useCallback(
+    (value: string) => {
+      setLocalMinSize(value);
+      debouncedMinSizeUpdate(value);
+    },
+    [debouncedMinSizeUpdate],
+  );
 
-  const handleMinSizeSelect = useCallback((value: number | null) => {
-    const stringValue = value?.toString() || '';
-    setLocalMinSize(stringValue);
-    replaceRoute('/tournaments', {minSize: value || 0});
-  }, [replaceRoute]);
+  const handleMinSizeSelect = useCallback(
+    (value: number | null) => {
+      const stringValue = value?.toString() || '';
+      setLocalMinSize(stringValue);
+      replaceRoute('/tournaments', {minSize: value || 0});
+    },
+    [replaceRoute],
+  );
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === 'Go') {
@@ -169,8 +182,11 @@ function TournamentsPageShell({
                 label="Sort By"
                 value={sortBy === 'PLAYERS' ? 'Tournament Size' : 'Date'}
                 options={[
-                  { value: 'PLAYERS' as TournamentSortBy, label: 'Tournament Size' },
-                  { value: 'DATE' as TournamentSortBy, label: 'Date' }
+                  {
+                    value: 'PLAYERS' as TournamentSortBy,
+                    label: 'Tournament Size',
+                  },
+                  {value: 'DATE' as TournamentSortBy, label: 'Date'},
                 ]}
                 onSelect={(value) => {
                   replaceRoute('/tournaments', {sortBy: value});
@@ -183,20 +199,25 @@ function TournamentsPageShell({
                 id="tournaments-time-period"
                 label="Time Period"
                 value={
-                  timePeriod === 'ONE_MONTH' ? '1 Month' :
-                  timePeriod === 'THREE_MONTHS' ? '3 Months' :
-                  timePeriod === 'SIX_MONTHS' ? '6 Months' :
-                  timePeriod === 'POST_BAN' ? 'Post Ban' :
-                  timePeriod === 'ONE_YEAR' ? '1 Year' :
-                  'All Time'
+                  timePeriod === 'ONE_MONTH'
+                    ? '1 Month'
+                    : timePeriod === 'THREE_MONTHS'
+                      ? '3 Months'
+                      : timePeriod === 'SIX_MONTHS'
+                        ? '6 Months'
+                        : timePeriod === 'POST_BAN'
+                          ? 'Post Ban'
+                          : timePeriod === 'ONE_YEAR'
+                            ? '1 Year'
+                            : 'All Time'
                 }
                 options={[
-                  { value: 'ONE_MONTH' as TimePeriod, label: '1 Month' },
-                  { value: 'THREE_MONTHS' as TimePeriod, label: '3 Months' },
-                  { value: 'SIX_MONTHS' as TimePeriod, label: '6 Months' },
-                  { value: 'POST_BAN' as TimePeriod, label: 'Post Ban' },
-                  { value: 'ONE_YEAR' as TimePeriod, label: '1 Year' },
-                  { value: 'ALL_TIME' as TimePeriod, label: 'All Time' }
+                  {value: 'ONE_MONTH' as TimePeriod, label: '1 Month'},
+                  {value: 'THREE_MONTHS' as TimePeriod, label: '3 Months'},
+                  {value: 'SIX_MONTHS' as TimePeriod, label: '6 Months'},
+                  {value: 'POST_BAN' as TimePeriod, label: 'Post Ban'},
+                  {value: 'ONE_YEAR' as TimePeriod, label: '1 Year'},
+                  {value: 'ALL_TIME' as TimePeriod, label: 'All Time'},
                 ]}
                 onSelect={(value) => {
                   replaceRoute('/tournaments', {timePeriod: value});
@@ -213,17 +234,16 @@ function TournamentsPageShell({
                 min="0"
                 dropdownClassName="min-size-dropdown"
                 options={[
-                  { value: null, label: 'All Tournaments' },
-                  { value: 32, label: '32+ Players' },
-                  { value: 60, label: '60+ Players' },
-                  { value: 100, label: '100+ Players' }
+                  {value: null, label: 'All Tournaments'},
+                  {value: 32, label: '32+ Players'},
+                  {value: 60, label: '60+ Players'},
+                  {value: 100, label: '100+ Players'},
                 ]}
                 onChange={handleMinSizeChange}
                 onSelect={handleMinSizeSelect}
                 onKeyDown={handleKeyDown}
               />
             </div>
-
           </div>
         </div>
 

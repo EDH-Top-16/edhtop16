@@ -38,37 +38,45 @@ export const NumberInputDropdown = memo(function NumberInputDropdown({
   const isOpenRef = useRef(false);
   const wasFocusedRef = useRef(false);
 
-  const handleOptionSelect = useCallback((optionValue: number | null) => {
-    onSelect(optionValue);
-    isOpenRef.current = false;
-  }, [onSelect]);
+  const handleOptionSelect = useCallback(
+    (optionValue: number | null) => {
+      onSelect(optionValue);
+      isOpenRef.current = false;
+    },
+    [onSelect],
+  );
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     wasFocusedRef.current = document.activeElement === e.target;
   }, []);
 
-  const handleInputClick = useCallback((e: React.MouseEvent) => {
-    if (wasFocusedRef.current && isOpenRef.current) {
-      const dropdown = (e.target as HTMLElement).parentElement?.querySelector(`.${dropdownClassName}`);
-      if (dropdown) {
-        dropdown.classList.add('hidden');
+  const handleInputClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (wasFocusedRef.current && isOpenRef.current) {
+        const dropdown = (e.target as HTMLElement).parentElement?.querySelector(
+          `.${dropdownClassName}`,
+        );
+        if (dropdown) {
+          dropdown.classList.add('hidden');
+        }
+        isOpenRef.current = false;
+        (e.target as HTMLInputElement).blur();
       }
-      isOpenRef.current = false;
-      (e.target as HTMLInputElement).blur();
-    }
-  }, [dropdownClassName]);
+    },
+    [dropdownClassName],
+  );
 
   return (
     <>
-      <label 
-        htmlFor={id} 
-        className="text-center text-sm font-medium mb-1 text-white"
+      <label
+        htmlFor={id}
+        className="mb-1 text-center text-sm font-medium text-white"
       >
         {label}
       </label>
       <div className="relative">
         <input
-          style={{ textAlign: 'center' }}
+          style={{textAlign: 'center'}}
           id={id}
           type="number"
           min={min}
@@ -79,7 +87,9 @@ export const NumberInputDropdown = memo(function NumberInputDropdown({
           onMouseDown={handleMouseDown}
           onClick={handleInputClick}
           onFocus={(e) => {
-            const dropdown = e.target.parentElement?.querySelector(`.${dropdownClassName}`);
+            const dropdown = e.target.parentElement?.querySelector(
+              `.${dropdownClassName}`,
+            );
             if (dropdown) {
               dropdown.classList.remove('hidden');
             }
@@ -87,7 +97,9 @@ export const NumberInputDropdown = memo(function NumberInputDropdown({
           }}
           onBlur={(e) => {
             setTimeout(() => {
-              const dropdown = e.target.parentElement?.querySelector(`.${dropdownClassName}`);
+              const dropdown = e.target.parentElement?.querySelector(
+                `.${dropdownClassName}`,
+              );
               if (dropdown) {
                 dropdown.classList.add('hidden');
               }
@@ -95,27 +107,27 @@ export const NumberInputDropdown = memo(function NumberInputDropdown({
             }, 150);
           }}
           className={cn(
-            'px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md',
-            'focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500',
-            'placeholder-gray-400 cursor-pointer',
-            '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
-            disabled && 'opacity-50 cursor-not-allowed',
-            className
+            'rounded-md border border-gray-600 bg-gray-800 px-3 py-2 text-center text-white',
+            'focus:border-gray-500 focus:ring-2 focus:ring-gray-500 focus:outline-none',
+            'cursor-pointer placeholder-gray-400',
+            '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+            disabled && 'cursor-not-allowed opacity-50',
+            className,
           )}
           placeholder={placeholder}
         />
-        <div 
+        <div
           className={cn(
             dropdownClassName,
-            'absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10 hidden'
+            'absolute top-full right-0 left-0 z-10 mt-1 hidden rounded-md border border-gray-600 bg-gray-800',
           )}
         >
           {options.map((option, index) => (
             <div
               key={option.value ?? 'null'}
               className={cn(
-                'px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer',
-                index < options.length - 1 && 'border-b border-gray-600'
+                'cursor-pointer px-3 py-2 text-center text-white hover:bg-gray-700',
+                index < options.length - 1 && 'border-b border-gray-600',
               )}
               onMouseDown={() => handleOptionSelect(option.value)}
             >

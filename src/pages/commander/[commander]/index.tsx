@@ -13,7 +13,13 @@ import {Link, useNavigation} from '#genfiles/river/router';
 import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
 import {format} from 'date-fns';
-import {PropsWithChildren, useState, useEffect, useCallback, startTransition} from 'react';
+import {
+  PropsWithChildren,
+  useState,
+  useEffect,
+  useCallback,
+  startTransition,
+} from 'react';
 import {
   EntryPointComponent,
   useFragment,
@@ -32,7 +38,10 @@ import {FirstPartyPromo} from '../../../components/promo';
 import {Select} from '../../../components/select';
 import {formatOrdinals, formatPercent} from '../../../lib/client/format';
 
-function debounce<T extends (...args: any[]) => any>(func: T, delay: number): T {
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  delay: number,
+): T {
   let timeoutId: NodeJS.Timeout;
   return ((...args: any[]) => {
     clearTimeout(timeoutId);
@@ -150,8 +159,6 @@ function CommanderBanner(props: {commander: Commander_CommanderBanner$key}) {
     props.commander,
   );
 
-  
-
   return (
     <div className="h-64 w-full bg-black/60 md:h-80">
       <div className="relative mx-auto flex h-full w-full max-w-(--breakpoint-xl) flex-col items-center justify-center">
@@ -194,7 +201,10 @@ function CommanderBanner(props: {commander: Commander_CommanderBanner$key}) {
           <div className="mr-1 ml-2 border-l border-white/60 py-2">
             &nbsp;
           </div>{' '}
-          {commander.stats.topCutBias > 0 ? (commander.stats.topCuts/commander.stats.topCutBias).toFixed(1) : '0.0'} Top Cut Bias
+          {commander.stats.topCutBias > 0
+            ? (commander.stats.topCuts / commander.stats.topCutBias).toFixed(1)
+            : '0.0'}{' '}
+          Top Cut Bias
         </div>
       </div>
     </div>
@@ -252,8 +262,12 @@ export function CommanderPageShell({
   useCommanderMeta(commander);
   const {replaceRoute} = useNavigation();
 
-  const [localEventSize, setLocalEventSize] = useState(minEventSize?.toString() || '');
-  const [localMaxStanding, setLocalMaxStanding] = useState(maxStanding?.toString() || '');
+  const [localEventSize, setLocalEventSize] = useState(
+    minEventSize?.toString() || '',
+  );
+  const [localMaxStanding, setLocalMaxStanding] = useState(
+    maxStanding?.toString() || '',
+  );
 
   useEffect(() => {
     setLocalEventSize(minEventSize?.toString() || '');
@@ -280,7 +294,7 @@ export function CommanderPageShell({
         }
       }
     }, 300),
-    [commander.name, replaceRoute]
+    [commander.name, replaceRoute],
   );
 
   const debouncedMaxStandingUpdate = useCallback(
@@ -300,36 +314,48 @@ export function CommanderPageShell({
         }
       }
     }, 300),
-    [commander.name, replaceRoute]
+    [commander.name, replaceRoute],
   );
 
-  const handleEventSizeChange = useCallback((value: string) => {
-    setLocalEventSize(value);
-    debouncedEventSizeUpdate(value);
-  }, [debouncedEventSizeUpdate]);
+  const handleEventSizeChange = useCallback(
+    (value: string) => {
+      setLocalEventSize(value);
+      debouncedEventSizeUpdate(value);
+    },
+    [debouncedEventSizeUpdate],
+  );
 
-  const handleEventSizeSelect = useCallback((value: number | null) => {
-    const stringValue = value?.toString() || '';
-    setLocalEventSize(stringValue);
-    replaceRoute('/commander/:commander', {
-      commander: commander.name,
-      minEventSize: value,
-    });
-  }, [commander.name, replaceRoute]);
+  const handleEventSizeSelect = useCallback(
+    (value: number | null) => {
+      const stringValue = value?.toString() || '';
+      setLocalEventSize(stringValue);
+      replaceRoute('/commander/:commander', {
+        commander: commander.name,
+        minEventSize: value,
+      });
+    },
+    [commander.name, replaceRoute],
+  );
 
-  const handleMaxStandingChange = useCallback((value: string) => {
-    setLocalMaxStanding(value);
-    debouncedMaxStandingUpdate(value);
-  }, [debouncedMaxStandingUpdate]);
+  const handleMaxStandingChange = useCallback(
+    (value: string) => {
+      setLocalMaxStanding(value);
+      debouncedMaxStandingUpdate(value);
+    },
+    [debouncedMaxStandingUpdate],
+  );
 
-  const handleMaxStandingSelect = useCallback((value: number | null) => {
-    const stringValue = value?.toString() || '';
-    setLocalMaxStanding(stringValue);
-    replaceRoute('/commander/:commander', {
-      commander: commander.name,
-      maxStanding: value,
-    });
-  }, [commander.name, replaceRoute]);
+  const handleMaxStandingSelect = useCallback(
+    (value: number | null) => {
+      const stringValue = value?.toString() || '';
+      setLocalMaxStanding(stringValue);
+      replaceRoute('/commander/:commander', {
+        commander: commander.name,
+        maxStanding: value,
+      });
+    },
+    [commander.name, replaceRoute],
+  );
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === 'Go') {
@@ -345,91 +371,96 @@ export function CommanderPageShell({
 
       <div className="mx-auto flex flex-wrap justify-center gap-x-4 gap-y-4 lg:flex-nowrap">
         <div className="relative flex flex-col">
-              <Dropdown
-                id="commander-sort-by"
-                label="Sort By"
-                value={sortBy === 'TOP' ? 'Top Performing' : 'Recent'}
-                options={[
-                  { value: 'TOP' as EntriesSortBy, label: 'Top Performing' },
-                  { value: 'NEW' as EntriesSortBy, label: 'Recent' }
-                ]}
-                onSelect={(value) => {
-                  replaceRoute('/commander/:commander', {
-                    commander: commander.name,
-                    sortBy: value,
-                  });
-                }}
-              />
-            </div>
+          <Dropdown
+            id="commander-sort-by"
+            label="Sort By"
+            value={sortBy === 'TOP' ? 'Top Performing' : 'Recent'}
+            options={[
+              {value: 'TOP' as EntriesSortBy, label: 'Top Performing'},
+              {value: 'NEW' as EntriesSortBy, label: 'Recent'},
+            ]}
+            onSelect={(value) => {
+              replaceRoute('/commander/:commander', {
+                commander: commander.name,
+                sortBy: value,
+              });
+            }}
+          />
+        </div>
 
-            <div className="relative flex flex-col">
-              <Dropdown
-                id="commander-time-period"
-                label="Time Period"
-                value={
-                  timePeriod === 'ONE_MONTH' ? '1 Month' : 
-                  timePeriod === 'THREE_MONTHS' ? '3 Months' : 
-                  timePeriod === 'SIX_MONTHS' ? '6 Months' : 
-                  timePeriod === 'ONE_YEAR' ? '1 Year' : 
-                  timePeriod === 'ALL_TIME' ? 'All Time' : 
-                  'Post Ban'
-                }
-                options={[
-                  { value: 'ONE_MONTH', label: '1 Month' },
-                  { value: 'THREE_MONTHS', label: '3 Months' },
-                  { value: 'SIX_MONTHS', label: '6 Months' },
-                  { value: 'ONE_YEAR', label: '1 Year' },
-                  { value: 'ALL_TIME', label: 'All Time' },
-                  { value: 'POST_BAN', label: 'Post Ban' }
-                ]}
-                onSelect={(value) => {
-                  replaceRoute('/commander/:commander', {
-                    commander: commander.name,
-                    timePeriod: value,
-                  });
-                }}
-              />
-            </div>
+        <div className="relative flex flex-col">
+          <Dropdown
+            id="commander-time-period"
+            label="Time Period"
+            value={
+              timePeriod === 'ONE_MONTH'
+                ? '1 Month'
+                : timePeriod === 'THREE_MONTHS'
+                  ? '3 Months'
+                  : timePeriod === 'SIX_MONTHS'
+                    ? '6 Months'
+                    : timePeriod === 'ONE_YEAR'
+                      ? '1 Year'
+                      : timePeriod === 'ALL_TIME'
+                        ? 'All Time'
+                        : 'Post Ban'
+            }
+            options={[
+              {value: 'ONE_MONTH', label: '1 Month'},
+              {value: 'THREE_MONTHS', label: '3 Months'},
+              {value: 'SIX_MONTHS', label: '6 Months'},
+              {value: 'ONE_YEAR', label: '1 Year'},
+              {value: 'ALL_TIME', label: 'All Time'},
+              {value: 'POST_BAN', label: 'Post Ban'},
+            ]}
+            onSelect={(value) => {
+              replaceRoute('/commander/:commander', {
+                commander: commander.name,
+                timePeriod: value,
+              });
+            }}
+          />
+        </div>
 
-            <div className="relative flex flex-col">
-              <NumberInputDropdown
-                id="commander-event-size"
-                label="Event Size"
-                value={localEventSize}
-                placeholder="Event Size"
-                min="0"
-                dropdownClassName="event-size-dropdown"
-                options={[
-                  { value: null, label: 'All Events' },
-                  { value: 32, label: '32+ - Medium Events' },
-                  { value: 60, label: '60+ - Large Events' },
-                  { value: 100, label: '100+ - Major Events' }
-                ]}
-                onChange={handleEventSizeChange}
-                onSelect={handleEventSizeSelect}
-                onKeyDown={handleKeyDown}
-              />
-            </div>
+        <div className="relative flex flex-col">
+          <NumberInputDropdown
+            id="commander-event-size"
+            label="Event Size"
+            value={localEventSize}
+            placeholder="Event Size"
+            min="0"
+            dropdownClassName="event-size-dropdown"
+            options={[
+              {value: null, label: 'All Events'},
+              {value: 32, label: '32+ - Medium Events'},
+              {value: 60, label: '60+ - Large Events'},
+              {value: 100, label: '100+ - Major Events'},
+            ]}
+            onChange={handleEventSizeChange}
+            onSelect={handleEventSizeSelect}
+            onKeyDown={handleKeyDown}
+          />
+        </div>
 
-            <div className="relative flex flex-col">
-              <NumberInputDropdown
-                id="commander-max-standing"
-                label="Standing Cutoff"
-                value={localMaxStanding}
-                placeholder="Standing Cutoff"
-                min="1"
-                dropdownClassName="max-standing-dropdown"
-                options={[
-                  { value: null, label: 'All Players' },
-                  { value: 1, label: 'Tournament Winners' },
-                  { value: 4, label: 'Top 4' },
-                  { value: 16, label: 'Top 16' }
-                ]}
-                onChange={handleMaxStandingChange}
-                onSelect={handleMaxStandingSelect}
-                onKeyDown={handleKeyDown}
-              />
-            </div>
+        <div className="relative flex flex-col">
+          <NumberInputDropdown
+            id="commander-max-standing"
+            label="Standing Cutoff"
+            value={localMaxStanding}
+            placeholder="Standing Cutoff"
+            min="1"
+            dropdownClassName="max-standing-dropdown"
+            options={[
+              {value: null, label: 'All Players'},
+              {value: 1, label: 'Tournament Winners'},
+              {value: 4, label: 'Top 4'},
+              {value: 16, label: 'Top 16'},
+            ]}
+            onChange={handleMaxStandingChange}
+            onSelect={handleMaxStandingSelect}
+            onKeyDown={handleKeyDown}
+          />
+        </div>
       </div>
       {children}
     </>
@@ -516,4 +547,3 @@ export const CommanderPage: EntryPointComponent<
     </CommanderPageShell>
   );
 };
-

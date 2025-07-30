@@ -11,7 +11,13 @@ import RectangleStackIcon from '@heroicons/react/24/solid/RectangleStackIcon';
 import TableCellsIcon from '@heroicons/react/24/solid/TableCellsIcon';
 import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
-import {PropsWithChildren, useCallback, useMemo, useState, useEffect} from 'react';
+import {
+  PropsWithChildren,
+  useCallback,
+  useMemo,
+  useState,
+  useEffect,
+} from 'react';
 import {
   EntryPointComponent,
   graphql,
@@ -31,7 +37,10 @@ import {Select} from '../components/select';
 import {formatPercent} from '../lib/client/format';
 
 // Add debounce function
-function debounce<T extends (...args: any[]) => any>(func: T, delay: number): T {
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  delay: number,
+): T {
   let timeoutId: NodeJS.Timeout;
   return ((...args: any[]) => {
     clearTimeout(timeoutId);
@@ -161,12 +170,16 @@ function CommandersPageShell({
     description: 'Discover top performing commanders in cEDH!',
   });
 
-const {replaceRoute} = useNavigation();
+  const {replaceRoute} = useNavigation();
   const [display, toggleDisplay] = useCommandersDisplay();
 
-  const [localMinEntries, setLocalMinEntries] = useState(minEntries?.toString() || '');
+  const [localMinEntries, setLocalMinEntries] = useState(
+    minEntries?.toString() || '',
+  );
   const [localEventSize, setLocalEventSize] = useState(
-    minTournamentSize && minTournamentSize > 0 ? minTournamentSize.toString() : ''
+    minTournamentSize && minTournamentSize > 0
+      ? minTournamentSize.toString()
+      : '',
   );
 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -177,7 +190,9 @@ const {replaceRoute} = useNavigation();
 
   useEffect(() => {
     setLocalEventSize(
-      minTournamentSize && minTournamentSize > 0 ? minTournamentSize.toString() : ''
+      minTournamentSize && minTournamentSize > 0
+        ? minTournamentSize.toString()
+        : '',
     );
   }, [minTournamentSize]);
 
@@ -196,7 +211,7 @@ const {replaceRoute} = useNavigation();
         }
       }
     }, 300),
-    [replaceRoute]
+    [replaceRoute],
   );
 
   const debouncedEventSizeUpdate = useCallback(
@@ -214,22 +229,28 @@ const {replaceRoute} = useNavigation();
         }
       }
     }, 300),
-    [replaceRoute]
+    [replaceRoute],
   );
 
-  const handleEventSizeChange = useCallback((value: string) => {
-    setLocalEventSize(value);
-    debouncedEventSizeUpdate(value);
-  }, [debouncedEventSizeUpdate]);
+  const handleEventSizeChange = useCallback(
+    (value: string) => {
+      setLocalEventSize(value);
+      debouncedEventSizeUpdate(value);
+    },
+    [debouncedEventSizeUpdate],
+  );
 
-  const handleEventSizeSelect = useCallback((value: number | null) => {
-    const stringValue = value?.toString() || '';
-    setLocalEventSize(stringValue);
-    setOpenDropdown(null);
-    replaceRoute('/', {
-      minSize: value,
-    });
-  }, [replaceRoute]);
+  const handleEventSizeSelect = useCallback(
+    (value: number | null) => {
+      const stringValue = value?.toString() || '';
+      setLocalEventSize(stringValue);
+      setOpenDropdown(null);
+      replaceRoute('/', {
+        minSize: value,
+      });
+    },
+    [replaceRoute],
+  );
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === 'Go') {
@@ -238,19 +259,25 @@ const {replaceRoute} = useNavigation();
     }
   }, []);
 
-  const handleMinEntriesChange = useCallback((value: string) => {
-    setLocalMinEntries(value);
-    debouncedMinEntriesUpdate(value);
-  }, [debouncedMinEntriesUpdate]);
+  const handleMinEntriesChange = useCallback(
+    (value: string) => {
+      setLocalMinEntries(value);
+      debouncedMinEntriesUpdate(value);
+    },
+    [debouncedMinEntriesUpdate],
+  );
 
-  const handleMinEntriesSelect = useCallback((value: number | null) => {
-    const stringValue = value?.toString() || '';
-    setLocalMinEntries(stringValue);
-    setOpenDropdown(null);
-    replaceRoute('/', {
-      minEntries: value,
-    });
-  }, [replaceRoute]);
+  const handleMinEntriesSelect = useCallback(
+    (value: number | null) => {
+      const stringValue = value?.toString() || '';
+      setLocalMinEntries(stringValue);
+      setOpenDropdown(null);
+      replaceRoute('/', {
+        minEntries: value,
+      });
+    },
+    [replaceRoute],
+  );
 
   return (
     <>
@@ -286,17 +313,25 @@ const {replaceRoute} = useNavigation();
               <Dropdown
                 id="commanders-sort-by"
                 label="Sort By"
-                value={sortBy === 'POPULARITY' ? 'Most Popular' : 'Top Performing'}
+                value={
+                  sortBy === 'POPULARITY' ? 'Most Popular' : 'Top Performing'
+                }
                 options={[
-                  { value: 'CONVERSION' as CommandersSortBy, label: 'Top Performing' },
-                  { value: 'POPULARITY' as CommandersSortBy, label: 'Most Popular' }
+                  {
+                    value: 'CONVERSION' as CommandersSortBy,
+                    label: 'Top Performing',
+                  },
+                  {
+                    value: 'POPULARITY' as CommandersSortBy,
+                    label: 'Most Popular',
+                  },
                 ]}
                 onSelect={(value) => {
                   replaceRoute('/', {
                     sortBy: value,
                   });
                 }}
-                />
+              />
             </div>
 
             <div className="relative flex flex-col">
@@ -304,20 +339,25 @@ const {replaceRoute} = useNavigation();
                 id="commanders-time-period"
                 label="Time Period"
                 value={
-                  timePeriod === 'ONE_MONTH' ? '1 Month' : 
-                  timePeriod === 'THREE_MONTHS' ? '3 Months' : 
-                  timePeriod === 'SIX_MONTHS' ? '6 Months' : 
-                  timePeriod === 'ONE_YEAR' ? '1 Year' : 
-                  timePeriod === 'ALL_TIME' ? 'All Time' : 
-                  'Post Ban'
+                  timePeriod === 'ONE_MONTH'
+                    ? '1 Month'
+                    : timePeriod === 'THREE_MONTHS'
+                      ? '3 Months'
+                      : timePeriod === 'SIX_MONTHS'
+                        ? '6 Months'
+                        : timePeriod === 'ONE_YEAR'
+                          ? '1 Year'
+                          : timePeriod === 'ALL_TIME'
+                            ? 'All Time'
+                            : 'Post Ban'
                 }
                 options={[
-                  { value: 'ONE_MONTH', label: '1 Month' },
-                  { value: 'THREE_MONTHS', label: '3 Months' },
-                  { value: 'SIX_MONTHS', label: '6 Months' },
-                  { value: 'ONE_YEAR', label: '1 Year' },
-                  { value: 'ALL_TIME', label: 'All Time' },
-                  { value: 'POST_BAN', label: 'Post Ban' }
+                  {value: 'ONE_MONTH', label: '1 Month'},
+                  {value: 'THREE_MONTHS', label: '3 Months'},
+                  {value: 'SIX_MONTHS', label: '6 Months'},
+                  {value: 'ONE_YEAR', label: '1 Year'},
+                  {value: 'ALL_TIME', label: 'All Time'},
+                  {value: 'POST_BAN', label: 'Post Ban'},
                 ]}
                 onSelect={(value) => {
                   replaceRoute('/', {
@@ -335,11 +375,11 @@ const {replaceRoute} = useNavigation();
                 min="1"
                 dropdownClassName="min-entries-dropdown"
                 options={[
-                  { value: null, label: 'All Entries' },
-                  { value: 20, label: '20+ Entries' },
-                  { value: 40, label: '40+ Entries' },
-                  { value: 60, label: '60+ Entries' },
-                  { value: 100, label: '100+ Entries' }
+                  {value: null, label: 'All Entries'},
+                  {value: 20, label: '20+ Entries'},
+                  {value: 40, label: '40+ Entries'},
+                  {value: 60, label: '60+ Entries'},
+                  {value: 100, label: '100+ Entries'},
                 ]}
                 onChange={handleMinEntriesChange}
                 onSelect={handleMinEntriesSelect}
@@ -356,10 +396,10 @@ const {replaceRoute} = useNavigation();
                 min="1"
                 dropdownClassName="event-size-dropdown"
                 options={[
-                  { value: null, label: 'All Tournaments' },
-                  { value: 30, label: '30+ - Medium Events' },
-                  { value: 60, label: '60+ - Large Events' },
-                  { value: 100, label: '100+ - Major Events' }
+                  {value: null, label: 'All Tournaments'},
+                  {value: 30, label: '30+ - Medium Events'},
+                  {value: 60, label: '60+ - Large Events'},
+                  {value: 100, label: '100+ - Major Events'},
                 ]}
                 onChange={handleEventSizeChange}
                 onSelect={handleEventSizeSelect}

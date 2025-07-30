@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import {useState, useCallback} from 'react';
 import cn from 'classnames';
 
 export interface DropdownOption<T = string> {
@@ -33,7 +33,7 @@ export function Dropdown<T = string>({
 
   const handleClick = useCallback(() => {
     if (!disabled) {
-      setIsOpen(prev => !prev);
+      setIsOpen((prev) => !prev);
     }
   }, [disabled]);
 
@@ -43,16 +43,19 @@ export function Dropdown<T = string>({
     }, 150);
   }, []);
 
-  const handleOptionSelect = useCallback((optionValue: T) => {
-    onSelect(optionValue);
-    setIsOpen(false);
-  }, [onSelect]);
+  const handleOptionSelect = useCallback(
+    (optionValue: T) => {
+      onSelect(optionValue);
+      setIsOpen(false);
+    },
+    [onSelect],
+  );
 
   return (
-    <div className={cn("relative flex flex-col", className)}>
-      <label 
-        htmlFor={id} 
-        className="text-sm font-medium mb-1 text-white text-center"
+    <div className={cn('relative flex flex-col', className)}>
+      <label
+        htmlFor={id}
+        className="mb-1 text-center text-sm font-medium text-white"
       >
         {label}
       </label>
@@ -67,23 +70,23 @@ export function Dropdown<T = string>({
           onClick={handleClick}
           onBlur={handleBlur}
           className={cn(
-            "px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500",
-            disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+            'rounded-md border border-gray-600 bg-gray-800 px-3 py-2 text-center text-white focus:border-gray-500 focus:ring-2 focus:ring-gray-500 focus:outline-none',
+            disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
           )}
         />
-        <div 
+        <div
           className={cn(
-            "absolute top-full left-0 right-0 bg-gray-800 border border-gray-600 rounded-md mt-1 z-10",
+            'absolute top-full right-0 left-0 z-10 mt-1 rounded-md border border-gray-600 bg-gray-800',
             dropdownClassName,
-            isOpen ? "block" : "hidden"
+            isOpen ? 'block' : 'hidden',
           )}
         >
           {options.map((option, index) => (
             <div
               key={`${option.value}-${index}`}
               className={cn(
-                "px-3 py-2 text-white text-center hover:bg-gray-700 cursor-pointer",
-                index < options.length - 1 && "border-b border-gray-600"
+                'cursor-pointer px-3 py-2 text-center text-white hover:bg-gray-700',
+                index < options.length - 1 && 'border-b border-gray-600',
               )}
               onMouseDown={(e) => {
                 e.preventDefault();
