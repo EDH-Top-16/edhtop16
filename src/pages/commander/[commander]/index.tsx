@@ -252,11 +252,9 @@ export function CommanderPageShell({
   useCommanderMeta(commander);
   const {replaceRoute} = useNavigation();
 
-  // Add local state for both input values
   const [localEventSize, setLocalEventSize] = useState(minEventSize?.toString() || '');
   const [localMaxStanding, setLocalMaxStanding] = useState(maxStanding?.toString() || '');
 
-  // Update local state when props change
   useEffect(() => {
     setLocalEventSize(minEventSize?.toString() || '');
   }, [minEventSize]);
@@ -265,7 +263,6 @@ export function CommanderPageShell({
     setLocalMaxStanding(maxStanding?.toString() || '');
   }, [maxStanding]);
 
-  // Create debounced route update function for event size
   const debouncedEventSizeUpdate = useCallback(
     debounce((value: string) => {
       if (value === '') {
@@ -286,7 +283,6 @@ export function CommanderPageShell({
     [commander.name, replaceRoute]
   );
 
-  // Create debounced route update function for max standing
   const debouncedMaxStandingUpdate = useCallback(
     debounce((value: string) => {
       if (value === '') {
@@ -307,7 +303,6 @@ export function CommanderPageShell({
     [commander.name, replaceRoute]
   );
 
-  // Add handler functions for the new components
   const handleEventSizeChange = useCallback((value: string) => {
     setLocalEventSize(value);
     debouncedEventSizeUpdate(value);
@@ -362,6 +357,35 @@ export function CommanderPageShell({
                   replaceRoute('/commander/:commander', {
                     commander: commander.name,
                     sortBy: value,
+                  });
+                }}
+              />
+            </div>
+
+            <div className="relative flex flex-col">
+              <Dropdown
+                id="commander-time-period"
+                label="Time Period"
+                value={
+                  timePeriod === 'ONE_MONTH' ? '1 Month' : 
+                  timePeriod === 'THREE_MONTHS' ? '3 Months' : 
+                  timePeriod === 'SIX_MONTHS' ? '6 Months' : 
+                  timePeriod === 'ONE_YEAR' ? '1 Year' : 
+                  timePeriod === 'ALL_TIME' ? 'All Time' : 
+                  'Post Ban'
+                }
+                options={[
+                  { value: 'ONE_MONTH', label: '1 Month' },
+                  { value: 'THREE_MONTHS', label: '3 Months' },
+                  { value: 'SIX_MONTHS', label: '6 Months' },
+                  { value: 'ONE_YEAR', label: '1 Year' },
+                  { value: 'ALL_TIME', label: 'All Time' },
+                  { value: 'POST_BAN', label: 'Post Ban' }
+                ]}
+                onSelect={(value) => {
+                  replaceRoute('/commander/:commander', {
+                    commander: commander.name,
+                    timePeriod: value,
                   });
                 }}
               />

@@ -152,7 +152,7 @@ function CommandersPageShell({
 }: PropsWithChildren<{
   colorId: string;
   minEntries?: number | null;
-  minTournamentSize: number;
+  minTournamentSize?: number | null;
   sortBy: CommandersSortBy;
   timePeriod: TimePeriod;
 }>) {
@@ -164,23 +164,23 @@ function CommandersPageShell({
 const {replaceRoute} = useNavigation();
   const [display, toggleDisplay] = useCommandersDisplay();
 
-  // Add local state for debounced inputs
   const [localMinEntries, setLocalMinEntries] = useState(minEntries?.toString() || '');
-  const [localEventSize, setLocalEventSize] = useState(minTournamentSize?.toString() || '');
-  
-  // Add state for dropdown management
+  const [localEventSize, setLocalEventSize] = useState(
+    minTournamentSize && minTournamentSize > 0 ? minTournamentSize.toString() : ''
+  );
+
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
-  // Update local state when props change
   useEffect(() => {
     setLocalMinEntries(minEntries?.toString() || '');
   }, [minEntries]);
 
   useEffect(() => {
-    setLocalEventSize(minTournamentSize?.toString() || '');
+    setLocalEventSize(
+      minTournamentSize && minTournamentSize > 0 ? minTournamentSize.toString() : ''
+    );
   }, [minTournamentSize]);
 
-  // Create debounced route update functions
   const debouncedMinEntriesUpdate = useCallback(
     debounce((value: string) => {
       if (value === '') {
@@ -217,7 +217,6 @@ const {replaceRoute} = useNavigation();
     [replaceRoute]
   );
 
-  // Add missing handler functions for NumberInputDropdown
   const handleEventSizeChange = useCallback((value: string) => {
     setLocalEventSize(value);
     debouncedEventSizeUpdate(value);
@@ -239,7 +238,6 @@ const {replaceRoute} = useNavigation();
     }
   }, []);
 
-  // Add missing handler functions for min entries (in case you want to convert that to NumberInputDropdown too)
   const handleMinEntriesChange = useCallback((value: string) => {
     setLocalMinEntries(value);
     debouncedMinEntriesUpdate(value);
@@ -353,7 +351,7 @@ const {replaceRoute} = useNavigation();
               <NumberInputDropdown
                 id="commanders-event-size"
                 label="Event Size"
-                value={localEventSize}
+                value={localEventSize || ''}
                 placeholder="Event Size"
                 min="1"
                 dropdownClassName="event-size-dropdown"
@@ -401,7 +399,7 @@ export const CommandersPage: EntryPointComponent<
         $timePeriod: TimePeriod!
         $sortBy: CommandersSortBy!
         $minEntries: Int
-        $minTournamentSize: Int!
+        $minTournamentSize: Int
         $colorId: String
       ) @preloadable {
         ...pages_topCommanders

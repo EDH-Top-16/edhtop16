@@ -44,12 +44,10 @@ export const NumberInputDropdown = memo(function NumberInputDropdown({
   }, [onSelect]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    // Track if input was already focused before this mousedown
     wasFocusedRef.current = document.activeElement === e.target;
   }, []);
 
   const handleInputClick = useCallback((e: React.MouseEvent) => {
-    // If input was already focused and dropdown is open, close it
     if (wasFocusedRef.current && isOpenRef.current) {
       const dropdown = (e.target as HTMLElement).parentElement?.querySelector(`.${dropdownClassName}`);
       if (dropdown) {
@@ -88,7 +86,6 @@ export const NumberInputDropdown = memo(function NumberInputDropdown({
             isOpenRef.current = true;
           }}
           onBlur={(e) => {
-            // Delay hiding to allow clicking on dropdown options
             setTimeout(() => {
               const dropdown = e.target.parentElement?.querySelector(`.${dropdownClassName}`);
               if (dropdown) {

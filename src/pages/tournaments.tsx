@@ -9,7 +9,7 @@ import {
 import {RouteLink, useNavigation} from '#genfiles/river/router';
 import {useSeoMeta} from '@unhead/react';
 import {format} from 'date-fns';
-import {PropsWithChildren, useMemo} from 'react';
+import {PropsWithChildren, useMemo, useState, useEffect, useCallback} from 'react';
 import {
   EntryPointComponent,
   graphql,
@@ -18,10 +18,19 @@ import {
   usePreloadedQuery,
 } from 'react-relay/hooks';
 import {Card} from '../components/card';
+import {Dropdown} from '../components/dropdown';
 import {Footer} from '../components/footer';
 import {LoadMoreButton} from '../components/load_more';
 import {Navigation} from '../components/navigation';
-import {Select} from '../components/select';
+import {NumberInputDropdown} from '../components/number_input_dropdown';
+
+function debounce<T extends (...args: any[]) => any>(func: T, delay: number): T {
+  let timeoutId: NodeJS.Timeout;
+  return ((...args: any[]) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  }) as T;
+}
 
 function TournamentCard(props: {commander: tournaments_TournamentCard$key}) {
   const tournament = useFragment(
@@ -100,58 +109,121 @@ function TournamentsPageShell({
 
   const {replaceRoute} = useNavigation();
 
+  const [localMinSize, setLocalMinSize] = useState(
+    minSize && parseInt(minSize, 10) > 0 ? minSize : ''
+  );
+
+  useEffect(() => {
+    setLocalMinSize(
+      minSize && parseInt(minSize, 10) > 0 ? minSize : ''
+    );
+  }, [minSize]);
+
+  const debouncedMinSizeUpdate = useCallback(
+    debounce((value: string) => {
+      if (value === '') {
+        replaceRoute('/tournaments', {minSize: 0});
+      } else {
+        const numValue = parseInt(value, 10);
+        if (!isNaN(numValue) && numValue >= 0) {
+          replaceRoute('/tournaments', {minSize: numValue});
+        }
+      }
+    }, 300),
+    [replaceRoute]
+  );
+
+  const handleMinSizeChange = useCallback((value: string) => {
+    setLocalMinSize(value);
+    debouncedMinSizeUpdate(value);
+  }, [debouncedMinSizeUpdate]);
+
+  const handleMinSizeSelect = useCallback((value: number | null) => {
+    const stringValue = value?.toString() || '';
+    setLocalMinSize(stringValue);
+    replaceRoute('/tournaments', {minSize: value || 0});
+  }, [replaceRoute]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === 'Go') {
+      (e.target as HTMLInputElement).blur();
+    }
+  }, []);
+
   return (
     <>
       <Navigation searchType="tournament" />
 
       <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">
-        <div className="mb-8 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0">
-          <h1 className="font-title flex-1 text-4xl font-extrabold text-white md:text-5xl">
-            cEDH Tournaments
-          </h1>
+        <div className="mb-8 flex flex-col items-start space-y-4 lg:flex-row lg:items-end lg:space-y-0">
+          <div className="flex-1">
+            <h1 className="font-title text-4xl font-extrabold text-white md:text-5xl">
+              cEDH Tournaments
+            </h1>
+          </div>
 
-          <div className="flex flex-wrap gap-x-4 gap-y-2">
-            <Select
-              id="tournaments-sort-by"
-              label="Sort By"
-              value={sortBy}
-              onChange={(value) => {
-                replaceRoute('/tournaments', {sortBy: value});
-              }}
-            >
-              <option value="PLAYERS">Tournament Size</option>
-              <option value="DATE">Date</option>
-            </Select>
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-4 lg:flex-nowrap lg:justify-end">
+            <div className="relative flex flex-col">
+              <Dropdown
+                id="tournaments-sort-by"
+                label="Sort By"
+                value={sortBy === 'PLAYERS' ? 'Tournament Size' : 'Date'}
+                options={[
+                  { value: 'PLAYERS' as TournamentSortBy, label: 'Tournament Size' },
+                  { value: 'DATE' as TournamentSortBy, label: 'Date' }
+                ]}
+                onSelect={(value) => {
+                  replaceRoute('/tournaments', {sortBy: value});
+                }}
+              />
+            </div>
 
-            <Select
-              id="tournaments-players"
-              label="Players"
-              value={minSize}
-              onChange={(value) => {
-                replaceRoute('/tournaments', {minSize: Number(value)});
-              }}
-            >
-              <option value="0">All Tournaments</option>
-              <option value="32">32+ Players</option>
-              <option value="60">60+ Players</option>
-              <option value="100">100+ Players</option>
-            </Select>
+            <div className="relative flex flex-col">
+              <Dropdown
+                id="tournaments-time-period"
+                label="Time Period"
+                value={
+                  timePeriod === 'ONE_MONTH' ? '1 Month' :
+                  timePeriod === 'THREE_MONTHS' ? '3 Months' :
+                  timePeriod === 'SIX_MONTHS' ? '6 Months' :
+                  timePeriod === 'POST_BAN' ? 'Post Ban' :
+                  timePeriod === 'ONE_YEAR' ? '1 Year' :
+                  'All Time'
+                }
+                options={[
+                  { value: 'ONE_MONTH' as TimePeriod, label: '1 Month' },
+                  { value: 'THREE_MONTHS' as TimePeriod, label: '3 Months' },
+                  { value: 'SIX_MONTHS' as TimePeriod, label: '6 Months' },
+                  { value: 'POST_BAN' as TimePeriod, label: 'Post Ban' },
+                  { value: 'ONE_YEAR' as TimePeriod, label: '1 Year' },
+                  { value: 'ALL_TIME' as TimePeriod, label: 'All Time' }
+                ]}
+                onSelect={(value) => {
+                  replaceRoute('/tournaments', {timePeriod: value});
+                }}
+              />
+            </div>
 
-            <Select
-              id="tournaments-time-period"
-              label="Time Period"
-              value={timePeriod}
-              onChange={(value) => {
-                replaceRoute('/tournaments', {timePeriod: value});
-              }}
-            >
-              <option value="ONE_MONTH">1 Month</option>
-              <option value="THREE_MONTHS">3 Months</option>
-              <option value="SIX_MONTHS">6 Months</option>
-              <option value="POST_BAN">Post Ban</option>
-              <option value="ONE_YEAR">1 Year</option>
-              <option value="ALL_TIME">All Time</option>
-            </Select>
+            <div className="relative flex flex-col">
+              <NumberInputDropdown
+                id="tournaments-min-size"
+                label="Tournament Size"
+                value={localMinSize || ''}
+                placeholder="Tournament Size"
+                min="0"
+                dropdownClassName="min-size-dropdown"
+                options={[
+                  { value: null, label: 'All Tournaments' },
+                  { value: 32, label: '32+ Players' },
+                  { value: 60, label: '60+ Players' },
+                  { value: 100, label: '100+ Players' }
+                ]}
+                onChange={handleMinSizeChange}
+                onSelect={handleMinSizeSelect}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
+
           </div>
         </div>
 

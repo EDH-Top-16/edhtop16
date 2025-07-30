@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<011aefdec93dc516cc29f8ae725a5766>>
- * @relayHash 02c6612a4f56165aa036a80398bfaf6b
+ * @generated SignedSource<<190447da53b4571a9dc9b647b80b1295>>
+ * @relayHash ef0a133118f34e37785e33f95b5ec8ad
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 02c6612a4f56165aa036a80398bfaf6b
+// @relayRequestID ef0a133118f34e37785e33f95b5ec8ad
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -18,7 +18,7 @@ export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "S
 export type pages_CommandersQuery$variables = {
   colorId?: string | null | undefined;
   minEntries?: number | null | undefined;
-  minTournamentSize: number;
+  minTournamentSize?: number | null | undefined;
   sortBy: CommandersSortBy;
   timePeriod: TimePeriod;
 };
@@ -320,7 +320,7 @@ return {
     ]
   },
   "params": {
-    "id": "02c6612a4f56165aa036a80398bfaf6b",
+    "id": "ef0a133118f34e37785e33f95b5ec8ad",
     "metadata": {},
     "name": "pages_CommandersQuery",
     "operationKind": "query",
@@ -329,7 +329,7 @@ return {
 };
 })();
 
-(node as any).hash = "24fe27d06e769c9158d04264503cfb96";
+(node as any).hash = "88f91c0f1581e4e62cd36c5ca782ba48";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

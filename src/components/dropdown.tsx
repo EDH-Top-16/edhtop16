@@ -38,7 +38,6 @@ export function Dropdown<T = string>({
   }, [disabled]);
 
   const handleBlur = useCallback(() => {
-    // Delay hiding to allow clicking on dropdown options
     setTimeout(() => {
       setIsOpen(false);
     }, 150);
