@@ -35,6 +35,7 @@ import {NumberInputDropdown} from '../components/number_input_dropdown';
 import {Dropdown} from '../components/dropdown';
 import {Select} from '../components/select';
 import {formatPercent} from '../lib/client/format';
+import { useCommanderPreferences } from '../lib/client/cookies';
 
 // Add debounce function
 function debounce<T extends (...args: any[]) => any>(
@@ -172,6 +173,7 @@ function CommandersPageShell({
 
   const {replaceRoute} = useNavigation();
   const [display, toggleDisplay] = useCommandersDisplay();
+  const {updatePreference} = useCommanderPreferences();
 
   const [localMinEntries, setLocalMinEntries] = useState(
     minEntries?.toString() || '',
@@ -232,6 +234,27 @@ function CommandersPageShell({
     [replaceRoute],
   );
 
+  const handleColorChange = useCallback((value: string | null) => {
+    updatePreference('colorId', value);
+    replaceRoute('/', {colorId: value || null});
+  }, [updatePreference, replaceRoute]);
+
+  const handleSortByChange = useCallback((value: CommandersSortBy) => {
+    updatePreference('sortBy', value);
+    replaceRoute('/', {sortBy: value});
+  }, [updatePreference, replaceRoute]);
+
+  const handleTimePeriodChange = useCallback((value: TimePeriod) => {
+    updatePreference('timePeriod', value);
+    replaceRoute('/', {timePeriod: value});
+  }, [updatePreference, replaceRoute]);
+
+  const handleDisplayToggle = useCallback(() => {
+    const newDisplay = display === 'table' ? 'card' : 'table';
+    updatePreference('display', newDisplay);
+    toggleDisplay();
+  }, [display, updatePreference, toggleDisplay]);
+
   const handleEventSizeChange = useCallback(
     (value: string) => {
       setLocalEventSize(value);
@@ -245,11 +268,12 @@ function CommandersPageShell({
       const stringValue = value?.toString() || '';
       setLocalEventSize(stringValue);
       setOpenDropdown(null);
+      updatePreference('minTournamentSize', value);
       replaceRoute('/', {
         minSize: value,
       });
     },
-    [replaceRoute],
+    [replaceRoute, updatePreference],
   );
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -272,11 +296,12 @@ function CommandersPageShell({
       const stringValue = value?.toString() || '';
       setLocalMinEntries(stringValue);
       setOpenDropdown(null);
+      updatePreference('minEntries', value);
       replaceRoute('/', {
         minEntries: value,
       });
     },
-    [replaceRoute],
+    [replaceRoute, updatePreference],
   );
 
   return (
@@ -289,7 +314,7 @@ function CommandersPageShell({
             cEDH Metagame Breakdown
           </h1>
 
-          <button className="cursor-pointer" onClick={toggleDisplay}>
+          <button className="cursor-pointer" onClick={handleDisplayToggle}>
             {display === 'card' ? (
               <TableCellsIcon className="h-6 w-6 text-white" />
             ) : (
@@ -302,9 +327,7 @@ function CommandersPageShell({
           <div className="flex-1">
             <ColorSelection
               selected={colorId}
-              onChange={(value) => {
-                replaceRoute('/', {colorId: value || null});
-              }}
+              onChange={handleColorChange}
             />
           </div>
 
@@ -326,11 +349,7 @@ function CommandersPageShell({
                     label: 'Most Popular',
                   },
                 ]}
-                onSelect={(value) => {
-                  replaceRoute('/', {
-                    sortBy: value,
-                  });
-                }}
+                onSelect={handleSortByChange}
               />
             </div>
 
@@ -359,11 +378,7 @@ function CommandersPageShell({
                   {value: 'ALL_TIME', label: 'All Time'},
                   {value: 'POST_BAN', label: 'Post Ban'},
                 ]}
-                onSelect={(value) => {
-                  replaceRoute('/', {
-                    timePeriod: value,
-                  });
-                }}
+                onSelect={handleTimePeriodChange}
               />
             </div>
             <div className="relative flex flex-col">
