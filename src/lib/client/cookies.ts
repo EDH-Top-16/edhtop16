@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { updateRelayPreferences } from './relay_client_environment';
 import type { CommandersSortBy, TimePeriod } from '#genfiles/queries/pages_CommandersQuery.graphql';
 
 export interface CommanderPreferences {
@@ -37,6 +38,7 @@ export function useCommanderPreferences() {
       try {
         const savedPrefs = JSON.parse(decodeURIComponent(cookieValue));
         setPreferences(savedPrefs);
+        updateRelayPreferences(savedPrefs);
       } catch (error) {
         console.warn('Error parsing commander preferences from cookie:', error);
       }
@@ -52,6 +54,7 @@ export function useCommanderPreferences() {
     }
     setPreferences(newPrefs);
     setCookie('commanderPreferences', JSON.stringify(newPrefs));
+    updateRelayPreferences(newPrefs);
   }, [preferences]);
 
   return {

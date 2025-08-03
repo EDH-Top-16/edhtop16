@@ -15,6 +15,21 @@ import type {Manifest} from 'vite';
 import {createServerEnvironment} from './lib/server/relay_server_environment';
 import {schema} from './lib/server/schema';
 import {App} from './pages/_app';
+import type {CommanderPreferences} from './lib/client/cookies';
+
+function parseCookies(cookieHeader: string): Record<string, string> {
+  const cookies: Record<string, string> = {};
+  if (!cookieHeader) return cookies;
+  
+  cookieHeader.split(';').forEach(cookie => {
+    const [name, value] = cookie.trim().split('=');
+    if (name && value) {
+      cookies[name] = decodeURIComponent(value);
+    }
+  });
+  
+  return cookies;
+}
 
 export function createHandler(
   template: string,
@@ -33,6 +48,44 @@ export function createHandler(
         getPersistedOperation: (key) => persistedQueries[key] ?? null,
       }),
     ],
+    context: async ({ request }) => {
+      const req = request as any;
+      const res = request as any;
+      
+      let commanderPreferences: CommanderPreferences = {};
+      
+      try {
+        const body = await request.clone().text();
+        const parsed = JSON.parse(body);
+        
+        if (parsed.extensions?.commanderPreferences) {
+          commanderPreferences = parsed.extensions.commanderPreferences;
+        } else {
+          const cookies = parseCookies(req.headers.cookie || '');
+          const cookiePrefs = cookies.commanderPreferences;
+          
+          if (cookiePrefs) {
+            commanderPreferences = JSON.parse(cookiePrefs);
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to parse commander preferences:', error);
+      }
+
+      const setCommanderPreferences = (prefs: CommanderPreferences) => {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + 365 * 24 * 60 * 60 * 1000);
+        
+        res.setHeader('Set-Cookie', [
+          `commanderPreferences=${encodeURIComponent(JSON.stringify(prefs))}; expires=${expires.toUTCString()}; path=/; SameSite=Strict`
+        ]);
+      };
+
+      return {  // Add context properties as we have more
+        commanderPreferences,
+        setCommanderPreferences,
+      };
+    },
   });
 
   const entryPointHandler: express.Handler = async (req, res) => {
