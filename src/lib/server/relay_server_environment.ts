@@ -1,6 +1,6 @@
 import {Environment, Network, RecordSource, Store} from 'relay-runtime';
-import { execute, parse } from 'graphql';
-import type { GraphQLSchema } from 'graphql';
+import {execute, parse} from 'graphql';
+import type {GraphQLSchema} from 'graphql';
 import type {
   CommandersPreferences,
   EntryPreferences,
@@ -9,8 +9,7 @@ import type {
   PreferencesMap,
 } from '../client/cookies';
 
-
-export type { SessionData } from '../client/relay_client_environment';
+export type {SessionData} from '../client/relay_client_environment';
 
 /**
  * Creates a server-side Relay environment for SSR.
@@ -20,17 +19,14 @@ export function createServerEnvironment(
   schema: GraphQLSchema,
   persistedQueries: Record<string, string>,
   preferences: PreferencesMap,
-  sessionData?: any
+  sessionData?: any,
 ) {
   const network = Network.create(async (params, variables) => {
-    
     let query: string | undefined;
 
     if (params.id && persistedQueries[params.id]) {
-      
       query = persistedQueries[params.id];
     } else if (params.text && typeof params.text === 'string') {
-      
       query = params.text;
     } else {
       throw new Error('No query found for execution');
@@ -42,19 +38,17 @@ export function createServerEnvironment(
         document: parse(query || ''),
         variableValues: variables,
         contextValue: {
-          
           preferences,
           sessionData,
-          sitePreferences: preferences, 
+          sitePreferences: preferences,
         },
       });
 
-      
       return {
         data: result.data,
         errors: result.errors,
         extensions: result.extensions,
-      } as any; 
+      } as any;
     } catch (error) {
       console.error('Server GraphQL execution error:', error);
       throw error;

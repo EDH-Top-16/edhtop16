@@ -1,30 +1,29 @@
-import React, { useState } from 'react';
-import { useSession } from '../lib/client/use_session';
+import React, {useState} from 'react';
+import {useSession} from '../lib/client/use_session';
 
 interface LoginFormProps {
   onSuccess?: () => void;
   className?: string;
 }
 
-export function LoginForm({ onSuccess, className = '' }: LoginFormProps) {
+export function LoginForm({onSuccess, className = ''}: LoginFormProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const { login } = useSession();
+  const {login} = useSession();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    const result = await login({ username, password });
-    //console.log('Login result:', result); 
+    const result = await login({username, password});
+    //console.log('Login result:', result);
 
     setIsLoading(false);
 
-    
     if (result === true) {
       setUsername('');
       setPassword('');
@@ -42,7 +41,10 @@ export function LoginForm({ onSuccess, className = '' }: LoginFormProps) {
   return (
     <form onSubmit={handleSubmit} className={`space-y-4 ${className}`}>
       <div>
-        <label htmlFor="username" className="block text-sm font-medium text-white mb-1">
+        <label
+          htmlFor="username"
+          className="mb-1 block text-sm font-medium text-white"
+        >
           Username
         </label>
         <input
@@ -50,14 +52,17 @@ export function LoginForm({ onSuccess, className = '' }: LoginFormProps) {
           id="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="w-full px-3 py-2 bg-[#312d5a] border border-[#514f86] rounded text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+          className="w-full rounded border border-[#514f86] bg-[#312d5a] px-3 py-2 text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none"
           placeholder="Enter username"
           required
         />
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-white mb-1">
+        <label
+          htmlFor="password"
+          className="mb-1 block text-sm font-medium text-white"
+        >
           Password
         </label>
         <input
@@ -65,40 +70,40 @@ export function LoginForm({ onSuccess, className = '' }: LoginFormProps) {
           id="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-3 py-2 bg-[#312d5a] border border-[#514f86] rounded text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+          className="w-full rounded border border-[#514f86] bg-[#312d5a] px-3 py-2 text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none"
           placeholder="Enter password"
           required
         />
       </div>
 
-      {error && (
-        <div className="text-red-400 text-sm">
-          {error}
-        </div>
-      )}
+      {error && <div className="text-sm text-red-400">{error}</div>}
 
       <div className="flex gap-2">
         <button
           type="submit"
           disabled={isLoading}
-          className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isLoading ? 'Logging in...' : 'Login'}
         </button>
-        
+
         <button
           type="button"
           onClick={fillDemoCredentials}
-          className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 text-sm"
+          className="rounded bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700"
         >
           Demo User
         </button>
       </div>
 
-      <div className="text-xs text-gray-400 mt-2">
+      <div className="mt-2 text-xs text-gray-400">
         <p>Demo credentials:</p>
-        <p>Username: <code className="bg-[#312d5a] px-1 rounded">puguser</code></p>
-        <p>Password: <code className="bg-[#312d5a] px-1 rounded">fakepug</code></p>
+        <p>
+          Username: <code className="rounded bg-[#312d5a] px-1">puguser</code>
+        </p>
+        <p>
+          Password: <code className="rounded bg-[#312d5a] px-1">fakepug</code>
+        </p>
       </div>
     </form>
   );
@@ -108,13 +113,8 @@ interface UserProfileProps {
   className?: string;
 }
 
-export function UserProfile({ className = '' }: UserProfileProps) {
-  const { 
-    sessionData, 
-    isAuthenticated, 
-    isAdmin,
-    logout 
-  } = useSession();
+export function UserProfile({className = ''}: UserProfileProps) {
+  const {sessionData, isAuthenticated, isAdmin, logout} = useSession();
 
   if (!isAuthenticated || !sessionData.userProfile) {
     return null;
@@ -128,48 +128,52 @@ export function UserProfile({ className = '' }: UserProfileProps) {
   const username = sessionData.username;
 
   return (
-    <div className={`bg-[#312d5a]/50 rounded-lg p-4 space-y-3 ${className}`}>
+    <div className={`space-y-3 rounded-lg bg-[#312d5a]/50 p-4 ${className}`}>
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-white">
           {userProfile.displayName}
-          {isAdmin && <span className="ml-2 text-xs bg-yellow-600 text-black px-2 py-1 rounded">Admin</span>}
+          {isAdmin && (
+            <span className="ml-2 rounded bg-yellow-600 px-2 py-1 text-xs text-black">
+              Admin
+            </span>
+          )}
         </h3>
         <button
           onClick={handleLogout}
-          className="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+          className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700"
         >
           Logout
         </button>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-4 text-sm text-gray-300">
         <div>
-          <div className="text-white font-medium">Email</div>
+          <div className="font-medium text-white">Email</div>
           <div>{userProfile.email}</div>
         </div>
-        
+
         <div>
-          <div className="text-white font-medium">Favorite Commander</div>
+          <div className="font-medium text-white">Favorite Commander</div>
           <div>{userProfile.favoriteCommander}</div>
         </div>
-        
+
         <div>
-          <div className="text-white font-medium">Member Since</div>
+          <div className="font-medium text-white">Member Since</div>
           <div>{new Date(userProfile.joinDate).toLocaleDateString()}</div>
         </div>
-        
+
         <div>
-          <div className="text-white font-medium">Total Games</div>
+          <div className="font-medium text-white">Total Games</div>
           <div>{userProfile.totalGames}</div>
         </div>
-        
+
         <div className="col-span-2">
-          <div className="text-white font-medium">Win Rate</div>
+          <div className="font-medium text-white">Win Rate</div>
           <div className="flex items-center gap-2">
-            <div className="bg-[#514f86] rounded-full h-2 flex-1">
-              <div 
-                className="bg-green-500 h-2 rounded-full transition-all"
-                style={{ width: `${userProfile.winRate * 100}%` }}
+            <div className="h-2 flex-1 rounded-full bg-[#514f86]">
+              <div
+                className="h-2 rounded-full bg-green-500 transition-all"
+                style={{width: `${userProfile.winRate * 100}%`}}
               />
             </div>
             <span>{(userProfile.winRate * 100).toFixed(1)}%</span>

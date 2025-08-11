@@ -1,29 +1,29 @@
-import React, { useMemo, memo } from 'react';
-import { useFragment } from 'react-relay/hooks';
-import { useSeoMeta } from '@unhead/react';
-import { graphql } from 'relay-runtime';
+import React, {useMemo, memo} from 'react';
+import {useFragment} from 'react-relay/hooks';
+import {useSeoMeta} from '@unhead/react';
+import {graphql} from 'relay-runtime';
 import cn from 'classnames';
-import { format } from 'date-fns';
-import { Link } from '#genfiles/river/router';
+import {format} from 'date-fns';
+import {Link} from '#genfiles/river/router';
 
 import {
   EntriesSortBy,
   TimePeriod,
 } from '#genfiles/queries/useCommanderPage_CommanderQuery.graphql';
-import { commanderPage_CommanderBanner$key } from '#genfiles/queries/commanderPage_CommanderBanner.graphql';
-import { commanderPage_CommanderMeta$key } from '#genfiles/queries/commanderPage_CommanderMeta.graphql';
-import { commanderPage_CommanderPageShell$key } from '#genfiles/queries/commanderPage_CommanderPageShell.graphql';
-import { commanderPage_EntryCard$key } from '#genfiles/queries/commanderPage_EntryCard.graphql';
+import {commanderPage_CommanderBanner$key} from '#genfiles/queries/commanderPage_CommanderBanner.graphql';
+import {commanderPage_CommanderMeta$key} from '#genfiles/queries/commanderPage_CommanderMeta.graphql';
+import {commanderPage_CommanderPageShell$key} from '#genfiles/queries/commanderPage_CommanderPageShell.graphql';
+import {commanderPage_EntryCard$key} from '#genfiles/queries/commanderPage_EntryCard.graphql';
 
-import { SessionStatus } from './session_status';
-import { ColorIdentity } from '../assets/icons/colors';
-import { Card } from './card';
-import { Dropdown } from './dropdown';
-import { Navigation } from './navigation';
-import { NumberInputDropdown } from './number_input_dropdown';
-import { FirstPartyPromo } from './promo';
-import { formatOrdinals, formatPercent } from '../lib/client/format';
-import type { PreferencesMap } from '../lib/client/cookies';
+import {SessionStatus} from './session_status';
+import {ColorIdentity} from '../assets/icons/colors';
+import {Card} from './card';
+import {Dropdown} from './dropdown';
+import {Navigation} from './navigation';
+import {NumberInputDropdown} from './number_input_dropdown';
+import {FirstPartyPromo} from './promo';
+import {formatOrdinals, formatPercent} from '../lib/client/format';
+import type {PreferencesMap} from '../lib/client/cookies';
 
 // Constants
 const TIME_PERIOD_LABELS: Partial<Record<TimePeriod, string>> = {
@@ -123,7 +123,9 @@ interface CommanderFiltersProps {
 }
 
 // Pure UI Components
-export const EntryCard = memo<EntryCardProps>(function EntryCard({ entry: entryRef }) {
+export const EntryCard = memo<EntryCardProps>(function EntryCard({
+  entry: entryRef,
+}) {
   const entry = useFragment(
     graphql`
       fragment commanderPage_EntryCard on Entry {
@@ -228,114 +230,116 @@ export const EntryCard = memo<EntryCardProps>(function EntryCard({ entry: entryR
   );
 });
 
-export const CommanderBanner = memo<CommanderBannerProps>(function CommanderBanner({
-  commander: commanderRef,
-  dynamicStats,
-  isAuthenticated,
-}) {
-  const commander = useFragment(
-    graphql`
-      fragment commanderPage_CommanderBanner on Commander {
-        name
-        colorId
-        cards {
-          imageUrls
+export const CommanderBanner = memo<CommanderBannerProps>(
+  function CommanderBanner({
+    commander: commanderRef,
+    dynamicStats,
+    isAuthenticated,
+  }) {
+    const commander = useFragment(
+      graphql`
+        fragment commanderPage_CommanderBanner on Commander {
+          name
+          colorId
+          cards {
+            imageUrls
+          }
+
+          stats {
+            conversionRate
+            topCuts
+            count
+            metaShare
+            topCutBias
+          }
         }
+      `,
+      commanderRef,
+    );
 
-        stats {
-          conversionRate
-          topCuts
-          count
-          metaShare
-          topCutBias
-        }
-      }
-    `,
-    commanderRef,
-  );
+    const stats = useMemo(
+      () => dynamicStats || commander.stats,
+      [dynamicStats, commander.stats],
+    );
 
-  const stats = useMemo(
-    () => dynamicStats || commander.stats,
-    [dynamicStats, commander.stats],
-  );
+    const cardImages = useMemo(
+      () => commander.cards.flatMap((c) => c.imageUrls),
+      [commander.cards],
+    );
 
-  const cardImages = useMemo(
-    () => commander.cards.flatMap((c) => c.imageUrls),
-    [commander.cards],
-  );
+    const topCutBiasValue = useMemo(
+      () =>
+        stats.topCutBias > 0
+          ? (stats.topCuts / stats.topCutBias).toFixed(1)
+          : '0.0',
+      [stats.topCuts, stats.topCutBias],
+    );
 
-  const topCutBiasValue = useMemo(
-    () =>
-      stats.topCutBias > 0
-        ? (stats.topCuts / stats.topCutBias).toFixed(1)
-        : '0.0',
-    [stats.topCuts, stats.topCutBias],
-  );
+    const statsDisplay = useMemo(
+      () => ({
+        entries: stats.count,
+        metaShare: formatPercent(stats.metaShare),
+        conversionRate: formatPercent(stats.conversionRate),
+        topCutBias: topCutBiasValue,
+      }),
+      [stats.count, stats.metaShare, stats.conversionRate, topCutBiasValue],
+    );
 
-  const statsDisplay = useMemo(
-    () => ({
-      entries: stats.count,
-      metaShare: formatPercent(stats.metaShare),
-      conversionRate: formatPercent(stats.conversionRate),
-      topCutBias: topCutBiasValue,
-    }),
-    [stats.count, stats.metaShare, stats.conversionRate, topCutBiasValue],
-  );
-
-  return (
-    <div className="h-64 w-full bg-black/60 md:h-80 relative">
-      {/* Add session status in top right corner of banner 
+    return (
+      <div className="relative h-64 w-full bg-black/60 md:h-80">
+        {/* Add session status in top right corner of banner 
        <div className="absolute top-4 right-4 z-20">
        <SessionStatus showDetails={false} />
       </div>*/}
 
-      <div className="relative mx-auto flex h-full w-full max-w-(--breakpoint-xl) flex-col items-center justify-center">
-        <div className="absolute top-0 left-0 flex h-full w-full brightness-40">
-          {cardImages.map((src, _i, {length}) => (
-            <img
-              className={cn(
-                'flex-1 object-cover object-top',
-                length === 2 ? 'w-1/2' : 'w-full',
-              )}
-              key={src}
-              src={src}
-              alt={`${commander.name} art`}
-            />
-          ))}
-        </div>
+        <div className="relative mx-auto flex h-full w-full max-w-(--breakpoint-xl) flex-col items-center justify-center">
+          <div className="absolute top-0 left-0 flex h-full w-full brightness-40">
+            {cardImages.map((src, _i, {length}) => (
+              <img
+                className={cn(
+                  'flex-1 object-cover object-top',
+                  length === 2 ? 'w-1/2' : 'w-full',
+                )}
+                key={src}
+                src={src}
+                alt={`${commander.name} art`}
+              />
+            ))}
+          </div>
 
-        <h1 className="font-title relative m-0 mb-4 text-center text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
-          {commander.name}
-          {isAuthenticated && (
-            <span className="ml-2 text-sm text-green-400 font-normal">
-              (Session Active)
-            </span>
-          )}
-        </h1>
+          <h1 className="font-title relative m-0 mb-4 text-center text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
+            {commander.name}
+            {isAuthenticated && (
+              <span className="ml-2 text-sm font-normal text-green-400">
+                (Session Active)
+              </span>
+            )}
+          </h1>
 
-        <div className="relative">
-          <ColorIdentity identity={commander.colorId} />
-        </div>
+          <div className="relative">
+            <ColorIdentity identity={commander.colorId} />
+          </div>
 
-        <div className="absolute bottom-0 z-10 mx-auto flex w-full items-center justify-around border-t border-white/60 bg-black/50 px-3 text-center text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border">
-          {statsDisplay.entries} Entries
-          <div className="mr-1 ml-2 border-l border-white/60 py-2">
-            &nbsp;
-          </div>{' '}
-          {statsDisplay.metaShare} Meta%
-          <div className="mr-1 ml-2 border-l border-white/60 py-2">
-            &nbsp;
-          </div>{' '}
-          {statsDisplay.conversionRate} Conversion
-          <div className="mr-1 ml-2 border-l border-white/60 py-2">
-            &nbsp;
-          </div>{' '}
-          {statsDisplay.topCutBias} Top Cut Bias
+          <div className="absolute bottom-0 z-10 mx-auto flex w-full items-center justify-around border-t border-white/60 bg-black/50 px-3 text-center text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border">
+            {statsDisplay.entries} Entries
+            <div className="mr-1 ml-2 border-l border-white/60 py-2">
+              &nbsp;
+            </div>{' '}
+            {statsDisplay.metaShare} Meta%
+            <div className="mr-1 ml-2 border-l border-white/60 py-2">
+              &nbsp;
+            </div>{' '}
+            {statsDisplay.conversionRate} Conversion
+            <div className="mr-1 ml-2 border-l border-white/60 py-2">
+              &nbsp;
+            </div>{' '}
+            {statsDisplay.topCutBias} Top Cut Bias
+          </div>
         </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
 function useCommanderMeta(commanderFromProps: commanderPage_CommanderMeta$key) {
   const commander = useFragment(
@@ -434,95 +438,101 @@ export function CommanderFilters({
   );
 }
 
-export const CommanderPageShell = memo<CommanderPageShellProps>(function CommanderPageShell({
-  commander: commanderRef,
-  maxStanding,
-  minEventSize,
-  sortBy,
-  timePeriod,
-  updatePreference,
-  preferences,
-  dynamicStatsFromData,
-  isAuthenticated,
-  localEventSize,
-  localMaxStanding,
-  onSortBySelect,
-  onTimePeriodSelect,
-  onEventSizeChange,
-  onEventSizeSelect,
-  onMaxStandingChange,
-  onMaxStandingSelect,
-  onKeyDown,
-  children,
-}) {
-  const commander = useFragment(
-    graphql`
-      fragment commanderPage_CommanderPageShell on Commander
-      @argumentDefinitions(
-        minEventSize: {type: "Int"}
-        maxStanding: {type: "Int"}
-        timePeriod: {type: "TimePeriod!"}
-      ) {
-        name
-        breakdownUrl
-        ...commanderPage_CommanderBanner
-        ...commanderPage_CommanderMeta
-
-        # Add the new filteredStats field
-        filteredStats(
-          minEventSize: $minEventSize
-          maxStanding: $maxStanding
-          timePeriod: $timePeriod
+export const CommanderPageShell = memo<CommanderPageShellProps>(
+  function CommanderPageShell({
+    commander: commanderRef,
+    maxStanding,
+    minEventSize,
+    sortBy,
+    timePeriod,
+    updatePreference,
+    preferences,
+    dynamicStatsFromData,
+    isAuthenticated,
+    localEventSize,
+    localMaxStanding,
+    onSortBySelect,
+    onTimePeriodSelect,
+    onEventSizeChange,
+    onEventSizeSelect,
+    onMaxStandingChange,
+    onMaxStandingSelect,
+    onKeyDown,
+    children,
+  }) {
+    const commander = useFragment(
+      graphql`
+        fragment commanderPage_CommanderPageShell on Commander
+        @argumentDefinitions(
+          minEventSize: {type: "Int"}
+          maxStanding: {type: "Int"}
+          timePeriod: {type: "TimePeriod!"}
         ) {
-          conversionRate
-          topCuts
-          count
-          metaShare
-          topCutBias
+          name
+          breakdownUrl
+          ...commanderPage_CommanderBanner
+          ...commanderPage_CommanderMeta
+
+          # Add the new filteredStats field
+          filteredStats(
+            minEventSize: $minEventSize
+            maxStanding: $maxStanding
+            timePeriod: $timePeriod
+          ) {
+            conversionRate
+            topCuts
+            count
+            metaShare
+            topCutBias
+          }
+
+          promo {
+            ...promo_EmbededPromo
+          }
         }
+      `,
+      commanderRef,
+    );
 
-        promo {
-          ...promo_EmbededPromo
-        }
-      }
-    `,
-    commanderRef,
-  );
+    useCommanderMeta(commander);
 
-  useCommanderMeta(commander);
+    const dynamicStats = useMemo(
+      () => dynamicStatsFromData || commander.filteredStats,
+      [dynamicStatsFromData, commander.filteredStats],
+    );
 
-  const dynamicStats = useMemo(
-    () => dynamicStatsFromData || commander.filteredStats,
-    [dynamicStatsFromData, commander.filteredStats],
-  );
+    return (
+      <>
+        <Navigation />
+        <CommanderBanner
+          commander={commander}
+          dynamicStats={dynamicStats}
+          isAuthenticated={isAuthenticated}
+        />
+        {commander.promo && <FirstPartyPromo promo={commander.promo} />}
 
-  return (
-    <>
-      <Navigation />
-      <CommanderBanner commander={commander} dynamicStats={dynamicStats} isAuthenticated={isAuthenticated} />
-      {commander.promo && <FirstPartyPromo promo={commander.promo} />}
+        <CommanderFilters
+          sortBy={sortBy}
+          timePeriod={timePeriod}
+          preferences={preferences}
+          localEventSize={localEventSize}
+          localMaxStanding={localMaxStanding}
+          onSortBySelect={onSortBySelect}
+          onTimePeriodSelect={onTimePeriodSelect}
+          onEventSizeChange={onEventSizeChange}
+          onEventSizeSelect={onEventSizeSelect}
+          onMaxStandingChange={onMaxStandingChange}
+          onMaxStandingSelect={onMaxStandingSelect}
+          onKeyDown={onKeyDown}
+        />
 
-      <CommanderFilters
-        sortBy={sortBy}
-        timePeriod={timePeriod}
-        preferences={preferences}
-        localEventSize={localEventSize}
-        localMaxStanding={localMaxStanding}
-        onSortBySelect={onSortBySelect}
-        onTimePeriodSelect={onTimePeriodSelect}
-        onEventSizeChange={onEventSizeChange}
-        onEventSizeSelect={onEventSizeSelect}
-        onMaxStandingChange={onMaxStandingChange}
-        onMaxStandingSelect={onMaxStandingSelect}
-        onKeyDown={onKeyDown}
-      />
-      
-      {children}
-    </>
-  );
-});
+        {children}
+      </>
+    );
+  },
+);
 
-export function CommanderEntryGrid({ entryCards }: { entryCards: any[] }) {
+export function CommanderEntryGrid({entryCards}: {entryCards: any[]}) {
   return (
     <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
       {entryCards.map((entry) => (

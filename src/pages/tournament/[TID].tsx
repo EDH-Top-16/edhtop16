@@ -1,21 +1,20 @@
-import { TID_TournamentQuery } from '#genfiles/queries/TID_TournamentQuery.graphql';
-import { EntryPointComponent, usePreloadedQuery } from 'react-relay/hooks';
-import { graphql } from 'relay-runtime';
-import { Footer } from '../../components/footer';
-import { useTournamentPage } from '../../hooks/useTournamentPage';
-import { 
-  EntryCard, 
+import {TID_TournamentQuery} from '#genfiles/queries/TID_TournamentQuery.graphql';
+import {EntryPointComponent, usePreloadedQuery} from 'react-relay/hooks';
+import {graphql} from 'relay-runtime';
+import {Footer} from '../../components/footer';
+import {useTournamentPage} from '../../hooks/useTournamentPage';
+import {
+  EntryCard,
   BreakdownGroupCard,
-  TournamentPageShell 
+  TournamentPageShell,
 } from '../../components/tournament_page';
 
 /** @resource m#tournament_view */
 export const TournamentViewPage: EntryPointComponent<
-  { tournamentQueryRef: TID_TournamentQuery },
+  {tournamentQueryRef: TID_TournamentQuery},
   {}
-> = ({ queries }) => {
-  
-  const { tournament } = usePreloadedQuery(
+> = ({queries}) => {
+  const {tournament} = usePreloadedQuery(
     graphql`
       query TID_TournamentQuery(
         $TID: String!
@@ -47,11 +46,9 @@ export const TournamentViewPage: EntryPointComponent<
     queries.tournamentQueryRef,
   );
 
-  const {
-    currentContent,
-    shellProps,
-    handleCommanderSelect,
-  } = useTournamentPage(queries.tournamentQueryRef);
+  const {currentContent, shellProps, handleCommanderSelect} = useTournamentPage(
+    queries.tournamentQueryRef,
+  );
 
   const renderCurrentContent = () => {
     switch (currentContent.type) {

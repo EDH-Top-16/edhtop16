@@ -18,8 +18,8 @@ interface DropdownProps<T = string> {
   disabled?: boolean;
 }
 
-
-const debugLog = (component: string, event: string, data?: any) => { // uncomment to get many many logs.
+const debugLog = (component: string, event: string, data?: any) => {
+  // uncomment to get many many logs.
   if (typeof window !== 'undefined') {
     //console.log(`[${component}] ${event}`, {
     //  userAgent: navigator.userAgent,
@@ -43,38 +43,49 @@ export function Dropdown<T = string>({
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    debugLog('Dropdown', 'Component mounted', { id, optionsCount: options.length });
+    debugLog('Dropdown', 'Component mounted', {
+      id,
+      optionsCount: options.length,
+    });
   }, [id, options.length]);
 
   useEffect(() => {
-    debugLog('Dropdown', 'isOpen changed', { id, isOpen });
+    debugLog('Dropdown', 'isOpen changed', {id, isOpen});
   }, [isOpen, id]);
 
   const handleClick = useCallback(() => {
-    debugLog('Dropdown', 'handleClick called', { id, disabled, currentIsOpen: isOpen });
+    debugLog('Dropdown', 'handleClick called', {
+      id,
+      disabled,
+      currentIsOpen: isOpen,
+    });
     if (!disabled) {
       setIsOpen((prev) => {
-        debugLog('Dropdown', 'setIsOpen transition', { id, from: prev, to: !prev });
+        debugLog('Dropdown', 'setIsOpen transition', {
+          id,
+          from: prev,
+          to: !prev,
+        });
         return !prev;
       });
     }
   }, [disabled, id, isOpen]);
 
   const handleBlur = useCallback(() => {
-    debugLog('Dropdown', 'handleBlur called', { id });
+    debugLog('Dropdown', 'handleBlur called', {id});
     setTimeout(() => {
-      debugLog('Dropdown', 'handleBlur timeout executed', { id });
+      debugLog('Dropdown', 'handleBlur timeout executed', {id});
       setIsOpen(false);
     }, 150);
   }, [id]);
 
   const handleOptionSelect = useCallback(
     (optionValue: T, event: React.MouseEvent) => {
-      debugLog('Dropdown', 'handleOptionSelect called', { 
-        id, 
-        optionValue, 
+      debugLog('Dropdown', 'handleOptionSelect called', {
+        id,
+        optionValue,
         eventType: event.type,
-        target: event.target 
+        target: event.target,
       });
       onSelect(optionValue);
       setIsOpen(false);
@@ -82,11 +93,14 @@ export function Dropdown<T = string>({
     [onSelect, id],
   );
 
-  const handleMouseDown = useCallback((e: React.MouseEvent, optionValue: T) => {
-    debugLog('Dropdown', 'option mouseDown', { id, optionValue });
-    e.preventDefault();
-    handleOptionSelect(optionValue, e);
-  }, [handleOptionSelect, id]);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent, optionValue: T) => {
+      debugLog('Dropdown', 'option mouseDown', {id, optionValue});
+      e.preventDefault();
+      handleOptionSelect(optionValue, e);
+    },
+    [handleOptionSelect, id],
+  );
 
   return (
     <div className={cn('relative flex flex-col', className)}>
@@ -106,9 +120,9 @@ export function Dropdown<T = string>({
           disabled={disabled}
           onClick={handleClick}
           onBlur={handleBlur}
-          onFocus={() => debugLog('Dropdown', 'input focused', { id })}
-          onTouchStart={() => debugLog('Dropdown', 'input touchStart', { id })}
-          onTouchEnd={() => debugLog('Dropdown', 'input touchEnd', { id })}
+          onFocus={() => debugLog('Dropdown', 'input focused', {id})}
+          onTouchStart={() => debugLog('Dropdown', 'input touchStart', {id})}
+          onTouchEnd={() => debugLog('Dropdown', 'input touchEnd', {id})}
           className={cn(
             'rounded-md border border-gray-600 bg-gray-800 px-3 py-2 text-center text-white focus:border-gray-500 focus:ring-2 focus:ring-gray-500 focus:outline-none',
             disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
@@ -120,7 +134,7 @@ export function Dropdown<T = string>({
             dropdownClassName,
             isOpen ? 'block' : 'hidden',
           )}
-          onTouchStart={() => debugLog('Dropdown', 'dropdown touchStart', { id })}
+          onTouchStart={() => debugLog('Dropdown', 'dropdown touchStart', {id})}
         >
           {options.map((option, index) => (
             <div
@@ -130,10 +144,23 @@ export function Dropdown<T = string>({
                 index < options.length - 1 && 'border-b border-gray-600',
               )}
               onMouseDown={(e) => handleMouseDown(e, option.value)}
-              onTouchStart={() => debugLog('Dropdown', 'option touchStart', { id, option: option.value })}
-              onTouchEnd={() => debugLog('Dropdown', 'option touchEnd', { id, option: option.value })}
+              onTouchStart={() =>
+                debugLog('Dropdown', 'option touchStart', {
+                  id,
+                  option: option.value,
+                })
+              }
+              onTouchEnd={() =>
+                debugLog('Dropdown', 'option touchEnd', {
+                  id,
+                  option: option.value,
+                })
+              }
               onClick={(e) => {
-                debugLog('Dropdown', 'option clicked', { id, option: option.value });
+                debugLog('Dropdown', 'option clicked', {
+                  id,
+                  option: option.value,
+                });
                 handleOptionSelect(option.value, e);
               }}
             >
