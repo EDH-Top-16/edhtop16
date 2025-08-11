@@ -3,7 +3,11 @@ import {db} from '../db';
 import {builder} from './builder';
 import {Entry} from './entry';
 
-const ALL_KNOWN_CHEATERS: {topdeckProfile: string; expiration: Date}[] = [
+const ALL_KNOWN_CHEATERS: {
+  topdeckProfile: string;
+  expiration: Date;
+  activeDate?: Date;
+}[] = [
   // https://docs.google.com/document/d/1m7aHiwIl11RKnpp7aYVzOA8daPijgbygbLreWi5cmeM/edit?tab=t.0
   {
     topdeckProfile: 'eUiV4NK8aWXDzUpX8ieUCC8C9On1',
@@ -18,9 +22,11 @@ const ALL_KNOWN_CHEATERS: {topdeckProfile: string; expiration: Date}[] = [
 
 const now = Date.now();
 const UNEXPIRED_CHEATERS = new Set(
-  ALL_KNOWN_CHEATERS.filter((p) => isAfter(p.expiration, now)).map(
-    (p) => p.topdeckProfile,
-  ),
+  ALL_KNOWN_CHEATERS.filter(
+    (p) =>
+      isAfter(p.expiration, now) &&
+      (p.activeDate == null || !isAfter(p.activeDate, now)),
+  ).map((p) => p.topdeckProfile),
 );
 
 export const Player = builder.loadableNodeRef('Player', {
