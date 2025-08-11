@@ -44,7 +44,7 @@ export function Dropdown<T = string>({
 
   useEffect(() => {
     debugLog('Dropdown', 'Component mounted', { id, optionsCount: options.length });
-  }, []);
+  }, [id, options.length]);
 
   useEffect(() => {
     debugLog('Dropdown', 'isOpen changed', { id, isOpen });

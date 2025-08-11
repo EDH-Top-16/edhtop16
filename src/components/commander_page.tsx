@@ -284,10 +284,10 @@ export const CommanderBanner = memo<CommanderBannerProps>(function CommanderBann
 
   return (
     <div className="h-64 w-full bg-black/60 md:h-80 relative">
-      {/* Add session status in top right corner of banner */}
-      <div className="absolute top-4 right-4 z-20">
-        <SessionStatus showDetails={false} />
-      </div>
+      {/* Add session status in top right corner of banner 
+       <div className="absolute top-4 right-4 z-20">
+       <SessionStatus showDetails={false} />
+      </div>*/}
 
       <div className="relative mx-auto flex h-full w-full max-w-(--breakpoint-xl) flex-col items-center justify-center">
         <div className="absolute top-0 left-0 flex h-full w-full brightness-40">

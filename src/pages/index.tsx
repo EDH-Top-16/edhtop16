@@ -93,8 +93,8 @@ export const CommandersPage: EntryPointComponent<
             </span>
           )}
         </h1>
-        
-        <div className="flex items-center gap-4">
+
+        {/*<div className="flex items-center gap-4">
           <SessionStatus showDetails={false} />
           <button
             onClick={handleDisplayToggle}
@@ -107,7 +107,7 @@ export const CommandersPage: EntryPointComponent<
               <RectangleStackIcon className="h-6 w-6 text-white" />
             )}
           </button>
-        </div>
+        </div>*/}
       </div>
 
       <CommandersFilters

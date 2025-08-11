@@ -276,10 +276,10 @@ export const TournamentBanner = memo<TournamentBannerProps>(function TournamentB
 
   return (
     <div className="h-64 w-full bg-black/60 md:h-80 relative">
-      {/* Add session status in top left corner */}
+      {/* Add session status in top left corner 
       <div className="absolute top-4 left-4 z-20">
         <SessionStatus showDetails={false} />
-      </div>
+      </div>*/}
 
       <div className="relative mx-auto flex h-full w-full max-w-(--breakpoint-xl) flex-col items-center justify-center space-y-4">
         {hasWinner && (
