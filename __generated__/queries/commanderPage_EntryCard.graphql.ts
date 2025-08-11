@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<dc78880d95ed40993f6acde2b190b315>>
+ * @generated SignedSource<<1c0a49d7b004406f3069513ffbf880a9>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,14 +10,7 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type TID_EntryCard$data = {
-  readonly commander: {
-    readonly breakdownUrl: string;
-    readonly cards: ReadonlyArray<{
-      readonly imageUrls: ReadonlyArray<string>;
-    }>;
-    readonly name: string;
-  };
+export type commanderPage_EntryCard$data = {
   readonly decklist: string | null | undefined;
   readonly draws: number;
   readonly losses: number;
@@ -26,12 +19,18 @@ export type TID_EntryCard$data = {
     readonly name: string;
   } | null | undefined;
   readonly standing: number;
+  readonly tournament: {
+    readonly TID: string;
+    readonly name: string;
+    readonly size: number;
+    readonly tournamentDate: string;
+  };
   readonly wins: number;
-  readonly " $fragmentType": "TID_EntryCard";
+  readonly " $fragmentType": "commanderPage_EntryCard";
 };
-export type TID_EntryCard$key = {
-  readonly " $data"?: TID_EntryCard$data;
-  readonly " $fragmentSpreads": FragmentRefs<"TID_EntryCard">;
+export type commanderPage_EntryCard$key = {
+  readonly " $data"?: commanderPage_EntryCard$data;
+  readonly " $fragmentSpreads": FragmentRefs<"commanderPage_EntryCard">;
 };
 
 const node: ReaderFragment = (function(){
@@ -46,7 +45,7 @@ return {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "TID_EntryCard",
+  "name": "commanderPage_EntryCard",
   "selections": [
     {
       "alias": null,
@@ -105,9 +104,9 @@ return {
     {
       "alias": null,
       "args": null,
-      "concreteType": "Commander",
+      "concreteType": "Tournament",
       "kind": "LinkedField",
-      "name": "commander",
+      "name": "tournament",
       "plural": false,
       "selections": [
         (v0/*: any*/),
@@ -115,25 +114,21 @@ return {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "breakdownUrl",
+          "name": "size",
           "storageKey": null
         },
         {
           "alias": null,
           "args": null,
-          "concreteType": "Card",
-          "kind": "LinkedField",
-          "name": "cards",
-          "plural": true,
-          "selections": [
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "imageUrls",
-              "storageKey": null
-            }
-          ],
+          "kind": "ScalarField",
+          "name": "tournamentDate",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "TID",
           "storageKey": null
         }
       ],
@@ -145,6 +140,6 @@ return {
 };
 })();
 
-(node as any).hash = "d1156d6019a54860009b45c2e88d9570";
+(node as any).hash = "b40486de322492480601504487dcb7a2";
 
 export default node;

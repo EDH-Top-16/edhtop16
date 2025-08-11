@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<2329427560741b613a6e6193a698c614>>
+ * @generated SignedSource<<12783dc7e62d6e72b79cc3c52ef7651e>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -15,7 +15,7 @@ export type pages_topCommanders$data = {
     readonly edges: ReadonlyArray<{
       readonly node: {
         readonly id: string;
-        readonly " $fragmentSpreads": FragmentRefs<"pages_TopCommandersCard">;
+        readonly " $fragmentSpreads": FragmentRefs<"commandersPage_TopCommandersCard">;
       };
     }>;
   };
@@ -35,11 +35,7 @@ var v0 = [
 return {
   "argumentDefinitions": [
     {
-      "kind": "RootArgument",
-      "name": "colorId"
-    },
-    {
-      "defaultValue": 48,
+      "defaultValue": 20,
       "kind": "LocalArgument",
       "name": "count"
     },
@@ -47,22 +43,6 @@ return {
       "defaultValue": null,
       "kind": "LocalArgument",
       "name": "cursor"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "minEntries"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "minTournamentSize"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "sortBy"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "timePeriod"
     }
   ],
   "kind": "Fragment",
@@ -92,33 +72,7 @@ return {
   "selections": [
     {
       "alias": "commanders",
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "colorId",
-          "variableName": "colorId"
-        },
-        {
-          "kind": "Variable",
-          "name": "minEntries",
-          "variableName": "minEntries"
-        },
-        {
-          "kind": "Variable",
-          "name": "minTournamentSize",
-          "variableName": "minTournamentSize"
-        },
-        {
-          "kind": "Variable",
-          "name": "sortBy",
-          "variableName": "sortBy"
-        },
-        {
-          "kind": "Variable",
-          "name": "timePeriod",
-          "variableName": "timePeriod"
-        }
-      ],
+      "args": null,
       "concreteType": "QueryCommandersConnection",
       "kind": "LinkedField",
       "name": "__pages__commanders_connection",
@@ -150,7 +104,7 @@ return {
                 {
                   "args": null,
                   "kind": "FragmentSpread",
-                  "name": "pages_TopCommandersCard"
+                  "name": "commandersPage_TopCommandersCard"
                 },
                 {
                   "alias": null,
@@ -206,6 +160,6 @@ return {
 };
 })();
 
-(node as any).hash = "b5a6c24d9b40c399fa950a403034faa7";
+(node as any).hash = "fabfb58c5079b811ae060a527f1b7583";
 
 export default node;

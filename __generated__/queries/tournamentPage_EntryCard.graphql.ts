@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<71e5c5a7e28765700d3a8bd3193b754a>>
+ * @generated SignedSource<<9b81d705d558d56f7d287ba4110ace55>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,14 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type Commander_EntryCard$data = {
+export type tournamentPage_EntryCard$data = {
+  readonly commander: {
+    readonly breakdownUrl: string;
+    readonly cards: ReadonlyArray<{
+      readonly imageUrls: ReadonlyArray<string>;
+    }>;
+    readonly name: string;
+  };
   readonly decklist: string | null | undefined;
   readonly draws: number;
   readonly losses: number;
@@ -19,18 +26,12 @@ export type Commander_EntryCard$data = {
     readonly name: string;
   } | null | undefined;
   readonly standing: number;
-  readonly tournament: {
-    readonly TID: string;
-    readonly name: string;
-    readonly size: number;
-    readonly tournamentDate: string;
-  };
   readonly wins: number;
-  readonly " $fragmentType": "Commander_EntryCard";
+  readonly " $fragmentType": "tournamentPage_EntryCard";
 };
-export type Commander_EntryCard$key = {
-  readonly " $data"?: Commander_EntryCard$data;
-  readonly " $fragmentSpreads": FragmentRefs<"Commander_EntryCard">;
+export type tournamentPage_EntryCard$key = {
+  readonly " $data"?: tournamentPage_EntryCard$data;
+  readonly " $fragmentSpreads": FragmentRefs<"tournamentPage_EntryCard">;
 };
 
 const node: ReaderFragment = (function(){
@@ -45,7 +46,7 @@ return {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Commander_EntryCard",
+  "name": "tournamentPage_EntryCard",
   "selections": [
     {
       "alias": null,
@@ -104,9 +105,9 @@ return {
     {
       "alias": null,
       "args": null,
-      "concreteType": "Tournament",
+      "concreteType": "Commander",
       "kind": "LinkedField",
-      "name": "tournament",
+      "name": "commander",
       "plural": false,
       "selections": [
         (v0/*: any*/),
@@ -114,21 +115,25 @@ return {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "size",
+          "name": "breakdownUrl",
           "storageKey": null
         },
         {
           "alias": null,
           "args": null,
-          "kind": "ScalarField",
-          "name": "tournamentDate",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "TID",
+          "concreteType": "Card",
+          "kind": "LinkedField",
+          "name": "cards",
+          "plural": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "imageUrls",
+              "storageKey": null
+            }
+          ],
           "storageKey": null
         }
       ],
@@ -140,6 +145,6 @@ return {
 };
 })();
 
-(node as any).hash = "d6479b58fdb921fe6bbd9325480b3c1b";
+(node as any).hash = "40d2daa5d64f4d3d28de4b7ad1f1ea51";
 
 export default node;

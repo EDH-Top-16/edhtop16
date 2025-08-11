@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<87da80c78c24f1f2c418e28eb576a880>>
- * @relayHash f18dc3cf10ce8e994bea4f1adddb34db
+ * @generated SignedSource<<6b2dfccac7436b97f0c601ff4ada115c>>
+ * @relayHash dd67d3913d9eaa06a04f52a41a8dddec
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,18 +9,18 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID f18dc3cf10ce8e994bea4f1adddb34db
+// @relayRequestID dd67d3913d9eaa06a04f52a41a8dddec
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type TID_TournamentQuery$variables = {
+export type useTournamentPage_TournamentQuery$variables = {
   TID: string;
   commander?: string | null | undefined;
   showBreakdown: boolean;
   showBreakdownCommander: boolean;
   showStandings: boolean;
 };
-export type TID_TournamentQuery$data = {
+export type useTournamentPage_TournamentQuery$data = {
   readonly tournament: {
     readonly breakdown?: ReadonlyArray<{
       readonly commander: {
@@ -39,9 +39,9 @@ export type TID_TournamentQuery$data = {
     readonly " $fragmentSpreads": FragmentRefs<"tournamentPage_TournamentPageShell">;
   };
 };
-export type TID_TournamentQuery = {
-  response: TID_TournamentQuery$data;
-  variables: TID_TournamentQuery$variables;
+export type useTournamentPage_TournamentQuery = {
+  response: useTournamentPage_TournamentQuery$data;
+  variables: useTournamentPage_TournamentQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -216,7 +216,7 @@ return {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "TID_TournamentQuery",
+    "name": "useTournamentPage_TournamentQuery",
     "selections": [
       {
         "alias": null,
@@ -317,7 +317,7 @@ return {
       (v3/*: any*/)
     ],
     "kind": "Operation",
-    "name": "TID_TournamentQuery",
+    "name": "useTournamentPage_TournamentQuery",
     "selections": [
       {
         "alias": null,
@@ -542,16 +542,16 @@ return {
     ]
   },
   "params": {
-    "id": "f18dc3cf10ce8e994bea4f1adddb34db",
+    "id": "dd67d3913d9eaa06a04f52a41a8dddec",
     "metadata": {},
-    "name": "TID_TournamentQuery",
+    "name": "useTournamentPage_TournamentQuery",
     "operationKind": "query",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "9e89ae3f3e38db2f5518fee09c869180";
+(node as any).hash = "65939a49ac9883def91f74ada7ca7159";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

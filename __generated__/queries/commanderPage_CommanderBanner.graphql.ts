@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<685170f9fd97bad5189959f9174aa3d1>>
+ * @generated SignedSource<<58008595300b66e716d5dba005c39961>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type Commander_CommanderBanner$data = {
+export type commanderPage_CommanderBanner$data = {
   readonly cards: ReadonlyArray<{
     readonly imageUrls: ReadonlyArray<string>;
   }>;
@@ -20,28 +20,21 @@ export type Commander_CommanderBanner$data = {
     readonly conversionRate: number;
     readonly count: number;
     readonly metaShare: number;
+    readonly topCutBias: number;
+    readonly topCuts: number;
   };
-  readonly " $fragmentType": "Commander_CommanderBanner";
+  readonly " $fragmentType": "commanderPage_CommanderBanner";
 };
-export type Commander_CommanderBanner$key = {
-  readonly " $data"?: Commander_CommanderBanner$data;
-  readonly " $fragmentSpreads": FragmentRefs<"Commander_CommanderBanner">;
+export type commanderPage_CommanderBanner$key = {
+  readonly " $data"?: commanderPage_CommanderBanner$data;
+  readonly " $fragmentSpreads": FragmentRefs<"commanderPage_CommanderBanner">;
 };
 
 const node: ReaderFragment = {
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "minEventSize"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "timePeriod"
-    }
-  ],
+  "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Commander_CommanderBanner",
+  "name": "commanderPage_CommanderBanner",
   "selections": [
     {
       "alias": null,
@@ -77,24 +70,7 @@ const node: ReaderFragment = {
     },
     {
       "alias": null,
-      "args": [
-        {
-          "fields": [
-            {
-              "kind": "Variable",
-              "name": "minSize",
-              "variableName": "minEventSize"
-            },
-            {
-              "kind": "Variable",
-              "name": "timePeriod",
-              "variableName": "timePeriod"
-            }
-          ],
-          "kind": "ObjectValue",
-          "name": "filters"
-        }
-      ],
+      "args": null,
       "concreteType": "CommanderStats",
       "kind": "LinkedField",
       "name": "stats",
@@ -111,7 +87,7 @@ const node: ReaderFragment = {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "metaShare",
+          "name": "topCuts",
           "storageKey": null
         },
         {
@@ -119,6 +95,20 @@ const node: ReaderFragment = {
           "args": null,
           "kind": "ScalarField",
           "name": "count",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "metaShare",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "topCutBias",
           "storageKey": null
         }
       ],
@@ -129,6 +119,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "77be2ab72bef33263eb6f012ee2615e4";
+(node as any).hash = "8f267e8fdffb98a61eb8f2e34706c33c";
 
 export default node;

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<35895e93eee6126063dd1549ee5a8f96>>
+ * @generated SignedSource<<7ad9f0b6c6d248c30929382dd958f43b>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type pages_TopCommandersCard$data = {
+export type commandersPage_TopCommandersCard$data = {
   readonly breakdownUrl: string;
   readonly cards: ReadonlyArray<{
     readonly imageUrls: ReadonlyArray<string>;
@@ -23,27 +23,18 @@ export type pages_TopCommandersCard$data = {
     readonly metaShare: number;
     readonly topCuts: number;
   };
-  readonly " $fragmentType": "pages_TopCommandersCard";
+  readonly " $fragmentType": "commandersPage_TopCommandersCard";
 };
-export type pages_TopCommandersCard$key = {
-  readonly " $data"?: pages_TopCommandersCard$data;
-  readonly " $fragmentSpreads": FragmentRefs<"pages_TopCommandersCard">;
+export type commandersPage_TopCommandersCard$key = {
+  readonly " $data"?: commandersPage_TopCommandersCard$data;
+  readonly " $fragmentSpreads": FragmentRefs<"commandersPage_TopCommandersCard">;
 };
 
 const node: ReaderFragment = {
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "minTournamentSize"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "timePeriod"
-    }
-  ],
+  "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "pages_TopCommandersCard",
+  "name": "commandersPage_TopCommandersCard",
   "selections": [
     {
       "alias": null,
@@ -68,24 +59,7 @@ const node: ReaderFragment = {
     },
     {
       "alias": null,
-      "args": [
-        {
-          "fields": [
-            {
-              "kind": "Variable",
-              "name": "minSize",
-              "variableName": "minTournamentSize"
-            },
-            {
-              "kind": "Variable",
-              "name": "timePeriod",
-              "variableName": "timePeriod"
-            }
-          ],
-          "kind": "ObjectValue",
-          "name": "filters"
-        }
-      ],
+      "args": null,
       "concreteType": "CommanderStats",
       "kind": "LinkedField",
       "name": "stats",
@@ -145,6 +119,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "b689ba146c56ee09971ba19ce0438834";
+(node as any).hash = "c863f1ed0ba908db92dc5fa1d10dd623";
 
 export default node;

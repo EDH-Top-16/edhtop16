@@ -56,6 +56,11 @@ type Commander implements Node {
     last: Int
     sortBy: EntriesSortBy = TOP
   ): CommanderEntriesConnection!
+  filteredStats(
+    maxStanding: Int
+    minEventSize: Int
+    timePeriod: TimePeriod!
+  ): CommanderStats!
   id: ID!
   name: String!
   promo: FirstPartyPromo
@@ -65,7 +70,7 @@ type Commander implements Node {
     first: Int
     last: Int
   ): CommanderStaplesConnection!
-  stats(filters: CommanderStatsFilters): CommanderStats!
+  stats: CommanderStats!
 }
 
 type CommanderEntriesConnection {
@@ -92,6 +97,7 @@ type CommanderStats {
   conversionRate: Float!
   count: Int!
   metaShare: Float!
+  topCutBias: Float!
   topCuts: Int!
 }
 
@@ -217,6 +223,7 @@ type Query {
   nodes(ids: [ID!]!): [Node]!
   player(profile: String!): Player!
   searchResults(types: [SearchResultType!]): [SearchResult!]!
+  staples: [Card!]!
   tournament(TID: String!): Tournament!
   tournaments(
     after: String

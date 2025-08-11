@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<43d17604c74a2c14dab14d7cab7d903b>>
+ * @generated SignedSource<<84d6001f9c01dbf43220b8af0a682f1b>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -43,18 +43,6 @@ return {
       "defaultValue": null,
       "kind": "LocalArgument",
       "name": "cursor"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "minSize"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "sortBy"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "timePeriod"
     }
   ],
   "kind": "Fragment",
@@ -84,29 +72,7 @@ return {
   "selections": [
     {
       "alias": "tournaments",
-      "args": [
-        {
-          "fields": [
-            {
-              "kind": "Variable",
-              "name": "minSize",
-              "variableName": "minSize"
-            },
-            {
-              "kind": "Variable",
-              "name": "timePeriod",
-              "variableName": "timePeriod"
-            }
-          ],
-          "kind": "ObjectValue",
-          "name": "filters"
-        },
-        {
-          "kind": "Variable",
-          "name": "sortBy",
-          "variableName": "sortBy"
-        }
-      ],
+      "args": null,
       "concreteType": "QueryTournamentsConnection",
       "kind": "LinkedField",
       "name": "__tournaments__tournaments_connection",
@@ -194,6 +160,6 @@ return {
 };
 })();
 
-(node as any).hash = "d5c3a374eefad4c17b87ab36ba1755c4";
+(node as any).hash = "a6297831a31a5906da3784d27c73f010";
 
 export default node;

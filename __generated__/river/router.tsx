@@ -3,7 +3,7 @@
  * Do not modify this file directly. Instead, edit the template at scripts/templates/router.tsx.
  */
 
-import { createRouter } from 'radix3';
+import {createRouter} from 'radix3';
 import {
   AnchorHTMLAttributes,
   createContext,
@@ -12,24 +12,25 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useState
+  useState,
 } from 'react';
 import {
+  EntryPoint,
   EntryPointContainer,
   EnvironmentProviderOptions,
   IEnvironmentProvider,
   loadEntryPoint,
   PreloadedEntryPoint,
-  useEntryPointLoader
+  useEntryPointLoader,
 } from 'react-relay/hooks';
-import { OperationDescriptor, PayloadData } from 'relay-runtime';
-import type { Manifest } from 'vite';
+import {OperationDescriptor, PayloadData} from 'relay-runtime';
+import type {Manifest} from 'vite';
 import * as z from 'zod/v4-mini';
 import { entrypoint as e0 } from "../../src/pages/about.entrypoint";
-import { entrypoint as e4 } from "../../src/pages/commander/[commander]/commander_page.entrypoint";
 import { entrypoint as e1 } from "../../src/pages/index.entrypoint";
-import { entrypoint as e3 } from "../../src/pages/tournament/tournament_view.entrypoint";
 import { entrypoint as e2 } from "../../src/pages/tournaments.entrypoint";
+import { entrypoint as e3 } from "../../src/pages/tournament/tournament_view.entrypoint";
+import { entrypoint as e4 } from "../../src/pages/commander/[commander]/commander_page.entrypoint";
 
 export type AnyPreloadedEntryPoint = PreloadedEntryPoint<any>;
 export type RiverOps = [OperationDescriptor, PayloadData][];
@@ -42,39 +43,22 @@ const ROUTER_CONF = {
         } as const,
     "/": {
             entrypoint: e1,
-            schema: z.object({
-              minSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
-              minEntries: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
-              sortBy: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              timePeriod: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              colorId: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              display: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-            })
+            schema: z.object({})
         } as const,
     "/tournaments": {
             entrypoint: e2,
-            schema: z.object({
-              minSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
-              sortBy: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              timePeriod: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-            })
+            schema: z.object({})
         } as const,
     "/tournament/:tid": {
             entrypoint: e3,
             schema: z.object({
               tid: z.pipe(z.string(), z.transform(decodeURIComponent)),
-              commander: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              tab: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
             })
         } as const,
     "/commander/:commander": {
             entrypoint: e4,
             schema: z.object({
               commander: z.pipe(z.string(), z.transform(decodeURIComponent)),
-              sortBy: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              timePeriod: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              maxStanding: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
-              minEventSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
             })
         } as const
 } as const;

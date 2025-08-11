@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<3f7b88fe077e2112112193690958a9ad>>
- * @relayHash c27c0cba9db03edad5bfb37497e5960c
+ * @generated SignedSource<<d24e9a6424fda9e24819a89ac5fcfd79>>
+ * @relayHash d1dee7e37c718427505e65b93806db8c
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,27 +9,28 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID c27c0cba9db03edad5bfb37497e5960c
+// @relayRequestID d1dee7e37c718427505e65b93806db8c
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type EntriesSortBy = "NEW" | "TOP" | "%future added value";
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
-export type Commander_CommanderQuery$variables = {
+export type useCommanderPage_CommanderQuery$variables = {
   commander: string;
   maxStanding?: number | null | undefined;
-  minEventSize: number;
+  minEventSize?: number | null | undefined;
   sortBy: EntriesSortBy;
   timePeriod: TimePeriod;
 };
-export type Commander_CommanderQuery$data = {
+export type useCommanderPage_CommanderQuery$data = {
   readonly commander: {
-    readonly " $fragmentSpreads": FragmentRefs<"Commander_CommanderPageShell" | "Commander_entries">;
+    readonly name: string;
+    readonly " $fragmentSpreads": FragmentRefs<"commanderPage_CommanderPageShell" | "useCommanderPage_entries">;
   };
 };
-export type Commander_CommanderQuery = {
-  response: Commander_CommanderQuery$data;
-  variables: Commander_CommanderQuery$variables;
+export type useCommanderPage_CommanderQuery = {
+  response: useCommanderPage_CommanderQuery$data;
+  variables: useCommanderPage_CommanderQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -72,33 +73,70 @@ v6 = {
   "name": "name",
   "storageKey": null
 },
-v7 = {
+v7 = [
+  {
+    "kind": "Variable",
+    "name": "maxStanding",
+    "variableName": "maxStanding"
+  },
+  {
+    "kind": "Variable",
+    "name": "minEventSize",
+    "variableName": "minEventSize"
+  },
+  {
+    "kind": "Variable",
+    "name": "timePeriod",
+    "variableName": "timePeriod"
+  }
+],
+v8 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
 },
-v8 = {
-  "kind": "Variable",
-  "name": "timePeriod",
-  "variableName": "timePeriod"
-},
 v9 = [
   {
-    "fields": [
-      {
-        "kind": "Variable",
-        "name": "maxStanding",
-        "variableName": "maxStanding"
-      },
-      {
-        "kind": "Variable",
-        "name": "minEventSize",
-        "variableName": "minEventSize"
-      },
-      (v8/*: any*/)
-    ],
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "conversionRate",
+    "storageKey": null
+  },
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "topCuts",
+    "storageKey": null
+  },
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "count",
+    "storageKey": null
+  },
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "metaShare",
+    "storageKey": null
+  },
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "topCutBias",
+    "storageKey": null
+  }
+],
+v10 = [
+  {
+    "fields": (v7/*: any*/),
     "kind": "ObjectValue",
     "name": "filters"
   },
@@ -124,7 +162,7 @@ return {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "Commander_CommanderQuery",
+    "name": "useCommanderPage_CommanderQuery",
     "selections": [
       {
         "alias": null,
@@ -134,15 +172,16 @@ return {
         "name": "commander",
         "plural": false,
         "selections": [
+          (v6/*: any*/),
           {
-            "args": null,
+            "args": (v7/*: any*/),
             "kind": "FragmentSpread",
-            "name": "Commander_CommanderPageShell"
+            "name": "commanderPage_CommanderPageShell"
           },
           {
-            "args": null,
+            "args": (v7/*: any*/),
             "kind": "FragmentSpread",
-            "name": "Commander_entries"
+            "name": "useCommanderPage_entries"
           }
         ],
         "storageKey": null
@@ -161,7 +200,7 @@ return {
       (v4/*: any*/)
     ],
     "kind": "Operation",
-    "name": "Commander_CommanderQuery",
+    "name": "useCommanderPage_CommanderQuery",
     "selections": [
       {
         "alias": null,
@@ -201,53 +240,28 @@ return {
                 "name": "imageUrls",
                 "storageKey": null
               },
-              (v7/*: any*/)
+              (v8/*: any*/)
             ],
             "storageKey": null
           },
           {
             "alias": null,
-            "args": [
-              {
-                "fields": [
-                  {
-                    "kind": "Variable",
-                    "name": "minSize",
-                    "variableName": "minEventSize"
-                  },
-                  (v8/*: any*/)
-                ],
-                "kind": "ObjectValue",
-                "name": "filters"
-              }
-            ],
+            "args": null,
             "concreteType": "CommanderStats",
             "kind": "LinkedField",
             "name": "stats",
             "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "conversionRate",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "metaShare",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "count",
-                "storageKey": null
-              }
-            ],
+            "selections": (v9/*: any*/),
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": (v7/*: any*/),
+            "concreteType": "CommanderStats",
+            "kind": "LinkedField",
+            "name": "filteredStats",
+            "plural": false,
+            "selections": (v9/*: any*/),
             "storageKey": null
           },
           {
@@ -305,7 +319,7 @@ return {
           },
           {
             "alias": null,
-            "args": (v9/*: any*/),
+            "args": (v10/*: any*/),
             "concreteType": "CommanderEntriesConnection",
             "kind": "LinkedField",
             "name": "entries",
@@ -327,7 +341,7 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v7/*: any*/),
+                      (v8/*: any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -379,7 +393,7 @@ return {
                             "name": "isKnownCheater",
                             "storageKey": null
                           },
-                          (v7/*: any*/)
+                          (v8/*: any*/)
                         ],
                         "storageKey": null
                       },
@@ -413,7 +427,7 @@ return {
                             "name": "TID",
                             "storageKey": null
                           },
-                          (v7/*: any*/)
+                          (v8/*: any*/)
                         ],
                         "storageKey": null
                       },
@@ -467,7 +481,7 @@ return {
           },
           {
             "alias": null,
-            "args": (v9/*: any*/),
+            "args": (v10/*: any*/),
             "filters": [
               "sortBy",
               "filters"
@@ -477,23 +491,23 @@ return {
             "kind": "LinkedHandle",
             "name": "entries"
           },
-          (v7/*: any*/)
+          (v8/*: any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "id": "c27c0cba9db03edad5bfb37497e5960c",
+    "id": "d1dee7e37c718427505e65b93806db8c",
     "metadata": {},
-    "name": "Commander_CommanderQuery",
+    "name": "useCommanderPage_CommanderQuery",
     "operationKind": "query",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "9d0a57bb7408f4160b8eb2b11afdc110";
+(node as any).hash = "dc1664068776389cf6cf3cfc6e3e867b";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

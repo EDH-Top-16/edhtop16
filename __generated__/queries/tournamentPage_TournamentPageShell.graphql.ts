@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<2db2d24ea78a33db65c488119e451913>>
+ * @generated SignedSource<<6c805c680dc5d6aafb414b6c81503d3d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,24 +10,24 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type TID_TournamentPageShell$data = {
+export type tournamentPage_TournamentPageShell$data = {
   readonly TID: string;
   readonly promo: {
     readonly " $fragmentSpreads": FragmentRefs<"promo_EmbededPromo">;
   } | null | undefined;
-  readonly " $fragmentSpreads": FragmentRefs<"TID_TournamentBanner" | "TID_TournamentMeta">;
-  readonly " $fragmentType": "TID_TournamentPageShell";
+  readonly " $fragmentSpreads": FragmentRefs<"tournamentPage_TournamentBanner" | "tournamentPage_TournamentMeta">;
+  readonly " $fragmentType": "tournamentPage_TournamentPageShell";
 };
-export type TID_TournamentPageShell$key = {
-  readonly " $data"?: TID_TournamentPageShell$data;
-  readonly " $fragmentSpreads": FragmentRefs<"TID_TournamentPageShell">;
+export type tournamentPage_TournamentPageShell$key = {
+  readonly " $data"?: tournamentPage_TournamentPageShell$data;
+  readonly " $fragmentSpreads": FragmentRefs<"tournamentPage_TournamentPageShell">;
 };
 
 const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "TID_TournamentPageShell",
+  "name": "tournamentPage_TournamentPageShell",
   "selections": [
     {
       "alias": null,
@@ -39,12 +39,12 @@ const node: ReaderFragment = {
     {
       "args": null,
       "kind": "FragmentSpread",
-      "name": "TID_TournamentBanner"
+      "name": "tournamentPage_TournamentBanner"
     },
     {
       "args": null,
       "kind": "FragmentSpread",
-      "name": "TID_TournamentMeta"
+      "name": "tournamentPage_TournamentMeta"
     },
     {
       "alias": null,
@@ -67,6 +67,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "9637977b21a7237a81b92f985599ee51";
+(node as any).hash = "a048858e2cba1352165b92b69fcb5b0d";
 
 export default node;

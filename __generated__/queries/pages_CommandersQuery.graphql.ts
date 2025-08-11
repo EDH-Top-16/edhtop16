@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<ba5a486e1c5a1e9c65e3922688066ce4>>
- * @relayHash 14745cc7afd103bd6a5ec872679047e4
+ * @generated SignedSource<<b9def4d6e8dc8581b1eb560fa286a542>>
+ * @relayHash 6d8addd7afb768ed4470b5b6a4dcace0
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,19 +9,11 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 14745cc7afd103bd6a5ec872679047e4
+// @relayRequestID 6d8addd7afb768ed4470b5b6a4dcace0
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type CommandersSortBy = "CONVERSION" | "POPULARITY" | "TOP_CUTS" | "%future added value";
-export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
-export type pages_CommandersQuery$variables = {
-  colorId?: string | null | undefined;
-  minEntries: number;
-  minTournamentSize: number;
-  sortBy: CommandersSortBy;
-  timePeriod: TimePeriod;
-};
+export type pages_CommandersQuery$variables = Record<PropertyKey, never>;
 export type pages_CommandersQuery$data = {
   readonly " $fragmentSpreads": FragmentRefs<"pages_topCommanders">;
 };
@@ -31,65 +23,14 @@ export type pages_CommandersQuery = {
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "colorId"
-},
-v1 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "minEntries"
-},
-v2 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "minTournamentSize"
-},
-v3 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "sortBy"
-},
-v4 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "timePeriod"
-},
-v5 = {
-  "kind": "Variable",
-  "name": "timePeriod",
-  "variableName": "timePeriod"
-},
-v6 = [
-  {
-    "kind": "Variable",
-    "name": "colorId",
-    "variableName": "colorId"
-  },
+var v0 = [
   {
     "kind": "Literal",
     "name": "first",
-    "value": 48
-  },
-  {
-    "kind": "Variable",
-    "name": "minEntries",
-    "variableName": "minEntries"
-  },
-  {
-    "kind": "Variable",
-    "name": "minTournamentSize",
-    "variableName": "minTournamentSize"
-  },
-  {
-    "kind": "Variable",
-    "name": "sortBy",
-    "variableName": "sortBy"
-  },
-  (v5/*: any*/)
+    "value": 20
+  }
 ],
-v7 = {
+v1 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -98,13 +39,7 @@ v7 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/),
-      (v4/*: any*/)
-    ],
+    "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
     "name": "pages_CommandersQuery",
@@ -120,19 +55,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": [
-      (v4/*: any*/),
-      (v3/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v0/*: any*/)
-    ],
+    "argumentDefinitions": [],
     "kind": "Operation",
     "name": "pages_CommandersQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v6/*: any*/),
+        "args": (v0/*: any*/),
         "concreteType": "QueryCommandersConnection",
         "kind": "LinkedField",
         "name": "commanders",
@@ -154,7 +83,7 @@ return {
                 "name": "node",
                 "plural": false,
                 "selections": [
-                  (v7/*: any*/),
+                  (v1/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -178,20 +107,7 @@ return {
                   },
                   {
                     "alias": null,
-                    "args": [
-                      {
-                        "fields": [
-                          {
-                            "kind": "Variable",
-                            "name": "minSize",
-                            "variableName": "minTournamentSize"
-                          },
-                          (v5/*: any*/)
-                        ],
-                        "kind": "ObjectValue",
-                        "name": "filters"
-                      }
-                    ],
+                    "args": null,
                     "concreteType": "CommanderStats",
                     "kind": "LinkedField",
                     "name": "stats",
@@ -243,7 +159,7 @@ return {
                         "name": "imageUrls",
                         "storageKey": null
                       },
-                      (v7/*: any*/)
+                      (v1/*: any*/)
                     ],
                     "storageKey": null
                   },
@@ -293,18 +209,12 @@ return {
             "storageKey": null
           }
         ],
-        "storageKey": null
+        "storageKey": "commanders(first:20)"
       },
       {
         "alias": null,
-        "args": (v6/*: any*/),
-        "filters": [
-          "timePeriod",
-          "sortBy",
-          "colorId",
-          "minEntries",
-          "minTournamentSize"
-        ],
+        "args": (v0/*: any*/),
+        "filters": null,
         "handle": "connection",
         "key": "pages__commanders",
         "kind": "LinkedHandle",
@@ -313,7 +223,7 @@ return {
     ]
   },
   "params": {
-    "id": "14745cc7afd103bd6a5ec872679047e4",
+    "id": "6d8addd7afb768ed4470b5b6a4dcace0",
     "metadata": {},
     "name": "pages_CommandersQuery",
     "operationKind": "query",
@@ -322,7 +232,7 @@ return {
 };
 })();
 
-(node as any).hash = "a1ee982ceaef8e5eb98991f6761fa30f";
+(node as any).hash = "bb01a86f28f0bfa55a6d2f893ee9a66b";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);
