@@ -83,12 +83,29 @@ class RouterLocation {
       path = 'river:' + path;
     }
 
-    const parsed = URL.parse(path);
-    if (parsed != null) {
+    try {
+      // Try Node.js URL.parse() first (server-side)
+      if (typeof URL.parse === 'function') {
+        const nodeUrlParsed = URL.parse(path);
+        if (nodeUrlParsed) {
+          return new RouterLocation(
+            nodeUrlParsed.pathname || path, 
+            nodeUrlParsed.searchParams || new URLSearchParams(), 
+            method
+          );
+        }
+      }
+      
+      // Fallback to new URL() (browser or newer Node.js)
+      // Use a consistent base URL for both server and client
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+      const parsed = new URL(path, baseUrl);
+      
       return new RouterLocation(parsed.pathname, parsed.searchParams, method);
+    } catch {
+      // If all URL parsing fails, treat as pathname only
+      return new RouterLocation(path, new URLSearchParams(), method);
     }
-
-    return new RouterLocation(path, new URLSearchParams(), method);
   }
 }
 
