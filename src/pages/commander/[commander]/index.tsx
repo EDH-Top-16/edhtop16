@@ -1,42 +1,38 @@
 import React from 'react';
-import { EntryPointComponent } from 'react-relay/hooks';
-import { useCommanderPage_CommanderQuery } from '#genfiles/queries/useCommanderPage_CommanderQuery.graphql';
+import {EntryPointComponent} from 'react-relay/hooks';
+import {useCommanderPage_CommanderQuery} from '#genfiles/queries/useCommanderPage_CommanderQuery.graphql';
 
-import { Footer } from '../../../components/footer';
-import { LoadMoreButton } from '../../../components/load_more';
-import { 
+import {Footer} from '../../../components/footer';
+import {LoadMoreButton} from '../../../components/load_more';
+import {
   CommanderPageShell,
-  CommanderEntryGrid 
+  CommanderEntryGrid,
 } from '../../../components/commander_page';
-import { useCommanderPage } from '../../../hooks/useCommanderPage';
-import { useSession } from '../../../lib/client/use_session';
+import {useCommanderPage} from '../../../hooks/useCommanderPage';
+import {useSession} from '../../../lib/client/use_session';
 
 /** @resource m#commander_page */
 export const CommanderPage: EntryPointComponent<
-  { commanderQueryRef: useCommanderPage_CommanderQuery },
+  {commanderQueryRef: useCommanderPage_CommanderQuery},
   {}
-> = ({ queries }) => {
-  
-  const { 
-    isAuthenticated, 
-    sessionData, 
-    updatePreferences: updateSessionPrefs 
+> = ({queries}) => {
+  const {
+    isAuthenticated,
+    sessionData,
+    updatePreferences: updateSessionPrefs,
   } = useSession();
 
   const {
-    
     commander,
     data,
     entryCards,
-    
-    
+
     shellPreferences,
     localEventSize,
     localMaxStanding,
     hasNext,
     isLoadingNext,
-    
-    
+
     handleSortBySelect,
     handleTimePeriodSelect,
     handleEventSizeChange,
@@ -45,12 +41,10 @@ export const CommanderPage: EntryPointComponent<
     handleMaxStandingSelect,
     handleKeyDown,
     handleLoadMore,
-    
-    
+
     updatePreference,
     preferences,
   } = useCommanderPage(queries.commanderQueryRef, {
-    
     isAuthenticated,
     sessionData,
     updatePreferences: updateSessionPrefs,
@@ -58,9 +52,7 @@ export const CommanderPage: EntryPointComponent<
 
   if (!commander) {
     return (
-      <div className="text-center text-white py-8">
-        Commander not found
-      </div>
+      <div className="py-8 text-center text-white">Commander not found</div>
     );
   }
 
@@ -93,7 +85,7 @@ export const CommanderPage: EntryPointComponent<
           />
         </>
       ) : (
-        <div className="text-center text-white py-8">
+        <div className="py-8 text-center text-white">
           No entries found for this commander
         </div>
       )}

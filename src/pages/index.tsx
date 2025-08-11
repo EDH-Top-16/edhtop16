@@ -1,33 +1,36 @@
 import React from 'react';
-import { EntryPointComponent, graphql, usePreloadedQuery } from 'react-relay/hooks';
-import { pages_CommandersQuery } from '#genfiles/queries/pages_CommandersQuery.graphql';
-import { pages_topCommanders$key } from '#genfiles/queries/pages_topCommanders.graphql';
-import { TopCommandersQuery } from '#genfiles/queries/TopCommandersQuery.graphql';
+import {
+  EntryPointComponent,
+  graphql,
+  usePreloadedQuery,
+} from 'react-relay/hooks';
+import {pages_CommandersQuery} from '#genfiles/queries/pages_CommandersQuery.graphql';
+import {pages_topCommanders$key} from '#genfiles/queries/pages_topCommanders.graphql';
+import {TopCommandersQuery} from '#genfiles/queries/TopCommandersQuery.graphql';
 import RectangleStackIcon from '@heroicons/react/24/solid/RectangleStackIcon';
 import TableCellsIcon from '@heroicons/react/24/solid/TableCellsIcon';
 
-import { Footer } from '../components/footer';
-import { LoadMoreButton } from '../components/load_more';
-import { 
+import {Footer} from '../components/footer';
+import {LoadMoreButton} from '../components/load_more';
+import {
   CommandersPageShell,
   CommandersHeader,
   CommandersFilters,
-  CommandersGrid 
+  CommandersGrid,
 } from '../components/commanders_page';
-import { useCommandersPage } from '../hooks/useCommandersPage';
-import { useSession } from '../lib/client/use_session';
-import { SessionStatus } from '../components/session_status';
+import {useCommandersPage} from '../hooks/useCommandersPage';
+import {useSession} from '../lib/client/use_session';
+import {SessionStatus} from '../components/session_status';
 
 /** @resource m#index */
 export const CommandersPage: EntryPointComponent<
-  { commandersQueryRef: pages_CommandersQuery },
+  {commandersQueryRef: pages_CommandersQuery},
   {}
-> = ({ queries }) => {
-  
-  const { 
-    isAuthenticated, 
-    sessionData, 
-    updatePreferences: updateSessionPrefs 
+> = ({queries}) => {
+  const {
+    isAuthenticated,
+    sessionData,
+    updatePreferences: updateSessionPrefs,
   } = useSession();
 
   const query = usePreloadedQuery(
@@ -42,8 +45,8 @@ export const CommandersPage: EntryPointComponent<
   const fragmentRef = graphql`
     fragment pages_topCommanders on Query
     @argumentDefinitions(
-      cursor: { type: "String" }
-      count: { type: "Int", defaultValue: 20 }
+      cursor: {type: "String"}
+      count: {type: "Int", defaultValue: 20}
     )
     @refetchable(queryName: "TopCommandersQuery") {
       commanders(first: $count, after: $cursor)
@@ -75,7 +78,6 @@ export const CommandersPage: EntryPointComponent<
     handleColorChange,
     handleLoadMore,
   } = useCommandersPage(query, fragmentRef, {
-    
     isAuthenticated,
     sessionData,
     updatePreferences: updateSessionPrefs,
@@ -84,11 +86,11 @@ export const CommandersPage: EntryPointComponent<
   return (
     <CommandersPageShell>
       {/* Header with SessionStatus in top-right */}
-      <div className="flex w-full items-baseline gap-4 mb-8">
+      <div className="mb-8 flex w-full items-baseline gap-4">
         <h1 className="font-title flex-1 text-5xl font-extrabold text-white">
           cEDH Metagame Breakdown
           {isAuthenticated && (
-            <span className="ml-2 text-sm text-green-400 font-normal">
+            <span className="ml-2 text-sm font-normal text-green-400">
               (Session Active)
             </span>
           )}
@@ -138,9 +140,7 @@ export const CommandersPage: EntryPointComponent<
           />
         </>
       ) : (
-        <div className="text-center text-white py-8">
-          Loading commanders...
-        </div>
+        <div className="py-8 text-center text-white">Loading commanders...</div>
       )}
 
       <Footer />

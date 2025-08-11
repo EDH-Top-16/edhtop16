@@ -1,13 +1,12 @@
 import {useHead} from '@unhead/react';
 import {PropsWithChildren, useEffect, useRef} from 'react';
-import { useSession } from '../lib/client/use_session';
+import {useSession} from '../lib/client/use_session';
 
 function SessionInitializer() {
-  const { sessionData } = useSession();
+  const {sessionData} = useSession();
   const hasInitialized = useRef(false);
 
   useEffect(() => {
-    
     if (!hasInitialized.current) {
       hasInitialized.current = true;
       //console.log('App session initialized:', {
@@ -18,7 +17,7 @@ function SessionInitializer() {
     }
   }, [sessionData]);
 
-  return null; 
+  return null;
 }
 
 export function App({children}: PropsWithChildren<{}>) {

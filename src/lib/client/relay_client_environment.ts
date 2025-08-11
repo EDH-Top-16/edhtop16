@@ -7,7 +7,6 @@ import type {
   PreferencesMap,
 } from './cookies';
 
-
 export type SessionData = {
   preferences: PreferencesMap;
   userId?: string;
@@ -26,9 +25,8 @@ export type SessionData = {
   [key: string]: any;
 };
 
-
 class SessionRegistry {
-  private data: SessionData = { preferences: {} };
+  private data: SessionData = {preferences: {}};
   private listeners = new Set<(data: SessionData) => void>();
 
   get(): SessionData {
@@ -36,7 +34,7 @@ class SessionRegistry {
   }
 
   set(data: Partial<SessionData>) {
-    this.data = { ...this.data, ...data };
+    this.data = {...this.data, ...data};
     this.notifyListeners();
   }
 
@@ -53,24 +51,22 @@ class SessionRegistry {
   }
 
   private notifyListeners() {
-    
     Promise.resolve().then(() => {
-      this.listeners.forEach(listener => listener(this.data));
+      this.listeners.forEach((listener) => listener(this.data));
     });
   }
 
-  
   async updateServerPreferences(newPreferences: Partial<PreferencesMap>) {
     try {
       const response = await fetch('/api/session/preferences', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(newPreferences),
       });
 
       if (response.ok) {
         this.set({
-          preferences: { ...this.data.preferences, ...newPreferences }
+          preferences: {...this.data.preferences, ...newPreferences},
         });
         return true;
       }
@@ -80,12 +76,11 @@ class SessionRegistry {
     return false;
   }
 
-  
   async updateSessionData(newData: Partial<Omit<SessionData, 'preferences'>>) {
     try {
       const response = await fetch('/api/session/data', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(newData),
       });
 
@@ -101,7 +96,6 @@ class SessionRegistry {
 }
 
 export const sessionRegistry = new SessionRegistry();
-
 
 let currentPreferences: PreferencesMap = {};
 
@@ -123,7 +117,7 @@ export function createClientNetwork() {
         variables,
         extensions: {
           sitePreferences: currentPreferences,
-          sessionData: sessionData, 
+          sessionData: sessionData,
         },
       };
 
@@ -161,20 +155,17 @@ export function getClientEnvironment() {
   return clientEnv;
 }
 
-
 export function updateRelayPreferences(prefs: Partial<PreferencesMap>) {
   currentPreferences = {...currentPreferences, ...prefs};
-  
-  
+
   Promise.resolve().then(() => {
-    sessionRegistry.set({ preferences: currentPreferences });
+    sessionRegistry.set({preferences: currentPreferences});
   });
 }
 
 export function getRelayPreferences(): PreferencesMap {
   return currentPreferences;
 }
-
 
 declare global {
   interface Window {

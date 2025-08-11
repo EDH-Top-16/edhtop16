@@ -1,14 +1,14 @@
-import { useCallback, useMemo, useEffect, useRef } from 'react';
-import { usePreloadedQuery, PreloadedQuery } from 'react-relay/hooks';
-import { graphql } from 'relay-runtime';
+import {useCallback, useMemo, useEffect, useRef} from 'react';
+import {usePreloadedQuery, PreloadedQuery} from 'react-relay/hooks';
+import {graphql} from 'relay-runtime';
 import {
   usePreferences,
   setRefetchCallback,
   clearRefetchCallback,
   type PreferencesMap,
 } from '../lib/client/cookies';
-import { useSession } from '../lib/client/use_session';
-import { useTournamentPage_TournamentQuery } from '#genfiles/queries/useTournamentPage_TournamentQuery.graphql';
+import {useSession} from '../lib/client/use_session';
+import {useTournamentPage_TournamentQuery} from '#genfiles/queries/useTournamentPage_TournamentQuery.graphql';
 
 const DEFAULT_PREFERENCES = {
   tab: 'entries' as const,
@@ -21,44 +21,40 @@ export function useTournamentPage(
     isAuthenticated: boolean;
     sessionData: any;
     updatePreferences: (prefs: any) => Promise<void>;
-  }
+  },
 ) {
-  
   const sessionFromHook = useSession();
-  const { 
-    isAuthenticated, 
-    sessionData, 
-    updatePreferences: updateSessionPrefs 
+  const {
+    isAuthenticated,
+    sessionData,
+    updatePreferences: updateSessionPrefs,
   } = sessionContext || {
     isAuthenticated: sessionFromHook.isAuthenticated,
     sessionData: sessionFromHook.sessionData,
-    updatePreferences: sessionFromHook.updatePreferences
+    updatePreferences: sessionFromHook.updatePreferences,
   };
 
-  const { preferences, updatePreference, isHydrated } = usePreferences(
+  const {preferences, updatePreference, isHydrated} = usePreferences(
     'tournament',
     DEFAULT_PREFERENCES,
   );
 
-  
-  const enhancedUpdatePreference = useCallback(async (
-    key: keyof PreferencesMap['tournament'], 
-    value: any
-  ) => {
-    if (isAuthenticated) {
-      
-      await updateSessionPrefs({
-        tournament: { ...preferences, [key]: value }
-      });
-    } else {
-      
-      updatePreference(key, value);
-    }
-  }, [isAuthenticated, updateSessionPrefs, updatePreference, preferences]);
+  const enhancedUpdatePreference = useCallback(
+    async (key: keyof PreferencesMap['tournament'], value: any) => {
+      if (isAuthenticated) {
+        await updateSessionPrefs({
+          tournament: {...preferences, [key]: value},
+        });
+      } else {
+        updatePreference(key, value);
+      }
+    },
+    [isAuthenticated, updateSessionPrefs, updatePreference, preferences],
+  );
 
   const hasRefetchedRef = useRef(false);
 
-  const { tournament } = usePreloadedQuery(
+  const {tournament} = usePreloadedQuery(
     graphql`
       query useTournamentPage_TournamentQuery(
         $TID: String!
@@ -90,7 +86,6 @@ export function useTournamentPage(
     queryRef,
   );
 
-  
   const handleCommanderSelect = useCallback(
     (commanderName: string) => {
       enhancedUpdatePreference(
@@ -106,11 +101,9 @@ export function useTournamentPage(
   );
 
   const handleRefetch = useCallback(() => {
-    
     //console.log('🔄 [TOURNAMENT] Refetch would happen here if needed');
   }, []);
 
-  
   const queryVariables = queryRef.variables;
   const currentTabFromQuery = useMemo(() => {
     if (queryVariables.showBreakdown) return 'breakdown';
@@ -120,7 +113,6 @@ export function useTournamentPage(
 
   const commanderFromQuery = queryVariables.commander;
 
-  
   const standingsEntries = useMemo(
     () => tournament?.entries || [],
     [tournament?.entries],
@@ -136,7 +128,6 @@ export function useTournamentPage(
     [tournament?.breakdownEntries],
   );
 
-  
   const shellProps = useMemo(
     () => ({
       tournament,
@@ -157,7 +148,6 @@ export function useTournamentPage(
     ],
   );
 
-  
   const currentContent = useMemo(() => {
     const currentTab = isHydrated
       ? preferences?.tab || 'entries'
@@ -165,11 +155,11 @@ export function useTournamentPage(
 
     switch (currentTab) {
       case 'breakdown':
-        return { type: 'breakdown' as const, data: breakdownCards };
+        return {type: 'breakdown' as const, data: breakdownCards};
       case 'commander':
-        return { type: 'commander' as const, data: commanderEntries };
+        return {type: 'commander' as const, data: commanderEntries};
       default:
-        return { type: 'entries' as const, data: standingsEntries };
+        return {type: 'entries' as const, data: standingsEntries};
     }
   }, [
     isHydrated,
@@ -180,7 +170,6 @@ export function useTournamentPage(
     commanderEntries,
   ]);
 
-  
   useEffect(() => {
     setRefetchCallback(handleRefetch);
     return clearRefetchCallback;
@@ -197,23 +186,18 @@ export function useTournamentPage(
   }, [isHydrated, isAuthenticated, preferences]);
 
   return {
-    
     tournament,
-    
-    
+
     standingsEntries,
     breakdownCards,
     commanderEntries,
     currentContent,
-    
-    
+
     shellProps,
     isAuthenticated,
-    
-    
+
     handleCommanderSelect,
-    
-    
+
     updatePreference: enhancedUpdatePreference,
     preferences,
   };
