@@ -116,6 +116,16 @@ export function useCommanderPage(
     queryRef,
   );
 
+  
+  const stableCommander = useMemo(() => {
+    
+    if (commander?.name) {
+      return commander;
+    }
+    
+    return commander;
+  }, [commander?.name]); 
+
   const { data, loadNext, isLoadingNext, hasNext, refetch } =
     usePaginationFragment<CommanderEntriesQuery, useCommanderPage_entries$key>(
       graphql`
@@ -128,6 +138,9 @@ export function useCommanderPage(
           timePeriod: {type: "TimePeriod!"}
         )
         @refetchable(queryName: "CommanderEntriesQuery") {
+          id
+          name
+          
           # Add filteredStats to this fragment so it gets refetched
           filteredStats(
             minEventSize: $minEventSize
@@ -155,13 +168,30 @@ export function useCommanderPage(
               node {
                 id
                 ...commanderPage_EntryCard
+                tournament {
+                  size
+                }
               }
             }
           }
         }
       `,
-      commander,
+      stableCommander || null,
     );
+
+  
+  const maxTournamentSize = useMemo(() => {
+    if (!data?.entries?.edges?.length) return 400; // Default max value
+    
+    const sizes = data.entries.edges
+      .map(edge => edge.node)
+      .filter(node => node?.tournament?.size)
+      .map(node => node.tournament.size);
+    
+    return sizes.length > 0 ? Math.max(...sizes) : 400;
+  }, [data?.entries?.edges]);
+
+  
 
   const refetchParams = useMemo(
     () => ({
@@ -175,24 +205,39 @@ export function useCommanderPage(
 
   const handleRefetch = useCallback(() => {
     
-    if (!commander) {
-      //console.log('⚠️ [COMMANDER_PAGE] Cannot refetch: commander is null');
+    if (!stableCommander?.name) {
+      
       return;
     }
 
-    //console.log('🔄 [COMMANDER_PAGE] Refetch triggered by preferences change');
-    startTransition(() => {
-      refetch(refetchParams, {fetchPolicy: 'network-only'});
-    });
-  }, [refetch, refetchParams, commander]);
+    
+    if (!data?.id) {
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+      return;
+    }
+    
+    try {
+      startTransition(() => {
+        refetch(refetchParams, {fetchPolicy: 'network-only'});
+      });
+    } catch (error: unknown) {
+      
+    }
+  }, [refetch, refetchParams, stableCommander, data]);
 
   const handleLoadMore = useCallback(
     (count: number) => {
+      if (!stableCommander?.name) {
+        
+        return;
+      }
       startTransition(() => {
         loadNext(count);
       });
     },
-    [loadNext],
+    [loadNext, stableCommander],
   );
 
   
@@ -200,6 +245,18 @@ export function useCommanderPage(
     () => ({
       eventSize: createDebouncedFunction((value: string) => {
         const numValue = value === '' ? null : parseInt(value, 10);
+        
+        
+        if (numValue !== null && numValue > maxTournamentSize) {
+          
+          const cappedValue = maxTournamentSize;
+          enhancedUpdatePreference(
+            'minEventSize' as keyof PreferencesMap['entry'],
+            cappedValue,
+          );
+          return;
+        }
+        
         if (numValue === null || (!isNaN(numValue) && numValue >= 0)) {
           enhancedUpdatePreference(
             'minEventSize' as keyof PreferencesMap['entry'],
@@ -217,7 +274,7 @@ export function useCommanderPage(
         }
       }, 250),
     }),
-    [enhancedUpdatePreference],
+    [enhancedUpdatePreference, maxTournamentSize],
   );
 
   
@@ -255,13 +312,21 @@ export function useCommanderPage(
 
   const handleEventSizeSelect = useCallback(
     (value: number | null) => {
-      const stringValue = value?.toString() || '';
+      let finalValue = value;
+      
+      
+      if (finalValue !== null && finalValue > maxTournamentSize) {
+        
+        finalValue = maxTournamentSize;
+      }
+      
+      const stringValue = finalValue?.toString() || '';
       startTransition(() => {
         setLocalEventSize(stringValue);
       });
-      enhancedUpdatePreference('minEventSize' as keyof PreferencesMap['entry'], value);
+      enhancedUpdatePreference('minEventSize' as keyof PreferencesMap['entry'], finalValue);
     },
-    [enhancedUpdatePreference],
+    [enhancedUpdatePreference, maxTournamentSize],
   );
 
   const handleMaxStandingChange = useCallback(
@@ -317,36 +382,28 @@ export function useCommanderPage(
   }, [handleRefetch]);
 
   useEffect(() => {
-    if (isHydrated && !hasRefetchedRef.current && commander) {
+    if (isHydrated && !hasRefetchedRef.current && stableCommander?.name) {
       hasRefetchedRef.current = true;
 
       const actualServerPrefs = serverPreferences || DEFAULT_PREFERENCES;
       const prefsMatch =
         JSON.stringify(preferences) === JSON.stringify(actualServerPrefs);
 
-      //console.log('🍪 [COMMANDER_PAGE] Hydration complete:', {
-      //  clientPrefs: preferences,
-      //  serverPrefs: actualServerPrefs,
-      //  needsRefetch: !prefsMatch,
-      //  isAuthenticated,
-      //  commanderExists: !!commander,
-      //}
-      //);
-
       if (!prefsMatch) {
-        
         setTimeout(() => {
+          
           handleRefetch();
-        }, 200);
+        }, 100);
       }
     }
-  }, [isHydrated, preferences, serverPreferences, handleRefetch, isAuthenticated, commander]);
+  }, [isHydrated, preferences, serverPreferences, handleRefetch, isAuthenticated, commander, stableCommander, queryRef.variables]);
 
   return {
     
-    commander,
+    commander: stableCommander,
     data,
     entryCards,
+    maxTournamentSize, 
     
     
     shellPreferences,

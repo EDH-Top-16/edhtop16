@@ -12,6 +12,7 @@ export interface NumberInputDropdownProps {
   value: string;
   placeholder: string;
   min: string;
+  max?: number;
   options: NumberInputDropdownOption[];
   onChange: (value: string) => void;
   onSelect: (value: number | null) => void;
@@ -27,6 +28,7 @@ export const NumberInputDropdown = memo(function NumberInputDropdown({
   value,
   placeholder,
   min,
+  max,
   options,
   onChange,
   onSelect,
@@ -66,6 +68,17 @@ export const NumberInputDropdown = memo(function NumberInputDropdown({
     [dropdownClassName],
   );
 
+  const handleChange = useCallback((inputValue: string) => {
+    if (max !== undefined) {
+      const numValue = parseInt(inputValue, 10);
+      if (!isNaN(numValue) && numValue > max) {
+        onChange(max.toString());
+        return;
+      }
+    }
+    onChange(inputValue);
+  }, [onChange, max]);
+
   return (
     <>
       <label
@@ -73,6 +86,11 @@ export const NumberInputDropdown = memo(function NumberInputDropdown({
         className="mb-1 text-center text-sm font-medium text-white"
       >
         {label}
+        {max !== undefined && (
+          <span className="block text-xs text-gray-400">
+            (max: {max})
+          </span>
+        )}
       </label>
       <div className="relative">
         <input
@@ -80,9 +98,10 @@ export const NumberInputDropdown = memo(function NumberInputDropdown({
           id={id}
           type="number"
           min={min}
+          max={max} 
           value={value}
           disabled={disabled}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => handleChange(e.target.value)}
           onKeyDown={onKeyDown}
           onMouseDown={handleMouseDown}
           onClick={handleInputClick}

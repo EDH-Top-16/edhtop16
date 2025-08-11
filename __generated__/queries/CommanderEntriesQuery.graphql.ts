@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<86a70cf4519e2884914db3f56f8b8bbf>>
- * @relayHash 252b2af7bf2203d2770e41fc21400edd
+ * @generated SignedSource<<5bed6aabfbdd34931be460643ecb1f77>>
+ * @relayHash 4b5b9fbf24fc8467768e64d0473caf22
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 252b2af7bf2203d2770e41fc21400edd
+// @relayRequestID 4b5b9fbf24fc8467768e64d0473caf22
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -106,19 +106,26 @@ v12 = {
   "name": "id",
   "storageKey": null
 },
-v13 = [
+v13 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
+  "storageKey": null
+},
+v14 = [
   (v8/*: any*/),
   (v9/*: any*/),
   (v10/*: any*/)
 ],
-v14 = [
+v15 = [
   {
     "kind": "Variable",
     "name": "after",
     "variableName": "cursor"
   },
   {
-    "fields": (v13/*: any*/),
+    "fields": (v14/*: any*/),
     "kind": "ObjectValue",
     "name": "filters"
   },
@@ -132,14 +139,7 @@ v14 = [
     "name": "sortBy",
     "variableName": "sortBy"
   }
-],
-v15 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "name",
-  "storageKey": null
-};
+];
 return {
   "fragment": {
     "argumentDefinitions": [
@@ -216,9 +216,10 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
+              (v13/*: any*/),
               {
                 "alias": null,
-                "args": (v13/*: any*/),
+                "args": (v14/*: any*/),
                 "concreteType": "CommanderStats",
                 "kind": "LinkedField",
                 "name": "filteredStats",
@@ -264,7 +265,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v14/*: any*/),
+                "args": (v15/*: any*/),
                 "concreteType": "CommanderEntriesConnection",
                 "kind": "LinkedField",
                 "name": "entries",
@@ -330,7 +331,7 @@ return {
                             "name": "player",
                             "plural": false,
                             "selections": [
-                              (v15/*: any*/),
+                              (v13/*: any*/),
                               {
                                 "alias": null,
                                 "args": null,
@@ -350,7 +351,7 @@ return {
                             "name": "tournament",
                             "plural": false,
                             "selections": [
-                              (v15/*: any*/),
+                              (v13/*: any*/),
                               {
                                 "alias": null,
                                 "args": null,
@@ -420,7 +421,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v14/*: any*/),
+                "args": (v15/*: any*/),
                 "filters": [
                   "sortBy",
                   "filters"
@@ -440,7 +441,7 @@ return {
     ]
   },
   "params": {
-    "id": "252b2af7bf2203d2770e41fc21400edd",
+    "id": "4b5b9fbf24fc8467768e64d0473caf22",
     "metadata": {},
     "name": "CommanderEntriesQuery",
     "operationKind": "query",
@@ -449,6 +450,6 @@ return {
 };
 })();
 
-(node as any).hash = "0cefb27bfbaa5fa75d3a4b6a4bed9bdb";
+(node as any).hash = "dd514c7a9213ba20384368f75a9d31cc";
 
 export default node;

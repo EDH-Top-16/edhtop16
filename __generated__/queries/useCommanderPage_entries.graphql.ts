@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<68e9a9870da1edef086b9a38231769f7>>
+ * @generated SignedSource<<05716ade3b92bddf0d46050ee1250455>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -15,6 +15,9 @@ export type useCommanderPage_entries$data = {
     readonly edges: ReadonlyArray<{
       readonly node: {
         readonly id: string;
+        readonly tournament: {
+          readonly size: number;
+        };
         readonly " $fragmentSpreads": FragmentRefs<"commanderPage_EntryCard">;
       };
     }>;
@@ -27,6 +30,7 @@ export type useCommanderPage_entries$data = {
     readonly topCuts: number;
   };
   readonly id: string;
+  readonly name: string;
   readonly " $fragmentType": "useCommanderPage_entries";
 };
 export type useCommanderPage_entries$key = {
@@ -40,7 +44,14 @@ const node: ReaderFragment = (function(){
 var v0 = [
   "entries"
 ],
-v1 = [
+v1 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v2 = [
   {
     "kind": "Variable",
     "name": "maxStanding",
@@ -56,14 +67,7 @@ v1 = [
     "name": "timePeriod",
     "variableName": "timePeriod"
   }
-],
-v2 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "id",
-  "storageKey": null
-};
+];
 return {
   "argumentDefinitions": [
     {
@@ -127,9 +131,17 @@ return {
   },
   "name": "useCommanderPage_entries",
   "selections": [
+    (v1/*: any*/),
     {
       "alias": null,
-      "args": (v1/*: any*/),
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": (v2/*: any*/),
       "concreteType": "CommanderStats",
       "kind": "LinkedField",
       "name": "filteredStats",
@@ -177,7 +189,7 @@ return {
       "alias": "entries",
       "args": [
         {
-          "fields": (v1/*: any*/),
+          "fields": (v2/*: any*/),
           "kind": "ObjectValue",
           "name": "filters"
         },
@@ -208,11 +220,29 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v2/*: any*/),
+                (v1/*: any*/),
                 {
                   "args": null,
                   "kind": "FragmentSpread",
                   "name": "commanderPage_EntryCard"
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "concreteType": "Tournament",
+                  "kind": "LinkedField",
+                  "name": "tournament",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "size",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
                 },
                 {
                   "alias": null,
@@ -261,14 +291,13 @@ return {
         }
       ],
       "storageKey": null
-    },
-    (v2/*: any*/)
+    }
   ],
   "type": "Commander",
   "abstractKey": null
 };
 })();
 
-(node as any).hash = "0cefb27bfbaa5fa75d3a4b6a4bed9bdb";
+(node as any).hash = "dd514c7a9213ba20384368f75a9d31cc";
 
 export default node;
