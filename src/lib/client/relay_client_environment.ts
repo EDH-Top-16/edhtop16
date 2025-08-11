@@ -7,7 +7,7 @@ import type {
   PreferencesMap,
 } from './cookies';
 
-// Extended session data structure
+
 export type SessionData = {
   preferences: PreferencesMap;
   userId?: string;
@@ -26,7 +26,7 @@ export type SessionData = {
   [key: string]: any;
 };
 
-// Global session registry that works alongside your existing cookie system
+
 class SessionRegistry {
   private data: SessionData = { preferences: {} };
   private listeners = new Set<(data: SessionData) => void>();
@@ -53,13 +53,13 @@ class SessionRegistry {
   }
 
   private notifyListeners() {
-    // Defer notifications to avoid setState during render
+    
     Promise.resolve().then(() => {
       this.listeners.forEach(listener => listener(this.data));
     });
   }
 
-  // Server-side session preference updates (in addition to cookies)
+  
   async updateServerPreferences(newPreferences: Partial<PreferencesMap>) {
     try {
       const response = await fetch('/api/session/preferences', {
@@ -80,7 +80,7 @@ class SessionRegistry {
     return false;
   }
 
-  // Update session data (user info, etc.)
+  
   async updateSessionData(newData: Partial<Omit<SessionData, 'preferences'>>) {
     try {
       const response = await fetch('/api/session/data', {
@@ -102,7 +102,7 @@ class SessionRegistry {
 
 export const sessionRegistry = new SessionRegistry();
 
-// Keep your existing preference system
+
 let currentPreferences: PreferencesMap = {};
 
 const requestCache = new Map<string, Promise<any>>();
@@ -123,7 +123,7 @@ export function createClientNetwork() {
         variables,
         extensions: {
           sitePreferences: currentPreferences,
-          sessionData: sessionData, // Add full session data
+          sessionData: sessionData, 
         },
       };
 
@@ -161,11 +161,11 @@ export function getClientEnvironment() {
   return clientEnv;
 }
 
-// Your existing functions - maintained for backward compatibility
+
 export function updateRelayPreferences(prefs: Partial<PreferencesMap>) {
   currentPreferences = {...currentPreferences, ...prefs};
   
-  // Defer session registry update to avoid setState during render
+  
   Promise.resolve().then(() => {
     sessionRegistry.set({ preferences: currentPreferences });
   });
@@ -175,7 +175,7 @@ export function getRelayPreferences(): PreferencesMap {
   return currentPreferences;
 }
 
-// Global window type extensions
+
 declare global {
   interface Window {
     __SERVER_PREFERENCES__?: PreferencesMap;

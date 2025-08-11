@@ -42,7 +42,7 @@ export function useCommanderPage(
     updatePreferences: (prefs: any) => Promise<void>;
   }
 ) {
-  // Session handling
+  
   const sessionFromHook = useSession();
   const { 
     isAuthenticated, 
@@ -59,18 +59,18 @@ export function useCommanderPage(
     DEFAULT_PREFERENCES,
   );
 
-  // Enhanced update preference that works with both cookies and sessions
+  
   const enhancedUpdatePreference = useCallback(async (
     key: keyof PreferencesMap['entry'], 
     value: any
   ) => {
     if (isAuthenticated) {
-      // Update session preferences for authenticated users
+      
       await updateSessionPrefs({
         entry: { ...preferences, [key]: value }
       });
     } else {
-      // Use existing cookie system for guests
+      
       updatePreference(key, value);
     }
   }, [isAuthenticated, updateSessionPrefs, updatePreference, preferences]);
@@ -174,13 +174,13 @@ export function useCommanderPage(
   );
 
   const handleRefetch = useCallback(() => {
-    // Add safety check before refetching
+    
     if (!commander) {
-      console.log('⚠️ [COMMANDER_PAGE] Cannot refetch: commander is null');
+      //console.log('⚠️ [COMMANDER_PAGE] Cannot refetch: commander is null');
       return;
     }
-    
-    console.log('🔄 [COMMANDER_PAGE] Refetch triggered by preferences change');
+
+    //console.log('🔄 [COMMANDER_PAGE] Refetch triggered by preferences change');
     startTransition(() => {
       refetch(refetchParams, {fetchPolicy: 'network-only'});
     });
@@ -195,7 +195,7 @@ export function useCommanderPage(
     [loadNext],
   );
 
-  // Debounced input handlers
+  
   const debouncedUpdaters = useMemo(
     () => ({
       eventSize: createDebouncedFunction((value: string) => {
@@ -220,17 +220,17 @@ export function useCommanderPage(
     [enhancedUpdatePreference],
   );
 
-  // Local state for input values
+  
   const [localEventSize, setLocalEventSize] = useState('');
   const [localMaxStanding, setLocalMaxStanding] = useState('');
 
-  // Update local state when preferences change
+  
   useEffect(() => {
     setLocalEventSize(preferences?.minEventSize?.toString() || '');
     setLocalMaxStanding(preferences?.maxStanding?.toString() || '');
   }, [preferences?.minEventSize, preferences?.maxStanding]);
 
-  // Event handlers
+  
   const handleSortBySelect = useCallback(
     (value: EntriesSortBy) => {
       enhancedUpdatePreference('sortBy' as keyof PreferencesMap['entry'], value);
@@ -289,7 +289,7 @@ export function useCommanderPage(
     }
   }, []);
 
-  // Computed values
+  
   const shellPreferences = useMemo(
     () => ({
       maxStanding: preferences?.maxStanding || null,
@@ -310,7 +310,7 @@ export function useCommanderPage(
     [data?.entries?.edges],
   );
 
-  // Effects
+  
   useEffect(() => {
     setRefetchCallback(handleRefetch);
     return clearRefetchCallback;
@@ -324,16 +324,17 @@ export function useCommanderPage(
       const prefsMatch =
         JSON.stringify(preferences) === JSON.stringify(actualServerPrefs);
 
-      console.log('🍪 [COMMANDER_PAGE] Hydration complete:', {
-        clientPrefs: preferences,
-        serverPrefs: actualServerPrefs,
-        needsRefetch: !prefsMatch,
-        isAuthenticated,
-        commanderExists: !!commander,
-      });
+      //console.log('🍪 [COMMANDER_PAGE] Hydration complete:', {
+      //  clientPrefs: preferences,
+      //  serverPrefs: actualServerPrefs,
+      //  needsRefetch: !prefsMatch,
+      //  isAuthenticated,
+      //  commanderExists: !!commander,
+      //}
+      //);
 
       if (!prefsMatch) {
-        // Add delay to avoid conflicts with other hydration
+        
         setTimeout(() => {
           handleRefetch();
         }, 200);
@@ -342,12 +343,12 @@ export function useCommanderPage(
   }, [isHydrated, preferences, serverPreferences, handleRefetch, isAuthenticated, commander]);
 
   return {
-    // Data
+    
     commander,
     data,
     entryCards,
     
-    // State
+    
     shellPreferences,
     localEventSize,
     localMaxStanding,
@@ -355,7 +356,7 @@ export function useCommanderPage(
     isLoadingNext,
     isAuthenticated,
     
-    // Event handlers
+    
     handleSortBySelect,
     handleTimePeriodSelect,
     handleEventSizeChange,
@@ -365,7 +366,7 @@ export function useCommanderPage(
     handleKeyDown,
     handleLoadMore,
     
-    // Functions
+    
     updatePreference: enhancedUpdatePreference,
     preferences,
   };

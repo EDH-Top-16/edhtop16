@@ -16,7 +16,7 @@ export const CommanderPage: EntryPointComponent<
   { commanderQueryRef: useCommanderPage_CommanderQuery },
   {}
 > = ({ queries }) => {
-  // Session handling
+  
   const { 
     isAuthenticated, 
     sessionData, 
@@ -24,19 +24,19 @@ export const CommanderPage: EntryPointComponent<
   } = useSession();
 
   const {
-    // Data
+    
     commander,
     data,
     entryCards,
     
-    // State
+    
     shellPreferences,
     localEventSize,
     localMaxStanding,
     hasNext,
     isLoadingNext,
     
-    // Event handlers
+    
     handleSortBySelect,
     handleTimePeriodSelect,
     handleEventSizeChange,
@@ -46,11 +46,11 @@ export const CommanderPage: EntryPointComponent<
     handleKeyDown,
     handleLoadMore,
     
-    // Functions
+    
     updatePreference,
     preferences,
   } = useCommanderPage(queries.commanderQueryRef, {
-    // Pass session context to the hook
+    
     isAuthenticated,
     sessionData,
     updatePreferences: updateSessionPrefs,

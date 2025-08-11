@@ -220,10 +220,10 @@ Commander.implement({
           maxStanding: null,
         };
 
-        console.log(
-          '🔧 [SERVER] Commander filteredStats preferences received:',
-          preferences,
-        );
+        //console.log(
+        //  '🔧 [SERVER] Commander filteredStats preferences received:',
+        //  preferences,
+        //);
 
         const minEventSize = preferences.minEventSize || args.minEventSize || 0;
         const maxStanding =
@@ -234,12 +234,12 @@ Commander.implement({
 
         const minDate = minDateFromTimePeriod(timePeriod);
 
-        console.log('🔧 [SERVER] Applied filteredStats filters:', {
-          minEventSize,
-          maxStanding,
-          timePeriod,
-          commander: parent.name,
-        });
+        //console.log('🔧 [SERVER] Applied filteredStats filters:', {
+        //  minEventSize,
+        //  maxStanding,
+        //  timePeriod,
+        //  commander: parent.name,
+        //});
 
         const [entriesQuery, statsQuery] = await Promise.all([
           db

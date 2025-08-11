@@ -23,7 +23,7 @@ export function useTournamentPage(
     updatePreferences: (prefs: any) => Promise<void>;
   }
 ) {
-  // Session handling
+  
   const sessionFromHook = useSession();
   const { 
     isAuthenticated, 
@@ -40,18 +40,18 @@ export function useTournamentPage(
     DEFAULT_PREFERENCES,
   );
 
-  // Enhanced update preference that works with both cookies and sessions
+  
   const enhancedUpdatePreference = useCallback(async (
     key: keyof PreferencesMap['tournament'], 
     value: any
   ) => {
     if (isAuthenticated) {
-      // Update session preferences for authenticated users
+      
       await updateSessionPrefs({
         tournament: { ...preferences, [key]: value }
       });
     } else {
-      // Use existing cookie system for guests
+      
       updatePreference(key, value);
     }
   }, [isAuthenticated, updateSessionPrefs, updatePreference, preferences]);
@@ -90,7 +90,7 @@ export function useTournamentPage(
     queryRef,
   );
 
-  // Event handlers
+  
   const handleCommanderSelect = useCallback(
     (commanderName: string) => {
       enhancedUpdatePreference(
@@ -106,11 +106,11 @@ export function useTournamentPage(
   );
 
   const handleRefetch = useCallback(() => {
-    // No longer needed since we always fetch all data
-    console.log('🔄 [TOURNAMENT] Refetch would happen here if needed');
+    
+    //console.log('🔄 [TOURNAMENT] Refetch would happen here if needed');
   }, []);
 
-  // Computed values from query variables
+  
   const queryVariables = queryRef.variables;
   const currentTabFromQuery = useMemo(() => {
     if (queryVariables.showBreakdown) return 'breakdown';
@@ -120,7 +120,7 @@ export function useTournamentPage(
 
   const commanderFromQuery = queryVariables.commander;
 
-  // Data processing
+  
   const standingsEntries = useMemo(
     () => tournament?.entries || [],
     [tournament?.entries],
@@ -136,7 +136,7 @@ export function useTournamentPage(
     [tournament?.breakdownEntries],
   );
 
-  // Shell props
+  
   const shellProps = useMemo(
     () => ({
       tournament,
@@ -157,7 +157,7 @@ export function useTournamentPage(
     ],
   );
 
-  // Current content based on active tab
+  
   const currentContent = useMemo(() => {
     const currentTab = isHydrated
       ? preferences?.tab || 'entries'
@@ -180,7 +180,7 @@ export function useTournamentPage(
     commanderEntries,
   ]);
 
-  // Effects
+  
   useEffect(() => {
     setRefetchCallback(handleRefetch);
     return clearRefetchCallback;
@@ -189,31 +189,31 @@ export function useTournamentPage(
   useEffect(() => {
     if (isHydrated && !hasRefetchedRef.current) {
       hasRefetchedRef.current = true;
-      console.log('🍪 [TOURNAMENT] Hydration complete:', {
-        isAuthenticated,
-        preferences,
-      });
+      //console.log('🍪 [TOURNAMENT] Hydration complete:', {
+      //  isAuthenticated,
+      //  preferences,
+      //});
     }
   }, [isHydrated, isAuthenticated, preferences]);
 
   return {
-    // Data
+    
     tournament,
     
-    // Processed data
+    
     standingsEntries,
     breakdownCards,
     commanderEntries,
     currentContent,
     
-    // State
+    
     shellProps,
     isAuthenticated,
     
-    // Event handlers
+    
     handleCommanderSelect,
     
-    // Functions
+    
     updatePreference: enhancedUpdatePreference,
     preferences,
   };

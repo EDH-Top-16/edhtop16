@@ -20,7 +20,7 @@ const createDebouncer = <T extends (...args: any[]) => any>(
   }) as T;
 };
 
-// Hook for optimized input handling
+
 export function useOptimizedInputHandlers(
   updatePreference: (key: keyof PreferencesMap['commanders'], value: number | null) => void,
 ) {
@@ -77,7 +77,7 @@ export function useOptimizedInputHandlers(
   }, [updatePreference]);
 }
 
-// Main hook for commanders page logic
+
 export function useCommandersPage(
   query: any, 
   fragmentRef: any, 
@@ -92,7 +92,7 @@ export function useCommandersPage(
     DEFAULT_PREFERENCES.commanders!,
   );
 
-  // Use passed session context or fallback to hook
+  
   const sessionFromHook = useSession();
   const { 
     isAuthenticated, 
@@ -116,7 +116,7 @@ export function useCommandersPage(
     query,
   );
 
-  // Local state for input values
+  
   const [localMinEntries, setLocalMinEntries] = useState(
     () => preferences?.minEntries?.toString() || '',
   );
@@ -128,18 +128,18 @@ export function useCommandersPage(
 
   const hasRefetchedRef = useRef(false);
 
-  // Enhanced update preference that works with both cookies and sessions
+  
   const enhancedUpdatePreference = useCallback(async (
     key: keyof PreferencesMap['commanders'], 
     value: any
   ) => {
     if (isAuthenticated) {
-      // Update session preferences for authenticated users
+      
       await updateSessionPrefs({
         commanders: { ...preferences, [key]: value }
       });
     } else {
-      // Use existing cookie system for guests
+      
       updatePreference(key, value);
     }
   }, [isAuthenticated, updateSessionPrefs, updatePreference, preferences]);
@@ -163,9 +163,9 @@ export function useCommandersPage(
     [currentPreferences.sortBy],
   );
 
-  // Event handlers
+  
   const handleRefetch = useCallback(() => {
-    console.log('🔄 [COMMANDERS] Refetch triggered by preferences change');
+    //console.log('🔄 [COMMANDERS] Refetch triggered by preferences change');
     startTransition(() => {
       refetch({}, { fetchPolicy: 'network-only' });
     });
@@ -196,7 +196,7 @@ export function useCommandersPage(
     enhancedUpdatePreference('colorId' as keyof PreferencesMap['commanders'], value);
   }, [enhancedUpdatePreference]);
 
-  // Effects
+  
   useEffect(() => {
     setLocalMinEntries(preferences?.minEntries?.toString() || '');
   }, [preferences?.minEntries]);
@@ -220,12 +220,12 @@ export function useCommandersPage(
       const actualServerPrefs = serverPreferences || DEFAULT_PREFERENCES.commanders;
       const prefsMatch = JSON.stringify(preferences) === JSON.stringify(actualServerPrefs);
 
-      console.log('🍪 [COMMANDERS] Hydration complete:', {
-        clientPrefs: preferences,
-        serverPrefs: actualServerPrefs,
-        needsRefetch: !prefsMatch,
-        isAuthenticated,
-      });
+      //console.log('🍪 [COMMANDERS] Hydration complete:', {
+      //  clientPrefs: preferences,
+      //  serverPrefs: actualServerPrefs,
+      //  needsRefetch: !prefsMatch,
+      //  isAuthenticated,
+      //});
     }
   }, [isHydrated, preferences, serverPreferences, isAuthenticated]);
 
@@ -242,7 +242,7 @@ export function useCommandersPage(
     isLoadingNext,
     isAuthenticated,
     
-    // Event handlers
+    
     handleDisplayToggle,
     handleSortByChange,
     handleTimePeriodChange,
@@ -251,7 +251,7 @@ export function useCommandersPage(
   };
 }
 
-// Session hook
+
 export function useSession() {
   const [sessionData, setSessionData] = useState<SessionData>(() => 
     sessionRegistry.get()
@@ -260,22 +260,22 @@ export function useSession() {
   useEffect(() => {
     let hasHydrated = false;
 
-    // Hydrate from existing server preferences (your current system)
+    
     if (typeof window !== 'undefined' && window.__SERVER_PREFERENCES__ && !hasHydrated) {
       const serverPrefs = window.__SERVER_PREFERENCES__;
-      // Use setTimeout to avoid setState during render
+      
       setTimeout(() => {
         sessionRegistry.set({ preferences: serverPrefs });
       }, 0);
       hasHydrated = true;
     }
 
-    // Also check for new session data format
+    
     if (typeof window !== 'undefined' && window.__SESSION_DATA__ && !hasHydrated) {
       const sessionData = window.__SESSION_DATA__;
-      // Use setTimeout to avoid setState during render
+      
       setTimeout(() => {
-        if (sessionData) { // Additional type guard
+        if (sessionData) { 
           sessionRegistry.hydrate(sessionData);
           delete window.__SESSION_DATA__;
         }
@@ -283,25 +283,24 @@ export function useSession() {
       hasHydrated = true;
     }
 
-    // Subscribe to session changes
+    
     const unsubscribe = sessionRegistry.subscribe(setSessionData);
     return () => {
       unsubscribe();
     };
   }, []);
 
-  // Update preferences (works with both cookies and server sessions)
+  
   const updatePreferences = useCallback(async (newPreferences: Partial<PreferencesMap>) => {
-    // Try server-side session update first
+    
     const serverSuccess = await sessionRegistry.updateServerPreferences(newPreferences);
     
     if (!serverSuccess) {
-      // Fallback to your existing cookie system
-      console.log('Server session update failed, preferences will be handled by cookie system');
+      //console.log('Server session update failed, preferences will be handled by cookie system');
     }
   }, []);
 
-  // Get a specific preference with fallback to your existing system
+  
   const getPreference = useCallback(<T>(
     category: keyof PreferencesMap, 
     key: string, 
@@ -311,12 +310,12 @@ export function useSession() {
     return (categoryPrefs as any)?.[key] ?? defaultValue;
   }, [sessionData.preferences]);
 
-  // Update session data (user info, authentication, etc.)
+  
   const updateSessionData = useCallback(async (newData: Partial<Omit<SessionData, 'preferences'>>) => {
     await sessionRegistry.updateSessionData(newData);
   }, []);
 
-  // Login function with mock authentication
+  
   const login = useCallback(async (credentials: { username: string; password: string }) => {
     try {
       const response = await fetch('/api/auth/login', {
@@ -336,7 +335,7 @@ export function useSession() {
           userProfile: result.user.profile,
           sessionId: result.sessionId,
         });
-        return true; // Return boolean for compatibility
+        return true; 
       } else {
         return false;
       }
@@ -346,7 +345,7 @@ export function useSession() {
     }
   }, []);
 
-  // Logout function
+  
   const logout = useCallback(async () => {
     try {
       await fetch('/api/auth/logout', { 
@@ -361,7 +360,7 @@ export function useSession() {
         isAdmin: false,
         sessionId: undefined,
         userProfile: undefined,
-        // Keep preferences - they'll continue to work via cookies
+        
       });
       return true;
     } catch (error) {
@@ -371,23 +370,23 @@ export function useSession() {
   }, []);
 
   return {
-    // Session data
+    
     sessionData,
     preferences: sessionData.preferences,
     
-    // User state
+    
     isAuthenticated: sessionData.isAuthenticated || false,
     isAdmin: sessionData.isAdmin || false,
     userId: sessionData.userId,
     
-    // Functions
+    
     updatePreferences,
     getPreference,
     updateSessionData,
     login,
     logout,
     
-    // Direct registry access for advanced use cases
+    
     registry: sessionRegistry,
   };
 }

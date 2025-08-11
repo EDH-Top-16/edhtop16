@@ -377,7 +377,7 @@ export const TournamentsPage: EntryPointComponent<
   );
 
   const handleRefetch = useCallback(() => {
-    console.log('🔄 [TOURNAMENTS] Refetch triggered by preferences change');
+    //console.log('🔄 [TOURNAMENTS] Refetch triggered by preferences change');
     startTransition(() => {
       refetch({}, {fetchPolicy: 'network-only'});
     });
@@ -408,11 +408,11 @@ export const TournamentsPage: EntryPointComponent<
       const prefsMatch =
         JSON.stringify(preferences) === JSON.stringify(actualServerPrefs);
 
-      console.log('🍪 [TOURNAMENTS] Hydration complete:', {
-        clientPrefs: preferences,
-        serverPrefs: actualServerPrefs,
-        needsRefetch: !prefsMatch,
-      });
+      //console.log('🍪 [TOURNAMENTS] Hydration complete:', {
+      //  clientPrefs: preferences,
+      //  serverPrefs: actualServerPrefs,
+      //  needsRefetch: !prefsMatch,
+      //});
     }
   }, [isHydrated, preferences, serverPreferences]);
 

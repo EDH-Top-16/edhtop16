@@ -9,7 +9,7 @@ import type {
   PreferencesMap,
 } from '../client/cookies';
 
-// Import SessionData type from client (since it's shared)
+
 export type { SessionData } from '../client/relay_client_environment';
 
 /**
@@ -23,14 +23,14 @@ export function createServerEnvironment(
   sessionData?: any
 ) {
   const network = Network.create(async (params, variables) => {
-    // On the server, execute GraphQL directly against the schema
+    
     let query: string | undefined;
 
     if (params.id && persistedQueries[params.id]) {
-      // Use persisted query if available
+      
       query = persistedQueries[params.id];
     } else if (params.text && typeof params.text === 'string') {
-      // Use the query text directly (with explicit type check)
+      
       query = params.text;
     } else {
       throw new Error('No query found for execution');
@@ -42,19 +42,19 @@ export function createServerEnvironment(
         document: parse(query || ''),
         variableValues: variables,
         contextValue: {
-          // Your existing context creation logic
+          
           preferences,
           sessionData,
-          sitePreferences: preferences, // For backward compatibility
+          sitePreferences: preferences, 
         },
       });
 
-      // Convert ExecutionResult to the format Relay expects
+      
       return {
         data: result.data,
         errors: result.errors,
         extensions: result.extensions,
-      } as any; // Type assertion to satisfy Relay's expected return type
+      } as any; 
     } catch (error) {
       console.error('Server GraphQL execution error:', error);
       throw error;

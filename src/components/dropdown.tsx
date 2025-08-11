@@ -18,14 +18,14 @@ interface DropdownProps<T = string> {
   disabled?: boolean;
 }
 
-// Debug helper
-const debugLog = (component: string, event: string, data?: any) => {
+
+const debugLog = (component: string, event: string, data?: any) => { // uncomment to get many many logs.
   if (typeof window !== 'undefined') {
-    console.log(`[${component}] ${event}`, {
-      userAgent: navigator.userAgent,
-      timestamp: new Date().toISOString(),
-      ...data
-    });
+    //console.log(`[${component}] ${event}`, {
+    //  userAgent: navigator.userAgent,
+    //  timestamp: new Date().toISOString(),
+    //  ...data
+    //});
   }
 };
 

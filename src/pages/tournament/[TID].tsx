@@ -14,7 +14,7 @@ export const TournamentViewPage: EntryPointComponent<
   { tournamentQueryRef: TID_TournamentQuery },
   {}
 > = ({ queries }) => {
-  // Update the TID query to use tournamentPage fragments
+  
   const { tournament } = usePreloadedQuery(
     graphql`
       query TID_TournamentQuery(

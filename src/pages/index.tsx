@@ -23,7 +23,7 @@ export const CommandersPage: EntryPointComponent<
   { commandersQueryRef: pages_CommandersQuery },
   {}
 > = ({ queries }) => {
-  // Session handling
+  
   const { 
     isAuthenticated, 
     sessionData, 
@@ -75,7 +75,7 @@ export const CommandersPage: EntryPointComponent<
     handleColorChange,
     handleLoadMore,
   } = useCommandersPage(query, fragmentRef, {
-    // Pass session context to the hook
+    
     isAuthenticated,
     sessionData,
     updatePreferences: updateSessionPrefs,

@@ -7,18 +7,18 @@ function SessionInitializer() {
   const hasInitialized = useRef(false);
 
   useEffect(() => {
-    // Only log once to avoid multiple initializations
+    
     if (!hasInitialized.current) {
       hasInitialized.current = true;
-      console.log('App session initialized:', {
-        isAuthenticated: sessionData.isAuthenticated,
-        userId: sessionData.userId,
-        hasPreferences: Object.keys(sessionData.preferences).length > 0
-      });
+      //console.log('App session initialized:', {
+      //  isAuthenticated: sessionData.isAuthenticated,
+      //  userId: sessionData.userId,
+      //  hasPreferences: Object.keys(sessionData.preferences).length > 0
+      //});
     }
   }, [sessionData]);
 
-  return null; // This component doesn't render anything
+  return null; 
 }
 
 export function App({children}: PropsWithChildren<{}>) {

@@ -22,7 +22,7 @@ import { Tab, TabList } from './tabs';
 import { formatOrdinals, formatPercent } from '../lib/client/format';
 import type { PreferencesMap } from '../lib/client/cookies';
 
-// Component Interfaces
+
 interface EntryCardProps {
   highlightFirst?: boolean;
   entry: tournamentPage_EntryCard$key;
@@ -55,7 +55,7 @@ interface TournamentContentProps {
   onCommanderSelect?: (commanderName: string) => void;
 }
 
-// Pure UI Components
+
 export const EntryCard = memo<EntryCardProps>(function EntryCard({
   highlightFirst = true,
   entry: entryProp,

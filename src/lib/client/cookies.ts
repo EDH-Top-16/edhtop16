@@ -144,12 +144,12 @@ export function usePreferences<K extends keyof PreferencesMap>(
 
     if (JSON.stringify(preferences) !== JSON.stringify(serverPrefs)) {
       setPreferences(serverPrefs);
-      updateRelayPreferences({[key]: serverPrefs}); // <-- wrap in object with key
+      updateRelayPreferences({[key]: serverPrefs}); 
       setTimeout(() => {
         refetchCallback?.(serverPrefs);
       }, 100);
     } else {
-      updateRelayPreferences({[key]: serverPrefs}); // <-- wrap in object with key
+      updateRelayPreferences({[key]: serverPrefs}); 
     }
   }, [preferences, key, defaultPrefs]);
 

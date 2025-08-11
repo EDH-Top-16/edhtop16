@@ -20,11 +20,11 @@ export function LoginForm({ onSuccess, className = '' }: LoginFormProps) {
     setError('');
 
     const result = await login({ username, password });
-    console.log('Login result:', result); // Debug log
+    //console.log('Login result:', result); 
 
     setIsLoading(false);
 
-    // Handle boolean return (true/false)
+    
     if (result === true) {
       setUsername('');
       setPassword('');
