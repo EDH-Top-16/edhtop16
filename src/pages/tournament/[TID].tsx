@@ -55,7 +55,9 @@ export const TournamentViewPage: EntryPointComponent<
   const renderCurrentContent = () => {
     switch (currentContent.type) {
       case 'breakdown': {
-        const breakdownData = currentContent.data as NonNullable<typeof tournament.breakdown>;
+        const breakdownData = currentContent.data as NonNullable<
+          typeof tournament.breakdown
+        >;
         return breakdownData.map((group) => (
           <BreakdownGroupCard
             key={group.commander.id}
@@ -65,13 +67,17 @@ export const TournamentViewPage: EntryPointComponent<
         ));
       }
       case 'commander': {
-        const commanderData = currentContent.data as NonNullable<typeof tournament.breakdownEntries>;
+        const commanderData = currentContent.data as NonNullable<
+          typeof tournament.breakdownEntries
+        >;
         return commanderData.map((entry) => (
           <EntryCard key={entry.id} entry={entry} highlightFirst={false} />
         ));
       }
       default: {
-        const entriesData = currentContent.data as NonNullable<typeof tournament.entries>;
+        const entriesData = currentContent.data as NonNullable<
+          typeof tournament.entries
+        >;
         return entriesData.map((entry) => (
           <EntryCard key={entry.id} entry={entry} />
         ));

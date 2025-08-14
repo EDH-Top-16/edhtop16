@@ -187,17 +187,21 @@ Commander.implement({
         const statsByCommanderId = new Map<number, CommanderCalculatedStats>();
         for (const {id, ...stats} of statsQuery) {
           let metaShare = 0;
-          
+
           // Only calculate if we have valid data
-          if (totalEntries > 0 && typeof stats.count === 'number' && stats.count >= 0) {
+          if (
+            totalEntries > 0 &&
+            typeof stats.count === 'number' &&
+            stats.count >= 0
+          ) {
             metaShare = stats.count / totalEntries;
-            
+
             // Double-check for NaN and handle edge cases
             if (isNaN(metaShare) || !isFinite(metaShare)) {
               metaShare = 0;
             }
           }
-          
+
           statsByCommanderId.set(id, {
             ...stats,
             metaShare,
@@ -315,9 +319,13 @@ Commander.implement({
 
         // Safe calculation for metaShare to prevent NaN
         let metaShare = 0;
-        if (totalEntries > 0 && typeof stats.count === 'number' && stats.count >= 0) {
+        if (
+          totalEntries > 0 &&
+          typeof stats.count === 'number' &&
+          stats.count >= 0
+        ) {
           metaShare = stats.count / totalEntries;
-          
+
           // Double-check for NaN and handle edge cases
           if (isNaN(metaShare) || !isFinite(metaShare)) {
             metaShare = 0;
@@ -328,8 +336,14 @@ Commander.implement({
         const result = {
           count: stats.count || 0,
           topCuts: stats.topCuts || 0,
-          topCutBias: isNaN(stats.topCutBias) || !isFinite(stats.topCutBias) ? 0 : (stats.topCutBias || 0),
-          conversionRate: isNaN(stats.conversionRate) || !isFinite(stats.conversionRate) ? 0 : (stats.conversionRate || 0),
+          topCutBias:
+            isNaN(stats.topCutBias) || !isFinite(stats.topCutBias)
+              ? 0
+              : stats.topCutBias || 0,
+          conversionRate:
+            isNaN(stats.conversionRate) || !isFinite(stats.conversionRate)
+              ? 0
+              : stats.conversionRate || 0,
           metaShare,
         };
 
