@@ -25,6 +25,8 @@ export const TournamentViewPage: EntryPointComponent<
       ) @preloadable {
         tournament(TID: $TID) {
           ...tournamentPage_TournamentPageShell
+          ...useTournamentPage_baseTournament
+          ...useTournamentPage_commanderData
           entries @include(if: $showStandings) {
             id
             ...tournamentPage_EntryCard
@@ -52,22 +54,28 @@ export const TournamentViewPage: EntryPointComponent<
 
   const renderCurrentContent = () => {
     switch (currentContent.type) {
-      case 'breakdown':
-        return currentContent.data.map((group) => (
+      case 'breakdown': {
+        const breakdownData = currentContent.data as NonNullable<typeof tournament.breakdown>;
+        return breakdownData.map((group) => (
           <BreakdownGroupCard
             key={group.commander.id}
             group={group}
             onClickGroup={handleCommanderSelect}
           />
         ));
-      case 'commander':
-        return currentContent.data.map((entry) => (
+      }
+      case 'commander': {
+        const commanderData = currentContent.data as NonNullable<typeof tournament.breakdownEntries>;
+        return commanderData.map((entry) => (
           <EntryCard key={entry.id} entry={entry} highlightFirst={false} />
         ));
-      default:
-        return currentContent.data.map((entry) => (
+      }
+      default: {
+        const entriesData = currentContent.data as NonNullable<typeof tournament.entries>;
+        return entriesData.map((entry) => (
           <EntryCard key={entry.id} entry={entry} />
         ));
+      }
     }
   };
 
