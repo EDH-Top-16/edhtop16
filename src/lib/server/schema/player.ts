@@ -18,12 +18,6 @@ const ALL_KNOWN_CHEATERS: {
     topdeckProfile: 'QnHqzI3FgmgQsJOLZNU9CuizkKC3',
     expiration: new Date('2025-01-01'),
   },
-  // https://www.youtube.com/watch?v=qrKIr3PL2RE, top left player.
-  {
-    topdeckProfile: 'DtMLwxHSFUVsK6Lpe2ebySzLIP32',
-    expiration: new Date('2027-02-10'),
-    activeDate: new Date('2025-08-13T03:00:00.000Z'),
-  },
 ];
 
 const now = Date.now();

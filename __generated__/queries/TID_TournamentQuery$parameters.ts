@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<12f366571ab1e5dff1c4fffc6958cdac>>
- * @relayHash 00ff8482d58f2750e72dcfc8b9880052
+ * @generated SignedSource<<3f5cb19727ba5e5da3f246a9b84039c2>>
+ * @relayHash cd4c6d4f560415ba44e21acd8f837bd6
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 00ff8482d58f2750e72dcfc8b9880052
+// @relayRequestID cd4c6d4f560415ba44e21acd8f837bd6
 
 import { PreloadableConcreteRequest } from 'relay-runtime';
 import { TID_TournamentQuery } from './TID_TournamentQuery.graphql';
@@ -17,7 +17,7 @@ import { TID_TournamentQuery } from './TID_TournamentQuery.graphql';
 const node: PreloadableConcreteRequest<TID_TournamentQuery> = {
   "kind": "PreloadableConcreteRequest",
   "params": {
-    "id": "00ff8482d58f2750e72dcfc8b9880052",
+    "id": "cd4c6d4f560415ba44e21acd8f837bd6",
     "metadata": {},
     "name": "TID_TournamentQuery",
     "operationKind": "query",

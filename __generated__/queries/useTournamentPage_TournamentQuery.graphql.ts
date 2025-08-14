@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<7456dee4455419f66909aa8ccffbe658>>
- * @relayHash cd4c6d4f560415ba44e21acd8f837bd6
+ * @generated SignedSource<<e2963954e96a6b9c0286aba6aba05c93>>
+ * @relayHash ef9c9fb96f8230583fd51b5b6511de94
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,39 +9,25 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID cd4c6d4f560415ba44e21acd8f837bd6
+// @relayRequestID ef9c9fb96f8230583fd51b5b6511de94
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type TID_TournamentQuery$variables = {
+export type useTournamentPage_TournamentQuery$variables = {
   TID: string;
   commander?: string | null | undefined;
   showBreakdown: boolean;
   showBreakdownCommander: boolean;
   showStandings: boolean;
 };
-export type TID_TournamentQuery$data = {
+export type useTournamentPage_TournamentQuery$data = {
   readonly tournament: {
-    readonly breakdown?: ReadonlyArray<{
-      readonly commander: {
-        readonly id: string;
-      };
-      readonly " $fragmentSpreads": FragmentRefs<"tournamentPage_BreakdownGroupCard">;
-    }>;
-    readonly breakdownEntries?: ReadonlyArray<{
-      readonly id: string;
-      readonly " $fragmentSpreads": FragmentRefs<"tournamentPage_EntryCard">;
-    }>;
-    readonly entries?: ReadonlyArray<{
-      readonly id: string;
-      readonly " $fragmentSpreads": FragmentRefs<"tournamentPage_EntryCard">;
-    }>;
-    readonly " $fragmentSpreads": FragmentRefs<"tournamentPage_TournamentPageShell" | "useTournamentPage_baseTournament" | "useTournamentPage_commanderData">;
+    readonly " $fragmentSpreads": FragmentRefs<"useTournamentPage_baseTournament" | "useTournamentPage_commanderData">;
   };
 };
-export type TID_TournamentQuery = {
-  response: TID_TournamentQuery$data;
-  variables: TID_TournamentQuery$variables;
+export type useTournamentPage_TournamentQuery = {
+  response: useTournamentPage_TournamentQuery$data;
+  variables: useTournamentPage_TournamentQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -81,32 +67,17 @@ v6 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "id",
-  "storageKey": null
-},
-v7 = [
-  (v6/*: any*/),
-  {
-    "args": null,
-    "kind": "FragmentSpread",
-    "name": "tournamentPage_EntryCard"
-  }
-],
-v8 = [
-  {
-    "kind": "Variable",
-    "name": "commander",
-    "variableName": "commander"
-  }
-],
-v9 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
   "name": "name",
   "storageKey": null
 },
-v10 = {
+v7 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v8 = {
   "alias": null,
   "args": null,
   "concreteType": "Card",
@@ -121,19 +92,19 @@ v10 = {
       "name": "imageUrls",
       "storageKey": null
     },
-    (v6/*: any*/)
+    (v7/*: any*/)
   ],
   "storageKey": null
 },
-v11 = {
+v9 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "breakdownUrl",
   "storageKey": null
 },
-v12 = [
-  (v6/*: any*/),
+v10 = [
+  (v7/*: any*/),
   {
     "alias": null,
     "args": null,
@@ -177,7 +148,7 @@ v12 = [
     "name": "player",
     "plural": false,
     "selections": [
-      (v9/*: any*/),
+      (v6/*: any*/),
       {
         "alias": null,
         "args": null,
@@ -185,7 +156,7 @@ v12 = [
         "name": "isKnownCheater",
         "storageKey": null
       },
-      (v6/*: any*/)
+      (v7/*: any*/)
     ],
     "storageKey": null
   },
@@ -197,10 +168,10 @@ v12 = [
     "name": "commander",
     "plural": false,
     "selections": [
+      (v6/*: any*/),
       (v9/*: any*/),
-      (v11/*: any*/),
-      (v10/*: any*/),
-      (v6/*: any*/)
+      (v8/*: any*/),
+      (v7/*: any*/)
     ],
     "storageKey": null
   }
@@ -216,7 +187,7 @@ return {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "TID_TournamentQuery",
+    "name": "useTournamentPage_TournamentQuery",
     "selections": [
       {
         "alias": null,
@@ -229,86 +200,12 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "tournamentPage_TournamentPageShell"
-          },
-          {
-            "args": null,
-            "kind": "FragmentSpread",
             "name": "useTournamentPage_baseTournament"
           },
           {
             "args": null,
             "kind": "FragmentSpread",
             "name": "useTournamentPage_commanderData"
-          },
-          {
-            "condition": "showStandings",
-            "kind": "Condition",
-            "passingValue": true,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "Entry",
-                "kind": "LinkedField",
-                "name": "entries",
-                "plural": true,
-                "selections": (v7/*: any*/),
-                "storageKey": null
-              }
-            ]
-          },
-          {
-            "condition": "showBreakdown",
-            "kind": "Condition",
-            "passingValue": true,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "TournamentBreakdownGroup",
-                "kind": "LinkedField",
-                "name": "breakdown",
-                "plural": true,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "Commander",
-                    "kind": "LinkedField",
-                    "name": "commander",
-                    "plural": false,
-                    "selections": [
-                      (v6/*: any*/)
-                    ],
-                    "storageKey": null
-                  },
-                  {
-                    "args": null,
-                    "kind": "FragmentSpread",
-                    "name": "tournamentPage_BreakdownGroupCard"
-                  }
-                ],
-                "storageKey": null
-              }
-            ]
-          },
-          {
-            "condition": "showBreakdownCommander",
-            "kind": "Condition",
-            "passingValue": true,
-            "selections": [
-              {
-                "alias": "breakdownEntries",
-                "args": (v8/*: any*/),
-                "concreteType": "Entry",
-                "kind": "LinkedField",
-                "name": "entries",
-                "plural": true,
-                "selections": (v7/*: any*/),
-                "storageKey": null
-              }
-            ]
           }
         ],
         "storageKey": null
@@ -327,7 +224,7 @@ return {
       (v3/*: any*/)
     ],
     "kind": "Operation",
-    "name": "TID_TournamentQuery",
+    "name": "useTournamentPage_TournamentQuery",
     "selections": [
       {
         "alias": null,
@@ -344,7 +241,7 @@ return {
             "name": "TID",
             "storageKey": null
           },
-          (v9/*: any*/),
+          (v6/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -388,12 +285,12 @@ return {
                 "name": "commander",
                 "plural": false,
                 "selections": [
-                  (v10/*: any*/),
-                  (v6/*: any*/)
+                  (v8/*: any*/),
+                  (v7/*: any*/)
                 ],
                 "storageKey": null
               },
-              (v6/*: any*/)
+              (v7/*: any*/)
             ],
             "storageKey": "entries(maxStanding:1)"
           },
@@ -462,7 +359,7 @@ return {
                 "kind": "LinkedField",
                 "name": "entries",
                 "plural": true,
-                "selections": (v12/*: any*/),
+                "selections": (v10/*: any*/),
                 "storageKey": null
               }
             ]
@@ -488,9 +385,9 @@ return {
                     "name": "commander",
                     "plural": false,
                     "selections": [
+                      (v7/*: any*/),
                       (v6/*: any*/),
                       (v9/*: any*/),
-                      (v11/*: any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -498,7 +395,7 @@ return {
                         "name": "colorId",
                         "storageKey": null
                       },
-                      (v10/*: any*/)
+                      (v8/*: any*/)
                     ],
                     "storageKey": null
                   },
@@ -528,7 +425,7 @@ return {
               }
             ]
           },
-          (v6/*: any*/),
+          (v7/*: any*/),
           {
             "condition": "showBreakdownCommander",
             "kind": "Condition",
@@ -536,12 +433,18 @@ return {
             "selections": [
               {
                 "alias": "breakdownEntries",
-                "args": (v8/*: any*/),
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "commander",
+                    "variableName": "commander"
+                  }
+                ],
                 "concreteType": "Entry",
                 "kind": "LinkedField",
                 "name": "entries",
                 "plural": true,
-                "selections": (v12/*: any*/),
+                "selections": (v10/*: any*/),
                 "storageKey": null
               }
             ]
@@ -552,16 +455,16 @@ return {
     ]
   },
   "params": {
-    "id": "cd4c6d4f560415ba44e21acd8f837bd6",
+    "id": "ef9c9fb96f8230583fd51b5b6511de94",
     "metadata": {},
-    "name": "TID_TournamentQuery",
+    "name": "useTournamentPage_TournamentQuery",
     "operationKind": "query",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "c965406cb6f5a508f6b3f108e6361909";
+(node as any).hash = "3c9ff9a4770ba9b21c0c6c081a37d680";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

@@ -8,23 +8,23 @@ import type {JSResourceReference} from 'react-relay/hooks';
 type ResourceConf = typeof RESOURCE_CONF;
 const RESOURCE_CONF = {
     "m#about": {
-            src: "src/pages/about.tsx",
+            src: "src\pages\about.tsx",
             loader: () => import("../../src/pages/about").then(m => m.AboutPage)
         },
     "m#index": {
-            src: "src/pages/index.tsx",
+            src: "src\pages\index.tsx",
             loader: () => import("../../src/pages/index").then(m => m.CommandersPage)
         },
     "m#tournaments": {
-            src: "src/pages/tournaments.tsx",
+            src: "src\pages\tournaments.tsx",
             loader: () => import("../../src/pages/tournaments").then(m => m.TournamentsPage)
         },
     "m#tournament_view": {
-            src: "src/pages/tournament/[TID].tsx",
+            src: "src\pages\tournament\[TID].tsx",
             loader: () => import("../../src/pages/tournament/[TID]").then(m => m.TournamentViewPage)
         },
     "m#commander_page": {
-            src: "src/pages/commander/[commander]/index.tsx",
+            src: "src\pages\commander\[commander]\index.tsx",
             loader: () => import("../../src/pages/commander/[commander]/index").then(m => m.CommanderPage)
         }
 } as const;

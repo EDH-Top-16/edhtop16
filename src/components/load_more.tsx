@@ -15,7 +15,7 @@ export function LoadMoreButton({
     <button
       className="font-title mx-auto flex cursor-pointer justify-center self-center rounded-md bg-[#312d5a] px-4 py-2 text-sm text-white shadow-md inset-shadow-xs"
       onClick={() => {
-        loadNext(48);
+        loadNext(20);
       }}
     >
       Load More

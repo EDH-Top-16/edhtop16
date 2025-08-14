@@ -6,8 +6,6 @@ import {EntryPoint} from 'react-relay/hooks';
 /**
  * @route /tournament/:tid
  * @param {string} tid
- * @param {string?} commander
- * @param {string?} tab
  */
 export const entrypoint: EntryPoint<
   ModuleType<'m#tournament_view'>,
@@ -15,7 +13,7 @@ export const entrypoint: EntryPoint<
 > = {
   root: JSResource.fromModuleId('m#tournament_view'),
   getPreloadProps({params, schema}) {
-    const {tid, commander, tab} = schema.parse(params);
+    const {tid} = schema.parse(params);
 
     return {
       queries: {
@@ -23,10 +21,10 @@ export const entrypoint: EntryPoint<
           parameters: TID_TournamentQueryParameters,
           variables: {
             TID: tid,
-            commander,
-            showStandings: tab !== 'breakdown' && tab !== 'commander',
-            showBreakdown: tab === 'breakdown',
-            showBreakdownCommander: tab === 'commander' && commander != null,
+            commander: undefined,
+            showStandings: true,
+            showBreakdown: true,
+            showBreakdownCommander: true,
           },
         },
       },

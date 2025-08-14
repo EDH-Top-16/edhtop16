@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<105a2f21237456e4b83da5f6d4a70fce>>
+ * @generated SignedSource<<68e9a9870da1edef086b9a38231769f7>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,21 +10,28 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type Commander_entries$data = {
+export type useCommanderPage_entries$data = {
   readonly entries: {
     readonly edges: ReadonlyArray<{
       readonly node: {
         readonly id: string;
-        readonly " $fragmentSpreads": FragmentRefs<"Commander_EntryCard">;
+        readonly " $fragmentSpreads": FragmentRefs<"commanderPage_EntryCard">;
       };
     }>;
   };
+  readonly filteredStats: {
+    readonly conversionRate: number;
+    readonly count: number;
+    readonly metaShare: number;
+    readonly topCutBias: number;
+    readonly topCuts: number;
+  };
   readonly id: string;
-  readonly " $fragmentType": "Commander_entries";
+  readonly " $fragmentType": "useCommanderPage_entries";
 };
-export type Commander_entries$key = {
-  readonly " $data"?: Commander_entries$data;
-  readonly " $fragmentSpreads": FragmentRefs<"Commander_entries">;
+export type useCommanderPage_entries$key = {
+  readonly " $data"?: useCommanderPage_entries$data;
+  readonly " $fragmentSpreads": FragmentRefs<"useCommanderPage_entries">;
 };
 
 import CommanderEntriesQuery_graphql from './CommanderEntriesQuery.graphql';
@@ -33,7 +40,24 @@ const node: ReaderFragment = (function(){
 var v0 = [
   "entries"
 ],
-v1 = {
+v1 = [
+  {
+    "kind": "Variable",
+    "name": "maxStanding",
+    "variableName": "maxStanding"
+  },
+  {
+    "kind": "Variable",
+    "name": "minEventSize",
+    "variableName": "minEventSize"
+  },
+  {
+    "kind": "Variable",
+    "name": "timePeriod",
+    "variableName": "timePeriod"
+  }
+],
+v2 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -53,11 +77,13 @@ return {
       "name": "cursor"
     },
     {
-      "kind": "RootArgument",
+      "defaultValue": null,
+      "kind": "LocalArgument",
       "name": "maxStanding"
     },
     {
-      "kind": "RootArgument",
+      "defaultValue": null,
+      "kind": "LocalArgument",
       "name": "minEventSize"
     },
     {
@@ -65,7 +91,8 @@ return {
       "name": "sortBy"
     },
     {
-      "kind": "RootArgument",
+      "defaultValue": null,
+      "kind": "LocalArgument",
       "name": "timePeriod"
     }
   ],
@@ -98,29 +125,59 @@ return {
       }
     }
   },
-  "name": "Commander_entries",
+  "name": "useCommanderPage_entries",
   "selections": [
+    {
+      "alias": null,
+      "args": (v1/*: any*/),
+      "concreteType": "CommanderStats",
+      "kind": "LinkedField",
+      "name": "filteredStats",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "conversionRate",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "topCuts",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "count",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "metaShare",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "topCutBias",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
     {
       "alias": "entries",
       "args": [
         {
-          "fields": [
-            {
-              "kind": "Variable",
-              "name": "maxStanding",
-              "variableName": "maxStanding"
-            },
-            {
-              "kind": "Variable",
-              "name": "minEventSize",
-              "variableName": "minEventSize"
-            },
-            {
-              "kind": "Variable",
-              "name": "timePeriod",
-              "variableName": "timePeriod"
-            }
-          ],
+          "fields": (v1/*: any*/),
           "kind": "ObjectValue",
           "name": "filters"
         },
@@ -151,11 +208,11 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v1/*: any*/),
+                (v2/*: any*/),
                 {
                   "args": null,
                   "kind": "FragmentSpread",
-                  "name": "Commander_EntryCard"
+                  "name": "commanderPage_EntryCard"
                 },
                 {
                   "alias": null,
@@ -205,13 +262,13 @@ return {
       ],
       "storageKey": null
     },
-    (v1/*: any*/)
+    (v2/*: any*/)
   ],
   "type": "Commander",
   "abstractKey": null
 };
 })();
 
-(node as any).hash = "dd5ecf026b227cd526752087b0600d9b";
+(node as any).hash = "0cefb27bfbaa5fa75d3a4b6a4bed9bdb";
 
 export default node;

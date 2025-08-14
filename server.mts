@@ -15,11 +15,11 @@ async function createServer() {
   const template = await readFile(INDEX_HTML, 'utf-8');
   const manifest: Manifest = JSON.parse(await readFile(MANIFEST_JSON, 'utf-8'));
   const persistedQueries = JSON.parse(await readFile(QUERIES_JSON, 'utf-8'));
-  const {createHandler} = (await import(
+  const {useCreateHandler} = (await import(
     ENTRY_SERVER
   )) as typeof import('./src/entry-server');
 
-  const handler = createHandler(template, persistedQueries, manifest);
+  const handler = useCreateHandler(template, persistedQueries, manifest);
 
   const app = express();
   app.use(handler);

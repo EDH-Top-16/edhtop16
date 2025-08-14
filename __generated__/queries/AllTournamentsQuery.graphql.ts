@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<2cac940233fb699b28e7fc2f94fffcee>>
- * @relayHash 15b1c952364ae9080615dd21b7335603
+ * @generated SignedSource<<ce5b531a6cd16dbbeaea225e45873a81>>
+ * @relayHash d81e7c14731e1e8d0d07fb2e37b1099c
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,18 +9,13 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 15b1c952364ae9080615dd21b7335603
+// @relayRequestID d81e7c14731e1e8d0d07fb2e37b1099c
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
-export type TournamentSortBy = "DATE" | "PLAYERS" | "%future added value";
 export type AllTournamentsQuery$variables = {
   count?: number | null | undefined;
   cursor?: string | null | undefined;
-  minSize?: number | null | undefined;
-  sortBy?: TournamentSortBy | null | undefined;
-  timePeriod?: TimePeriod | null | undefined;
 };
 export type AllTournamentsQuery$data = {
   readonly " $fragmentSpreads": FragmentRefs<"tournaments_Tournaments">;
@@ -41,21 +36,6 @@ var v0 = [
     "defaultValue": null,
     "kind": "LocalArgument",
     "name": "cursor"
-  },
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "minSize"
-  },
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "sortBy"
-  },
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "timePeriod"
   }
 ],
 v1 = [
@@ -65,30 +45,9 @@ v1 = [
     "variableName": "cursor"
   },
   {
-    "fields": [
-      {
-        "kind": "Variable",
-        "name": "minSize",
-        "variableName": "minSize"
-      },
-      {
-        "kind": "Variable",
-        "name": "timePeriod",
-        "variableName": "timePeriod"
-      }
-    ],
-    "kind": "ObjectValue",
-    "name": "filters"
-  },
-  {
     "kind": "Variable",
     "name": "first",
     "variableName": "count"
-  },
-  {
-    "kind": "Variable",
-    "name": "sortBy",
-    "variableName": "sortBy"
   }
 ],
 v2 = {
@@ -298,10 +257,7 @@ return {
       {
         "alias": null,
         "args": (v1/*: any*/),
-        "filters": [
-          "filters",
-          "sortBy"
-        ],
+        "filters": null,
         "handle": "connection",
         "key": "tournaments__tournaments",
         "kind": "LinkedHandle",
@@ -310,7 +266,7 @@ return {
     ]
   },
   "params": {
-    "id": "15b1c952364ae9080615dd21b7335603",
+    "id": "d81e7c14731e1e8d0d07fb2e37b1099c",
     "metadata": {},
     "name": "AllTournamentsQuery",
     "operationKind": "query",
@@ -319,6 +275,6 @@ return {
 };
 })();
 
-(node as any).hash = "d5c3a374eefad4c17b87ab36ba1755c4";
+(node as any).hash = "a6297831a31a5906da3784d27c73f010";
 
 export default node;
