@@ -186,9 +186,21 @@ Commander.implement({
         const totalEntries = entriesQuery.totalEntries ?? 1;
         const statsByCommanderId = new Map<number, CommanderCalculatedStats>();
         for (const {id, ...stats} of statsQuery) {
+          let metaShare = 0;
+          
+          // Only calculate if we have valid data
+          if (totalEntries > 0 && typeof stats.count === 'number' && stats.count >= 0) {
+            metaShare = stats.count / totalEntries;
+            
+            // Double-check for NaN and handle edge cases
+            if (isNaN(metaShare) || !isFinite(metaShare)) {
+              metaShare = 0;
+            }
+          }
+          
           statsByCommanderId.set(id, {
             ...stats,
-            metaShare: stats.count / totalEntries,
+            metaShare,
           });
         }
 
@@ -220,11 +232,6 @@ Commander.implement({
           maxStanding: null,
         };
 
-        //console.log(
-        //  '🔧 [SERVER] Commander filteredStats preferences received:',
-        //  preferences,
-        //);
-
         const minEventSize = preferences.minEventSize || args.minEventSize || 0;
         const maxStanding =
           preferences.maxStanding ||
@@ -233,13 +240,6 @@ Commander.implement({
         const timePeriod = preferences.timePeriod || args.timePeriod;
 
         const minDate = minDateFromTimePeriod(timePeriod);
-
-        //console.log('🔧 [SERVER] Applied filteredStats filters:', {
-        //  minEventSize,
-        //  maxStanding,
-        //  timePeriod,
-        //  commander: parent.name,
-        //});
 
         const [entriesQuery, statsQuery] = await Promise.all([
           db
@@ -313,12 +313,24 @@ Commander.implement({
           conversionRate: 0,
         };
 
+        // Safe calculation for metaShare to prevent NaN
+        let metaShare = 0;
+        if (totalEntries > 0 && typeof stats.count === 'number' && stats.count >= 0) {
+          metaShare = stats.count / totalEntries;
+          
+          // Double-check for NaN and handle edge cases
+          if (isNaN(metaShare) || !isFinite(metaShare)) {
+            metaShare = 0;
+          }
+        }
+
+        // Also ensure other stats are safe numbers
         const result = {
           count: stats.count || 0,
           topCuts: stats.topCuts || 0,
-          topCutBias: stats.topCutBias || 0,
-          conversionRate: stats.conversionRate || 0,
-          metaShare: (stats.count || 0) / totalEntries,
+          topCutBias: isNaN(stats.topCutBias) || !isFinite(stats.topCutBias) ? 0 : (stats.topCutBias || 0),
+          conversionRate: isNaN(stats.conversionRate) || !isFinite(stats.conversionRate) ? 0 : (stats.conversionRate || 0),
+          metaShare,
         };
 
         return result;

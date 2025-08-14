@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<cfd3cbcb533b06f3c97ab341613de906>>
- * @relayHash 6156138da8928a8bc49b866526c0dcda
+ * @generated SignedSource<<d24e9a6424fda9e24819a89ac5fcfd79>>
+ * @relayHash d1dee7e37c718427505e65b93806db8c
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 6156138da8928a8bc49b866526c0dcda
+// @relayRequestID d1dee7e37c718427505e65b93806db8c
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -317,7 +317,6 @@ return {
             ],
             "storageKey": null
           },
-          (v8/*: any*/),
           {
             "alias": null,
             "args": (v10/*: any*/),
@@ -491,14 +490,15 @@ return {
             "key": "Commander_entries",
             "kind": "LinkedHandle",
             "name": "entries"
-          }
+          },
+          (v8/*: any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "id": "6156138da8928a8bc49b866526c0dcda",
+    "id": "d1dee7e37c718427505e65b93806db8c",
     "metadata": {},
     "name": "useCommanderPage_CommanderQuery",
     "operationKind": "query",
