@@ -83,12 +83,12 @@ class RouterLocation {
       path = 'river:' + path;
     }
 
-    const parsed = URL.parse(path);
-    if (parsed != null) {
-      return new RouterLocation(parsed.pathname, parsed.searchParams, method);
+    try {
+      const nextUrl = new URL(path);
+      return new RouterLocation(nextUrl.pathname, nextUrl.searchParams, method);
+    } catch (_e) {
+      return new RouterLocation(path, new URLSearchParams(), method);
     }
-
-    return new RouterLocation(path, new URLSearchParams(), method);
   }
 }
 

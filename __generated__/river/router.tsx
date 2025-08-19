@@ -3,7 +3,7 @@
  * Do not modify this file directly. Instead, edit the template at scripts/templates/router.tsx.
  */
 
-import { createRouter } from 'radix3';
+import {createRouter} from 'radix3';
 import {
   AnchorHTMLAttributes,
   createContext,
@@ -12,24 +12,25 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useState
+  useState,
 } from 'react';
 import {
+  EntryPoint,
   EntryPointContainer,
   EnvironmentProviderOptions,
   IEnvironmentProvider,
   loadEntryPoint,
   PreloadedEntryPoint,
-  useEntryPointLoader
+  useEntryPointLoader,
 } from 'react-relay/hooks';
-import { OperationDescriptor, PayloadData } from 'relay-runtime';
-import type { Manifest } from 'vite';
+import {OperationDescriptor, PayloadData} from 'relay-runtime';
+import type {Manifest} from 'vite';
 import * as z from 'zod/v4-mini';
 import { entrypoint as e0 } from "../../src/pages/about.entrypoint";
-import { entrypoint as e4 } from "../../src/pages/commander/[commander]/commander_page.entrypoint";
 import { entrypoint as e1 } from "../../src/pages/index.entrypoint";
-import { entrypoint as e3 } from "../../src/pages/tournament/tournament_view.entrypoint";
 import { entrypoint as e2 } from "../../src/pages/tournaments.entrypoint";
+import { entrypoint as e3 } from "../../src/pages/tournament/tournament_view.entrypoint";
+import { entrypoint as e4 } from "../../src/pages/commander/[commander]/commander_page.entrypoint";
 
 export type AnyPreloadedEntryPoint = PreloadedEntryPoint<any>;
 export type RiverOps = [OperationDescriptor, PayloadData][];
@@ -129,12 +130,12 @@ class RouterLocation {
       path = 'river:' + path;
     }
 
-    const parsed = URL.parse(path);
-    if (parsed != null) {
-      return new RouterLocation(parsed.pathname, parsed.searchParams, method);
+    try {
+      const nextUrl = new URL(path);
+      return new RouterLocation(nextUrl.pathname, nextUrl.searchParams, method);
+    } catch (_e) {
+      return new RouterLocation(path, new URLSearchParams(), method);
     }
-
-    return new RouterLocation(path, new URLSearchParams(), method);
   }
 }
 
