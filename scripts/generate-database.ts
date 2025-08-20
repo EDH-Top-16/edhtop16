@@ -16,6 +16,13 @@ import * as undici from 'undici';
 import {z} from 'zod/v4';
 import {ScryfallCard, scryfallCardSchema} from '../src/lib/server/scryfall';
 
+/** Tournament IDs to exclude from ingestion */
+const EXCLUDED_TOURNAMENT_IDS = [
+  'spicerack:2269579',
+  'spicerack:2269574',
+  'spicerack:2269571',
+];
+
 const args = parseArgs({
   options: {
     tid: {
@@ -180,9 +187,9 @@ async function getTournaments(
     jsonImportedSchema,
   ]);
 
-  const metadataFilters: Record<string, unknown> = {};
+  const metadataFilters = {TID: {$nin: EXCLUDED_TOURNAMENT_IDS}};
   if (tids) {
-    metadataFilters.TID = {$in: tids};
+    metadataFilters.TID.$nin = EXCLUDED_TOURNAMENT_IDS;
   }
 
   const tournaments = mongo
