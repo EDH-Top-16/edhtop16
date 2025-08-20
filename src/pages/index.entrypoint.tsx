@@ -22,24 +22,34 @@ export const entrypoint: EntryPoint<
 > = {
   root: JSResource.fromModuleId('m#index'),
   getPreloadProps({schema, params}) {
+    // Use URL parameter fallbacks for initial load, then preferences will take over via refetch
     const {
-      sortBy = 'POPULARITY',
-      timePeriod = 'SIX_MONTHS',
-      minEntries = 20,
-      minSize: minTournamentSize = 60,
+      sortBy,
+      timePeriod,
+      minEntries,
+      minSize: minTournamentSize,
       colorId,
     } = schema.parse(params);
+
+    // Use defaults for initial load - the usePreferences hook will refetch with real preferences
+    const finalPrefs = {
+      sortBy: sortBy || 'CONVERSION',
+      timePeriod: timePeriod || 'ONE_MONTH', 
+      minEntries: minEntries ?? 0,
+      minTournamentSize: minTournamentSize ?? 0,
+      colorId: colorId || '',
+    };
 
     return {
       queries: {
         commandersQueryRef: {
           parameters: CommandersQueryParameters,
           variables: {
-            minEntries,
-            minTournamentSize,
-            colorId,
-            sortBy: sortBy as CommandersSortBy,
-            timePeriod: timePeriod as TimePeriod,
+            minEntries: finalPrefs.minEntries,
+            minTournamentSize: finalPrefs.minTournamentSize,
+            colorId: finalPrefs.colorId,
+            sortBy: finalPrefs.sortBy as CommandersSortBy,
+            timePeriod: finalPrefs.timePeriod as TimePeriod,
           },
         },
       },

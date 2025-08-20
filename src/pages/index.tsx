@@ -12,6 +12,7 @@ import TableCellsIcon from '@heroicons/react/24/solid/TableCellsIcon';
 import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
 import {PropsWithChildren, useCallback, useMemo} from 'react';
+import * as React from 'react';
 import {
   EntryPointComponent,
   graphql,
@@ -27,6 +28,7 @@ import {LoadMoreButton} from '../components/load_more';
 import {Navigation} from '../components/navigation';
 import {Select} from '../components/select';
 import {formatPercent} from '../lib/client/format';
+import {usePreferences, DEFAULT_PREFERENCES} from '../lib/client/cookies';
 
 function TopCommandersCard({
   display = 'card',
@@ -131,26 +133,24 @@ function TopCommandersCard({
 }
 
 function CommandersPageShell({
-  sortBy,
-  timePeriod,
-  colorId,
-  minEntries,
-  minTournamentSize,
   children,
-}: PropsWithChildren<{
-  colorId: string;
-  minEntries: number;
-  minTournamentSize: number;
-  sortBy: CommandersSortBy;
-  timePeriod: TimePeriod;
-}>) {
+}: PropsWithChildren<{}>) {
   useSeoMeta({
     title: 'cEDH Commanders',
     description: 'Discover top performing commanders in cEDH!',
   });
 
-  const {replaceRoute} = useNavigation();
-  const [display, toggleDisplay] = useCommandersDisplay();
+  // Use cookies for preferences instead of URL parameters
+  const {preferences: commanderPrefs, updatePreference} = usePreferences(
+    'commanders',
+    DEFAULT_PREFERENCES.commanders!
+  );
+
+  const toggleDisplay = useCallback(() => {
+    updatePreference('display', commanderPrefs?.display === 'table' ? 'card' : 'table');
+  }, [commanderPrefs?.display, updatePreference]);
+
+  const display = commanderPrefs?.display || 'card';
 
   return (
     <>
@@ -174,9 +174,9 @@ function CommandersPageShell({
         <div className="mb-8 flex flex-col items-start space-y-4 lg:flex-row lg:items-end lg:space-y-0">
           <div className="flex-1">
             <ColorSelection
-              selected={colorId}
+              selected={commanderPrefs?.colorId || ''}
               onChange={(value) => {
-                replaceRoute('/', {colorId: value || null});
+                updatePreference('colorId', value || '');
               }}
             />
           </div>
@@ -185,9 +185,9 @@ function CommandersPageShell({
             <Select
               id="commanders-sort-by"
               label="Sort By"
-              value={sortBy}
+              value={commanderPrefs?.sortBy || 'CONVERSION'}
               onChange={(value) => {
-                replaceRoute('/', {sortBy: value});
+                updatePreference('sortBy', value as CommandersSortBy);
               }}
             >
               <option value="CONVERSION">Conversion Rate</option>
@@ -198,9 +198,9 @@ function CommandersPageShell({
             <Select
               id="commanders-time-period"
               label="Time Period"
-              value={timePeriod}
+              value={commanderPrefs?.timePeriod || 'ONE_MONTH'}
               onChange={(value) => {
-                replaceRoute('/', {timePeriod: value});
+                updatePreference('timePeriod', value as TimePeriod);
               }}
             >
               <option value="ONE_MONTH">1 Month</option>
@@ -214,9 +214,9 @@ function CommandersPageShell({
             <Select
               id="commanders-min-entries"
               label="Min. Entries"
-              value={`${minEntries}`}
+              value={`${commanderPrefs?.minEntries || 0}`}
               onChange={(value) => {
-                replaceRoute('/', {minEntries: Number(value)});
+                updatePreference('minEntries', Number(value));
               }}
             >
               <option value="0">All Commanders</option>
@@ -228,9 +228,9 @@ function CommandersPageShell({
             <Select
               id="commanders-min-size"
               label="Tournament Size"
-              value={`${minTournamentSize}`}
+              value={`${commanderPrefs?.minTournamentSize || 0}`}
               onChange={(value) => {
-                replaceRoute('/', {minSize: Number(value)});
+                updatePreference('minTournamentSize', Number(value));
               }}
             >
               <option value="0">All Tournaments</option>
@@ -245,19 +245,6 @@ function CommandersPageShell({
       </div>
     </>
   );
-}
-
-function useCommandersDisplay() {
-  const {display} = useRouteParams('/');
-  const {replaceRoute} = useNavigation();
-
-  const toggleDisplay = useCallback(() => {
-    replaceRoute('/', {display: display === 'table' ? 'card' : 'table'});
-  }, [display, replaceRoute]);
-
-  return useMemo(() => {
-    return [display === 'table' ? 'table' : 'card', toggleDisplay] as const;
-  }, [display, toggleDisplay]);
 }
 
 /** @resource m#index */
@@ -280,9 +267,14 @@ export const CommandersPage: EntryPointComponent<
     queries.commandersQueryRef,
   );
 
-  const [display] = useCommandersDisplay();
+  // Get display preference from cookies
+  const {preferences: commanderPrefs} = usePreferences(
+    'commanders',
+    DEFAULT_PREFERENCES.commanders!
+  );
+  const display = commanderPrefs?.display || 'card';
 
-  const {data, loadNext, isLoadingNext, hasNext} = usePaginationFragment<
+  const {data, loadNext, isLoadingNext, hasNext, refetch} = usePaginationFragment<
     TopCommandersQuery,
     pages_topCommanders$key
   >(
@@ -314,14 +306,31 @@ export const CommandersPage: EntryPointComponent<
     query,
   );
 
+  // Set up refetch callback to trigger when preferences change
+  React.useEffect(() => {
+    import('../lib/client/cookies').then(({ setRefetchCallback }) => {
+      setRefetchCallback((newPrefs) => {
+        console.log('Refetching with new preferences:', newPrefs);
+        refetch({
+          timePeriod: newPrefs.timePeriod || 'ONE_MONTH',
+          sortBy: newPrefs.sortBy || 'CONVERSION',
+          minEntries: newPrefs.minEntries || 0,
+          minTournamentSize: newPrefs.minTournamentSize || 0,
+          colorId: newPrefs.colorId || '',
+        });
+      });
+    });
+
+    // Cleanup on unmount
+    return () => {
+      import('../lib/client/cookies').then(({ clearRefetchCallback }) => {
+        clearRefetchCallback();
+      });
+    };
+  }, [refetch]);
+
   return (
-    <CommandersPageShell
-      sortBy={queries.commandersQueryRef.variables.sortBy}
-      timePeriod={queries.commandersQueryRef.variables.timePeriod}
-      colorId={queries.commandersQueryRef.variables.colorId || ''}
-      minEntries={queries.commandersQueryRef.variables.minEntries}
-      minTournamentSize={queries.commandersQueryRef.variables.minTournamentSize}
-    >
+    <CommandersPageShell>
       <div
         className={cn(
           'mx-auto grid w-full pb-4',
