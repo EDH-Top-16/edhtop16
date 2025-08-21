@@ -8,6 +8,7 @@ export interface CommandersPreferences {
   minEntries?: number;
   minTournamentSize?: number;
   display?: 'card' | 'table';
+  statsDisplay?: 'count' | 'topCuts';
 }
 
 export interface EntryPreferences {
@@ -43,6 +44,7 @@ export const DEFAULT_PREFERENCES: PreferencesMap = {
     minEntries: 0,
     minTournamentSize: 0,
     colorId: '',
+    statsDisplay: 'topCuts',
   },
   entry: {
     maxStanding: null,

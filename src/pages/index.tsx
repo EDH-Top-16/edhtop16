@@ -138,7 +138,7 @@ function CommandersPageShell({
   updatePreference,
   children,
 }: PropsWithChildren<{
-  preferences: CommandersPreferences | null | undefined; // can be null or undefined if no cookies or preferences.
+  preferences: CommandersPreferences | null | undefined;
   updatePreference: <P extends keyof CommandersPreferences>(prefKey: P, value: CommandersPreferences[P]) => void;
 }>) {
   useSeoMeta({
@@ -165,13 +165,26 @@ function CommandersPageShell({
             cEDH Metagame Breakdown
           </h1>
 
-          <button className="cursor-pointer" onClick={toggleDisplay}>
-            {display === 'card' ? (
-              <TableCellsIcon className="h-6 w-6 text-white" />
-            ) : (
-              <RectangleStackIcon className="h-6 w-6 text-white" />
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              className="cursor-pointer rounded bg-white/10 px-3 py-1 text-sm text-white hover:bg-white/20"
+              onClick={() => {
+                const currentStats = preferences?.statsDisplay || 'topCuts';
+                const newStats = currentStats === 'topCuts' ? 'count' : 'topCuts';
+                updatePreference('statsDisplay', newStats);
+              }}
+            >
+              {(preferences?.statsDisplay || 'topCuts') === 'topCuts' ? 'Show Entries' : 'Show Performance'}
+            </button>
+
+            <button className="cursor-pointer" onClick={toggleDisplay}>
+              {display === 'card' ? (
+                <TableCellsIcon className="h-6 w-6 text-white" />
+              ) : (
+                <RectangleStackIcon className="h-6 w-6 text-white" />
+              )}
+            </button>
+          </div>
         </div>
 
         <div className="mb-8 flex flex-col items-start space-y-4 lg:flex-row lg:items-end lg:space-y-0">
@@ -363,10 +376,7 @@ export const CommandersPage: EntryPointComponent<
             display={display}
             commander={node}
             secondaryStatistic={
-              queries.commandersQueryRef.variables.sortBy === 'CONVERSION' ||
-              queries.commandersQueryRef.variables.sortBy === 'TOP_CUTS'
-                ? 'topCuts'
-                : 'count'
+              (commanderPrefs?.statsDisplay || 'topCuts') as 'count' | 'topCuts'
             }
           />
         ))}
