@@ -48,9 +48,9 @@ export function createHandler(
     const head = createHead();
     
     // Convert Express request to Web API Request for cookie parsing
-    console.log('Express req.headers.cookie:', req.headers.cookie);
-    console.log('Express req.headers:', Object.keys(req.headers));
-    
+    //console.log('Express req.headers.cookie:', req.headers.cookie);
+    //console.log('Express req.headers:', Object.keys(req.headers));
+
     const webRequest = new Request(`${req.protocol}://${req.get('host')}${req.originalUrl}`, {
       method: req.method,
       headers: Object.entries(req.headers).reduce((acc, [key, value]) => {
@@ -63,7 +63,7 @@ export function createHandler(
       }, {} as Record<string, string>),
     });
     
-    console.log('Web request cookie header:', webRequest.headers.get('cookie'));
+    //console.log('Web request cookie header:', webRequest.headers.get('cookie'));
 
     // Create server environment with request to read cookies
     const env = createServerEnvironment(schema, persistedQueries, webRequest);
@@ -101,8 +101,8 @@ export function createHandler(
 
     // Inject server preferences into the HTML for client hydration
     const preferences = getPreferencesFromRequest(webRequest);
-    console.log('Server preferences being injected:', preferences);
-    console.log('Raw cookie header:', webRequest.headers.get('cookie'));
+    //console.log('Server preferences being injected:', preferences);
+    //console.log('Raw cookie header:', webRequest.headers.get('cookie'));
     
     const preferencesScript = `
       <script>

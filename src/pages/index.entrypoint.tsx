@@ -22,7 +22,6 @@ export const entrypoint: EntryPoint<
 > = {
   root: JSResource.fromModuleId('m#index'),
   getPreloadProps({schema, params}) {
-    // Use URL parameter fallbacks for initial load, then preferences will take over via refetch
     const {
       sortBy,
       timePeriod,
@@ -32,7 +31,12 @@ export const entrypoint: EntryPoint<
       display
     } = schema.parse(params);
 
-    // Use defaults for initial load - the usePreferences hook will refetch with real preferences
+    // Note: Server preferences are now injected via window.__SERVER_PREFERENCES__
+    // in entry-server.tsx, so we'll rely on the smart hydration refetch to handle
+    // the preference/URL mismatch detection. This keeps the entrypoint simple
+    // and uses the existing server-side preference injection system.
+
+    // Use URL params with fallbacks for initial load - smart hydration will optimize this
     const finalPrefs = {
       sortBy: sortBy || 'CONVERSION',
       timePeriod: timePeriod || 'ONE_MONTH', 
@@ -41,6 +45,8 @@ export const entrypoint: EntryPoint<
       colorId: colorId || '',
       display: display || 'card',
     };
+
+    //console.log('Server entrypoint using URL preferences:', finalPrefs);
 
     return {
       queries: {

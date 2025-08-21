@@ -2,59 +2,59 @@ import type { PreferencesMap } from '../shared/preferences-types';
 import { DEFAULT_PREFERENCES } from '../shared/preferences-types';
 
 export function parseCookies(cookieHeader: string): Record<string, string> {
-  console.log('parseCookies - Input header:', cookieHeader);
+  //console.log('parseCookies - Input header:', cookieHeader);
   
   const result = cookieHeader
     .split(';')
     .reduce((cookies, cookie) => {
       const trimmed = cookie.trim();
-      console.log('parseCookies - Processing cookie part:', trimmed);
+      //console.log('parseCookies - Processing cookie part:', trimmed);
       
       const equalIndex = trimmed.indexOf('=');
       if (equalIndex > 0) {
         const name = trimmed.substring(0, equalIndex);
         const value = trimmed.substring(equalIndex + 1);
         cookies[name] = value;
-        console.log(`parseCookies - Found cookie: ${name} = ${value}`);
+        //console.log(`parseCookies - Found cookie: ${name} = ${value}`);
       } else {
-        console.log('parseCookies - Skipping malformed cookie:', trimmed);
+        //console.log('parseCookies - Skipping malformed cookie:', trimmed);
       }
       return cookies;
     }, {} as Record<string, string>);
     
-  console.log('parseCookies - Final result:', result);
+  //console.log('parseCookies - Final result:', result);
   return result;
 }
 
 export function getPreferencesFromRequest(request: Request): PreferencesMap {
   const cookieHeader = request.headers.get('cookie') || '';
-  console.log('Server - Raw cookie header:', cookieHeader);
+  //console.log('Server - Raw cookie header:', cookieHeader);
   
   const cookies = parseCookies(cookieHeader);
-  console.log('Server - Parsed cookies:', cookies);
+  //console.log('Server - Parsed cookies:', cookies);
   
   let allPrefs: PreferencesMap = { ...DEFAULT_PREFERENCES };
   
   if (cookies.sitePreferences) {
     try {
-      console.log('Server - Raw cookie value:', cookies.sitePreferences);
-      console.log('Server - Attempting to decode:', decodeURIComponent(cookies.sitePreferences));
+      //console.log('Server - Raw cookie value:', cookies.sitePreferences);
+      //console.log('Server - Attempting to decode:', decodeURIComponent(cookies.sitePreferences));
       
       const parsedPrefs = JSON.parse(decodeURIComponent(cookies.sitePreferences));
-      console.log('Server - Parsed preferences from cookie:', parsedPrefs);
+      //console.log('Server - Parsed preferences from cookie:', parsedPrefs);
       allPrefs = {
         ...allPrefs,
         ...parsedPrefs,
       };
     } catch (error) {
       console.error('Failed to parse server cookie:', error);
-      console.log('Server - Using defaults due to parse error');
+      //console.log('Server - Using defaults due to parse error');
     }
   } else {
     console.log('Server - No sitePreferences cookie found, using defaults');
   }
   
-  console.log('Server - Final preferences:', allPrefs);
+  //console.log('Server - Final preferences:', allPrefs);
   return allPrefs;
 }
 

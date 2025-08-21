@@ -17,7 +17,7 @@ export function createServerEnvironment(
 ) {
   // Get preferences from request cookies for server-side rendering
   const preferences = request ? getPreferencesFromRequest(request) : {};
-  console.log('Server environment using preferences:', preferences);
+  //console.log('Server environment using preferences:', preferences);
 
   const networkFetchFunction: FetchFunction = async (requestParams, variables) => {
     let source = requestParams.text;
