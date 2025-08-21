@@ -7,8 +7,8 @@ import {
   Store,
 } from 'relay-runtime';
 import {createContext} from './context';
-import type { PreferencesMap } from '../shared/preferences-types';
-import { getPreferencesFromRequest } from './cookies';
+import type {PreferencesMap} from '../shared/preferences-types';
+import {getPreferencesFromRequest} from './cookies';
 
 export function createServerEnvironment(
   schema: GraphQLSchema,
@@ -19,7 +19,10 @@ export function createServerEnvironment(
   const preferences = request ? getPreferencesFromRequest(request) : {};
   //console.log('Server environment using preferences:', preferences);
 
-  const networkFetchFunction: FetchFunction = async (requestParams, variables) => {
+  const networkFetchFunction: FetchFunction = async (
+    requestParams,
+    variables,
+  ) => {
     let source = requestParams.text;
     if (source == null && requestParams.id) {
       source = persistedQueries?.[requestParams.id] ?? null;
@@ -68,7 +71,10 @@ export function createServerEnvironmentWithPreferences(
   preferences: Partial<PreferencesMap>,
   persistedQueries?: Record<string, string>,
 ) {
-  const networkFetchFunction: FetchFunction = async (requestParams, variables) => {
+  const networkFetchFunction: FetchFunction = async (
+    requestParams,
+    variables,
+  ) => {
     let source = requestParams.text;
     if (source == null && requestParams.id) {
       source = persistedQueries?.[requestParams.id] ?? null;

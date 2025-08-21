@@ -46,28 +46,34 @@ export function createHandler(
 
   const entryPointHandler: express.Handler = async (req, res) => {
     const head = createHead();
-    
+
     // Convert Express request to Web API Request for cookie parsing
     //console.log('Express req.headers.cookie:', req.headers.cookie);
     //console.log('Express req.headers:', Object.keys(req.headers));
 
-    const webRequest = new Request(`${req.protocol}://${req.get('host')}${req.originalUrl}`, {
-      method: req.method,
-      headers: Object.entries(req.headers).reduce((acc, [key, value]) => {
-        if (typeof value === 'string') {
-          acc[key] = value;
-        } else if (Array.isArray(value)) {
-          acc[key] = value.join(', ');
-        }
-        return acc;
-      }, {} as Record<string, string>),
-    });
-    
+    const webRequest = new Request(
+      `${req.protocol}://${req.get('host')}${req.originalUrl}`,
+      {
+        method: req.method,
+        headers: Object.entries(req.headers).reduce(
+          (acc, [key, value]) => {
+            if (typeof value === 'string') {
+              acc[key] = value;
+            } else if (Array.isArray(value)) {
+              acc[key] = value.join(', ');
+            }
+            return acc;
+          },
+          {} as Record<string, string>,
+        ),
+      },
+    );
+
     //console.log('Web request cookie header:', webRequest.headers.get('cookie'));
 
     // Create server environment with request to read cookies
     const env = createServerEnvironment(schema, persistedQueries, webRequest);
-    
+
     const RiverApp = await createRiverServerApp(
       {getEnvironment: () => env},
       req.originalUrl,
@@ -103,14 +109,17 @@ export function createHandler(
     const preferences = getPreferencesFromRequest(webRequest);
     //console.log('Server preferences being injected:', preferences);
     //console.log('Raw cookie header:', webRequest.headers.get('cookie'));
-    
+
     const preferencesScript = `
       <script>
         window.__SERVER_PREFERENCES__ = ${JSON.stringify(preferences)};
         console.log('Server preferences injected into page:', ${JSON.stringify(preferences)});
       </script>
     `;
-    renderedHtml = renderedHtml.replace('</head>', `${preferencesScript}</head>`);
+    renderedHtml = renderedHtml.replace(
+      '</head>',
+      `${preferencesScript}</head>`,
+    );
 
     res.status(200).set({'Content-Type': 'text/html'}).end(renderedHtml);
   };

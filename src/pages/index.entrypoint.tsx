@@ -28,7 +28,7 @@ export const entrypoint: EntryPoint<
       minEntries,
       minSize: minTournamentSize,
       colorId,
-      display
+      display,
     } = schema.parse(params);
 
     // Note: Server preferences are now injected via window.__SERVER_PREFERENCES__
@@ -39,7 +39,7 @@ export const entrypoint: EntryPoint<
     // Use URL params with fallbacks for initial load - smart hydration will optimize this
     const finalPrefs = {
       sortBy: sortBy || 'CONVERSION',
-      timePeriod: timePeriod || 'ONE_MONTH', 
+      timePeriod: timePeriod || 'ONE_MONTH',
       minEntries: minEntries ?? 0,
       minTournamentSize: minTournamentSize ?? 0,
       colorId: colorId || '',

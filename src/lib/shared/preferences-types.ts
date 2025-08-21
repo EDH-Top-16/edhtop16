@@ -1,5 +1,8 @@
 // Import the Relay-generated types
-import type { CommandersSortBy, TimePeriod } from '#genfiles/queries/pages_CommandersQuery.graphql';
+import type {
+  CommandersSortBy,
+  TimePeriod,
+} from '#genfiles/queries/pages_CommandersQuery.graphql';
 
 export interface CommandersPreferences {
   sortBy?: CommandersSortBy;

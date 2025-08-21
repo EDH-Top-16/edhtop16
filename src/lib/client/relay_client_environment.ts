@@ -1,5 +1,5 @@
 import {Environment, Network, RecordSource, Store} from 'relay-runtime';
-import type { PreferencesMap } from '../shared/preferences-types';
+import type {PreferencesMap} from '../shared/preferences-types';
 
 // Store preferences in the environment's context
 let environmentPreferences: Partial<PreferencesMap> = {};
@@ -51,7 +51,7 @@ export function updateRelayPreferences(preferences: Partial<PreferencesMap>) {
     ...environmentPreferences,
     ...preferences,
   };
-  
+
   // If we have an environment, we could potentially trigger a refetch here
   // or update any cached data that depends on preferences
   if (clientEnv) {
