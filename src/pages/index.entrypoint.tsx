@@ -29,6 +29,7 @@ export const entrypoint: EntryPoint<
       minEntries,
       minSize: minTournamentSize,
       colorId,
+      display
     } = schema.parse(params);
 
     // Use defaults for initial load - the usePreferences hook will refetch with real preferences
@@ -38,6 +39,7 @@ export const entrypoint: EntryPoint<
       minEntries: minEntries ?? 0,
       minTournamentSize: minTournamentSize ?? 0,
       colorId: colorId || '',
+      display: display || 'card',
     };
 
     return {

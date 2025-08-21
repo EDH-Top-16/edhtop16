@@ -29,13 +29,14 @@ import {Navigation} from '../components/navigation';
 import {Select} from '../components/select';
 import {formatPercent} from '../lib/client/format';
 import {usePreferences, DEFAULT_PREFERENCES} from '../lib/client/cookies';
+import {CommandersPreferences} from '../lib/shared/preferences-types';
 
 function TopCommandersCard({
   display = 'card',
   secondaryStatistic,
   ...props
 }: {
-  display?: 'table' | 'card';
+  display?: 'card' | 'table';
   secondaryStatistic: 'topCuts' | 'count';
   commander: pages_TopCommandersCard$key;
 }) {
@@ -133,24 +134,26 @@ function TopCommandersCard({
 }
 
 function CommandersPageShell({
+  preferences,
+  updatePreference,
   children,
-}: PropsWithChildren<{}>) {
+}: PropsWithChildren<{
+  preferences: CommandersPreferences | null | undefined; // can be null or undefined if no cookies or preferences.
+  updatePreference: <P extends keyof CommandersPreferences>(prefKey: P, value: CommandersPreferences[P]) => void;
+}>) {
   useSeoMeta({
     title: 'cEDH Commanders',
     description: 'Discover top performing commanders in cEDH!',
   });
 
-  // Use cookies for preferences instead of URL parameters
-  const {preferences: commanderPrefs, updatePreference} = usePreferences(
-    'commanders',
-    DEFAULT_PREFERENCES.commanders!
-  );
-
   const toggleDisplay = useCallback(() => {
-    updatePreference('display', commanderPrefs?.display === 'table' ? 'card' : 'table');
-  }, [commanderPrefs?.display, updatePreference]);
+    const currentDisplay = preferences?.display || 'card';
+    const newDisplay = currentDisplay === 'table' ? 'card' : 'table';
+    console.log('Toggling display mode from:', currentDisplay, 'to:', newDisplay);
+    updatePreference('display', newDisplay);
+  }, [preferences?.display, updatePreference]);
 
-  const display = commanderPrefs?.display || 'card';
+  const display = preferences?.display || 'card';
 
   return (
     <>
@@ -174,7 +177,7 @@ function CommandersPageShell({
         <div className="mb-8 flex flex-col items-start space-y-4 lg:flex-row lg:items-end lg:space-y-0">
           <div className="flex-1">
             <ColorSelection
-              selected={commanderPrefs?.colorId || ''}
+              selected={preferences?.colorId || ''}
               onChange={(value) => {
                 updatePreference('colorId', value || '');
               }}
@@ -185,7 +188,7 @@ function CommandersPageShell({
             <Select
               id="commanders-sort-by"
               label="Sort By"
-              value={commanderPrefs?.sortBy || 'CONVERSION'}
+              value={preferences?.sortBy || 'CONVERSION'}
               onChange={(value) => {
                 updatePreference('sortBy', value as CommandersSortBy);
               }}
@@ -198,7 +201,7 @@ function CommandersPageShell({
             <Select
               id="commanders-time-period"
               label="Time Period"
-              value={commanderPrefs?.timePeriod || 'ONE_MONTH'}
+              value={preferences?.timePeriod || 'ONE_MONTH'}
               onChange={(value) => {
                 updatePreference('timePeriod', value as TimePeriod);
               }}
@@ -214,7 +217,7 @@ function CommandersPageShell({
             <Select
               id="commanders-min-entries"
               label="Min. Entries"
-              value={`${commanderPrefs?.minEntries || 0}`}
+              value={`${preferences?.minEntries || 0}`}
               onChange={(value) => {
                 updatePreference('minEntries', Number(value));
               }}
@@ -228,7 +231,7 @@ function CommandersPageShell({
             <Select
               id="commanders-min-size"
               label="Tournament Size"
-              value={`${commanderPrefs?.minTournamentSize || 0}`}
+              value={`${preferences?.minTournamentSize || 0}`}
               onChange={(value) => {
                 updatePreference('minTournamentSize', Number(value));
               }}
@@ -267,11 +270,12 @@ export const CommandersPage: EntryPointComponent<
     queries.commandersQueryRef,
   );
 
-  // Get display preference from cookies
-  const {preferences: commanderPrefs} = usePreferences(
+  // SINGLE INSTANCE of usePreferences - this is the key fix!
+  const {preferences: commanderPrefs, updatePreference} = usePreferences(
     'commanders',
     DEFAULT_PREFERENCES.commanders!
   );
+  
   const display = commanderPrefs?.display || 'card';
 
   const {data, loadNext, isLoadingNext, hasNext, refetch} = usePaginationFragment<
@@ -330,7 +334,10 @@ export const CommandersPage: EntryPointComponent<
   }, [refetch]);
 
   return (
-    <CommandersPageShell>
+    <CommandersPageShell 
+      preferences={commanderPrefs}
+      updatePreference={updatePreference}
+    >
       <div
         className={cn(
           'mx-auto grid w-full pb-4',
