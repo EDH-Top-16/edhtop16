@@ -4,6 +4,7 @@ import type {PreferencesMap} from '../shared/preferences-types';
 import {DEFAULT_PREFERENCES} from '../shared/preferences-types';
 
 let refetchCallback: ((prefs?: any) => void) | undefined = undefined;
+let relayEnvironment: any = null;
 
 export function setRefetchCallback(callback?: (prefs?: any) => void) {
   refetchCallback = callback;
@@ -11,6 +12,10 @@ export function setRefetchCallback(callback?: (prefs?: any) => void) {
 
 export function clearRefetchCallback() {
   refetchCallback = undefined;
+}
+
+export function setRelayEnvironment(environment: any) {
+  relayEnvironment = environment;
 }
 
 function getCookie(name: string): string | null {
@@ -200,6 +205,42 @@ export function usePreferences<K extends keyof PreferencesMap>(
 
       //console.log('updatePreference called with:', { prefKey, value, key: currentKey });
 
+      // Only invalidate cache for data-affecting preferences, not UI preferences
+      const dataAffectingPrefs = ['timePeriod', 'sortBy', 'minEntries', 'minTournamentSize', 'colorId'];
+      const shouldInvalidateCache = dataAffectingPrefs.includes(prefKey as string);
+
+      if (shouldInvalidateCache && relayEnvironment) {
+        // Temporarily disabled cache invalidation to prevent blink
+        // TODO: Re-enable if needed for other scenarios
+        /*
+        try {
+          const store = relayEnvironment.getStore();
+          
+          // Strategy 1: Try to invalidate the root query record
+          try {
+            store.invalidateRecord('client:root');
+          } catch (e1) {
+            // Strategy 2: Try to get and invalidate the connection record
+            try {
+              const rootRecord = store.getRoot();
+              if (rootRecord) {
+                store.invalidateRecord(rootRecord.getDataID());
+              }
+            } catch (e2) {
+              // Strategy 3: Force a complete store refresh (nuclear option)
+              try {
+                relayEnvironment.getStore().publish(relayEnvironment.getStore().getSource());
+              } catch (e3) {
+                console.warn('All Relay cache invalidation strategies failed:', {e1, e2, e3});
+              }
+            }
+          }
+        } catch (error) {
+          console.warn('Failed to invalidate Relay cache:', error);
+        }
+        */
+      }
+
       setPreferences((prevPrefs) => {
         //console.log('updatePreference - Previous preferences:', prevPrefs);
 
@@ -243,12 +284,18 @@ export function usePreferences<K extends keyof PreferencesMap>(
           refetchTimeoutRef.current = null;
         }
 
-        refetchTimeoutRef.current = setTimeout(() => {
-          if (refetchCallback) {
-            refetchCallback(newPrefs);
-          }
-          refetchTimeoutRef.current = null;
-        }, 250);
+        // Only trigger refetch for data-affecting preferences
+        const dataAffectingPrefs = ['timePeriod', 'sortBy', 'minEntries', 'minTournamentSize', 'colorId'];
+        const shouldTriggerRefetch = dataAffectingPrefs.includes(prefKey as string);
+
+        if (shouldTriggerRefetch) {
+          refetchTimeoutRef.current = setTimeout(() => {
+            if (refetchCallback) {
+              refetchCallback(newPrefs);
+            }
+            refetchTimeoutRef.current = null;
+          }, 250);
+        }
 
         return newPrefs;
       });

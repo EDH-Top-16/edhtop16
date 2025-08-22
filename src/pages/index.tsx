@@ -19,6 +19,7 @@ import {
   useFragment,
   usePaginationFragment,
   usePreloadedQuery,
+  useRelayEnvironment,
 } from 'react-relay/hooks';
 import {ColorIdentity} from '../assets/icons/colors';
 import {Card} from '../components/card';
@@ -28,7 +29,7 @@ import {LoadMoreButton} from '../components/load_more';
 import {Navigation} from '../components/navigation';
 import {Select} from '../components/select';
 import {formatPercent} from '../lib/client/format';
-import {usePreferences, DEFAULT_PREFERENCES} from '../lib/client/cookies';
+import {usePreferences, DEFAULT_PREFERENCES, setRefetchCallback, clearRefetchCallback, setRelayEnvironment} from '../lib/client/cookies';
 import {CommandersPreferences} from '../lib/shared/preferences-types';
 
 // Optimize with scheduler to prevent blocking
@@ -192,12 +193,15 @@ const CommandersPageShell = React.memo(
 
     const toggleDisplay = useCallback(() => {
       const newDisplay = (preferences?.display || 'card') === 'table' ? 'card' : 'table';
-      scheduleWork(() => startTransition(() => updatePreference('display', newDisplay)));
+      // Use direct updatePreference instead of updateWithTransition for display changes
+      // This bypasses the transition and refetch logic
+      updatePreference('display', newDisplay);
     }, [preferences?.display, updatePreference]);
 
     const handleSortChange = useCallback((value: string) => {
       const sortBy = value as CommandersSortBy;
       const statsDisplay = sortBy === 'POPULARITY' ? 'count' : 'topCuts';
+      // Update statsDisplay directly without triggering refetch logic
       updatePreference('statsDisplay', statsDisplay);
       updateWithTransition('sortBy', sortBy);
     }, [updateWithTransition, updatePreference]);
@@ -297,6 +301,13 @@ CommandersPageShell.displayName = 'CommandersPageShell';
 
 /** @resource m#index */
 export const CommandersPage: EntryPointComponent<{commandersQueryRef: pages_CommandersQuery}, {}> = ({queries}) => {
+  const environment = useRelayEnvironment();
+  
+  // Set the Relay environment for the cookies module to use for cache invalidation
+  React.useEffect(() => {
+    setRelayEnvironment(environment);
+  }, [environment]);
+
   const query = usePreloadedQuery(
     graphql`
       query pages_CommandersQuery(
@@ -340,69 +351,97 @@ export const CommandersPage: EntryPointComponent<{commandersQueryRef: pages_Comm
     query,
   );
 
-  // More aggressive debouncing for better INP
+  // Track if user has made any DATA preference changes to prevent blink
+  const [userHasChangedDataPrefs, setUserHasChangedDataPrefs] = React.useState(false);
+  const [isRefetching, setIsRefetching] = React.useState(false);
+  const initialPrefsRef = React.useRef<any>(null);
+
+  // Store initial preferences on first render
+  React.useEffect(() => {
+    if (isHydrated && commanderPrefs && !initialPrefsRef.current) {
+      initialPrefsRef.current = commanderPrefs;
+    }
+  }, [isHydrated, commanderPrefs]);
+
+  // Check if DATA preferences have changed from initial (exclude UI-only changes)
+  React.useEffect(() => {
+    if (isHydrated && commanderPrefs && initialPrefsRef.current) {
+      // Only consider data-affecting preferences for the "changed" check
+      const currentDataPrefs = {
+        timePeriod: commanderPrefs.timePeriod,
+        sortBy: commanderPrefs.sortBy,
+        minEntries: commanderPrefs.minEntries,
+        minTournamentSize: commanderPrefs.minTournamentSize,
+        colorId: commanderPrefs.colorId,
+      };
+      
+      const initialDataPrefs = {
+        timePeriod: initialPrefsRef.current.timePeriod,
+        sortBy: initialPrefsRef.current.sortBy,
+        minEntries: initialPrefsRef.current.minEntries,
+        minTournamentSize: initialPrefsRef.current.minTournamentSize,
+        colorId: initialPrefsRef.current.colorId,
+      };
+      
+      const hasChanged = JSON.stringify(currentDataPrefs) !== JSON.stringify(initialDataPrefs);
+      setUserHasChangedDataPrefs(hasChanged);
+    }
+  }, [isHydrated, commanderPrefs]);
+
   const debouncedRefetch = React.useMemo(() => {
     let timeoutId: NodeJS.Timeout;
+    let currentDisposable: any;
+    
     return (variables: any) => {
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => startTransition(() => refetch(variables)), 150);
+      
+      if (currentDisposable && typeof currentDisposable.dispose === 'function') {
+        currentDisposable.dispose();
+      }
+      
+      setIsRefetching(true);
+      
+      timeoutId = setTimeout(() => {
+        startTransition(() => {
+          currentDisposable = refetch(variables, {
+            fetchPolicy: 'store-and-network'
+          });
+          // Reset refetching state after a delay
+          setTimeout(() => setIsRefetching(false), 500);
+        });
+      }, 150);
+      
+      return {
+        dispose: () => {
+          clearTimeout(timeoutId);
+          setIsRefetching(false);
+          if (currentDisposable && typeof currentDisposable.dispose === 'function') {
+            currentDisposable.dispose();
+            currentDisposable = undefined;
+          }
+        }
+      };
     };
   }, [refetch]);
 
-  // Set up refetch callback to trigger when preferences change
+  // Set up refetch callback - this will be called when preferences change
   React.useEffect(() => {
-    import('../lib/client/cookies').then(({setRefetchCallback}) => {
-      setRefetchCallback((newPrefs) => {
-        debouncedRefetch({
-          timePeriod: newPrefs.timePeriod || 'ONE_MONTH',
-          sortBy: newPrefs.sortBy || 'CONVERSION',
-          minEntries: newPrefs.minEntries || 0,
-          minTournamentSize: newPrefs.minTournamentSize || 0,
-          colorId: newPrefs.colorId || '',
-        });
+    setRefetchCallback((newPrefs) => {
+      // Only refetch for data-affecting preferences, not display changes
+      debouncedRefetch({
+        timePeriod: newPrefs.timePeriod || 'ONE_MONTH',
+        sortBy: newPrefs.sortBy || 'CONVERSION',
+        minEntries: newPrefs.minEntries || 0,
+        minTournamentSize: newPrefs.minTournamentSize || 0,
+        colorId: newPrefs.colorId || '',
+        // Note: deliberately excluding 'display' and 'statsDisplay' as these don't affect data
       });
     });
-
+      
     return () => {
-      import('../lib/client/cookies').then(({clearRefetchCallback}) => {
-        clearRefetchCallback();
-      });
+      clearRefetchCallback();
     };
   }, [debouncedRefetch]);
-
-  // Smart hydration refetch - only refetch if preferences differ from URL params
-  const hasTriggeredHydrationRefetch = React.useRef(false);
-
-  React.useEffect(() => {
-    if (isHydrated && !hasTriggeredHydrationRefetch.current && commanderPrefs) {
-      hasTriggeredHydrationRefetch.current = true;
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const urlPrefs = {
-        timePeriod: urlParams.get('timePeriod') || 'ONE_MONTH',
-        sortBy: urlParams.get('sortBy') || 'CONVERSION',
-        minEntries: Number(urlParams.get('minEntries') || '0'),
-        minTournamentSize: Number(urlParams.get('minSize') || '0'),
-        colorId: urlParams.get('colorId') || '',
-      };
-
-      const currentPrefs = {
-        timePeriod: commanderPrefs.timePeriod || 'ONE_MONTH',
-        sortBy: commanderPrefs.sortBy || 'CONVERSION',
-        minEntries: commanderPrefs.minEntries || 0,
-        minTournamentSize: commanderPrefs.minTournamentSize || 0,
-        colorId: commanderPrefs.colorId || '',
-      };
-
-      const needsRefetch = Object.keys(currentPrefs).some(key => 
-        currentPrefs[key as keyof typeof currentPrefs] !== urlPrefs[key as keyof typeof urlPrefs]
-      );
-
-      if (needsRefetch) {
-        startTransition(() => refetch(currentPrefs));
-      }
-    }
-  }, [isHydrated, commanderPrefs, refetch]);
 
   // Memoize expensive calculations
   const commanderNodes = React.useMemo(() => data.commanders.edges.map(({node}) => node), [data.commanders.edges]);
@@ -423,8 +462,8 @@ export const CommandersPage: EntryPointComponent<{commandersQueryRef: pages_Comm
     };
   }, [commanderPrefs?.display, commanderPrefs?.statsDisplay]);
 
-  // Render first 6 immediately, rest lazily for better perceived performance
-  const [visibleItems, hiddenItems] = React.useMemo(() => [commanderNodes.slice(0, 6), commanderNodes.slice(6)], [commanderNodes]);
+  // Render all items with lazy loading (first few will render immediately due to viewport)
+  const allItems = React.useMemo(() => commanderNodes, [commanderNodes]);
 
   // Critical CSS inlining for skeleton and loading states
   React.useEffect(() => {
@@ -434,45 +473,46 @@ export const CommandersPage: EntryPointComponent<{commandersQueryRef: pages_Comm
       @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
     `;
     document.head.appendChild(style);
-    return () => document.head.removeChild(style);
+    return () => {
+      style.remove();
+    };
   }, []);
 
   return (
     <CommandersPageShell preferences={commanderPrefs} updatePreference={updatePreference}>
-      <div className={displayConfig.className}>
-        {displayConfig.display === 'table' && (
-          <div className="sticky top-[68px] hidden w-full grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px] items-center gap-x-2 overflow-x-hidden bg-[#514f86] p-4 text-sm text-white lg:grid">
-            <div>Color</div>
-            <div>Commander</div>
-            <div>Entries</div>
-            <div>Meta %</div>
-            <div>Top Cuts</div>
-            <div>Cnvr. %</div>
+      {/* Show loading state ONLY if user has changed DATA prefs and we're refetching */}
+      {userHasChangedDataPrefs && isRefetching ? (
+        <div className="flex items-center justify-center h-96 text-white">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+            <div>Loading commanders...</div>
           </div>
-        )}
+        </div>
+      ) : (
+        <div className={displayConfig.className}>
+          {displayConfig.display === 'table' && (
+            <div className="sticky top-[68px] hidden w-full grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px] items-center gap-x-2 overflow-x-hidden bg-[#514f86] p-4 text-sm text-white lg:grid">
+              <div>Color</div>
+              <div>Commander</div>
+              <div>Entries</div>
+              <div>Meta %</div>
+              <div>Top Cuts</div>
+              <div>Cnvr. %</div>
+            </div>
+          )}
 
-        {/* Render first 6 items immediately */}
-        {visibleItems.map((node) => (
-          <TopCommandersCard
-            key={node.id}
-            display={displayConfig.display}
-            commander={node}
-            secondaryStatistic={displayConfig.secondaryStatistic}
-            lazy={false}
-          />
-        ))}
-
-        {/* Render remaining items with lazy loading */}
-        {hiddenItems.map((node) => (
-          <TopCommandersCard
-            key={node.id}
-            display={displayConfig.display}
-            commander={node}
-            secondaryStatistic={displayConfig.secondaryStatistic}
-            lazy={true}
-          />
-        ))}
-      </div>
+          {/* Render all items with lazy loading */}
+          {allItems.map((node) => (
+            <TopCommandersCard
+              key={node.id}
+              display={displayConfig.display}
+              commander={node}
+              secondaryStatistic={displayConfig.secondaryStatistic}
+              lazy={true}
+            />
+          ))}
+        </div>
+      )}
 
       <LoadMoreButton hasNext={hasNext} isLoadingNext={isLoadingNext} loadNext={loadNext} />
       <Footer />
