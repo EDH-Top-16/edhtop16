@@ -1,31 +1,39 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with
+code in this repository.
 
 ## Development Commands
 
 **Core Development**
+
 - `npm run dev` - Start development server
 - `npm install` - Install dependencies
 
 **Build Commands**
+
 - `npm run build` - Full build (client + server)
 - `npm run build:client` - Build client only
 - `npm run build:server` - Build server only (SSR)
 
 **Code Generation**
-- `npm run generate:relay` - Generate Relay artifacts (run after GraphQL changes)
+
+- `npm run generate:relay` - Generate Relay artifacts (run after GraphQL
+  changes)
 - `npm run generate:db` - Regenerate SQLite database from scripts
 - `npm run generate:dbtypes` - Generate TypeScript types from database schema
-- `npm run generate:river` - Generate River routing artifacts (see River System below)
+- `npm run generate:river` - Generate River routing artifacts (see River System
+  below)
 - `npm run generate:schema` - Print GraphQL schema
 
 **Production**
+
 - `npm start` - Start production server
 
 ## Architecture Overview
 
 **Framework Stack**
+
 - **React 19** with **Relay** for GraphQL data fetching
 - **Vite** for build tooling with SSR support
 - **Express** server with GraphQL Yoga
@@ -35,11 +43,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Key Architectural Patterns**
 
-1. **Server-Side Rendering (SSR)**: Uses Vite SSR with custom River routing system
-   - Entry points: `src/entry-server.tsx` (SSR) and `src/entry-client.tsx` (hydration)
+1. **Server-Side Rendering (SSR)**: Uses Vite SSR with custom River routing
+   system
+   - Entry points: `src/entry-server.tsx` (SSR) and `src/entry-client.tsx`
+     (hydration)
    - Custom routing via River generates routes in `__generated__/river/`
 
-2. **GraphQL with Relay**: 
+2. **GraphQL with Relay**:
    - Schema defined in `src/lib/server/schema/` using Pothos
    - Relay queries in `__generated__/queries/`
    - Persisted queries in `__generated__/persisted_queries.json`
@@ -51,28 +61,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - All generated files go to `__generated__/`
 
 **Directory Structure**
+
 - `src/lib/server/` - Server-side GraphQL schema, database, and business logic
-- `src/lib/client/` - Client-side utilities (Relay environment, search, formatting)
+- `src/lib/client/` - Client-side utilities (Relay environment, search,
+  formatting)
 - `src/pages/` - React components with `.entrypoint.tsx` files for routing
 - `src/components/` - Reusable UI components
 - `__generated__/` - All auto-generated code (types, queries, routing)
 - `scripts/` - Database generation and utility scripts
 
 **Data Layer**
+
 - Local SQLite database for core app data (generated from MongoDB)
 - MongoDB connection for external tournament data warehouse
 - Scryfall API integration for Magic card data
 - TopDeck.gg API for tournament data
 
 **Path Aliases**
+
 - `#src/*` → `./src/*`
 - `#genfiles/*` → `./__generated__/*`
 
 ## River Routing System
 
-**Overview**: Custom routing framework that generates type-safe routes via JSDoc annotations
+**Overview**: Custom routing framework that generates type-safe routes via JSDoc
+annotations
 
 **How River Works**:
+
 1. **Annotation-Based**: Uses JSDoc tags to declare routes and resources
    - `@route <route-name>` - Creates a new route
    - `@resource <resource-name>` - Marks exports for lazy loading
@@ -81,17 +97,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 2. **Code Generation** (`scripts/rivergen.mts`):
    - Scans all TypeScript files for JSDoc annotations
    - Generates three files from templates in `scripts/templates/`:
-     - `__generated__/river/js_resource.ts` - Resource configuration for lazy loading
-     - `__generated__/river/router.tsx` - Client-side router with type-safe routes
+     - `__generated__/river/js_resource.ts` - Resource configuration for lazy
+       loading
+     - `__generated__/river/router.tsx` - Client-side router with type-safe
+       routes
      - `__generated__/river/server_router.ts` - Server-side router configuration
    - Auto-creates Zod schemas for route parameters enabling runtime validation
 
-3. **Type Safety**: 
+3. **Type Safety**:
    - Route parameters are validated at runtime using generated Zod schemas
    - TypeScript compiler integration via ts-morph for accurate type extraction
    - Strongly typed navigation functions
 
 **Usage Example**:
+
 ```tsx
 /**
  * @route /commander/[commander]
@@ -101,40 +120,55 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 export function CommanderPage() { ... }
 ```
 
-**Integration**: River connects to the SSR system via `src/entry-server.tsx` which calls `createRiverServerApp()` and processes special HTML directives like `<!-- @river:render -->`
+**Integration**: River connects to the SSR system via `src/entry-server.tsx`
+which calls `createRiverServerApp()` and processes special HTML directives like
+`<!-- @river:render -->`
 
 ## Database System
 
-**Architecture**: Two-tier database system with local SQLite generated from remote MongoDB data warehouse
+**Architecture**: Two-tier database system with local SQLite generated from
+remote MongoDB data warehouse
 
 **Data Flow**:
-1. **Remote MongoDB** (`ENTRIES_DB_URL`) - Data warehouse containing raw tournament entries
-2. **Local SQLite** (`edhtop16.db`) - Normalized, structured database for the application
+
+1. **Remote MongoDB** (`ENTRIES_DB_URL`) - Data warehouse containing raw
+   tournament entries
+2. **Local SQLite** (`edhtop16.db`) - Normalized, structured database for the
+   application
 
 **Database Generation** (`scripts/generate-database.ts`):
-- Connects to MongoDB data warehouse using `ENTRIES_DB_URL` environment variable  
+
+- Connects to MongoDB data warehouse using `ENTRIES_DB_URL` environment variable
 - Downloads Scryfall bulk data (Magic card information)
 - Processes and normalizes tournament data into SQLite schema
 - Creates optimized indexes for fast queries
 - Calculates card play rates for the last year
 
 **Key Data Processing**:
+
 - **Tournament Data**: Fetched from MongoDB `cedhtop16.metadata` collection
-- **Entry Data**: Per-tournament collections in MongoDB (e.g., `spicerack:123456`)
-- **Card Data**: Integrated with Scryfall API for Magic card details and Oracle IDs
-- **Decklist Parsing**: Handles both structured `deckObj` data and raw decklist text formats
-- **Commander Normalization**: Uses Scryfall Oracle IDs to normalize commander names
-- **Play Rate Calculation**: Generates statistics for card popularity within color identities
+- **Entry Data**: Per-tournament collections in MongoDB (e.g.,
+  `spicerack:123456`)
+- **Card Data**: Integrated with Scryfall API for Magic card details and Oracle
+  IDs
+- **Decklist Parsing**: Handles both structured `deckObj` data and raw decklist
+  text formats
+- **Commander Normalization**: Uses Scryfall Oracle IDs to normalize commander
+  names
+- **Play Rate Calculation**: Generates statistics for card popularity within
+  color identities
 
 **SQLite Schema**:
+
 - `Tournament` - Tournament metadata (TID, name, size, rounds)
 - `Player` - Player information with TopDeck.gg profile linking
-- `Commander` - Normalized commander names and color identities  
+- `Commander` - Normalized commander names and color identities
 - `Entry` - Individual tournament entries with standings and records
 - `Card` - Magic card data with Oracle IDs and Scryfall integration
 - `DecklistItem` - Many-to-many relationship between entries and cards
 
 **Data Scraping** (`scraper/` - Rust):
+
 - Rust-based scraper for updating the remote MongoDB data warehouse
 - Integrates with TopDeck.gg and Moxfield APIs
 - Rate-limited requests with async processing
@@ -143,7 +177,9 @@ export function CommanderPage() { ... }
 ## Important Notes
 
 - Always run `npm run generate:relay` after modifying GraphQL queries or schema
-- Always run `npm run generate:schema` after modifying GraphQL schema code in `src/lib/server/schema/`
-- Always run `npm run generate:river` after adding/modifying JSDoc route annotations
+- Always run `npm run generate:schema` after modifying GraphQL schema code in
+  `src/lib/server/schema/`
+- Always run `npm run generate:river` after adding/modifying JSDoc route
+  annotations
 - Database regeneration completely rebuilds the SQLite database
 - Uses experimental Node.js TypeScript support (`--experimental-strip-types`)
