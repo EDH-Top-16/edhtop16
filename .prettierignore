@@ -2,3 +2,4 @@
 .github
 .claude
 public
+*.scryfall.json
