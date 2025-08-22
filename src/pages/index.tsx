@@ -32,13 +32,13 @@ import {usePreferences, DEFAULT_PREFERENCES} from '../lib/client/cookies';
 import {CommandersPreferences} from '../lib/shared/preferences-types';
 
 // Optimize with scheduler to prevent blocking
-function scheduleWork(callback: () => void) {
+const scheduleWork = (callback: () => void) => {
   if ('scheduler' in window && 'postTask' in (window as any).scheduler) {
     (window as any).scheduler.postTask(callback, {priority: 'user-blocking'});
   } else {
     callback();
   }
-}
+};
 
 // Intersection Observer for lazy rendering
 const useIntersectionObserver = (threshold = 0.1) => {
@@ -46,20 +46,14 @@ const useIntersectionObserver = (threshold = 0.1) => {
   const ref = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
+    if (!ref.current) return;
+    
     const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry) {
-          setIsVisible(entry.isIntersecting);
-        }
-      },
-      {threshold, rootMargin: '200px'}, // Increased root margin to load earlier
+      ([entry]) => entry && setIsVisible(entry.isIntersecting),
+      {threshold, rootMargin: '200px'}
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
+    observer.observe(ref.current);
     return () => observer.disconnect();
   }, [threshold]);
 
@@ -67,12 +61,7 @@ const useIntersectionObserver = (threshold = 0.1) => {
 };
 
 const TopCommandersCard = React.memo(
-  ({
-    display = 'card',
-    secondaryStatistic,
-    lazy = false,
-    ...props
-  }: {
+  ({display = 'card', secondaryStatistic, lazy = false, ...props}: {
     display?: 'card' | 'table';
     secondaryStatistic: 'topCuts' | 'count';
     lazy?: boolean;
@@ -87,15 +76,12 @@ const TopCommandersCard = React.memo(
           name
           colorId
           breakdownUrl
-          stats(
-            filters: {timePeriod: $timePeriod, minSize: $minTournamentSize}
-          ) {
+          stats(filters: {timePeriod: $timePeriod, minSize: $minTournamentSize}) {
             conversionRate
             topCuts
             count
             metaShare
           }
-
           cards {
             imageUrls
           }
@@ -106,21 +92,11 @@ const TopCommandersCard = React.memo(
 
     const commanderStats = useMemo(() => {
       if (!shouldRender) return '';
-
-      const stats: string[] = [];
-
-      if (secondaryStatistic === 'count') {
-        stats.push(
-          `Meta Share: ${formatPercent(commander.stats.metaShare)}`,
-          `Entries: ${commander.stats.count}`,
-        );
-      } else if (secondaryStatistic === 'topCuts') {
-        stats.push(
-          `Conversion Rate: ${formatPercent(commander.stats.conversionRate)}`,
-          `Top Cuts: ${commander.stats.topCuts}`,
-        );
-      }
-
+      
+      const stats = secondaryStatistic === 'count' 
+        ? [`Meta Share: ${formatPercent(commander.stats.metaShare)}`, `Entries: ${commander.stats.count}`]
+        : [`Conversion Rate: ${formatPercent(commander.stats.conversionRate)}`, `Top Cuts: ${commander.stats.topCuts}`];
+      
       return stats.join(' / ');
     }, [commander.stats, secondaryStatistic, shouldRender]);
 
@@ -133,11 +109,7 @@ const TopCommandersCard = React.memo(
           src: img,
           alt: `${commander.name} card art`,
           loading: 'lazy' as const,
-          // Add dimensions to prevent CLS without breaking layout
-          style: {
-            maxWidth: '100%',
-            height: 'auto',
-          },
+          style: { maxWidth: '100%', height: 'auto' },
         }));
     }, [commander.cards, commander.name, shouldRender]);
 
@@ -149,14 +121,9 @@ const TopCommandersCard = React.memo(
           className={cn(
             display === 'table'
               ? 'grid w-full animate-pulse grid-cols-[130px_1fr] items-center gap-x-2 overflow-x-hidden rounded-sm bg-[#312d5a]/25 p-4 text-white shadow-md lg:grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px]'
-              : 'animate-pulse rounded-lg bg-[#312d5a]/25',
-            // Let the skeleton take natural dimensions
-            display !== 'table' && 'aspect-[3/4]',
+              : 'animate-pulse rounded-lg bg-[#312d5a]/25 aspect-[3/4]',
           )}
-          style={{
-            // Only set minimum dimensions to prevent collapse
-            minHeight: display === 'table' ? '76px' : '300px',
-          }}
+          style={{minHeight: display === 'table' ? '76px' : '300px'}}
         />
       );
     }
@@ -167,29 +134,18 @@ const TopCommandersCard = React.memo(
           ref={ref}
           className="grid w-full grid-cols-[130px_1fr] items-center gap-x-2 overflow-x-hidden rounded-sm bg-[#312d5a]/50 p-4 text-white shadow-md lg:grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px]"
         >
-          <div>
-            <ColorIdentity identity={commander.colorId} />
-          </div>
-
-          <Link
-            href={commander.breakdownUrl}
-            className="font-title mb-2 text-xl underline lg:mb-0 lg:font-sans lg:text-base"
-          >
+          <div><ColorIdentity identity={commander.colorId} /></div>
+          <Link href={commander.breakdownUrl} className="font-title mb-2 text-xl underline lg:mb-0 lg:font-sans lg:text-base">
             {commander.name}
           </Link>
-
           <div className="text-sm opacity-75 lg:hidden">Entries:</div>
           <div className="text-sm">{commander.stats.count}</div>
           <div className="text-sm opacity-75 lg:hidden">Meta Share:</div>
-          <div className="text-sm">
-            {formatPercent(commander.stats.metaShare)}
-          </div>
+          <div className="text-sm">{formatPercent(commander.stats.metaShare)}</div>
           <div className="text-sm opacity-75 lg:hidden">Top Cuts:</div>
           <div className="text-sm">{commander.stats.topCuts}</div>
           <div className="text-sm opacity-75 lg:hidden">Conversion Rate:</div>
-          <div className="text-sm">
-            {formatPercent(commander.stats.conversionRate)}
-          </div>
+          <div className="text-sm">{formatPercent(commander.stats.conversionRate)}</div>
         </div>
       );
     }
@@ -204,7 +160,6 @@ const TopCommandersCard = React.memo(
             >
               {commander.name}
             </Link>
-
             <ColorIdentity identity={commander.colorId} />
           </div>
         </Card>
@@ -216,11 +171,7 @@ const TopCommandersCard = React.memo(
 TopCommandersCard.displayName = 'TopCommandersCard';
 
 const CommandersPageShell = React.memo(
-  ({
-    preferences,
-    updatePreference,
-    children,
-  }: PropsWithChildren<{
+  ({preferences, updatePreference, children}: PropsWithChildren<{
     preferences: CommandersPreferences | null | undefined;
     updatePreference: <P extends keyof CommandersPreferences>(
       prefKey: P,
@@ -232,69 +183,43 @@ const CommandersPageShell = React.memo(
       description: 'Discover top performing commanders in cEDH!',
     });
 
-    // Wrap all updates in transitions to prevent blocking
     const updateWithTransition = useCallback(
-      <P extends keyof CommandersPreferences>(
-        key: P,
-        value: CommandersPreferences[P],
-      ) => {
-        startTransition(() => {
-          updatePreference(key, value);
-        });
+      <P extends keyof CommandersPreferences>(key: P, value: CommandersPreferences[P]) => {
+        startTransition(() => updatePreference(key, value));
       },
       [updatePreference],
     );
 
     const toggleDisplay = useCallback(() => {
-      const currentDisplay = preferences?.display || 'card';
-      const newDisplay = currentDisplay === 'table' ? 'card' : 'table';
-
-      scheduleWork(() => {
-        startTransition(() => {
-          updatePreference('display', newDisplay);
-        });
-      });
+      const newDisplay = (preferences?.display || 'card') === 'table' ? 'card' : 'table';
+      scheduleWork(() => startTransition(() => updatePreference('display', newDisplay)));
     }, [preferences?.display, updatePreference]);
 
-    const toggleStats = useCallback(() => {
-      const currentStats = preferences?.statsDisplay || 'topCuts';
-      const newStats = currentStats === 'topCuts' ? 'count' : 'topCuts';
-      updateWithTransition('statsDisplay', newStats);
-    }, [preferences?.statsDisplay, updateWithTransition]);
+    const handleSortChange = useCallback((value: string) => {
+      const sortBy = value as CommandersSortBy;
+      const statsDisplay = sortBy === 'POPULARITY' ? 'count' : 'topCuts';
+      updatePreference('statsDisplay', statsDisplay);
+      updateWithTransition('sortBy', sortBy);
+    }, [updateWithTransition, updatePreference]);
 
     const handleColorChange = useCallback(
-      (value: string) => {
-        updateWithTransition('colorId', value || '');
-      },
-      [updateWithTransition],
-    );
-
-    const handleSortChange = useCallback(
-      (value: string) => {
-        updateWithTransition('sortBy', value as CommandersSortBy);
-      },
-      [updateWithTransition],
+      (value: string) => updateWithTransition('colorId', value || ''),
+      [updateWithTransition]
     );
 
     const handleTimePeriodChange = useCallback(
-      (value: string) => {
-        updateWithTransition('timePeriod', value as TimePeriod);
-      },
-      [updateWithTransition],
+      (value: string) => updateWithTransition('timePeriod', value as TimePeriod),
+      [updateWithTransition]
     );
 
     const handleMinEntriesChange = useCallback(
-      (value: string) => {
-        updateWithTransition('minEntries', Number(value));
-      },
-      [updateWithTransition],
+      (value: string) => updateWithTransition('minEntries', Number(value)),
+      [updateWithTransition]
     );
 
     const handleMinSizeChange = useCallback(
-      (value: string) => {
-        updateWithTransition('minTournamentSize', Number(value));
-      },
-      [updateWithTransition],
+      (value: string) => updateWithTransition('minTournamentSize', Number(value)),
+      [updateWithTransition]
     );
 
     const display = preferences?.display || 'card';
@@ -302,27 +227,13 @@ const CommandersPageShell = React.memo(
     return (
       <>
         <Navigation />
-
         <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">
           <div className="flex w-full items-baseline gap-4">
             <h1 className="font-title mb-8 flex-1 text-5xl font-extrabold text-white lg:mb-0">
               cEDH Metagame Breakdown
             </h1>
-
             <div className="flex items-center gap-2">
-              <button
-                className="cursor-pointer rounded bg-white/10 px-3 py-1 text-sm text-white transition-colors hover:bg-white/20"
-                onClick={toggleStats}
-              >
-                {(preferences?.statsDisplay || 'topCuts') === 'topCuts'
-                  ? 'Show Entries'
-                  : 'Show Performance'}
-              </button>
-
-              <button
-                className="cursor-pointer transition-transform hover:scale-105"
-                onClick={toggleDisplay}
-              >
+              <button className="cursor-pointer transition-transform hover:scale-105" onClick={toggleDisplay}>
                 {display === 'card' ? (
                   <TableCellsIcon className="h-6 w-6 text-white" />
                 ) : (
@@ -341,23 +252,14 @@ const CommandersPageShell = React.memo(
             </div>
 
             <div className="flex flex-wrap gap-x-4 gap-y-2 lg:flex-nowrap">
-              <Select
-                id="commanders-sort-by"
-                label="Sort By"
-                value={preferences?.sortBy || 'CONVERSION'}
-                onChange={handleSortChange}
-              >
+              <Select id="commanders-sort-by" label="Sort By" value={preferences?.sortBy || 'CONVERSION'} onChange={handleSortChange}>
                 <option value="CONVERSION">Conversion Rate</option>
                 <option value="POPULARITY">Popularity</option>
                 <option value="TOP_CUTS">Top Cuts</option>
               </Select>
 
-              <Select
-                id="commanders-time-period"
-                label="Time Period"
-                value={preferences?.timePeriod || 'ONE_MONTH'}
-                onChange={handleTimePeriodChange}
-              >
+              <Select id="commanders-time-period" label="Time Period" value={preferences?.timePeriod || 'ONE_MONTH'} 
+                onChange={handleTimePeriodChange}>
                 <option value="ONE_MONTH">1 Month</option>
                 <option value="THREE_MONTHS">3 Months</option>
                 <option value="SIX_MONTHS">6 Months</option>
@@ -366,24 +268,16 @@ const CommandersPageShell = React.memo(
                 <option value="POST_BAN">Post Ban</option>
               </Select>
 
-              <Select
-                id="commanders-min-entries"
-                label="Min. Entries"
-                value={`${preferences?.minEntries || 0}`}
-                onChange={handleMinEntriesChange}
-              >
+              <Select id="commanders-min-entries" label="Min. Entries" value={`${preferences?.minEntries || 0}`}
+                onChange={handleMinEntriesChange}>
                 <option value="0">All Commanders</option>
                 <option value="20">20+ Entries</option>
                 <option value="60">60+ Entries</option>
                 <option value="120">120+ Entries</option>
               </Select>
 
-              <Select
-                id="commanders-min-size"
-                label="Tournament Size"
-                value={`${preferences?.minTournamentSize || 0}`}
-                onChange={handleMinSizeChange}
-              >
+              <Select id="commanders-min-size" label="Tournament Size" value={`${preferences?.minTournamentSize || 0}`}
+                onChange={handleMinSizeChange}>
                 <option value="0">All Tournaments</option>
                 <option value="32">32+ Players</option>
                 <option value="60">60+ Players</option>
@@ -402,10 +296,7 @@ const CommandersPageShell = React.memo(
 CommandersPageShell.displayName = 'CommandersPageShell';
 
 /** @resource m#index */
-export const CommandersPage: EntryPointComponent<
-  {commandersQueryRef: pages_CommandersQuery},
-  {}
-> = ({queries}) => {
+export const CommandersPage: EntryPointComponent<{commandersQueryRef: pages_CommandersQuery}, {}> = ({queries}) => {
   const query = usePreloadedQuery(
     graphql`
       query pages_CommandersQuery(
@@ -421,52 +312,40 @@ export const CommandersPage: EntryPointComponent<
     queries.commandersQueryRef,
   );
 
-  const {
-    preferences: commanderPrefs,
-    updatePreference,
-    isHydrated,
-  } = usePreferences('commanders', DEFAULT_PREFERENCES.commanders!);
+  const {preferences: commanderPrefs, updatePreference, isHydrated} = usePreferences('commanders', DEFAULT_PREFERENCES.commanders!);
 
-  const {data, loadNext, isLoadingNext, hasNext, refetch} =
-    usePaginationFragment<TopCommandersQuery, pages_topCommanders$key>(
-      graphql`
-        fragment pages_topCommanders on Query
-        @argumentDefinitions(
-          cursor: {type: "String"}
-          count: {type: "Int", defaultValue: 48}
-        )
-        @refetchable(queryName: "TopCommandersQuery") {
-          commanders(
-            first: $count
-            after: $cursor
-            timePeriod: $timePeriod
-            sortBy: $sortBy
-            colorId: $colorId
-            minEntries: $minEntries
-            minTournamentSize: $minTournamentSize
-          ) @connection(key: "pages__commanders") {
-            edges {
-              node {
-                id
-                ...pages_TopCommandersCard
-              }
+  const {data, loadNext, isLoadingNext, hasNext, refetch} = usePaginationFragment<TopCommandersQuery, pages_topCommanders$key>(
+    graphql`
+      fragment pages_topCommanders on Query
+      @argumentDefinitions(cursor: {type: "String"} count: {type: "Int", defaultValue: 48})
+      @refetchable(queryName: "TopCommandersQuery") {
+        commanders(
+          first: $count
+          after: $cursor
+          timePeriod: $timePeriod
+          sortBy: $sortBy
+          colorId: $colorId
+          minEntries: $minEntries
+          minTournamentSize: $minTournamentSize
+        ) @connection(key: "pages__commanders") {
+          edges {
+            node {
+              id
+              ...pages_TopCommandersCard
             }
           }
         }
-      `,
-      query,
-    );
+      }
+    `,
+    query,
+  );
 
   // More aggressive debouncing for better INP
   const debouncedRefetch = React.useMemo(() => {
     let timeoutId: NodeJS.Timeout;
     return (variables: any) => {
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        startTransition(() => {
-          refetch(variables);
-        });
-      }, 300);
+      timeoutId = setTimeout(() => startTransition(() => refetch(variables)), 150);
     };
   }, [refetch]);
 
@@ -474,7 +353,6 @@ export const CommandersPage: EntryPointComponent<
   React.useEffect(() => {
     import('../lib/client/cookies').then(({setRefetchCallback}) => {
       setRefetchCallback((newPrefs) => {
-        //console.log('Debounced refetch with new preferences:', newPrefs);
         debouncedRefetch({
           timePeriod: newPrefs.timePeriod || 'ONE_MONTH',
           sortBy: newPrefs.sortBy || 'CONVERSION',
@@ -516,32 +394,23 @@ export const CommandersPage: EntryPointComponent<
         colorId: commanderPrefs.colorId || '',
       };
 
-      const needsRefetch =
-        currentPrefs.timePeriod !== urlPrefs.timePeriod ||
-        currentPrefs.sortBy !== urlPrefs.sortBy ||
-        currentPrefs.minEntries !== urlPrefs.minEntries ||
-        currentPrefs.minTournamentSize !== urlPrefs.minTournamentSize ||
-        currentPrefs.colorId !== urlPrefs.colorId;
+      const needsRefetch = Object.keys(currentPrefs).some(key => 
+        currentPrefs[key as keyof typeof currentPrefs] !== urlPrefs[key as keyof typeof urlPrefs]
+      );
 
       if (needsRefetch) {
-        //console.log('Preferences differ from URL params, triggering refetch:', currentPrefs);
-        startTransition(() => {
-          refetch(currentPrefs);
-        });
-      } else {
-        //console.log('Preferences match URL params, skipping refetch');
+        startTransition(() => refetch(currentPrefs));
       }
     }
   }, [isHydrated, commanderPrefs, refetch]);
 
   // Memoize expensive calculations
-  const commanderNodes = React.useMemo(
-    () => data.commanders.edges.map(({node}) => node),
-    [data.commanders.edges],
-  );
+  const commanderNodes = React.useMemo(() => data.commanders.edges.map(({node}) => node), [data.commanders.edges]);
 
   const displayConfig = React.useMemo(() => {
     const display = commanderPrefs?.display || 'card';
+    const secondaryStatistic = (commanderPrefs?.statsDisplay || 'topCuts') as 'count' | 'topCuts';
+    
     return {
       className: cn(
         'mx-auto grid w-full pb-4',
@@ -549,45 +418,27 @@ export const CommandersPage: EntryPointComponent<
           ? 'w-full grid-cols-1 gap-2'
           : 'w-fit gap-4 md:grid-cols-2 xl:grid-cols-3',
       ),
-      secondaryStatistic: (commanderPrefs?.statsDisplay || 'topCuts') as
-        | 'count'
-        | 'topCuts',
+      secondaryStatistic,
       display,
     };
   }, [commanderPrefs?.display, commanderPrefs?.statsDisplay]);
 
   // Render first 6 immediately, rest lazily for better perceived performance
-  const [visibleItems, hiddenItems] = React.useMemo(() => {
-    const immediate = commanderNodes.slice(0, 6);
-    const lazy = commanderNodes.slice(6);
-    return [immediate, lazy];
-  }, [commanderNodes]);
+  const [visibleItems, hiddenItems] = React.useMemo(() => [commanderNodes.slice(0, 6), commanderNodes.slice(6)], [commanderNodes]);
 
   // Critical CSS inlining for skeleton and loading states
   React.useEffect(() => {
-    // Preload critical styles to prevent FOUC
     const style = document.createElement('style');
     style.textContent = `
-      .animate-pulse {
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-      }
-      @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: .5; }
-      }
+      .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
     `;
     document.head.appendChild(style);
-
-    return () => {
-      document.head.removeChild(style);
-    };
+    return () => document.head.removeChild(style);
   }, []);
 
   return (
-    <CommandersPageShell
-      preferences={commanderPrefs}
-      updatePreference={updatePreference}
-    >
+    <CommandersPageShell preferences={commanderPrefs} updatePreference={updatePreference}>
       <div className={displayConfig.className}>
         {displayConfig.display === 'table' && (
           <div className="sticky top-[68px] hidden w-full grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px] items-center gap-x-2 overflow-x-hidden bg-[#514f86] p-4 text-sm text-white lg:grid">
@@ -623,12 +474,7 @@ export const CommandersPage: EntryPointComponent<
         ))}
       </div>
 
-      <LoadMoreButton
-        hasNext={hasNext}
-        isLoadingNext={isLoadingNext}
-        loadNext={loadNext}
-      />
-
+      <LoadMoreButton hasNext={hasNext} isLoadingNext={isLoadingNext} loadNext={loadNext} />
       <Footer />
     </CommandersPageShell>
   );
