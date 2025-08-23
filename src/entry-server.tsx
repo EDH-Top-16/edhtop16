@@ -1,3 +1,4 @@
+// entry-server.tsx - Updated with minimal optimizations
 import {listRoutes} from '#genfiles/river/router';
 import {createRiverServerApp} from '#genfiles/river/server_router';
 import {usePersistedOperations} from '@graphql-yoga/plugin-persisted-operations';
@@ -16,24 +17,35 @@ import {createServerEnvironment} from './lib/server/relay_server_environment';
 import {getPreferencesFromRequest} from './lib/server/cookies';
 import {schema} from './lib/server/schema';
 import {App} from './pages/_app';
+// NEW IMPORTS:
+import {createSimpleDataLoaders} from './lib/server/simple-dataloaders'; // You'll create this
+import {DEFAULT_PREFERENCES} from './lib/shared/preferences-types';
+import {LoadingShell} from './components/loading_shell'; // You'll create this
 
 export function createHandler(
   template: string,
   persistedQueries: Record<string, string>,
   manifest?: Manifest,
 ) {
+  // UPDATED: Enhanced Yoga setup with minimal optimizations
   const graphqlHandler = createYoga({
     schema,
+    
+    // NEW: Enable batching (built-in optimization)
+    batching: true,
+    graphiql: process.env.NODE_ENV === 'development',
+    
     context: async (context) => {
-      // Extract request for cookie parsing
       const request = context.request;
       return {
         request,
-        // The createContext function will be called with this request
+        // NEW: Add DataLoaders to context
+        dataloaders: createSimpleDataLoaders(),
+        // Add simple cache if you want
+        cache: new Map(),
       };
     },
     plugins: [
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       usePersistedOperations({
         allowArbitraryOperations: true,
         extractPersistedOperationId: (
@@ -46,10 +58,6 @@ export function createHandler(
 
   const entryPointHandler: express.Handler = async (req, res) => {
     const head = createHead();
-
-    // Convert Express request to Web API Request for cookie parsing
-    //console.log('Express req.headers.cookie:', req.headers.cookie);
-    //console.log('Express req.headers:', Object.keys(req.headers));
 
     const webRequest = new Request(
       `${req.protocol}://${req.get('host')}${req.originalUrl}`,
@@ -69,56 +77,73 @@ export function createHandler(
       },
     );
 
-    //console.log('Web request cookie header:', webRequest.headers.get('cookie'));
-
-    // Create server environment with request to read cookies
-    const env = createServerEnvironment(schema, persistedQueries, webRequest);
-
-    const RiverApp = await createRiverServerApp(
-      {getEnvironment: () => env},
-      req.originalUrl,
+    // NEW: Check if user has custom preferences
+    const preferences = getPreferencesFromRequest(webRequest);
+    const hasUserPreferences = Object.keys(preferences).some(key => 
+      JSON.stringify(preferences[key as keyof typeof preferences]) !== 
+      JSON.stringify(DEFAULT_PREFERENCES[key as keyof typeof DEFAULT_PREFERENCES])
     );
+
+    // NEW: Conditional rendering based on preferences
+    let RiverApp: Awaited<ReturnType<typeof createRiverServerApp>> | undefined;
+    let env: ReturnType<typeof createServerEnvironment> | undefined;
+    let shouldRenderWithData = false;
+
+    if (hasUserPreferences) {
+      // User has custom preferences, do full SSR
+      const serverEnv = createServerEnvironment(schema, persistedQueries, webRequest);
+      env = serverEnv;
+      RiverApp = await createRiverServerApp(
+        {getEnvironment: () => serverEnv},
+        req.originalUrl,
+      );
+      shouldRenderWithData = true;
+    } else {
+      // No custom preferences, render loading shell
+      shouldRenderWithData = false;
+    }
 
     function evaluateRiverDirective(match: string, directive: string) {
       switch (directive) {
         case 'render':
-          return renderToString(
-            <StrictMode>
-              <UnheadProvider value={head}>
-                <RelayEnvironmentProvider environment={env}>
+          if (shouldRenderWithData && RiverApp && env) {
+            // Full SSR with data
+            return renderToString(
+              <StrictMode>
+                <UnheadProvider value={head}>
+                  <RelayEnvironmentProvider environment={env}>
+                    <App>
+                      <RiverApp />
+                    </App>
+                  </RelayEnvironmentProvider>
+                </UnheadProvider>
+              </StrictMode>,
+            );
+          } else {
+            // Just render loading shell
+            return renderToString(
+              <StrictMode>
+                <UnheadProvider value={head}>
                   <App>
-                    <RiverApp />
+                    <LoadingShell />
                   </App>
-                </RelayEnvironmentProvider>
-              </UnheadProvider>
-            </StrictMode>,
-          );
+                </UnheadProvider>
+              </StrictMode>,
+            );
+          }
         case 'bootstrap':
-          return RiverApp.bootstrap(manifest) ?? match;
+          return shouldRenderWithData && RiverApp ? (RiverApp.bootstrap?.(manifest) ?? match) : match;
+        // NEW: Add this directive to your HTML template
+        case 'preload-state':
+          return `<script>window.__SHOULD_WAIT_FOR_PREFERENCES__ = ${!shouldRenderWithData};</script>`;
         default:
           return match;
       }
     }
 
-    let renderedHtml = await transformHtmlTemplate(
+    const renderedHtml = await transformHtmlTemplate(
       head,
       template.replace(/<!--\s*@river:(\w+)\s*-->/g, evaluateRiverDirective),
-    );
-
-    // Inject server preferences into the HTML for client hydration
-    const preferences = getPreferencesFromRequest(webRequest);
-    //console.log('Server preferences being injected:', preferences);
-    //console.log('Raw cookie header:', webRequest.headers.get('cookie'));
-
-    const preferencesScript = `
-      <script>
-        window.__SERVER_PREFERENCES__ = ${JSON.stringify(preferences)};
-        console.log('Server preferences injected into page:', ${JSON.stringify(preferences)});
-      </script>
-    `;
-    renderedHtml = renderedHtml.replace(
-      '</head>',
-      `${preferencesScript}</head>`,
     );
 
     res.status(200).set({'Content-Type': 'text/html'}).end(renderedHtml);
