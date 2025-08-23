@@ -1,4 +1,3 @@
-// Import the Relay-generated types
 import type {
   CommandersSortBy,
   TimePeriod,

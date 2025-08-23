@@ -1,16 +1,14 @@
 import DataLoader from 'dataloader';
+import {db} from './db';
 
-// Define your data types (adjust to match your actual types)
 interface Commander {
   id: string;
   name: string;
-  // ... other fields
 }
 
 interface Entry {
   id: string;
   commanderId: string;
-  // ... other fields
 }
 
 export interface SimpleDataLoaders {
@@ -21,36 +19,59 @@ export interface SimpleDataLoaders {
 export function createSimpleDataLoaders(): SimpleDataLoaders {
   return {
     commanderById: new DataLoader<string, Commander | null>(async (ids) => {
-      console.log(`DataLoader: Batching ${ids.length} commander queries`);
-      
-      // TODO: Replace this with your actual database call
-      // const commanders = await yourDatabase.commanders.findMany({
-      //   where: { id: { in: [...ids] } }
-      // });
-      const commanders: Commander[] = []; // Your DB call here
-      
-      return ids.map(id => commanders.find(c => c.id === id) || null);
-    }),
-    
-    entriesByCommanderId: new DataLoader<string, Entry[]>(async (commanderIds) => {
-      console.log(`DataLoader: Batching ${commanderIds.length} entries queries`);
-      
-      // TODO: Replace this with your actual database call
-      // const entries = await yourDatabase.entries.findMany({
-      //   where: { commanderId: { in: [...commanderIds] } }
-      // });
-      const allEntries: Entry[] = []; // Your DB call here
-      
-      // Group entries by commander ID
-      const entriesMap = new Map<string, Entry[]>();
-      commanderIds.forEach(id => entriesMap.set(id, []));
-      allEntries.forEach(entry => {
-        const existing = entriesMap.get(entry.commanderId) || [];
-        existing.push(entry);
-        entriesMap.set(entry.commanderId, existing);
+      const numericIds = ids.map((id) => Number(id));
+
+      const commanders = await db
+        .selectFrom('Commander')
+        .selectAll()
+        .where('id', 'in', numericIds)
+        .execute();
+
+      // Create a map for O(1) lookups
+      const commandersMap = new Map<number, (typeof commanders)[0]>();
+      commanders.forEach((commander) =>
+        commandersMap.set(commander.id, commander),
+      );
+
+      // Return results in the same order as input IDs, with null for missing commanders
+      return ids.map((id) => {
+        const commander = commandersMap.get(Number(id));
+        return commander
+          ? {
+              id: commander.id.toString(),
+              name: commander.name,
+            }
+          : null;
       });
-      
-      return commanderIds.map(id => entriesMap.get(id) || []);
     }),
+
+    entriesByCommanderId: new DataLoader<string, Entry[]>(
+      async (commanderIds) => {
+        const numericCommanderIds = commanderIds.map((id) => Number(id));
+
+        const allEntries = await db
+          .selectFrom('Entry')
+          .selectAll()
+          .where('commanderId', 'in', numericCommanderIds)
+          .execute();
+
+        const entriesMap = new Map<string, Entry[]>();
+
+        commanderIds.forEach((id) => entriesMap.set(id, []));
+
+        allEntries.forEach((entry) => {
+          const commanderIdStr = entry.commanderId.toString();
+          const existing = entriesMap.get(commanderIdStr) || [];
+          existing.push({
+            id: entry.id.toString(),
+            commanderId: entry.commanderId.toString(),
+          });
+          entriesMap.set(commanderIdStr, existing);
+        });
+
+        return commanderIds.map((id) => entriesMap.get(id) || []);
+      },
+    ),
+    // OTHER STUFF?
   };
 }

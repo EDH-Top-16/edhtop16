@@ -1,7 +1,6 @@
 import {Environment, Network, RecordSource, Store} from 'relay-runtime';
 import type {PreferencesMap} from '../shared/preferences-types';
 
-// Store preferences in the environment's context
 let environmentPreferences: Partial<PreferencesMap> = {};
 
 export function createClientNetwork() {
@@ -11,14 +10,14 @@ export function createClientNetwork() {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-        'X-Preferences': JSON.stringify(environmentPreferences), // Optional: send as header too
+        'X-Preferences': JSON.stringify(environmentPreferences),
       },
       body: JSON.stringify({
         query: params.text,
         id: params.id,
         variables: {
           ...variables,
-          preferences: environmentPreferences, // Include preferences in variables
+          preferences: environmentPreferences,
         },
         extensions: {},
       }),
@@ -45,28 +44,21 @@ export function getClientEnvironment() {
   return clientEnv;
 }
 
-// Function to update preferences in the Relay environment
 export function updateRelayPreferences(preferences: Partial<PreferencesMap>) {
   environmentPreferences = {
     ...environmentPreferences,
     ...preferences,
   };
 
-  // If we have an environment, we could potentially trigger a refetch here
-  // or update any cached data that depends on preferences
   if (clientEnv) {
-    // Optional: You could emit a custom event or trigger specific refetches
-    // This depends on your specific needs
     console.debug('Updated Relay preferences:', environmentPreferences);
   }
 }
 
-// Function to get current preferences from the environment
 export function getRelayPreferences(): Partial<PreferencesMap> {
   return environmentPreferences;
 }
 
-// Function to clear preferences (useful for logout, etc.)
 export function clearRelayPreferences() {
   environmentPreferences = {};
 }

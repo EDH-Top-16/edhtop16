@@ -15,9 +15,7 @@ export function createServerEnvironment(
   persistedQueries?: Record<string, string>,
   request?: Request,
 ) {
-  // Get preferences from request cookies for server-side rendering
   const preferences = request ? getPreferencesFromRequest(request) : {};
-  //console.log('Server environment using preferences:', preferences);
 
   const networkFetchFunction: FetchFunction = async (
     requestParams,
@@ -32,7 +30,6 @@ export function createServerEnvironment(
       throw new Error(`Could not find source for query: ${requestParams.id}`);
     }
 
-    // Create context with preferences available
     const contextValue = createContext(request, preferences);
 
     const results = await graphql({
@@ -40,7 +37,7 @@ export function createServerEnvironment(
       source,
       variableValues: {
         ...variables,
-        preferences, // Make preferences available to all queries
+        preferences,
       },
       contextValue,
     });
@@ -55,17 +52,10 @@ export function createServerEnvironment(
   });
 }
 
-// Server-side version of updateRelayPreferences (mainly for consistency)
-// On the server, preferences come from cookies, so this would typically
-// be used for testing or special cases
 export function updateRelayPreferences(preferences: Partial<PreferencesMap>) {
-  // On server, preferences are typically read from cookies on each request
-  // This could be used for testing or special server-side scenarios
   console.debug('Server-side preference update:', preferences);
-  // In most cases, you'd want to update the cookie/session instead
 }
 
-// Helper to create environment with specific preferences (useful for testing)
 export function createServerEnvironmentWithPreferences(
   schema: GraphQLSchema,
   preferences: Partial<PreferencesMap>,

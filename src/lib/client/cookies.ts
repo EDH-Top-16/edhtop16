@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { updateRelayPreferences } from './relay_client_environment';
-import type { PreferencesMap } from '../shared/preferences-types';
-import { DEFAULT_PREFERENCES } from '../shared/preferences-types';
-import { getCurrentPreferences, setCookieValue } from '../shared/cookie-utils';
+import {useState, useEffect, useRef, useCallback} from 'react';
+import {updateRelayPreferences} from './relay_client_environment';
+import type {PreferencesMap} from '../shared/preferences-types';
+import {DEFAULT_PREFERENCES} from '../shared/preferences-types';
+import {getCurrentPreferences, setCookieValue} from '../shared/cookie-utils';
 
 let refetchCallback: ((prefs?: any) => void) | undefined = undefined;
 let relayEnvironment: any = null;
@@ -30,36 +30,32 @@ export function usePreferences<K extends keyof PreferencesMap>(
   ) => void;
   isHydrated: boolean;
 } {
-  // Start with defaults to ensure server/client consistency
-  const [preferences, setPreferences] = useState<PreferencesMap[K]>(defaultPrefs);
+  const [preferences, setPreferences] =
+    useState<PreferencesMap[K]>(defaultPrefs);
   const [isHydrated, setIsHydrated] = useState(false);
   const refetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasHydratedRef = useRef(false);
-  
+
   const keyRef = useRef(key);
   const defaultPrefsRef = useRef(defaultPrefs);
-  
+
   keyRef.current = key;
   defaultPrefsRef.current = defaultPrefs;
 
   useEffect(() => {
     if (hasHydratedRef.current) return;
     hasHydratedRef.current = true;
-    
-    // Only run on client
+
     if (typeof window === 'undefined') return;
-    
+
     setIsHydrated(true);
-    
-    // Read current preferences from cookies (no window injection needed!)
+
     const currentPrefs = getCurrentPreferences();
     const keyPrefs = currentPrefs[keyRef.current] || defaultPrefsRef.current;
-    
-    // Update state to match what the server would have rendered
+
     setPreferences(keyPrefs);
-    updateRelayPreferences({ [keyRef.current]: keyPrefs });
-    
-    // Trigger refetch after hydration
+    updateRelayPreferences({[keyRef.current]: keyPrefs});
+
     setTimeout(() => {
       refetchCallback?.(keyPrefs);
     }, 100);
@@ -71,54 +67,57 @@ export function usePreferences<K extends keyof PreferencesMap>(
       value: NonNullable<PreferencesMap[K]>[P],
     ) => {
       const currentKey = keyRef.current;
-      
+
       setPreferences((prevPrefs) => {
-        const newPrefs = { ...(prevPrefs ?? {}) } as PreferencesMap[K];
-        
+        const newPrefs = {...(prevPrefs ?? {})} as PreferencesMap[K];
+
         if (!value && value !== 0) {
           delete (newPrefs as any)[prefKey];
         } else {
           (newPrefs as any)[prefKey] = value;
         }
-        
-        // Get all current preferences and update this key
+
         const allCurrentPrefs = getCurrentPreferences();
         const updatedAllPrefs = {
           ...allCurrentPrefs,
           [currentKey]: newPrefs,
         };
-        
-        // Save to cookie
+
         const jsonToSave = JSON.stringify(updatedAllPrefs);
         setCookieValue('sitePreferences', jsonToSave);
-        updateRelayPreferences({ [currentKey]: newPrefs });
-        
-        // Handle refetch timeout
+        updateRelayPreferences({[currentKey]: newPrefs});
+
         if (refetchTimeoutRef.current) {
           clearTimeout(refetchTimeoutRef.current);
           refetchTimeoutRef.current = null;
         }
-        
-        // Only trigger refetch for data-affecting preferences
-        const dataAffectingPrefs = ['timePeriod', 'sortBy', 'minEntries', 'minTournamentSize', 'colorId'];
-        const shouldTriggerRefetch = dataAffectingPrefs.includes(prefKey as string);
-        
+
+        const dataAffectingPrefs = [
+          'timePeriod',
+          'sortBy',
+          'minEntries',
+          'minTournamentSize',
+          'colorId',
+        ];
+        const shouldTriggerRefetch = dataAffectingPrefs.includes(
+          prefKey as string,
+        );
+
         if (shouldTriggerRefetch) {
           refetchTimeoutRef.current = setTimeout(() => {
             refetchCallback?.(newPrefs);
             refetchTimeoutRef.current = null;
           }, 250);
         }
-        
+
         return newPrefs;
       });
     },
     [],
   );
 
-  return { preferences, updatePreference, isHydrated };
+  return {preferences, updatePreference, isHydrated};
 }
 
-// Re-export types for convenience
-export type { PreferencesMap } from '../shared/preferences-types';
-export { DEFAULT_PREFERENCES } from '../shared/preferences-types';
+export type {PreferencesMap} from '../shared/preferences-types';
+export {DEFAULT_PREFERENCES} from '../shared/preferences-types';

@@ -7,7 +7,6 @@ export function createContext(
   request?: Request,
   preferences?: Partial<PreferencesMap>,
 ): Context {
-  // If no preferences provided but we have a request, extract from cookies
   const finalPreferences =
     preferences || (request ? getPreferencesFromRequest(request) : {});
 
