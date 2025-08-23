@@ -22,7 +22,7 @@ import {createSimpleDataLoaders} from './lib/server/simple-dataloaders'; // You'
 import {DEFAULT_PREFERENCES} from './lib/shared/preferences-types';
 import {LoadingShell} from './components/loading_shell'; // You'll create this
 
-export function createHandler(
+export function CreateHandler(
   template: string,
   persistedQueries: Record<string, string>,
   manifest?: Manifest,
