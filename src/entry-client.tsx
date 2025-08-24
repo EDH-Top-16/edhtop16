@@ -5,7 +5,6 @@ import {hydrateRoot, createRoot} from 'react-dom/client';
 import {RelayEnvironmentProvider} from 'react-relay/hooks';
 import {getClientEnvironment} from './lib/client/relay_client_environment';
 import {App} from './pages/_app';
-
 import {getCurrentPreferences} from './lib/shared/cookie-utils';
 import {LoadingShell} from './components/loading_shell';
 

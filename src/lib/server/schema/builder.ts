@@ -28,7 +28,7 @@ builder.queryType({});
 // Helper function for resolvers to get typed context preferences
 export function getContextPreferences<K extends keyof PreferencesMap>(
   context: Context,
-  key: K
+  key: K,
 ): PreferencesMap[K] {
   return context.relayContext[key] || context.preferences[key] || {};
 }

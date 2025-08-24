@@ -1,3 +1,8 @@
+// DataLoader for batching and caching requests
+// THIS IS NOT USED. IT IS A PLACEHOLDER FOR FUTURE USE IN CONTEXT IF YOU WANT.
+// DANGER: YOU WILL NEED TO EDIT THIS. IT WILL BREAK THE SCHEMA FOR NOW!
+// N+1, batching, caching, dedup...
+
 import DataLoader from 'dataloader';
 import {db} from './db';
 

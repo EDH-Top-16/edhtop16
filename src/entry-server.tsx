@@ -27,27 +27,21 @@ export function CreateHandler(
 ) {
   const graphqlHandler = createYoga({
     schema,
-
     batching: true,
     graphiql: process.env.NODE_ENV === 'development',
 
     context: async (context) => {
       const request = context.request;
-//      
-      // Use the new context creation function
+
+      // ✅ UPDATED: Use the enhanced context creation function
       const serverContext = createRelayContext(request, context.params);
 
       return {
         ...serverContext,
         cache: new Map(),
+        // TODO: Add dataloaders when ready
+        // dataloaders: createSimpleDataLoaders(),
       };
-
-      // Add dataloaders
-      //return {
-      //  ...serverContext,
-//        dataloaders: createSimpleDataLoaders(),
-      //  cache: new Map(),
-      //};
     },
     plugins: [
       usePersistedOperations({
@@ -81,7 +75,7 @@ export function CreateHandler(
       },
     );
 
-    // Get preferences for SSR decision - this logic remains the same
+    // ✅ KEEP: Get preferences for SSR decision - this logic remains the same
     const preferences = getPreferencesFromRequest(webRequest);
     const hasUserPreferences = Object.keys(preferences).some(
       (key) =>
@@ -107,7 +101,7 @@ export function CreateHandler(
         req.originalUrl,
       );
       shouldRenderWithData = true;
-      
+
       console.debug('🚀 SSR with user preferences:', {
         hasUserPreferences,
         preferences: Object.keys(preferences),
@@ -148,15 +142,16 @@ export function CreateHandler(
             ? (RiverApp.bootstrap?.(manifest) ?? match)
             : match;
 
-        case 'preload-state':
-          // Enhanced preload state to include context info
-          const contextInfo = shouldRenderWithData 
-            ? `window.__RELAY_CONTEXT__ = ${JSON.stringify(preferences)};` 
+        case 'preload-state': {
+          // Enhanced preload state to include structured context info
+          const contextInfo = shouldRenderWithData
+            ? `window.__RELAY_CONTEXT__ = ${JSON.stringify({preferences})};`
             : '';
           return `<script>
-            window.__SHOULD_WAIT_FOR_PREFERENCES__ = ${!shouldRenderWithData};
-            ${contextInfo}
-          </script>`;
+    window.__SHOULD_WAIT_FOR_PREFERENCES__ = ${!shouldRenderWithData};
+    ${contextInfo}
+  </script>`;
+        }
         default:
           return match;
       }
@@ -171,8 +166,8 @@ export function CreateHandler(
   };
 
   const r = express.Router();
-  
-  // Properly wrap Yoga handler for Express
+
+  // ✅ KEEP: Properly wrap Yoga handler for Express
   r.all('/api/graphql', async (req, res) => {
     // Create a proper Request object from Express req
     const url = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
@@ -189,9 +184,10 @@ export function CreateHandler(
         },
         {} as Record<string, string>,
       ),
-      body: req.method !== 'GET' && req.method !== 'HEAD' 
-        ? JSON.stringify(req.body)
-        : undefined,
+      body:
+        req.method !== 'GET' && req.method !== 'HEAD'
+          ? JSON.stringify(req.body)
+          : undefined,
     });
 
     // Call Yoga handler with proper Request
@@ -202,7 +198,7 @@ export function CreateHandler(
 
     // Forward response to Express
     res.status(response.status);
-    
+
     // Set headers
     response.headers.forEach((value, key) => {
       res.setHeader(key, value);
@@ -216,7 +212,7 @@ export function CreateHandler(
       res.end();
     }
   });
-  
+
   for (const route of listRoutes()) {
     r.get(route, entryPointHandler);
   }

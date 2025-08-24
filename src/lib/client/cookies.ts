@@ -119,5 +119,31 @@ export function usePreferences<K extends keyof PreferencesMap>(
   return {preferences, updatePreference, isHydrated};
 }
 
+// ========================================
+// DEBUG FUNCTIONS Thanks Claude.ai
+// ========================================
+
+export function debugCookies() {
+  console.log('=== COOKIE DEBUG ===');
+  console.log('1. Current document.cookie:', document.cookie);
+  console.log('2. Parsed preferences:', getCurrentPreferences());
+
+  // Test basic cookie setting
+  console.log('3. Testing basic cookie...');
+  document.cookie = 'debugTest=hello; path=/';
+  console.log('4. After basic test:', document.cookie);
+
+  // Test setCookieValue function
+  console.log('5. Testing setCookieValue...');
+  setCookieValue('debugTest2', 'world');
+  console.log('6. After setCookieValue test:', document.cookie);
+
+  // Test preferences update
+  console.log('7. Testing preference JSON...');
+  const testPrefs = {commanders: {sortBy: 'TEST' as any}};
+  setCookieValue('sitePreferences', JSON.stringify(testPrefs));
+}
+
+// for my convenience
 export type {PreferencesMap} from '../shared/preferences-types';
 export {DEFAULT_PREFERENCES} from '../shared/preferences-types';
