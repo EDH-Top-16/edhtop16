@@ -1,6 +1,6 @@
 import {Environment, Network, RecordSource, Store} from 'relay-runtime';
 import type {PreferencesMap} from '../shared/preferences-types';
-import {getCurrentPreferences, setCookieValue} from '../shared/cookie-utils';
+import {getCurrentPreferences, setCookieValue} from '../shared/cookie-utils'; // setCookieValue shouldn't be needed anymore
 
 // Enhanced environment with context support
 interface RelayEnvironmentWithContext extends Environment {
@@ -70,6 +70,7 @@ export function getClientEnvironment(): RelayEnvironmentWithContext | null {
     };
 
     baseEnvironment.setContext = (newContext: Partial<PreferencesMap>) => {
+      // why I don't think we need setCookieValue
       const previousContext = {...environmentContext};
       environmentContext = {
         ...environmentContext,
