@@ -16,10 +16,9 @@ import {createServerEnvironment} from './lib/server/relay_server_environment';
 import {getPreferencesFromRequest} from './lib/server/cookies';
 import {schema} from './lib/server/schema';
 import {App} from './pages/_app';
-
-import {createSimpleDataLoaders} from './lib/server/simple-dataloaders';
 import {DEFAULT_PREFERENCES} from './lib/shared/preferences-types';
 import {LoadingShell} from './components/loading_shell';
+import {createRelayContext} from './lib/server/context';
 
 export function CreateHandler(
   template: string,
@@ -34,13 +33,21 @@ export function CreateHandler(
 
     context: async (context) => {
       const request = context.request;
+//      
+      // Use the new context creation function
+      const serverContext = createRelayContext(request, context.params);
+
       return {
-        request,
-
-        dataloaders: createSimpleDataLoaders(),
-
+        ...serverContext,
         cache: new Map(),
       };
+
+      // Add dataloaders
+      //return {
+      //  ...serverContext,
+//        dataloaders: createSimpleDataLoaders(),
+      //  cache: new Map(),
+      //};
     },
     plugins: [
       usePersistedOperations({
@@ -74,6 +81,7 @@ export function CreateHandler(
       },
     );
 
+    // Get preferences for SSR decision - this logic remains the same
     const preferences = getPreferencesFromRequest(webRequest);
     const hasUserPreferences = Object.keys(preferences).some(
       (key) =>
@@ -99,8 +107,14 @@ export function CreateHandler(
         req.originalUrl,
       );
       shouldRenderWithData = true;
+      
+      console.debug('🚀 SSR with user preferences:', {
+        hasUserPreferences,
+        preferences: Object.keys(preferences),
+      });
     } else {
       shouldRenderWithData = false;
+      console.debug('🚀 SSR without preferences - client will hydrate');
     }
 
     function evaluateRiverDirective(match: string, directive: string) {
@@ -135,7 +149,14 @@ export function CreateHandler(
             : match;
 
         case 'preload-state':
-          return `<script>window.__SHOULD_WAIT_FOR_PREFERENCES__ = ${!shouldRenderWithData};</script>`;
+          // Enhanced preload state to include context info
+          const contextInfo = shouldRenderWithData 
+            ? `window.__RELAY_CONTEXT__ = ${JSON.stringify(preferences)};` 
+            : '';
+          return `<script>
+            window.__SHOULD_WAIT_FOR_PREFERENCES__ = ${!shouldRenderWithData};
+            ${contextInfo}
+          </script>`;
         default:
           return match;
       }
@@ -150,7 +171,52 @@ export function CreateHandler(
   };
 
   const r = express.Router();
-  r.use('/api/graphql', graphqlHandler);
+  
+  // Properly wrap Yoga handler for Express
+  r.all('/api/graphql', async (req, res) => {
+    // Create a proper Request object from Express req
+    const url = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+    const request = new Request(url, {
+      method: req.method,
+      headers: Object.entries(req.headers).reduce(
+        (acc, [key, value]) => {
+          if (typeof value === 'string') {
+            acc[key] = value;
+          } else if (Array.isArray(value)) {
+            acc[key] = value.join(', ');
+          }
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
+      body: req.method !== 'GET' && req.method !== 'HEAD' 
+        ? JSON.stringify(req.body)
+        : undefined,
+    });
+
+    // Call Yoga handler with proper Request
+    const response = await graphqlHandler.fetch(request, {
+      req,
+      res,
+    });
+
+    // Forward response to Express
+    res.status(response.status);
+    
+    // Set headers
+    response.headers.forEach((value, key) => {
+      res.setHeader(key, value);
+    });
+
+    // Send body
+    if (response.body) {
+      const body = await response.text();
+      res.send(body);
+    } else {
+      res.end();
+    }
+  });
+  
   for (const route of listRoutes()) {
     r.get(route, entryPointHandler);
   }

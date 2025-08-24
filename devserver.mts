@@ -11,6 +11,7 @@ async function createServer() {
 
   const app = express();
   app.use(vite.middlewares);
+  app.use(express.json());
   app.use(async (req, res, next) => {
     const persistedQueries = JSON.parse(
       await readFile('__generated__/persisted_queries.json', 'utf-8'),
