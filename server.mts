@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import express from 'express';
 import {readFile} from 'node:fs/promises';
@@ -22,6 +23,7 @@ async function createServer() {
   const handler = createHandler(template, persistedQueries, manifest);
 
   const app = express();
+  app.use(cookieParser());
   app.use(handler);
   app.use(express.static('dist/client'));
 
