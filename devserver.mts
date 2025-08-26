@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import express from 'express';
 import {readFile} from 'node:fs/promises';
@@ -10,6 +11,7 @@ async function createServer() {
   const vite = await createViteServer();
 
   const app = express();
+  app.use(cookieParser());
   app.use(vite.middlewares);
   app.use(async (req, res, next) => {
     const persistedQueries = JSON.parse(

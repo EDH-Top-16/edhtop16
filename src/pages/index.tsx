@@ -3,15 +3,18 @@ import {
   pages_CommandersQuery,
   TimePeriod,
 } from '#genfiles/queries/pages_CommandersQuery.graphql';
+import {pages_DisplayPreferencesQuery} from '#genfiles/queries/pages_DisplayPreferencesQuery.graphql.js';
 import {pages_topCommanders$key} from '#genfiles/queries/pages_topCommanders.graphql';
 import {pages_TopCommandersCard$key} from '#genfiles/queries/pages_TopCommandersCard.graphql';
 import {TopCommandersQuery} from '#genfiles/queries/TopCommandersQuery.graphql';
-import {Link, useNavigation, useRouteParams} from '#genfiles/river/router';
+import {Link, useNavigation} from '#genfiles/river/router';
+import {LIST_STYLE_COOKIE_NAME} from '#src/lib/client/display_preferences.js';
 import RectangleStackIcon from '@heroicons/react/24/solid/RectangleStackIcon';
 import TableCellsIcon from '@heroicons/react/24/solid/TableCellsIcon';
 import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
 import {PropsWithChildren, useCallback, useMemo} from 'react';
+import {useClientQuery} from 'react-relay';
 import {
   EntryPointComponent,
   graphql,
@@ -248,16 +251,29 @@ function CommandersPageShell({
 }
 
 function useCommandersDisplay() {
-  const {display} = useRouteParams('/');
-  const {replaceRoute} = useNavigation();
+  const {displayPreferences} = useClientQuery<pages_DisplayPreferencesQuery>(
+    graphql`
+      query pages_DisplayPreferencesQuery {
+        displayPreferences {
+          listStyle
+        }
+      }
+    `,
+    {},
+  );
+
+  const listStyle = displayPreferences?.listStyle;
 
   const toggleDisplay = useCallback(() => {
-    replaceRoute('/', {display: display === 'table' ? 'card' : 'table'});
-  }, [display, replaceRoute]);
+    window.cookieStore.set(
+      LIST_STYLE_COOKIE_NAME,
+      listStyle === 'table' ? 'card' : 'table',
+    );
+  }, [listStyle]);
 
   return useMemo(() => {
-    return [display === 'table' ? 'table' : 'card', toggleDisplay] as const;
-  }, [display, toggleDisplay]);
+    return [listStyle === 'table' ? 'table' : 'card', toggleDisplay] as const;
+  }, [listStyle, toggleDisplay]);
 }
 
 /** @resource m#index */

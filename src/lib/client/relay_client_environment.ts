@@ -28,7 +28,9 @@ export function getClientEnvironment() {
   if (clientEnv == null) {
     clientEnv = new Environment({
       network: createClientNetwork(),
-      store: new Store(new RecordSource()),
+      store: new Store(new RecordSource(), {
+        resolverContext: {},
+      }),
       isServer: false,
     });
   }

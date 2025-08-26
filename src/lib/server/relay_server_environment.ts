@@ -1,3 +1,4 @@
+import {Request} from 'express';
 import {graphql, GraphQLSchema} from 'graphql';
 import {
   Environment,
@@ -8,7 +9,12 @@ import {
 } from 'relay-runtime';
 import {createContext} from './context';
 
+export interface RelayResolverContext {
+  cookies?: Request['cookies'];
+}
+
 export function createServerEnvironment(
+  req: Request,
   schema: GraphQLSchema,
   persistedQueries?: Record<string, string>,
 ) {
@@ -34,7 +40,11 @@ export function createServerEnvironment(
 
   return new Environment({
     network: Network.create(networkFetchFunction),
-    store: new Store(new RecordSource()),
+    store: new Store(new RecordSource(), {
+      resolverContext: {
+        cookies: req.cookies,
+      } satisfies RelayResolverContext,
+    }),
     isServer: true,
   });
 }
