@@ -137,7 +137,7 @@ export async function river__loadEntryPoint(
   provider: IEnvironmentProvider<EnvironmentProviderOptions>,
   initialPath?: string,
 ) {
-  if (!initialPath) initialPath = window.location.pathname;
+  if (!initialPath) initialPath = window.location.href;
   const initialLocation = RouterLocation.parse(initialPath);
   const initialRoute = initialLocation.route();
   if (!initialRoute) return null;

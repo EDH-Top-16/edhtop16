@@ -190,12 +190,7 @@ export const TournamentsPageFallback: EntryPointComponent<
 /** @resource m#tournaments */
 export const TournamentsPage: EntryPointComponent<
   {tournamentQueryRef: tournaments_TournamentsQuery},
-  {
-    fallback: EntryPoint<
-      ModuleType<'m#tournaments_fallback'>,
-      EntryPointParams<'/tournaments'>
-    >;
-  }
+  {fallback: EntryPoint<ModuleType<'m#tournaments_fallback'>>}
 > = ({queries}) => {
   const query = usePreloadedQuery(
     graphql`

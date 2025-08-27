@@ -45,7 +45,7 @@ export const entrypoint: EntryPoint<
       },
       entryPoints: {
         fallback: {
-          entryPointParams: {params, schema},
+          entryPointParams: {},
           entryPoint: {
             root: JSResource.fromModuleId('m#index_fallback'),
             getPreloadProps() {

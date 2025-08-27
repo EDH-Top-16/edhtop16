@@ -1,16 +1,23 @@
 import {TID_BreakdownGroupCard$key} from '#genfiles/queries/TID_BreakdownGroupCard.graphql';
 import {TID_EntryCard$key} from '#genfiles/queries/TID_EntryCard.graphql';
 import {TID_TournamentBanner$key} from '#genfiles/queries/TID_TournamentBanner.graphql';
+import {TID_TournamentFallbackQuery} from '#genfiles/queries/TID_TournamentFallbackQuery.graphql.js';
 import {TID_TournamentMeta$key} from '#genfiles/queries/TID_TournamentMeta.graphql';
 import {TID_TournamentPageShell$key} from '#genfiles/queries/TID_TournamentPageShell.graphql';
-import {TID_TournamentQuery} from '#genfiles/queries/TID_TournamentQuery.graphql';
-import {Link, useNavigation} from '#genfiles/river/router';
+import {
+  TID_TournamentQuery,
+  TID_TournamentQuery$variables,
+} from '#genfiles/queries/TID_TournamentQuery.graphql';
+import {ModuleType} from '#genfiles/river/js_resource.js';
+import {EntryPointParams, Link, useNavigation} from '#genfiles/river/router';
+import {LoadingIcon} from '#src/components/fallback.jsx';
 import ArrowRightIcon from '@heroicons/react/24/solid/ArrowRightIcon';
 import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
 import {format} from 'date-fns';
 import {MouseEvent, PropsWithChildren, useCallback, useMemo} from 'react';
 import {
+  EntryPoint,
   EntryPointComponent,
   useFragment,
   usePreloadedQuery,
@@ -351,10 +358,45 @@ function TournamentPageShell({
   );
 }
 
+/** @resource m#tournament_view_fallback */
+export const TournamentViewPageFallback: EntryPointComponent<
+  {tournamentFallbackQueryRef: TID_TournamentFallbackQuery},
+  {},
+  {},
+  TID_TournamentQuery$variables
+> = ({queries, extraProps}) => {
+  const {tournament} = usePreloadedQuery(
+    graphql`
+      query TID_TournamentFallbackQuery($TID: String!) @preloadable {
+        tournament(TID: $TID) {
+          ...TID_TournamentPageShell
+        }
+      }
+    `,
+    queries.tournamentFallbackQueryRef,
+  );
+
+  return (
+    <TournamentPageShell
+      tournament={tournament}
+      commanderName={extraProps.commander}
+      tab={
+        extraProps.showBreakdown
+          ? 'breakdown'
+          : extraProps.showBreakdownCommander
+            ? 'commander'
+            : 'entries'
+      }
+    >
+      <LoadingIcon />
+    </TournamentPageShell>
+  );
+};
+
 /** @resource m#tournament_view */
 export const TournamentViewPage: EntryPointComponent<
   {tournamentQueryRef: TID_TournamentQuery},
-  {}
+  {fallback: EntryPoint<ModuleType<'m#tournament_view_fallback'>>}
 > = ({queries}) => {
   const {tournament} = usePreloadedQuery(
     graphql`

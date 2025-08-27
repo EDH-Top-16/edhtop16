@@ -1,4 +1,5 @@
 import CommanderQueryParameters from '#genfiles/queries/Commander_CommanderQuery$parameters';
+import CommanderFallbackQueryParameters from '#genfiles/queries/Commander_CommanderFallbackQuery$parameters';
 import {
   EntriesSortBy,
   TimePeriod,
@@ -39,6 +40,31 @@ export const entrypoint: EntryPoint<
             timePeriod: timePeriod as TimePeriod,
             maxStanding,
             minEventSize,
+          },
+        },
+      },
+      entryPoints: {
+        fallback: {
+          entryPointParams: {},
+          entryPoint: {
+            root: JSResource.fromModuleId('m#commander_page_fallback'),
+            getPreloadProps() {
+              return {
+                queries: {
+                  commanderFallbackQueryRef: {
+                    parameters: CommanderFallbackQueryParameters,
+                    variables: {commander},
+                  },
+                },
+                extraProps: {
+                  commander,
+                  sortBy: sortBy as EntriesSortBy,
+                  timePeriod: timePeriod as TimePeriod,
+                  maxStanding,
+                  minEventSize,
+                },
+              };
+            },
           },
         },
       },

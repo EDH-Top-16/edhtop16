@@ -3,18 +3,21 @@ import {Commander_CommanderMeta$key} from '#genfiles/queries/Commander_Commander
 import {Commander_CommanderPageShell$key} from '#genfiles/queries/Commander_CommanderPageShell.graphql';
 import {
   Commander_CommanderQuery,
+  Commander_CommanderQuery$variables,
   EntriesSortBy,
   TimePeriod,
 } from '#genfiles/queries/Commander_CommanderQuery.graphql';
 import {Commander_entries$key} from '#genfiles/queries/Commander_entries.graphql';
 import {Commander_EntryCard$key} from '#genfiles/queries/Commander_EntryCard.graphql';
 import {CommanderEntriesQuery} from '#genfiles/queries/CommanderEntriesQuery.graphql';
-import {Link, useNavigation} from '#genfiles/river/router';
+import {EntryPointParams, Link, useNavigation} from '#genfiles/river/router';
+import {LoadingIcon} from '#src/components/fallback.jsx';
 import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
 import {format} from 'date-fns';
 import {PropsWithChildren} from 'react';
 import {
+  EntryPoint,
   EntryPointComponent,
   useFragment,
   usePaginationFragment,
@@ -29,6 +32,9 @@ import {Navigation} from '../../../components/navigation';
 import {FirstPartyPromo} from '../../../components/promo';
 import {Select} from '../../../components/select';
 import {formatOrdinals, formatPercent} from '../../../lib/client/format';
+import {Commander_CommanderStats$key} from '#genfiles/queries/Commander_CommanderStats.graphql.js';
+import {Commander_CommanderFallbackQuery} from '#genfiles/queries/Commander_CommanderFallbackQuery.graphql.js';
+import {ModuleType} from '#genfiles/river/js_resource.js';
 
 function EntryCard(props: {entry: Commander_EntryCard$key}) {
   const entry = useFragment(
@@ -118,7 +124,35 @@ function EntryCard(props: {entry: Commander_EntryCard$key}) {
   );
 }
 
-function CommanderBanner(props: {commander: Commander_CommanderBanner$key}) {
+function CommanderStats(props: {commander: Commander_CommanderStats$key}) {
+  const commander = useFragment(
+    graphql`
+      fragment Commander_CommanderStats on Commander {
+        stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {
+          conversionRate
+          metaShare
+          count
+        }
+      }
+    `,
+    props.commander,
+  );
+
+  return (
+    <div className="absolute bottom-0 z-10 mx-auto flex w-full items-center justify-around border-t border-white/60 bg-black/50 px-3 text-center text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border">
+      {commander.stats.count} Entries
+      <div className="mr-1 ml-2 border-l border-white/60 py-2">&nbsp;</div>{' '}
+      {formatPercent(commander.stats.metaShare)} Meta%
+      <div className="mr-1 ml-2 border-l border-white/60 py-2">&nbsp;</div>{' '}
+      {formatPercent(commander.stats.conversionRate)} Conversion
+    </div>
+  );
+}
+
+function CommanderBanner({
+  children,
+  ...props
+}: PropsWithChildren<{commander: Commander_CommanderBanner$key}>) {
   const commander = useFragment(
     graphql`
       fragment Commander_CommanderBanner on Commander {
@@ -126,12 +160,6 @@ function CommanderBanner(props: {commander: Commander_CommanderBanner$key}) {
         colorId
         cards {
           imageUrls
-        }
-
-        stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {
-          conversionRate
-          metaShare
-          count
         }
       }
     `,
@@ -167,17 +195,7 @@ function CommanderBanner(props: {commander: Commander_CommanderBanner$key}) {
           <ColorIdentity identity={commander.colorId} />
         </div>
 
-        <div className="absolute bottom-0 z-10 mx-auto flex w-full items-center justify-around border-t border-white/60 bg-black/50 px-3 text-center text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border">
-          {commander.stats.count} Entries
-          <div className="mr-1 ml-2 border-l border-white/60 py-2">
-            &nbsp;
-          </div>{' '}
-          {formatPercent(commander.stats.metaShare)} Meta%
-          <div className="mr-1 ml-2 border-l border-white/60 py-2">
-            &nbsp;
-          </div>{' '}
-          {formatPercent(commander.stats.conversionRate)} Conversion
-        </div>
+        {children}
       </div>
     </div>
   );
@@ -205,6 +223,7 @@ export function CommanderPageShell({
   minEventSize,
   sortBy,
   timePeriod,
+  stats,
   children,
   ...props
 }: PropsWithChildren<{
@@ -214,6 +233,7 @@ export function CommanderPageShell({
   sortBy: EntriesSortBy;
   timePeriod: TimePeriod;
   commander: Commander_CommanderPageShell$key;
+  stats?: React.ReactNode;
 }>) {
   const commander = useFragment(
     graphql`
@@ -237,7 +257,7 @@ export function CommanderPageShell({
   return (
     <>
       <Navigation />
-      <CommanderBanner commander={commander} />
+      <CommanderBanner commander={commander}>{stats}</CommanderBanner>
       {commander.promo && <FirstPartyPromo promo={commander.promo} />}
 
       <div className="mx-auto grid max-w-(--breakpoint-md) grid-cols-2 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
@@ -314,10 +334,41 @@ export function CommanderPageShell({
   );
 }
 
+/** @resource m#commander_page_fallback */
+export const CommanderPageFallback: EntryPointComponent<
+  {commanderFallbackQueryRef: Commander_CommanderFallbackQuery},
+  {},
+  {},
+  Commander_CommanderQuery$variables
+> = ({queries, extraProps}) => {
+  const {commander} = usePreloadedQuery(
+    graphql`
+      query Commander_CommanderFallbackQuery($commander: String!) @preloadable {
+        commander(name: $commander) {
+          ...Commander_CommanderPageShell
+        }
+      }
+    `,
+    queries.commanderFallbackQueryRef,
+  );
+
+  return (
+    <CommanderPageShell
+      commander={commander}
+      maxStanding={extraProps.maxStanding}
+      minEventSize={extraProps.minEventSize}
+      sortBy={extraProps.sortBy}
+      timePeriod={extraProps.timePeriod}
+    >
+      <LoadingIcon />
+    </CommanderPageShell>
+  );
+};
+
 /** @resource m#commander_page */
 export const CommanderPage: EntryPointComponent<
   {commanderQueryRef: Commander_CommanderQuery},
-  {}
+  {fallback: EntryPoint<ModuleType<'m#commander_page_fallback'>>}
 > = ({queries}) => {
   const {commander} = usePreloadedQuery(
     graphql`
@@ -330,6 +381,7 @@ export const CommanderPage: EntryPointComponent<
       ) @preloadable {
         commander(name: $commander) {
           ...Commander_CommanderPageShell
+          ...Commander_CommanderStats
           ...Commander_entries
         }
       }
@@ -377,6 +429,7 @@ export const CommanderPage: EntryPointComponent<
       minEventSize={queries.commanderQueryRef.variables.minEventSize}
       sortBy={queries.commanderQueryRef.variables.sortBy}
       timePeriod={queries.commanderQueryRef.variables.timePeriod}
+      stats={<CommanderStats commander={commander} />}
     >
       <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
         {data.entries.edges.map(({node}) => (

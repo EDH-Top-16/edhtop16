@@ -303,9 +303,7 @@ export const CommandersPageFallback: EntryPointComponent<
 /** @resource m#index */
 export const CommandersPage: EntryPointComponent<
   {commandersQueryRef: pages_CommandersQuery},
-  {
-    fallback: EntryPoint<ModuleType<'m#index_fallback'>, EntryPointParams<'/'>>;
-  }
+  {fallback: EntryPoint<ModuleType<'m#index_fallback'>>}
 > = ({queries}) => {
   const query = usePreloadedQuery(
     graphql`

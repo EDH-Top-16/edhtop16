@@ -9,7 +9,6 @@ import {
   createContext,
   PropsWithChildren,
   Suspense,
-  SuspenseProps,
   useCallback,
   useContext,
   useEffect,
@@ -185,7 +184,7 @@ export async function river__loadEntryPoint(
   provider: IEnvironmentProvider<EnvironmentProviderOptions>,
   initialPath?: string,
 ) {
-  if (!initialPath) initialPath = window.location.pathname;
+  if (!initialPath) initialPath = window.location.href;
   const initialLocation = RouterLocation.parse(initialPath);
   const initialRoute = initialLocation.route();
   if (!initialRoute) return null;
@@ -212,7 +211,7 @@ export function river__createAppFromEntryPoint(
   initialEntryPoint: AnyPreloadedEntryPoint | null,
   initialPath?: string,
 ) {
-  function RiverApp(props: Pick<SuspenseProps, 'fallback'>) {
+  function RiverApp() {
     const [location, setLocation] = useLocation(initialPath);
     const routerContextValue = useMemo(
       (): RouterContextValue => ({
