@@ -11,9 +11,17 @@ const RESOURCE_CONF = {
             src: "src/pages/about.tsx",
             loader: () => import("../../src/pages/about").then(m => m.AboutPage)
         },
+    "m#index_fallback": {
+            src: "src/pages/index.tsx",
+            loader: () => import("../../src/pages/index").then(m => m.CommandersPageFallback)
+        },
     "m#index": {
             src: "src/pages/index.tsx",
             loader: () => import("../../src/pages/index").then(m => m.CommandersPage)
+        },
+    "m#tournaments_fallback": {
+            src: "src/pages/tournaments.tsx",
+            loader: () => import("../../src/pages/tournaments").then(m => m.TournamentsPageFallback)
         },
     "m#tournaments": {
             src: "src/pages/tournaments.tsx",

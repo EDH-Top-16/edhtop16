@@ -1,13 +1,16 @@
 import {
   CommandersSortBy,
   pages_CommandersQuery,
+  pages_CommandersQuery$variables,
   TimePeriod,
 } from '#genfiles/queries/pages_CommandersQuery.graphql';
 import {pages_DisplayPreferencesQuery} from '#genfiles/queries/pages_DisplayPreferencesQuery.graphql.js';
 import {pages_topCommanders$key} from '#genfiles/queries/pages_topCommanders.graphql';
 import {pages_TopCommandersCard$key} from '#genfiles/queries/pages_TopCommandersCard.graphql';
 import {TopCommandersQuery} from '#genfiles/queries/TopCommandersQuery.graphql';
-import {Link, useNavigation} from '#genfiles/river/router';
+import {ModuleType} from '#genfiles/river/js_resource.js';
+import {EntryPointParams, Link, useNavigation} from '#genfiles/river/router';
+import {LoadingIcon} from '#src/components/fallback';
 import {LIST_STYLE_COOKIE_NAME} from '#src/lib/client/display_preferences.js';
 import RectangleStackIcon from '@heroicons/react/24/solid/RectangleStackIcon';
 import TableCellsIcon from '@heroicons/react/24/solid/TableCellsIcon';
@@ -16,6 +19,7 @@ import cn from 'classnames';
 import {PropsWithChildren, useCallback, useMemo} from 'react';
 import {useClientQuery} from 'react-relay';
 import {
+  EntryPoint,
   EntryPointComponent,
   graphql,
   useFragment,
@@ -276,10 +280,32 @@ function useCommandersDisplay() {
   }, [listStyle, toggleDisplay]);
 }
 
+/** @resource m#index_fallback */
+export const CommandersPageFallback: EntryPointComponent<
+  {},
+  {},
+  {},
+  pages_CommandersQuery$variables
+> = ({extraProps}) => {
+  return (
+    <CommandersPageShell
+      sortBy={extraProps.sortBy}
+      timePeriod={extraProps.timePeriod}
+      colorId={extraProps.colorId || ''}
+      minEntries={extraProps.minEntries}
+      minTournamentSize={extraProps.minTournamentSize}
+    >
+      <LoadingIcon />
+    </CommandersPageShell>
+  );
+};
+
 /** @resource m#index */
 export const CommandersPage: EntryPointComponent<
   {commandersQueryRef: pages_CommandersQuery},
-  {}
+  {
+    fallback: EntryPoint<ModuleType<'m#index_fallback'>, EntryPointParams<'/'>>;
+  }
 > = ({queries}) => {
   const query = usePreloadedQuery(
     graphql`

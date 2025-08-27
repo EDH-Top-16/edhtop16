@@ -8,6 +8,8 @@ import {
   AnchorHTMLAttributes,
   createContext,
   PropsWithChildren,
+  Suspense,
+  SuspenseProps,
   useCallback,
   useContext,
   useEffect,
@@ -210,7 +212,7 @@ export function river__createAppFromEntryPoint(
   initialEntryPoint: AnyPreloadedEntryPoint | null,
   initialPath?: string,
 ) {
-  function RiverApp() {
+  function RiverApp(props: Pick<SuspenseProps, 'fallback'>) {
     const [location, setLocation] = useLocation(initialPath);
     const routerContextValue = useMemo(
       (): RouterContextValue => ({
@@ -237,11 +239,24 @@ export function river__createAppFromEntryPoint(
     }, [location]);
 
     const entryPoint = entryPointRef ?? initialEntryPoint;
-    return entryPoint == null ? (
-      <div>Not found...</div>
-    ) : (
+    if (entryPoint == null) return null;
+
+    return (
       <RiverRouterContext value={routerContextValue}>
-        <EntryPointContainer entryPointReference={entryPoint} props={{}} />
+        {'fallback' in entryPoint.entryPoints ? (
+          <Suspense
+            fallback={
+              <EntryPointContainer
+                entryPointReference={entryPoint.entryPoints.fallback}
+                props={{}}
+              />
+            }
+          >
+            <EntryPointContainer entryPointReference={entryPoint} props={{}} />
+          </Suspense>
+        ) : (
+          <EntryPointContainer entryPointReference={entryPoint} props={{}} />
+        )}
       </RiverRouterContext>
     );
   }
