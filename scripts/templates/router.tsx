@@ -4,7 +4,6 @@ import {
   createContext,
   PropsWithChildren,
   Suspense,
-  SuspenseProps,
   useCallback,
   useContext,
   useEffect,
@@ -165,7 +164,7 @@ export function river__createAppFromEntryPoint(
   initialEntryPoint: AnyPreloadedEntryPoint | null,
   initialPath?: string,
 ) {
-  function RiverApp(props: Pick<SuspenseProps, 'fallback'>) {
+  function RiverApp() {
     const [location, setLocation] = useLocation(initialPath);
     const routerContextValue = useMemo(
       (): RouterContextValue => ({
