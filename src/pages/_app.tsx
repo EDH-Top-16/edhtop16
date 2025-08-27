@@ -1,5 +1,6 @@
+import {Edhtop16Fallback} from '#src/components/fallback';
 import {useHead} from '@unhead/react';
-import {PropsWithChildren} from 'react';
+import {PropsWithChildren, Suspense} from 'react';
 
 export function App({children}: PropsWithChildren<{}>) {
   useHead({
@@ -20,5 +21,9 @@ export function App({children}: PropsWithChildren<{}>) {
     ],
   });
 
-  return <main className="relative min-h-screen bg-[#514f86]">{children}</main>;
+  return (
+    <Suspense fallback={<Edhtop16Fallback />}>
+      <main className="relative min-h-screen bg-[#514f86]">{children}</main>;
+    </Suspense>
+  );
 }

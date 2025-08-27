@@ -1,3 +1,4 @@
+import TID_TournamentFallbackQueryParameters from '#genfiles/queries/TID_TournamentFallbackQuery$parameters';
 import TID_TournamentQueryParameters from '#genfiles/queries/TID_TournamentQuery$parameters';
 import {JSResource, ModuleType} from '#genfiles/river/js_resource';
 import {EntryPointParams} from '#genfiles/river/router';
@@ -27,6 +28,32 @@ export const entrypoint: EntryPoint<
             showStandings: tab !== 'breakdown' && tab !== 'commander',
             showBreakdown: tab === 'breakdown',
             showBreakdownCommander: tab === 'commander' && commander != null,
+          },
+        },
+      },
+      entryPoints: {
+        fallback: {
+          entryPointParams: {},
+          entryPoint: {
+            root: JSResource.fromModuleId('m#tournament_view_fallback'),
+            getPreloadProps() {
+              return {
+                queries: {
+                  tournamentFallbackQueryRef: {
+                    parameters: TID_TournamentFallbackQueryParameters,
+                    variables: {TID: tid},
+                  },
+                },
+                extraProps: {
+                  TID: tid,
+                  commander,
+                  showStandings: tab !== 'breakdown' && tab !== 'commander',
+                  showBreakdown: tab === 'breakdown',
+                  showBreakdownCommander:
+                    tab === 'commander' && commander != null,
+                },
+              };
+            },
           },
         },
       },

@@ -36,6 +36,24 @@ export const entrypoint: EntryPoint<
           },
         },
       },
-    };
+      entryPoints: {
+        fallback: {
+          entryPointParams: {},
+          entryPoint: {
+            root: JSResource.fromModuleId('m#tournaments_fallback'),
+            getPreloadProps() {
+              return {
+                queries: {},
+                extraProps: {
+                  minSize,
+                  sortBy: sortBy as TournamentSortBy,
+                  timePeriod: timePeriod as TimePeriod,
+                },
+              };
+            },
+          },
+        },
+      },
+    } as const;
   },
 };

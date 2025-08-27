@@ -3,6 +3,7 @@ import {
   AnchorHTMLAttributes,
   createContext,
   PropsWithChildren,
+  Suspense,
   useCallback,
   useContext,
   useEffect,
@@ -136,7 +137,7 @@ export async function river__loadEntryPoint(
   provider: IEnvironmentProvider<EnvironmentProviderOptions>,
   initialPath?: string,
 ) {
-  if (!initialPath) initialPath = window.location.pathname;
+  if (!initialPath) initialPath = window.location.href;
   const initialLocation = RouterLocation.parse(initialPath);
   const initialRoute = initialLocation.route();
   if (!initialRoute) return null;
@@ -190,11 +191,24 @@ export function river__createAppFromEntryPoint(
     }, [location]);
 
     const entryPoint = entryPointRef ?? initialEntryPoint;
-    return entryPoint == null ? (
-      <div>Not found...</div>
-    ) : (
+    if (entryPoint == null) return null;
+
+    return (
       <RiverRouterContext value={routerContextValue}>
-        <EntryPointContainer entryPointReference={entryPoint} props={{}} />
+        {'fallback' in entryPoint.entryPoints ? (
+          <Suspense
+            fallback={
+              <EntryPointContainer
+                entryPointReference={entryPoint.entryPoints.fallback}
+                props={{}}
+              />
+            }
+          >
+            <EntryPointContainer entryPointReference={entryPoint} props={{}} />
+          </Suspense>
+        ) : (
+          <EntryPointContainer entryPointReference={entryPoint} props={{}} />
+        )}
       </RiverRouterContext>
     );
   }

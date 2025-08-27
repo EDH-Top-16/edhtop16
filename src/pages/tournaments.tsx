@@ -4,13 +4,21 @@ import {tournaments_Tournaments$key} from '#genfiles/queries/tournaments_Tournam
 import {
   TimePeriod,
   tournaments_TournamentsQuery,
+  tournaments_TournamentsQuery$variables,
   TournamentSortBy,
 } from '#genfiles/queries/tournaments_TournamentsQuery.graphql';
-import {RouteLink, useNavigation} from '#genfiles/river/router';
+import {ModuleType} from '#genfiles/river/js_resource.js';
+import {
+  EntryPointParams,
+  RouteLink,
+  useNavigation,
+} from '#genfiles/river/router';
+import {LoadingIcon} from '#src/components/fallback';
 import {useSeoMeta} from '@unhead/react';
 import {format} from 'date-fns';
 import {PropsWithChildren, useMemo} from 'react';
 import {
+  EntryPoint,
   EntryPointComponent,
   graphql,
   useFragment,
@@ -161,10 +169,28 @@ function TournamentsPageShell({
   );
 }
 
+/** @resource m#tournaments_fallback */
+export const TournamentsPageFallback: EntryPointComponent<
+  {},
+  {},
+  {},
+  tournaments_TournamentsQuery$variables
+> = ({extraProps}) => {
+  return (
+    <TournamentsPageShell
+      sortBy={extraProps.sortBy}
+      timePeriod={extraProps.timePeriod}
+      minSize={`${extraProps.minSize}`}
+    >
+      <LoadingIcon />
+    </TournamentsPageShell>
+  );
+};
+
 /** @resource m#tournaments */
 export const TournamentsPage: EntryPointComponent<
   {tournamentQueryRef: tournaments_TournamentsQuery},
-  {}
+  {fallback: EntryPoint<ModuleType<'m#tournaments_fallback'>>}
 > = ({queries}) => {
   const query = usePreloadedQuery(
     graphql`

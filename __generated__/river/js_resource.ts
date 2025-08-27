@@ -11,17 +11,33 @@ const RESOURCE_CONF = {
             src: "src/pages/about.tsx",
             loader: () => import("../../src/pages/about").then(m => m.AboutPage)
         },
+    "m#index_fallback": {
+            src: "src/pages/index.tsx",
+            loader: () => import("../../src/pages/index").then(m => m.CommandersPageFallback)
+        },
     "m#index": {
             src: "src/pages/index.tsx",
             loader: () => import("../../src/pages/index").then(m => m.CommandersPage)
+        },
+    "m#tournaments_fallback": {
+            src: "src/pages/tournaments.tsx",
+            loader: () => import("../../src/pages/tournaments").then(m => m.TournamentsPageFallback)
         },
     "m#tournaments": {
             src: "src/pages/tournaments.tsx",
             loader: () => import("../../src/pages/tournaments").then(m => m.TournamentsPage)
         },
+    "m#tournament_view_fallback": {
+            src: "src/pages/tournament/[TID].tsx",
+            loader: () => import("../../src/pages/tournament/[TID]").then(m => m.TournamentViewPageFallback)
+        },
     "m#tournament_view": {
             src: "src/pages/tournament/[TID].tsx",
             loader: () => import("../../src/pages/tournament/[TID]").then(m => m.TournamentViewPage)
+        },
+    "m#commander_page_fallback": {
+            src: "src/pages/commander/[commander]/index.tsx",
+            loader: () => import("../../src/pages/commander/[commander]/index").then(m => m.CommanderPageFallback)
         },
     "m#commander_page": {
             src: "src/pages/commander/[commander]/index.tsx",

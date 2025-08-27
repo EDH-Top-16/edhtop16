@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<685170f9fd97bad5189959f9174aa3d1>>
+ * @generated SignedSource<<de7d13d371161dd9f231d20ee2f6ba5a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,11 +16,6 @@ export type Commander_CommanderBanner$data = {
   }>;
   readonly colorId: string;
   readonly name: string;
-  readonly stats: {
-    readonly conversionRate: number;
-    readonly count: number;
-    readonly metaShare: number;
-  };
   readonly " $fragmentType": "Commander_CommanderBanner";
 };
 export type Commander_CommanderBanner$key = {
@@ -29,16 +24,7 @@ export type Commander_CommanderBanner$key = {
 };
 
 const node: ReaderFragment = {
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "minEventSize"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "timePeriod"
-    }
-  ],
+  "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
   "name": "Commander_CommanderBanner",
@@ -74,61 +60,12 @@ const node: ReaderFragment = {
         }
       ],
       "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": [
-        {
-          "fields": [
-            {
-              "kind": "Variable",
-              "name": "minSize",
-              "variableName": "minEventSize"
-            },
-            {
-              "kind": "Variable",
-              "name": "timePeriod",
-              "variableName": "timePeriod"
-            }
-          ],
-          "kind": "ObjectValue",
-          "name": "filters"
-        }
-      ],
-      "concreteType": "CommanderStats",
-      "kind": "LinkedField",
-      "name": "stats",
-      "plural": false,
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "conversionRate",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "metaShare",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "count",
-          "storageKey": null
-        }
-      ],
-      "storageKey": null
     }
   ],
   "type": "Commander",
   "abstractKey": null
 };
 
-(node as any).hash = "77be2ab72bef33263eb6f012ee2615e4";
+(node as any).hash = "035d2141fb0c1222742203e1c28c9e50";
 
 export default node;
