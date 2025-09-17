@@ -38,5 +38,9 @@
     "compilerOptions": {
       "module": "CommonJS"
     }
+  },
+  "grats": {
+    "graphqlSchema": "./__generated__/schema/schema.graphql",
+    "tsSchema": "./__generated__/schema/schema.ts"
   }
 }

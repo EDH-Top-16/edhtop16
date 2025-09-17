@@ -1,134 +1,112 @@
+import {DB} from '#genfiles/db/types.js';
+import {Float, Int} from 'grats';
 import {db} from '../db';
-import {builder} from './builder';
 import {Card} from './card';
-import {Commander} from './commander';
-import {Player} from './player';
-import {Tournament} from './tournament';
-import {TopdeckTournamentTableType} from './types';
+import {Commander, CommanderLoader} from './commander';
+import {GraphQLNode} from './connection';
+import {Player, PlayerLoader} from './player';
+import {Tournament, TournamentLoader} from './tournament';
 
-export const EntryFilters = builder.inputType('EntryFilters', {
-  fields: (t) => ({
-    minSize: t.int(),
-    maxSize: t.int(),
-    minDate: t.string(),
-    maxDate: t.string(),
-    minStanding: t.int(),
-    maxStanding: t.int(),
-    minWins: t.int(),
-    maxWins: t.int(),
-    minLosses: t.int(),
-    maxLosses: t.int(),
-    minDraws: t.int(),
-    maxDraws: t.int(),
-  }),
-});
+/** @gqlInput */
+export interface EntryFilters {
+  minSize?: Int;
+  maxSize?: Int;
+  minDate?: string;
+  maxDate?: string;
+  minStanding?: Int;
+  maxStanding?: Int;
+  minWins?: Int;
+  maxWins?: Int;
+  minLosses?: Int;
+  maxLosses?: Int;
+  minDraws?: Int;
+  maxDraws?: Int;
+}
 
-export const EntrySortBy = builder.enumType('EntrySortBy', {
-  values: ['STANDING', 'WINS', 'LOSSES', 'DRAWS', 'WINRATE', 'DATE'] as const,
-});
+/** @gqlEnum */
+export enum EntrySortBy {
+  STANDING = 'STANDING',
+  WINS = 'WINS',
+  LOSSES = 'LOSSES',
+  DRAWS = 'DRAWS',
+  WINRATE = 'WINRATE',
+  DATE = 'DATE',
+}
 
-export const Entry = builder.loadableNodeRef('Entry', {
-  id: {parse: (id) => Number(id), resolve: (parent) => parent.id},
-  load: async (ids: number[]) => {
-    const nodes = await db
-      .selectFrom('Entry')
-      .selectAll()
-      .where('id', 'in', ids)
+/** @gqlType */
+export class Entry implements GraphQLNode {
+  id;
+  __typename = 'Entry' as const;
+
+  /** @gqlField */
+  readonly standing: Int;
+  /** @gqlField */
+  readonly decklist: string | null;
+  /** @gqlField */
+  readonly winsSwiss: Int;
+  /** @gqlField */
+  readonly winsBracket: Int;
+  /** @gqlField */
+  readonly draws: Int;
+  /** @gqlField */
+  readonly lossesSwiss: Int;
+  /** @gqlField */
+  readonly lossesBracket: Int;
+
+  constructor(private readonly row: DB['Entry']) {
+    this.id = row.id;
+    this.standing = row.standing;
+    this.decklist = row.decklist;
+    this.winsSwiss = row.winsSwiss;
+    this.winsBracket = row.winsBracket;
+    this.draws = row.draws;
+    this.lossesSwiss = row.lossesSwiss;
+    this.lossesBracket = row.lossesBracket;
+  }
+
+  /** @gqlField */
+  async commander(commanderLoader: CommanderLoader): Promise<Commander> {
+    return await commanderLoader.load(this.row.commanderId);
+  }
+
+  /** @gqlField */
+  async player(playerLoader: PlayerLoader): Promise<Player> {
+    return await playerLoader.load(this.row.playerId);
+  }
+
+  /** @gqlField */
+  async tournament(tournamentLoader: TournamentLoader): Promise<Tournament> {
+    return tournamentLoader.load(this.row.tournamentId);
+  }
+
+  /** @gqlField */
+  wins(): Int {
+    return this.winsBracket + this.winsSwiss;
+  }
+
+  /** @gqlField */
+  losses(): Int {
+    return this.lossesBracket + this.lossesSwiss;
+  }
+
+  /** @gqlField */
+  winRate(): Float | null {
+    const wins = this.winsBracket + this.winsSwiss;
+    const games = wins + this.lossesBracket + this.lossesSwiss + this.draws;
+
+    if (games === 0) return null;
+    return wins / games;
+  }
+
+  /** @gqlField */
+  async maindeck(): Promise<Card[]> {
+    const rows = await db
+      .selectFrom('DecklistItem')
+      .innerJoin('Card', 'Card.id', 'DecklistItem.cardId')
+      .selectAll('Card')
+      .where('DecklistItem.entryId', '=', this.id)
       .execute();
 
-    const nodesById = new Map<number, (typeof nodes)[number]>();
-    for (const node of nodes) nodesById.set(node.id, node);
-
-    return ids.map((id) => nodesById.get(id)!);
-  },
-});
-
-Entry.implement({
-  fields: (t) => ({
-    standing: t.exposeInt('standing'),
-    decklist: t.exposeString('decklist', {nullable: true}),
-    winsSwiss: t.exposeInt('winsSwiss'),
-    winsBracket: t.exposeInt('winsBracket'),
-    draws: t.exposeInt('draws'),
-    lossesSwiss: t.exposeInt('lossesSwiss'),
-    lossesBracket: t.exposeInt('lossesBracket'),
-    commander: t.field({
-      type: Commander,
-      resolve: (parent, _args, ctx) =>
-        Commander.getDataloader(ctx).load(parent.commanderId),
-    }),
-    player: t.field({
-      type: Player,
-      nullable: true,
-      resolve: (parent) => {
-        return db
-          .selectFrom('Player')
-          .selectAll()
-          .where('Player.id', '=', parent.playerId)
-          .executeTakeFirst();
-      },
-    }),
-    tournament: t.field({
-      type: Tournament,
-      resolve: (parent, _args, ctx) => {
-        return Tournament.getDataloader(ctx).load(parent.tournamentId);
-      },
-    }),
-    wins: t.int({
-      resolve: (parent) => parent.winsBracket + parent.winsSwiss,
-    }),
-    losses: t.int({
-      resolve: (parent) => parent.lossesBracket + parent.lossesSwiss,
-    }),
-    winRate: t.float({
-      nullable: true,
-      resolve: (parent) => {
-        const wins = parent.winsBracket + parent.winsSwiss;
-        const games =
-          wins + parent.lossesBracket + parent.lossesSwiss + parent.draws;
-
-        if (games === 0) return null;
-        return wins / games;
-      },
-    }),
-    tables: t.field({
-      type: t.listRef(TopdeckTournamentTableType),
-      resolve: async (parent, _args, ctx) => {
-        if (!parent.playerId) return [];
-
-        const {TID} = await db
-          .selectFrom('Tournament')
-          .select('TID')
-          .where('id', '=', parent.tournamentId)
-          .executeTakeFirstOrThrow();
-
-        const {topdeckProfile} = await db
-          .selectFrom('Player')
-          .select('topdeckProfile')
-          .where('id', '=', parent.playerId)
-          .executeTakeFirstOrThrow();
-
-        const roundsData = await ctx.topdeckClient.loadRoundsData(TID);
-
-        return (
-          roundsData?.rounds.flatMap((round) =>
-            round.tables
-              .filter((t) => t.players.some((p) => p.id === topdeckProfile))
-              .map((r) => ({...r, TID, roundName: `${round.round}`})),
-          ) ?? []
-        );
-      },
-    }),
-    maindeck: t.field({
-      type: t.listRef(Card),
-      resolve: async (parent) => {
-        return db
-          .selectFrom('DecklistItem')
-          .innerJoin('Card', 'Card.id', 'DecklistItem.cardId')
-          .selectAll('Card')
-          .where('DecklistItem.entryId', '=', parent.id)
-          .execute();
-      },
-    }),
-  }),
-});
+    return rows.map((r) => new Card(r));
+  }
+}

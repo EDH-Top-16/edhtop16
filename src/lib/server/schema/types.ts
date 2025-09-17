@@ -1,24 +1,24 @@
 import {subMonths} from 'date-fns';
-import {TopdeckTournamentRound, TopdeckTournamentTable} from '../topdeck';
-import {builder} from './builder';
+import {Float, ID, Int} from 'grats';
 
-export const SortDirection = builder.enumType('SortDirection', {
-  values: ['ASC', 'DESC'] as const,
-});
+/** @gqlEnum */
+export enum SortDirection {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}
 
-export const TimePeriod = builder.enumType('TimePeriod', {
-  values: [
-    'ONE_MONTH',
-    'THREE_MONTHS',
-    'SIX_MONTHS',
-    'ONE_YEAR',
-    'ALL_TIME',
-    'POST_BAN',
-  ] as const,
-});
+/** @gqlEnum */
+export enum TimePeriod {
+  THREE_MONTHS = 'THREE_MONTHS',
+  SIX_MONTHS = 'SIX_MONTHS',
+  ONE_YEAR = 'ONE_YEAR',
+  ALL_TIME = 'ALL_TIME',
+  POST_BAN = 'POST_BAN',
+  ONE_MONTH = 'ONE_MONTH',
+}
 
 export function minDateFromTimePeriod(
-  timePeriod: (typeof TimePeriod)['$inferType'] | null | undefined,
+  timePeriod: TimePeriod | null | undefined,
 ) {
   return timePeriod === 'ONE_YEAR'
     ? subMonths(new Date(), 12)
@@ -32,18 +32,3 @@ export function minDateFromTimePeriod(
             ? new Date('2024-09-23')
             : new Date(0);
 }
-
-export const TopdeckTournamentRoundType = builder.objectRef<
-  TopdeckTournamentRound & {TID: string}
->('TopdeckTournamentRound');
-
-export const TopdeckTournamentTableType = builder.objectRef<
-  TopdeckTournamentTable & {TID: string; roundName: string}
->('TopdeckTournamentTable');
-
-export const TournamentBreakdownGroupType = builder.objectRef<{
-  commanderId: number;
-  topCuts: number;
-  entries: number;
-  conversionRate: number;
-}>('TournamentBreakdownGroup');

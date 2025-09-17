@@ -1,178 +1,165 @@
-import {
-  resolveCursorConnection,
-  ResolveCursorConnectionArgs,
-} from '@pothos/plugin-relay';
+import {DB} from '#genfiles/db/types.js';
+import {fromGlobalId, toGlobalId} from 'graphql-relay';
+import {ID, Int} from 'grats';
 import {db} from '../db';
-import {scryfallCardSchema} from '../scryfall';
-import {builder} from './builder';
+import {ScryfallCard, scryfallCardSchema} from '../scryfall';
+import {Connection, GraphQLNode} from './connection';
 import {Entry} from './entry';
 
-const CardEntriesFilters = builder.inputType('CardEntriesFilters', {
-  fields: (t) => ({
-    colorId: t.string({required: false}),
-    commanderName: t.string({required: false}),
-    tournamentTID: t.string({required: false}),
-  }),
-});
+/** @gqlInput */
+export interface CardEntriesFilters {
+  colorId?: string;
+  commanderName?: string;
+  tournamentTID?: string;
+}
 
-export const Card = builder.loadableNode('Card', {
-  id: {parse: (id) => Number(id), resolve: (parent) => parent.id},
-  load: async (ids: number[]) => {
-    const nodes = await db
-      .selectFrom('Card')
-      .selectAll()
-      .where('id', 'in', ids)
+/** @gqlType */
+export class Card implements GraphQLNode {
+  id;
+  __typename = 'Card' as const;
+
+  /** @gqlField */
+  readonly name: string;
+  /** @gqlField */
+  readonly oracleId: string;
+
+  constructor(private readonly row: DB['Card']) {
+    this.id = row.id;
+    this.name = row.name;
+    this.oracleId = row.oracleId;
+    this.scryfallData = scryfallCardSchema.parse(JSON.parse(row.data));
+  }
+
+  private readonly scryfallData: ScryfallCard;
+
+  /** @gqlField */
+  cmc(): Int {
+    return this.scryfallData.cmc;
+  }
+
+  /** @gqlField */
+  colorId(): string {
+    const colorIdentity = new Set(this.scryfallData.color_identity);
+
+    let colorId: string = '';
+    for (const c of ['W', 'U', 'B', 'R', 'G', 'C']) {
+      if (colorIdentity.has(c)) colorId += c;
+    }
+
+    return colorId || 'C';
+  }
+
+  /** @gqlField */
+  type(): string {
+    return this.scryfallData.type_line;
+  }
+
+  /**
+   * URL's of art crops for each card face.
+   * @gqlField
+   */
+  imageUrls(): string[] {
+    const card = this.scryfallData;
+    const cardFaces = card.card_faces ? card.card_faces : [card];
+    return cardFaces
+      .map((c) => c.image_uris?.art_crop)
+      .filter((c): c is string => c != null);
+  }
+
+  /**
+   * Image of the full front card face.
+   * @gqlField
+   */
+  cardPreviewImageUrl(): string | undefined {
+    const card = this.scryfallData;
+    const cardFaces = card.card_faces ? card.card_faces : [card];
+    return cardFaces
+      .map((c) => c.image_uris?.normal)
+      .filter((c): c is string => c != null)
+      ?.at(0);
+  }
+
+  /**
+   * Link to the card on Scryfall.
+   * @gqlField
+   */
+  scryfallUrl(): string {
+    return this.scryfallData.scryfall_uri;
+  }
+
+  /** @gqlField */
+  async entries(
+    first: Int = 20,
+    after?: ID | null,
+    filters?: CardEntriesFilters | null,
+  ): Promise<Connection<Entry>> {
+    let query = db
+      .selectFrom('DecklistItem')
+      .innerJoin('Entry', 'Entry.id', 'DecklistItem.entryId')
+      .leftJoin('Commander', 'Commander.id', 'Entry.commanderId')
+      .where('DecklistItem.cardId', '=', this.id)
+      .selectAll('Entry');
+
+    if (filters?.colorId) {
+      query = query.where('Commander.colorId', '=', filters.colorId);
+    }
+
+    if (filters?.commanderName) {
+      query = query.where('Commander.name', '=', filters.commanderName);
+    }
+
+    if (filters?.tournamentTID) {
+      query = query
+        .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+        .where('Tournament.TID', '=', filters.tournamentTID);
+    }
+
+    if (after) {
+      const {id} = fromGlobalId(after);
+      query = query.where('Entry.id', '<', Number(id));
+    }
+
+    const rows = await query
+      .orderBy('Entry.id', 'desc')
+      .limit(first + 1)
       .execute();
 
-    const nodesById = new Map<number, (typeof nodes)[number]>();
-    for (const node of nodes) nodesById.set(node.id, node);
+    const edges = rows.slice(0, first).map((r) => ({
+      cursor: toGlobalId('Entry', r.id),
+      node: new Entry(r),
+    }));
 
-    return ids.map((id) => nodesById.get(id)!);
-  },
-  fields: (t) => ({
-    name: t.exposeString('name'),
-    oracleId: t.exposeString('oracleId'),
-    cmc: t.int({
-      resolve: (parent) => {
-        return scryfallCardSchema.parse(JSON.parse(parent.data)).cmc;
+    return {
+      edges,
+      pageInfo: {
+        hasPreviousPage: false,
+        hasNextPage: rows.length > edges.length,
+        startCursor: edges.at(0)?.cursor ?? null,
+        endCursor: edges.at(-1)?.cursor ?? null,
       },
-    }),
-    colorId: t.string({
-      resolve: (parent) => {
-        const card = scryfallCardSchema.parse(JSON.parse(parent.data));
-        const colorIdentity = new Set(card.color_identity);
+    };
+  }
 
-        let colorId: string = '';
-        for (const c of ['W', 'U', 'B', 'R', 'G', 'C']) {
-          if (colorIdentity.has(c)) colorId += c;
-        }
+  /** @gqlQueryField */
+  static async card(name: string): Promise<Card> {
+    const row = await db
+      .selectFrom('Card')
+      .selectAll()
+      .where('name', '=', name)
+      .executeTakeFirstOrThrow();
 
-        return colorId || 'C';
-      },
-    }),
-    type: t.string({
-      resolve: (parent) => {
-        return scryfallCardSchema.parse(JSON.parse(parent.data)).type_line;
-      },
-    }),
-    imageUrls: t.stringList({
-      description: `URL's of art crops for each card face.`,
-      resolve: (parent) => {
-        const card = scryfallCardSchema.parse(JSON.parse(parent.data));
-        const cardFaces = card.card_faces ? card.card_faces : [card];
-        return cardFaces
-          .map((c) => c.image_uris?.art_crop)
-          .filter((c): c is string => c != null);
-      },
-    }),
-    cardPreviewImageUrl: t.string({
-      description: `Image of the full front card face.`,
-      nullable: true,
-      resolve: (parent) => {
-        const card = scryfallCardSchema.parse(JSON.parse(parent.data));
-        const cardFaces = card.card_faces ? card.card_faces : [card];
-        return cardFaces
-          .map((c) => c.image_uris?.normal)
-          .filter((c): c is string => c != null)
-          ?.at(0);
-      },
-    }),
-    scryfallUrl: t.string({
-      description: `Link to the card on Scryfall.`,
-      resolve: (parent) => {
-        const card = scryfallCardSchema.parse(JSON.parse(parent.data));
-        return card.scryfall_uri;
-      },
-    }),
-    entries: t.connection({
-      type: Entry,
-      args: {
-        filters: t.arg({type: CardEntriesFilters, required: false}),
-      },
-      resolve: (parent, args) => {
-        return resolveCursorConnection(
-          {
-            args,
-            toCursor: (parent) => `${parent.id}`,
-          },
-          async ({
-            before,
-            after,
-            limit,
-            inverted,
-          }: ResolveCursorConnectionArgs) => {
-            let query = db
-              .selectFrom('DecklistItem')
-              .innerJoin('Entry', 'Entry.id', 'DecklistItem.entryId')
-              .leftJoin('Commander', 'Commander.id', 'Entry.commanderId')
-              .where('DecklistItem.cardId', '=', parent.id)
-              .selectAll('Entry');
+    return new Card(row);
+  }
 
-            if (args.filters?.colorId) {
-              query = query.where(
-                'Commander.colorId',
-                '=',
-                args.filters.colorId,
-              );
-            }
+  /** @gqlQueryField */
+  static async staples(): Promise<Card[]> {
+    const rows = await db
+      .selectFrom('Card')
+      .selectAll()
+      .where('playRateLastYear', '>=', 0.01)
+      .orderBy('playRateLastYear desc')
+      .execute();
 
-            if (args.filters?.commanderName) {
-              query = query.where(
-                'Commander.name',
-                '=',
-                args.filters.commanderName,
-              );
-            }
-
-            if (args.filters?.tournamentTID) {
-              query = query
-                .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
-                .where('Tournament.TID', '=', args.filters.tournamentTID);
-            }
-
-            if (before) {
-              query = query.where('Entry.id', '>', Number(before));
-            }
-
-            if (after) {
-              query = query.where('Entry.id', '<', Number(after));
-            }
-
-            return query
-              .orderBy('Entry.id', inverted ? 'asc' : 'desc')
-              .limit(limit)
-              .execute();
-          },
-        );
-      },
-    }),
-  }),
-});
-
-builder.queryField('card', (t) =>
-  t.field({
-    type: Card,
-    args: {name: t.arg.string({required: true})},
-    resolve: async (_root, args) => {
-      return db
-        .selectFrom('Card')
-        .selectAll()
-        .where('name', '=', args.name)
-        .executeTakeFirstOrThrow();
-    },
-  }),
-);
-
-builder.queryField('staples', (t) =>
-  t.field({
-    type: t.listRef(Card),
-    resolve: async () => {
-      return db
-        .selectFrom('Card')
-        .selectAll()
-        .where('playRateLastYear', '>=', 0.01)
-        .orderBy('playRateLastYear desc')
-        .execute();
-    },
-  }),
-);
+    return rows.map((r) => new Card(r));
+  }
+}

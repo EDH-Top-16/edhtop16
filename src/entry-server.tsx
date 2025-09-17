@@ -1,5 +1,6 @@
 import {listRoutes} from '#genfiles/river/router';
 import {createRiverServerApp} from '#genfiles/river/server_router';
+import {getSchema} from '#genfiles/schema/schema';
 import {usePersistedOperations} from '@graphql-yoga/plugin-persisted-operations';
 import {
   createHead,
@@ -13,16 +14,21 @@ import {renderToString} from 'react-dom/server';
 import {RelayEnvironmentProvider} from 'react-relay/hooks';
 import type {Manifest} from 'vite';
 import {createServerEnvironment} from './lib/server/relay_server_environment';
-import {schema} from './lib/server/schema';
 import {App} from './pages/_app';
+import {Context} from './lib/server/context';
+
+const schema = getSchema();
 
 export function createHandler(
   template: string,
   persistedQueries: Record<string, string>,
   manifest?: Manifest,
 ) {
+  const context = new Context();
+
   const graphqlHandler = createYoga({
     schema,
+    context,
     plugins: [
       // eslint-disable-next-line react-hooks/rules-of-hooks
       usePersistedOperations({

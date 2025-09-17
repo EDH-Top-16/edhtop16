@@ -7,7 +7,7 @@ import {
   RecordSource,
   Store,
 } from 'relay-runtime';
-import {createContext} from './context';
+import {Context} from './context';
 
 export interface RelayResolverContext {
   cookies?: Request['cookies'];
@@ -32,7 +32,7 @@ export function createServerEnvironment(
       schema,
       source,
       variableValues: variables,
-      contextValue: createContext(),
+      contextValue: new Context(),
     });
 
     return results as any;
