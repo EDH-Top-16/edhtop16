@@ -5,7 +5,7 @@
 import { createCommanderCardsLoader as createCommanderCardsLoader, commanderStatsLoader as commanderStatsLoader, createCommanderLoader as createCommanderLoader, Commander as queryCommanderResolver, Commander as queryCommandersResolver } from "./../../src/lib/server/schema/commander";
 import { id as commanderIdResolver, id as entryIdResolver, id as playerIdResolver, id as tournamentIdResolver, id as cardIdResolver } from "./../../src/lib/server/schema/connection";
 import { createPlayerLoader as createPlayerLoader, Player as queryCheatersResolver, Player as queryPlayerResolver } from "./../../src/lib/server/schema/player";
-import { createTournamentLoader as createTournamentLoader, Tournament as queryTournamentResolver } from "./../../src/lib/server/schema/tournament";
+import { createTournamentLoader as createTournamentLoader, Tournament as queryTournamentResolver, Tournament as queryTournamentsResolver } from "./../../src/lib/server/schema/tournament";
 import { Card as queryCardResolver, Card as queryStaplesResolver } from "./../../src/lib/server/schema/card";
 import { searchResults as querySearchResultsResolver } from "./../../src/lib/server/schema/search";
 import { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLID, GraphQLInputObjectType, GraphQLEnumType, GraphQLBoolean, GraphQLFloat, GraphQLInterfaceType } from "graphql";
@@ -730,6 +730,47 @@ export function getSchema(): GraphQLSchema {
             }
         }
     });
+    const TournamentEdgeType: GraphQLObjectType = new GraphQLObjectType({
+        name: "TournamentEdge",
+        fields() {
+            return {
+                cursor: {
+                    name: "cursor",
+                    type: GraphQLString
+                },
+                node: {
+                    name: "node",
+                    type: TournamentType
+                }
+            };
+        }
+    });
+    const TournamentConnectionType: GraphQLObjectType = new GraphQLObjectType({
+        name: "TournamentConnection",
+        fields() {
+            return {
+                edges: {
+                    name: "edges",
+                    type: new GraphQLList(new GraphQLNonNull(TournamentEdgeType))
+                },
+                pageInfo: {
+                    name: "pageInfo",
+                    type: PageInfoType
+                }
+            };
+        }
+    });
+    const TournamentSortByType: GraphQLEnumType = new GraphQLEnumType({
+        name: "TournamentSortBy",
+        values: {
+            DATE: {
+                value: "DATE"
+            },
+            PLAYERS: {
+                value: "PLAYERS"
+            }
+        }
+    });
     const QueryType: GraphQLObjectType = new GraphQLObjectType({
         name: "Query",
         fields() {
@@ -840,6 +881,44 @@ export function getSchema(): GraphQLSchema {
                     resolve(_source, args) {
                         return queryTournamentResolver.tournament(args.TID);
                     }
+                },
+                tournaments: {
+                    name: "tournaments",
+                    type: TournamentConnectionType,
+                    args: {
+                        after: {
+                            type: GraphQLID
+                        },
+                        first: {
+                            type: new GraphQLNonNull(GraphQLInt),
+                            defaultValue: 20
+                        },
+                        maxDate: {
+                            type: GraphQLString
+                        },
+                        maxSize: {
+                            type: GraphQLInt
+                        },
+                        minDate: {
+                            type: GraphQLString
+                        },
+                        minSize: {
+                            type: GraphQLInt
+                        },
+                        search: {
+                            type: GraphQLString
+                        },
+                        sortBy: {
+                            type: new GraphQLNonNull(TournamentSortByType),
+                            defaultValue: "DATE"
+                        },
+                        timePeriod: {
+                            type: TimePeriodType
+                        }
+                    },
+                    resolve(_source, args) {
+                        return queryTournamentsResolver.tournaments(args.first, args.after, args.search, args.timePeriod, args.minDate, args.maxDate, args.minSize, args.maxSize, args.sortBy);
+                    }
                 }
             };
         }
@@ -875,17 +954,6 @@ export function getSchema(): GraphQLSchema {
             },
             DESC: {
                 value: "DESC"
-            }
-        }
-    });
-    const TournamentSortByType: GraphQLEnumType = new GraphQLEnumType({
-        name: "TournamentSortBy",
-        values: {
-            DATE: {
-                value: "DATE"
-            },
-            PLAYERS: {
-                value: "PLAYERS"
             }
         }
     });
@@ -973,6 +1041,6 @@ export function getSchema(): GraphQLSchema {
     });
     return new GraphQLSchema({
         query: QueryType,
-        types: [CommandersSortByType, EntriesSortByType, EntrySortByType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CommanderStatsFiltersType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, CardConnectionType, CardEdgeType, CommanderType, CommanderCalculatedStatsType, CommanderConnectionType, CommanderEdgeType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, PageInfoType, PlayerType, QueryType, SearchResultType, TournamentType, TournamentBreakdownGroupType]
+        types: [CommandersSortByType, EntriesSortByType, EntrySortByType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CommanderStatsFiltersType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, CardConnectionType, CardEdgeType, CommanderType, CommanderCalculatedStatsType, CommanderConnectionType, CommanderEdgeType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, PageInfoType, PlayerType, QueryType, SearchResultType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType]
     });
 }

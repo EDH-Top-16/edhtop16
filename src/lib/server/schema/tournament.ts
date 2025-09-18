@@ -4,11 +4,13 @@ import {Float, Int} from 'grats';
 import {sql} from 'kysely';
 import {db} from '../db';
 import {Commander, CommanderLoader} from './commander';
-import {GraphQLNode} from './connection';
+import {Connection, GraphQLNode} from './connection';
 import {Entry} from './entry';
 import {FirstPartyPromo, getActivePromotions} from './promo';
-import {TimePeriod} from './types';
+import {minDateFromTimePeriod, TimePeriod} from './types';
 import {Context} from '../context';
+import {fromGlobalId, toGlobalId} from 'graphql-relay';
+import {ID} from 'grats';
 
 export type TournamentLoader = DataLoader<number, Tournament>;
 
@@ -162,44 +164,68 @@ export class Tournament implements GraphQLNode {
     return new Tournament(row);
   }
 
-  // /** @gqlQueryField */
-  // static async tournaments(
-  //   search?: string,
-  //   filters?: TournamentFilters,
-  //   sortBy: TournamentSortBy = TournamentSortBy.DATE,
-  // ): Connection<Tournament[]> {
-  //   resolveOffsetConnection({args}, ({limit, offset}) => {
-  //       let query = db.selectFrom('Tournament').selectAll();
+  /** @gqlQueryField */
+  static async tournaments(
+    first: Int = 20,
+    after?: ID | null,
+    search?: string | null,
+    timePeriod?: TimePeriod | null,
+    minDate?: string | null,
+    maxDate?: string | null,
+    minSize?: Int | null,
+    maxSize?: Int | null,
+    sortBy: TournamentSortBy = TournamentSortBy.DATE,
+  ): Promise<Connection<Tournament>> {
+    let query = db.selectFrom('Tournament').selectAll();
 
-  //       if (args.search) {
-  //         query = query.where('name', 'like', `%${args.search}%`);
-  //       }
-  //       if (args.filters?.minSize) {
-  //         query = query.where('size', '>=', args.filters.minSize);
-  //       }
-  //       if (args.filters?.maxSize) {
-  //         query = query.where('size', '<=', args.filters.maxSize);
-  //       }
-  //       if (args.filters?.timePeriod || args.filters?.minDate) {
-  //         const minDate =
-  //           args.filters?.minDate != null
-  //             ? new Date(args.filters?.minDate ?? 0)
-  //             : minDateFromTimePeriod(args.filters?.timePeriod);
+    if (search) {
+      query = query.where('name', 'like', `%${search}%`);
+    }
+    if (minSize) {
+      query = query.where('size', '>=', minSize);
+    }
+    if (maxSize) {
+      query = query.where('size', '<=', maxSize);
+    }
+    if (timePeriod || minDate) {
+      const minDateValue =
+        minDate != null
+          ? new Date(minDate)
+          : minDateFromTimePeriod(timePeriod);
 
-  //         query = query.where('tournamentDate', '>=', minDate.toISOString());
-  //       }
-  //       const maxDate = args.filters?.maxDate
-  //         ? new Date(args.filters.maxDate)
-  //         : new Date();
-  //       query = query.where('tournamentDate', '<=', maxDate.toISOString());
+      query = query.where('tournamentDate', '>=', minDateValue.toISOString());
+    }
+    const maxDateValue = maxDate
+      ? new Date(maxDate)
+      : new Date();
+    query = query.where('tournamentDate', '<=', maxDateValue.toISOString());
 
-  //       if (args.sortBy === 'PLAYERS') {
-  //         query = query.orderBy(['size desc', 'tournamentDate desc']);
-  //       } else {
-  //         query = query.orderBy(['tournamentDate desc', 'size desc']);
-  //       }
+    if (after) {
+      const {id} = fromGlobalId(after);
+      query = query.where('Tournament.id', '<', Number(id));
+    }
 
-  //       return query.limit(limit).offset(offset).execute();
-  //     }),
-  // }
+    if (sortBy === TournamentSortBy.PLAYERS) {
+      query = query.orderBy(['size desc', 'tournamentDate desc']);
+    } else {
+      query = query.orderBy(['tournamentDate desc', 'size desc']);
+    }
+
+    const rows = await query.limit(first + 1).execute();
+
+    const edges = rows.slice(0, first).map((r) => ({
+      cursor: toGlobalId('Tournament', r.id),
+      node: new Tournament(r),
+    }));
+
+    return {
+      edges,
+      pageInfo: {
+        hasPreviousPage: false,
+        hasNextPage: rows.length > edges.length,
+        startCursor: edges.at(0)?.cursor ?? null,
+        endCursor: edges.at(-1)?.cursor ?? null,
+      },
+    };
+  }
 }

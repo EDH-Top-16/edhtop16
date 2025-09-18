@@ -214,6 +214,7 @@ type Query {
   searchResults(types: [SearchResultType!]!): [SearchResult!]
   staples: [Card!]
   tournament(TID: String!): Tournament
+  tournaments(after: ID, first: Int! = 20, maxDate: String, maxSize: Int, minDate: String, minSize: Int, search: String, sortBy: TournamentSortBy! = DATE, timePeriod: TimePeriod): TournamentConnection
 }
 
 type SearchResult {
@@ -241,4 +242,14 @@ type TournamentBreakdownGroup {
   conversionRate: Float
   entries: Int
   topCuts: Int
+}
+
+type TournamentConnection {
+  edges: [TournamentEdge!]
+  pageInfo: PageInfo
+}
+
+type TournamentEdge {
+  cursor: String
+  node: Tournament
 }
