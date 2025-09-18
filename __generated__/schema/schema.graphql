@@ -108,13 +108,25 @@ type Card implements Node {
   type: String
 }
 
+type CardConnection {
+  edges: [CardEdge!]
+  pageInfo: PageInfo
+}
+
+type CardEdge {
+  cursor: String
+  node: Card
+}
+
 type Commander implements Node {
   breakdownUrl: String
   cards: [Card!]
   colorId: String
+  entries(after: ID, filters: EntriesFilter, first: Int! = 20, sortBy: EntriesSortBy! = TOP): EntryConnection
   id: ID!
   name: String
   promo: FirstPartyPromo
+  staples(after: ID, first: Int! = 20): CardConnection
   stats(filters: CommanderStatsFilters!): CommanderCalculatedStats
 }
 
@@ -123,6 +135,16 @@ type CommanderCalculatedStats {
   count: Int
   metaShare: Float
   topCuts: Int
+}
+
+type CommanderConnection {
+  edges: [CommanderEdge!]
+  pageInfo: PageInfo
+}
+
+type CommanderEdge {
+  cursor: String
+  node: Commander
 }
 
 type Entry implements Node {
@@ -187,6 +209,7 @@ type Query {
   card(name: String!): Card
   cheaters: [Player!]
   commander(name: String!): Commander
+  commanders(after: ID, colorId: String, first: Int! = 20, minEntries: Int, minTournamentSize: Int, sortBy: CommandersSortBy! = CONVERSION, timePeriod: TimePeriod! = ONE_MONTH): CommanderConnection
   player(profile: String!): Player
   searchResults(types: [SearchResultType!]!): [SearchResult!]
   staples: [Card!]

@@ -4,9 +4,14 @@ import {Float, Int} from 'grats';
 import {Context} from '../context';
 import {db} from '../db';
 import {Card} from './card';
-import {GraphQLNode} from './connection';
+import {Connection, GraphQLNode} from './connection';
 import {FirstPartyPromo, getActivePromotions} from './promo';
 import {minDateFromTimePeriod, TimePeriod} from './types';
+import {fromGlobalId, toGlobalId} from 'graphql-relay';
+import {ID} from 'grats';
+import {Entry} from './entry';
+import {sql} from 'kysely';
+import {subYears} from 'date-fns';
 
 export type CommanderLoader = DataLoader<number, Commander>;
 
@@ -94,6 +99,7 @@ export interface EntriesFilter {
   minEventSize: Int;
   maxStanding: Int;
 }
+
 
 /** @gqlType */
 interface CommanderCalculatedStats {
@@ -255,104 +261,146 @@ export class Commander implements GraphQLNode {
     return `/commander/${encodeURIComponent(this.name)}`;
   }
 
-  // /** @gqlField */
-  // async entries(
-  //   filters: EntriesFilter,
-  //   sortBy: EntriesSortBy = EntriesSortBy.TOP,
-  // ): Connection<Entry> {
-  //   return         resolveOffsetConnection({args}, ({limit, offset}) => {
-  //         const minEventSize = args.filters?.minEventSize ?? 60;
-  //         const maxStanding =
-  //           args.filters?.maxStanding ?? Number.MAX_SAFE_INTEGER;
-  //         const minDate = minDateFromTimePeriod(
-  //           args.filters?.timePeriod ?? 'ALL_TIME',
-  //         );
+  /** @gqlField */
+  async entries(
+    first: Int = 20,
+    after?: ID | null,
+    filters?: EntriesFilter | null,
+    sortBy: EntriesSortBy = EntriesSortBy.TOP,
+  ): Promise<Connection<Entry>> {
+    const minEventSize = filters?.minEventSize ?? 60;
+    const maxStanding = filters?.maxStanding ?? Number.MAX_SAFE_INTEGER;
+    const minDate = minDateFromTimePeriod(
+      filters?.timePeriod ?? TimePeriod.ALL_TIME,
+    );
 
-  //         return db
-  //           .selectFrom('Entry')
-  //           .selectAll('Entry')
-  //           .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
-  //           .where('Entry.commanderId', '=', parent.id)
-  //           .where('standing', '<=', maxStanding)
-  //           .where('Tournament.tournamentDate', '>=', minDate.toISOString())
-  //           .where('Tournament.size', '>=', minEventSize)
-  //           .orderBy(
-  //             args.sortBy === 'NEW'
-  //               ? ['Tournament.tournamentDate desc']
-  //               : ['Entry.standing asc', 'Tournament.size desc'],
-  //           )
-  //           .limit(limit)
-  //           .offset(offset)
-  //           .execute();
-  //       }),
-  // }
+    let query = db
+      .selectFrom('Entry')
+      .selectAll('Entry')
+      .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+      .where('Entry.commanderId', '=', this.id)
+      .where('standing', '<=', maxStanding)
+      .where('Tournament.tournamentDate', '>=', minDate.toISOString())
+      .where('Tournament.size', '>=', minEventSize);
+
+    if (after) {
+      const {id} = fromGlobalId(after);
+      if (sortBy === EntriesSortBy.NEW) {
+        query = query.where('Entry.id', '<', Number(id));
+      } else {
+        query = query.where('Entry.id', '<', Number(id));
+      }
+    }
+
+    query = query.orderBy(
+      sortBy === EntriesSortBy.NEW
+        ? ['Tournament.tournamentDate desc']
+        : ['Entry.standing asc', 'Tournament.size desc'],
+    );
+
+    const rows = await query.limit(first + 1).execute();
+
+    const edges = rows.slice(0, first).map((r) => ({
+      cursor: toGlobalId('Entry', r.id),
+      node: new Entry(r),
+    }));
+
+    return {
+      edges,
+      pageInfo: {
+        hasPreviousPage: false,
+        hasNextPage: rows.length > edges.length,
+        startCursor: edges.at(0)?.cursor ?? null,
+        endCursor: edges.at(-1)?.cursor ?? null,
+      },
+    };
+  }
 
   /** @gqlField */
   async cards(commanderLoader: CommanderCardsLoader): Promise<Card[]> {
     return await commanderLoader.load(this.name);
   }
 
-  // staples: t.connection({
-  //     type: Card,
-  //     resolve: async (parent, args) => {
-  //       return resolveOffsetConnection({args}, async ({limit, offset}) => {
-  //         const oneYearAgo = subYears(new Date(), 1).toISOString();
+  /** @gqlField */
+  async staples(
+    first: Int = 20,
+    after?: ID | null,
+  ): Promise<Connection<Card>> {
+    const oneYearAgo = subYears(new Date(), 1).toISOString();
 
-  //         const {totalEntries} = await db
-  //           .selectFrom('Entry')
-  //           .select([(eb) => eb.fn.countAll<number>().as('totalEntries')])
-  //           .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
-  //           .where('Entry.commanderId', '=', parent.id)
-  //           .where('Tournament.tournamentDate', '>=', oneYearAgo)
-  //           .executeTakeFirstOrThrow();
+    const {totalEntries} = await db
+      .selectFrom('Entry')
+      .select([(eb) => eb.fn.countAll<number>().as('totalEntries')])
+      .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+      .where('Entry.commanderId', '=', this.id)
+      .where('Tournament.tournamentDate', '>=', oneYearAgo)
+      .executeTakeFirstOrThrow();
 
-  //         const query = db
-  //           .with('entries', (eb) => {
-  //             return eb
-  //               .selectFrom('DecklistItem')
-  //               .leftJoin('Card', 'Card.id', 'DecklistItem.cardId')
-  //               .leftJoin('Entry', 'Entry.id', 'DecklistItem.entryId')
-  //               .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
-  //               .where('Entry.commanderId', '=', parent.id)
-  //               .where('Tournament.tournamentDate', '>=', oneYearAgo)
-  //               .groupBy('Card.id')
-  //               .select((eb) => [
-  //                 eb.ref('Card.id').as('cardId'),
-  //                 eb(
-  //                   eb.cast(eb.fn.count<number>('Card.id'), 'real'),
-  //                   '/',
-  //                   totalEntries,
-  //                 ).as('playRateLastYear'),
-  //               ]);
-  //           })
-  //           .selectFrom('Card')
-  //           .leftJoin('entries', 'entries.cardId', 'Card.id')
-  //           .where((eb) =>
-  //             eb(
-  //               eb.fn('json_extract', ['Card.data', sql`'$.type_line'`]),
-  //               'not like',
-  //               '%Land%',
-  //             ),
-  //           )
-  //           .orderBy(
-  //             (eb) =>
-  //               eb(
-  //                 'entries.playRateLastYear',
-  //                 '-',
-  //                 eb.ref('Card.playRateLastYear'),
-  //               ),
-  //             'desc',
-  //           )
-  //           .selectAll('Card');
+    let query = db
+      .with('entries', (eb) => {
+        return eb
+          .selectFrom('DecklistItem')
+          .leftJoin('Card', 'Card.id', 'DecklistItem.cardId')
+          .leftJoin('Entry', 'Entry.id', 'DecklistItem.entryId')
+          .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+          .where('Entry.commanderId', '=', this.id)
+          .where('Tournament.tournamentDate', '>=', oneYearAgo)
+          .groupBy('Card.id')
+          .select((eb) => [
+            eb.ref('Card.id').as('cardId'),
+            eb(
+              eb.cast(eb.fn.count<number>('Card.id'), 'real'),
+              '/',
+              totalEntries,
+            ).as('playRateLastYear'),
+          ]);
+      })
+      .selectFrom('Card')
+      .leftJoin('entries', 'entries.cardId', 'Card.id')
+      .where((eb) =>
+        eb(
+          eb.fn('json_extract', ['Card.data', sql`'$.type_line'`]),
+          'not like',
+          '%Land%',
+        ),
+      )
+      .orderBy(
+        (eb) =>
+          eb(
+            'entries.playRateLastYear',
+            '-',
+            eb.ref('Card.playRateLastYear'),
+          ),
+        'desc',
+      )
+      .selectAll('Card');
 
-  //         return query.limit(limit).offset(offset).execute();
-  //       });
-  //     },
-  //   }),
+    if (after) {
+      const {id} = fromGlobalId(after);
+      query = query.where('Card.id', '<', Number(id));
+    }
+
+    const rows = await query.limit(first + 1).execute();
+
+    const edges = rows.slice(0, first).map((r) => ({
+      cursor: toGlobalId('Card', r.id),
+      node: new Card(r),
+    }));
+
+    return {
+      edges,
+      pageInfo: {
+        hasPreviousPage: false,
+        hasNextPage: rows.length > edges.length,
+        startCursor: edges.at(0)?.cursor ?? null,
+        endCursor: edges.at(-1)?.cursor ?? null,
+      },
+    };
+  }
 
   /** @gqlField */
   promo(): FirstPartyPromo | undefined {
-    return getActivePromotions({commander: parent.name})[0];
+    return getActivePromotions({commander: this.name})[0];
   }
 
   /** @gqlField */
@@ -373,135 +421,122 @@ export class Commander implements GraphQLNode {
 
     return new Commander(c);
   }
+
+  /** @gqlQueryField */
+  static async commanders(
+    first: Int = 20,
+    after?: ID | null,
+    minEntries?: Int | null,
+    minTournamentSize?: Int | null,
+    timePeriod: TimePeriod = TimePeriod.ONE_MONTH,
+    sortBy: CommandersSortBy = CommandersSortBy.CONVERSION,
+    colorId?: string | null,
+  ): Promise<Connection<Commander>> {
+    const minDate = minDateFromTimePeriod(timePeriod);
+    const minTournamentSizeValue = minTournamentSize || 0;
+    const minEntriesValue = minEntries || 0;
+    const sortByColumn =
+      sortBy === CommandersSortBy.POPULARITY
+        ? 'stats.count'
+        : sortBy === CommandersSortBy.TOP_CUTS
+          ? 'stats.topCuts'
+          : 'stats.conversionRate';
+
+    let query = db
+      .with('stats', (eb) =>
+        eb
+          .selectFrom('Commander')
+          .leftJoin('Entry', 'Entry.commanderId', 'Commander.id')
+          .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+          .where('Tournament.tournamentDate', '>=', minDate.toISOString())
+          .where('Tournament.size', '>=', minTournamentSizeValue)
+          .groupBy('Commander.id')
+          .select((eb) => [
+            eb.ref('Commander.id').as('commanderId'),
+            eb.fn.count('Entry.id').as('count'),
+            eb.fn
+              .sum(
+                eb
+                  .case()
+                  .when(
+                    'Entry.standing',
+                    '<=',
+                    eb.ref('Tournament.topCut'),
+                  )
+                  .then(1)
+                  .else(0)
+                  .end(),
+              )
+              .as('topCuts'),
+            eb(
+              eb.cast(
+                eb.fn.sum(
+                  eb
+                    .case()
+                    .when(
+                      'Entry.standing',
+                      '<=',
+                      eb.ref('Tournament.topCut'),
+                    )
+                    .then(1)
+                    .else(0)
+                    .end(),
+                ),
+                'real',
+              ),
+              '/',
+              eb.fn.count('Entry.id'),
+            ).as('conversionRate'),
+          ]),
+      )
+      .selectFrom('Commander')
+      .selectAll('Commander')
+      .leftJoin('stats', 'stats.commanderId', 'Commander.id')
+      .where('Commander.name', '!=', 'Unknown Commander')
+      .where('Commander.name', '!=', 'Nadu, Winged Wisdom')
+      .where('stats.count', '>=', minEntriesValue);
+
+    if (colorId) {
+      query = query.where('Commander.colorId', '=', colorId);
+    }
+
+    if (after) {
+      const {id} = fromGlobalId(after);
+      query = query.where((eb) =>
+        eb(
+          eb.tuple(eb.ref(sortByColumn), eb.ref('Commander.id')),
+          '<',
+          eb.tuple(
+            eb
+              .selectFrom('stats')
+              .select(sortByColumn)
+              .where('commanderId', '=', Number(id)),
+            Number(id),
+          ),
+        ),
+      );
+    }
+
+    query = query
+      .orderBy(sortByColumn, 'desc')
+      .orderBy('Commander.id', 'desc')
+      .limit(first + 1);
+
+    const rows = await query.execute();
+
+    const edges = rows.slice(0, first).map((r) => ({
+      cursor: toGlobalId('Commander', r.id),
+      node: new Commander(r),
+    }));
+
+    return {
+      edges,
+      pageInfo: {
+        hasPreviousPage: false,
+        hasNextPage: rows.length > edges.length,
+        startCursor: edges.at(0)?.cursor ?? null,
+        endCursor: edges.at(-1)?.cursor ?? null,
+      },
+    };
+  }
 }
-
-// builder.queryField('commanders', (t) =>
-//   t.connection({
-//     type: Commander,
-//     args: {
-//       minEntries: t.arg.int(),
-//       minTournamentSize: t.arg.int(),
-//       timePeriod: t.arg({type: TimePeriod, defaultValue: 'ONE_MONTH'}),
-//       sortBy: t.arg({type: CommandersSortBy, defaultValue: 'CONVERSION'}),
-//       colorId: t.arg.string(),
-//     },
-//     resolve: async (_root, args) => {
-//       return resolveCursorConnection(
-//         {args, toCursor: (parent) => `${parent.id}`},
-//         async ({
-//           before,
-//           after,
-//           limit,
-//           inverted,
-//         }: ResolveCursorConnectionArgs) => {
-//           const minDate = minDateFromTimePeriod(args.timePeriod ?? 'ONE_MONTH');
-//           const minTournamentSize = args.minTournamentSize || 0;
-//           const minEntries = args.minEntries || 0;
-//           const sortBy =
-//             args.sortBy === 'POPULARITY'
-//               ? 'stats.count'
-//               : args.sortBy === 'TOP_CUTS'
-//                 ? 'stats.topCuts'
-//                 : 'stats.conversionRate';
-
-//           let query = db
-//             .with('stats', (eb) =>
-//               eb
-//                 .selectFrom('Commander')
-//                 .leftJoin('Entry', 'Entry.commanderId', 'Commander.id')
-//                 .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
-//                 .where('Tournament.tournamentDate', '>=', minDate.toISOString())
-//                 .where('Tournament.size', '>=', minTournamentSize)
-//                 .groupBy('Commander.id')
-//                 .select((eb) => [
-//                   eb.ref('Commander.id').as('commanderId'),
-//                   eb.fn.count('Entry.id').as('count'),
-//                   eb.fn
-//                     .sum(
-//                       eb
-//                         .case()
-//                         .when(
-//                           'Entry.standing',
-//                           '<=',
-//                           eb.ref('Tournament.topCut'),
-//                         )
-//                         .then(1)
-//                         .else(0)
-//                         .end(),
-//                     )
-//                     .as('topCuts'),
-//                   eb(
-//                     eb.cast(
-//                       eb.fn.sum(
-//                         eb
-//                           .case()
-//                           .when(
-//                             'Entry.standing',
-//                             '<=',
-//                             eb.ref('Tournament.topCut'),
-//                           )
-//                           .then(1)
-//                           .else(0)
-//                           .end(),
-//                       ),
-//                       'real',
-//                     ),
-//                     '/',
-//                     eb.fn.count('Entry.id'),
-//                   ).as('conversionRate'),
-//                 ]),
-//             )
-//             .selectFrom('Commander')
-//             .selectAll('Commander')
-//             .leftJoin('stats', 'stats.commanderId', 'Commander.id')
-//             .where('Commander.name', '!=', 'Unknown Commander')
-//             .where('Commander.name', '!=', 'Nadu, Winged Wisdom')
-//             .where('stats.count', '>=', minEntries);
-
-//           if (args.colorId) {
-//             query = query.where('Commander.colorId', '=', args.colorId);
-//           }
-
-//           if (before) {
-//             query = query.where((eb) =>
-//               eb(
-//                 eb.tuple(eb.ref(sortBy), eb.ref('Commander.id')),
-//                 '>',
-//                 eb.tuple(
-//                   eb
-//                     .selectFrom('stats')
-//                     .select(sortBy)
-//                     .where('commanderId', '=', Number(after)),
-//                   Number(after),
-//                 ),
-//               ),
-//             );
-//           }
-
-//           if (after) {
-//             query = query.where((eb) =>
-//               eb(
-//                 eb.tuple(eb.ref(sortBy), eb.ref('Commander.id')),
-//                 '<',
-//                 eb.tuple(
-//                   eb
-//                     .selectFrom('stats')
-//                     .select(sortBy)
-//                     .where('commanderId', '=', Number(after)),
-//                   Number(after),
-//                 ),
-//               ),
-//             );
-//           }
-
-//           query = query
-//             .orderBy(sortBy, inverted ? 'asc' : 'desc')
-//             .orderBy('Commander.id', inverted ? 'asc' : 'desc')
-//             .limit(limit);
-
-//           return query.execute();
-//         },
-//       );
-//     },
-//   }),
-// );
