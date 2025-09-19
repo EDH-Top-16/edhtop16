@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<652534926f2eee27c178e8ec604f8ed0>>
+ * @generated SignedSource<<55e615f4312a29b21a6c604efe071c92>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,9 +16,9 @@ export type tournaments_Tournaments$data = {
       readonly node: {
         readonly id: string;
         readonly " $fragmentSpreads": FragmentRefs<"tournaments_TournamentCard">;
-      } | null | undefined;
-    }> | null | undefined;
-  } | null | undefined;
+      };
+    }>;
+  };
   readonly " $fragmentType": "tournaments_Tournaments";
 };
 export type tournaments_Tournaments$key = {
@@ -67,6 +67,7 @@ return {
         "path": (v0/*: any*/)
       }
     ],
+    "throwOnFieldError": true,
     "refetch": {
       "connection": {
         "forward": {
@@ -194,6 +195,6 @@ return {
 };
 })();
 
-(node as any).hash = "d5c3a374eefad4c17b87ab36ba1755c4";
+(node as any).hash = "78ac87d122bb597002fca8b2f6669cb1";
 
 export default node;

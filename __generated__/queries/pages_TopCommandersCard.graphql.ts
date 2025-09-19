@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<e7fccf4f98739324d5284cff4a60deca>>
+ * @generated SignedSource<<eb2c9f2c216e505df9db4db8044787ca>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,18 +11,18 @@
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type pages_TopCommandersCard$data = {
-  readonly breakdownUrl: string | null | undefined;
+  readonly breakdownUrl: string;
   readonly cards: ReadonlyArray<{
-    readonly imageUrls: ReadonlyArray<string> | null | undefined;
-  }> | null | undefined;
-  readonly colorId: string | null | undefined;
-  readonly name: string | null | undefined;
+    readonly imageUrls: ReadonlyArray<string>;
+  }>;
+  readonly colorId: string;
+  readonly name: string;
   readonly stats: {
-    readonly conversionRate: number | null | undefined;
-    readonly count: number | null | undefined;
-    readonly metaShare: number | null | undefined;
-    readonly topCuts: number | null | undefined;
-  } | null | undefined;
+    readonly conversionRate: number;
+    readonly count: number;
+    readonly metaShare: number;
+    readonly topCuts: number;
+  };
   readonly " $fragmentType": "pages_TopCommandersCard";
 };
 export type pages_TopCommandersCard$key = {
@@ -42,7 +42,9 @@ const node: ReaderFragment = {
     }
   ],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "pages_TopCommandersCard",
   "selections": [
     {
@@ -145,6 +147,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "b689ba146c56ee09971ba19ce0438834";
+(node as any).hash = "1d29b85375e18335bcc5c05e5ba15988";
 
 export default node;

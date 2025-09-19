@@ -4,7 +4,7 @@ import {graphql, useFragment} from 'react-relay/hooks';
 export function FirstPartyPromo(props: {promo: promo_EmbededPromo$key}) {
   const promo = useFragment(
     graphql`
-      fragment promo_EmbededPromo on FirstPartyPromo {
+      fragment promo_EmbededPromo on FirstPartyPromo @throwOnFieldError {
         title
         description
         buttonText

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<98ea030bf21ed7cee379cc80d61c0e11>>
+ * @generated SignedSource<<2ebd50b1be35f0850239a686d55e6e40>>
  * @relayHash 14745cc7afd103bd6a5ec872679047e4
  * @lightSyntaxTransform
  * @nogrep
@@ -106,7 +106,9 @@ return {
       (v4/*: any*/)
     ],
     "kind": "Fragment",
-    "metadata": null,
+    "metadata": {
+      "throwOnFieldError": true
+    },
     "name": "pages_CommandersQuery",
     "selections": [
       {
@@ -322,7 +324,7 @@ return {
 };
 })();
 
-(node as any).hash = "a1ee982ceaef8e5eb98991f6761fa30f";
+(node as any).hash = "292d2f6aa39943b5bcca348d425c6241";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

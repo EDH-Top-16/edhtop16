@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<82696adae1b2d33c23fbd1ff599c2754>>
+ * @generated SignedSource<<89692b9ef2526ff387dd85f013f2a986>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,20 +11,20 @@
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type tournaments_TournamentCard$data = {
-  readonly TID: string | null | undefined;
+  readonly TID: string;
   readonly entries: ReadonlyArray<{
     readonly commander: {
       readonly cards: ReadonlyArray<{
-        readonly imageUrls: ReadonlyArray<string> | null | undefined;
-      }> | null | undefined;
-    } | null | undefined;
+        readonly imageUrls: ReadonlyArray<string>;
+      }>;
+    };
     readonly player: {
-      readonly name: string | null | undefined;
-    } | null | undefined;
-  }> | null | undefined;
-  readonly name: string | null | undefined;
-  readonly size: number | null | undefined;
-  readonly tournamentDate: string | null | undefined;
+      readonly name: string;
+    };
+  }>;
+  readonly name: string;
+  readonly size: number;
+  readonly tournamentDate: string;
   readonly " $fragmentType": "tournaments_TournamentCard";
 };
 export type tournaments_TournamentCard$key = {
@@ -43,7 +43,9 @@ var v0 = {
 return {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "tournaments_TournamentCard",
   "selections": [
     {
@@ -132,6 +134,6 @@ return {
 };
 })();
 
-(node as any).hash = "3069c5ecd9ab738c24b7c22d13ba7b37";
+(node as any).hash = "1663b026034fc4f1d3b023b3342d9dff";
 
 export default node;

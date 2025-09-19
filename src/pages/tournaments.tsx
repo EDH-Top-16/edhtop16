@@ -34,7 +34,7 @@ import {Select} from '../components/select';
 function TournamentCard(props: {commander: tournaments_TournamentCard$key}) {
   const tournament = useFragment(
     graphql`
-      fragment tournaments_TournamentCard on Tournament {
+      fragment tournaments_TournamentCard on Tournament @throwOnFieldError {
         TID
         name
         size
@@ -198,7 +198,7 @@ export const TournamentsPage: EntryPointComponent<
         $timePeriod: TimePeriod!
         $sortBy: TournamentSortBy!
         $minSize: Int!
-      ) @preloadable {
+      ) @preloadable @throwOnFieldError {
         ...tournaments_Tournaments
       }
     `,
@@ -211,6 +211,7 @@ export const TournamentsPage: EntryPointComponent<
   >(
     graphql`
       fragment tournaments_Tournaments on Query
+      @throwOnFieldError
       @argumentDefinitions(
         cursor: {type: "String"}
         count: {type: "Int", defaultValue: 100}

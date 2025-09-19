@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<bea6a9945d3a2683cdc8ec25f90bbed1>>
+ * @generated SignedSource<<09f9c8251ab08a6d296735a7f92db5b2>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,7 +11,7 @@
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TID_TournamentPageShell$data = {
-  readonly TID: string | null | undefined;
+  readonly TID: string;
   readonly promo: {
     readonly " $fragmentSpreads": FragmentRefs<"promo_EmbededPromo">;
   } | null | undefined;
@@ -26,7 +26,9 @@ export type TID_TournamentPageShell$key = {
 const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "TID_TournamentPageShell",
   "selections": [
     {
@@ -67,6 +69,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "9637977b21a7237a81b92f985599ee51";
+(node as any).hash = "3a09b2f77284945ea8d7634301de5ab8";
 
 export default node;

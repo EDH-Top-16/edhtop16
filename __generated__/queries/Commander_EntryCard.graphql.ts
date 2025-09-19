@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<42f6f54976b32d83bff43c94a15b2278>>
+ * @generated SignedSource<<a71f7e8a3f45afdcad57f84cfd00fb93>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -12,20 +12,20 @@ import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type Commander_EntryCard$data = {
   readonly decklist: string | null | undefined;
-  readonly draws: number | null | undefined;
-  readonly losses: number | null | undefined;
+  readonly draws: number;
+  readonly losses: number;
   readonly player: {
-    readonly isKnownCheater: boolean | null | undefined;
-    readonly name: string | null | undefined;
-  } | null | undefined;
-  readonly standing: number | null | undefined;
+    readonly isKnownCheater: boolean;
+    readonly name: string;
+  };
+  readonly standing: number;
   readonly tournament: {
-    readonly TID: string | null | undefined;
-    readonly name: string | null | undefined;
-    readonly size: number | null | undefined;
-    readonly tournamentDate: string | null | undefined;
-  } | null | undefined;
-  readonly wins: number | null | undefined;
+    readonly TID: string;
+    readonly name: string;
+    readonly size: number;
+    readonly tournamentDate: string;
+  };
+  readonly wins: number;
   readonly " $fragmentType": "Commander_EntryCard";
 };
 export type Commander_EntryCard$key = {
@@ -44,7 +44,9 @@ var v0 = {
 return {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "Commander_EntryCard",
   "selections": [
     {
@@ -140,6 +142,6 @@ return {
 };
 })();
 
-(node as any).hash = "d6479b58fdb921fe6bbd9325480b3c1b";
+(node as any).hash = "ae56c200ab92f1f391153dac58022f2c";
 
 export default node;

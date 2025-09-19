@@ -1,17 +1,16 @@
 import {DB} from '#genfiles/db/types.js';
 import DataLoader from 'dataloader';
+import {subYears} from 'date-fns';
+import {fromGlobalId, toGlobalId} from 'graphql-relay';
 import {Float, Int} from 'grats';
+import {sql} from 'kysely';
 import {Context} from '../context';
 import {db} from '../db';
 import {Card} from './card';
 import {Connection, GraphQLNode} from './connection';
+import {Entry} from './entry';
 import {FirstPartyPromo, getActivePromotions} from './promo';
 import {minDateFromTimePeriod, TimePeriod} from './types';
-import {fromGlobalId, toGlobalId} from 'graphql-relay';
-import {ID} from 'grats';
-import {Entry} from './entry';
-import {sql} from 'kysely';
-import {subYears} from 'date-fns';
 
 export type CommanderLoader = DataLoader<number, Commander>;
 
@@ -99,7 +98,6 @@ export interface EntriesFilter {
   minEventSize: Int;
   maxStanding?: Int;
 }
-
 
 /** @gqlType */
 interface CommanderCalculatedStats {
@@ -276,34 +274,59 @@ export class Commander implements GraphQLNode {
 
     let query = db
       .selectFrom('Entry')
-      .selectAll('Entry')
-      .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+      .innerJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
       .where('Entry.commanderId', '=', this.id)
       .where('standing', '<=', maxStanding)
       .where('Tournament.tournamentDate', '>=', minDate.toISOString())
-      .where('Tournament.size', '>=', minEventSize);
+      .where('Tournament.size', '>=', minEventSize)
+      .selectAll('Entry')
+      .select(['Tournament.tournamentDate', 'Tournament.size']);
 
     if (after) {
-      const {id} = fromGlobalId(after);
+      const cursor = CommanderEntriesCursor.fromString(after);
       if (sortBy === EntriesSortBy.NEW) {
-        query = query.where('Entry.id', '<', Number(id));
+        query = query.where(({eb, tuple, refTuple}) =>
+          eb(
+            refTuple('Tournament.tournamentDate', 'Entry.id'),
+            '<',
+            tuple(cursor.date, cursor.id),
+          ),
+        );
       } else {
-        query = query.where('Entry.id', '<', Number(id));
+        query = query.where(({eb, tuple, refTuple, and, or}) =>
+          or([
+            eb('standing', '>', cursor.standing),
+            and([
+              eb('standing', '=', cursor.standing),
+              eb(
+                refTuple('Tournament.size', 'Entry.id'),
+                '<',
+                tuple(cursor.size, cursor.id),
+              ),
+            ]),
+          ]),
+        );
       }
     }
 
     query = query.orderBy(
       sortBy === EntriesSortBy.NEW
-        ? ['Tournament.tournamentDate desc']
-        : ['Entry.standing asc', 'Tournament.size desc'],
+        ? ['Tournament.tournamentDate desc', 'id desc']
+        : ['Entry.standing asc', 'Tournament.size desc', 'id desc'],
     );
 
     const rows = await query.limit(first + 1).execute();
 
-    const edges = rows.slice(0, first).map((r) => ({
-      cursor: toGlobalId('Entry', r.id),
-      node: new Entry(r),
-    }));
+    const edges = rows.slice(0, first).map((r) => {
+      const node = new Entry(r);
+      const cursor = CommanderEntriesCursor.fromEntry(
+        node,
+        r.tournamentDate,
+        r.size,
+      ).toString();
+
+      return {cursor, node};
+    });
 
     return {
       edges,
@@ -322,12 +345,8 @@ export class Commander implements GraphQLNode {
   }
 
   /** @gqlField */
-  async staples(
-    first: Int = 20,
-    after?: string | null,
-  ): Promise<Connection<Card>> {
+  async staples(): Promise<Card[]> {
     const oneYearAgo = subYears(new Date(), 1).toISOString();
-
     const {totalEntries} = await db
       .selectFrom('Entry')
       .select([(eb) => eb.fn.countAll<number>().as('totalEntries')])
@@ -336,7 +355,7 @@ export class Commander implements GraphQLNode {
       .where('Tournament.tournamentDate', '>=', oneYearAgo)
       .executeTakeFirstOrThrow();
 
-    let query = db
+    const query = db
       .with('entries', (eb) => {
         return eb
           .selectFrom('DecklistItem')
@@ -366,36 +385,13 @@ export class Commander implements GraphQLNode {
       )
       .orderBy(
         (eb) =>
-          eb(
-            'entries.playRateLastYear',
-            '-',
-            eb.ref('Card.playRateLastYear'),
-          ),
+          eb('entries.playRateLastYear', '-', eb.ref('Card.playRateLastYear')),
         'desc',
       )
       .selectAll('Card');
 
-    if (after) {
-      const {id} = fromGlobalId(after);
-      query = query.where('Card.id', '<', Number(id));
-    }
-
-    const rows = await query.limit(first + 1).execute();
-
-    const edges = rows.slice(0, first).map((r) => ({
-      cursor: toGlobalId('Card', r.id),
-      node: new Card(r),
-    }));
-
-    return {
-      edges,
-      pageInfo: {
-        hasPreviousPage: false,
-        hasNextPage: rows.length > edges.length,
-        startCursor: edges.at(0)?.cursor ?? null,
-        endCursor: edges.at(-1)?.cursor ?? null,
-      },
-    };
+    const rows = await query.limit(100).execute();
+    return rows.map((r) => new Card(r));
   }
 
   /** @gqlField */
@@ -458,11 +454,7 @@ export class Commander implements GraphQLNode {
               .sum(
                 eb
                   .case()
-                  .when(
-                    'Entry.standing',
-                    '<=',
-                    eb.ref('Tournament.topCut'),
-                  )
+                  .when('Entry.standing', '<=', eb.ref('Tournament.topCut'))
                   .then(1)
                   .else(0)
                   .end(),
@@ -473,11 +465,7 @@ export class Commander implements GraphQLNode {
                 eb.fn.sum(
                   eb
                     .case()
-                    .when(
-                      'Entry.standing',
-                      '<=',
-                      eb.ref('Tournament.topCut'),
-                    )
+                    .when('Entry.standing', '<=', eb.ref('Tournament.topCut'))
                     .then(1)
                     .else(0)
                     .end(),
@@ -538,5 +526,37 @@ export class Commander implements GraphQLNode {
         endCursor: edges.at(-1)?.cursor ?? null,
       },
     };
+  }
+}
+
+class CommanderEntriesCursor {
+  static fromString(cursor: string) {
+    const [id, standing, date, size] = cursor.split(';');
+    return new CommanderEntriesCursor(
+      Number(id),
+      Number(standing),
+      date!,
+      Number(size),
+    );
+  }
+
+  static fromEntry(e: Entry, tournamentDate: string, tournamentSize: number) {
+    return new CommanderEntriesCursor(
+      e.id,
+      e.standing,
+      tournamentDate,
+      tournamentSize,
+    );
+  }
+
+  private constructor(
+    readonly id: number,
+    readonly standing: number,
+    readonly date: string,
+    readonly size: number,
+  ) {}
+
+  toString() {
+    return [this.id, this.standing, this.date, this.size].join(';');
   }
 }

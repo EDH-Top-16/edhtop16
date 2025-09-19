@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<3c2a98b7b55573924c79b3e9b20df759>>
+ * @generated SignedSource<<49b129206929c9166c30748f5aece836>>
  * @relayHash 64af357c502f7d07453219ce4a15b667
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@ export type Commander_CommanderFallbackQuery$variables = {
 export type Commander_CommanderFallbackQuery$data = {
   readonly commander: {
     readonly " $fragmentSpreads": FragmentRefs<"Commander_CommanderPageShell">;
-  } | null | undefined;
+  };
 };
 export type Commander_CommanderFallbackQuery = {
   response: Commander_CommanderFallbackQuery$data;
@@ -52,7 +52,9 @@ return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
-    "metadata": null,
+    "metadata": {
+      "throwOnFieldError": true
+    },
     "name": "Commander_CommanderFallbackQuery",
     "selections": [
       {
@@ -198,7 +200,7 @@ return {
 };
 })();
 
-(node as any).hash = "60d4b3c37a327c253f3655ece19c1f63";
+(node as any).hash = "9220000a97d8ae2441045028acd99b36";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

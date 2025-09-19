@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<501ed2e4a285145f12b7a8760d3e418a>>
+ * @generated SignedSource<<66ffc0be623438b584495d04759b82bb>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,12 +11,12 @@
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type promo_EmbededPromo$data = {
-  readonly backgroundImageUrl: string | null | undefined;
-  readonly buttonText: string | null | undefined;
-  readonly description: ReadonlyArray<string> | null | undefined;
-  readonly href: string | null | undefined;
+  readonly backgroundImageUrl: string;
+  readonly buttonText: string;
+  readonly description: ReadonlyArray<string>;
+  readonly href: string;
   readonly imageUrl: string | null | undefined;
-  readonly title: string | null | undefined;
+  readonly title: string;
   readonly " $fragmentType": "promo_EmbededPromo";
 };
 export type promo_EmbededPromo$key = {
@@ -27,7 +27,9 @@ export type promo_EmbededPromo$key = {
 const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "promo_EmbededPromo",
   "selections": [
     {
@@ -77,6 +79,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "a67a802bb9aaa73cec02386ee04000af";
+(node as any).hash = "e3441ef4a9fcb3f5dfb23be9b1e747b3";
 
 export default node;

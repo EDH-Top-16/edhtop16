@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<dbeb3ca5b74802b89807dac918e081b2>>
+ * @generated SignedSource<<362639cd698df7239cf925c10c66978e>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -12,10 +12,10 @@ import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type Commander_CommanderBanner$data = {
   readonly cards: ReadonlyArray<{
-    readonly imageUrls: ReadonlyArray<string> | null | undefined;
-  }> | null | undefined;
-  readonly colorId: string | null | undefined;
-  readonly name: string | null | undefined;
+    readonly imageUrls: ReadonlyArray<string>;
+  }>;
+  readonly colorId: string;
+  readonly name: string;
   readonly " $fragmentType": "Commander_CommanderBanner";
 };
 export type Commander_CommanderBanner$key = {
@@ -26,7 +26,9 @@ export type Commander_CommanderBanner$key = {
 const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "Commander_CommanderBanner",
   "selections": [
     {
@@ -66,6 +68,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "035d2141fb0c1222742203e1c28c9e50";
+(node as any).hash = "444496d2b31297d318a8dd45d649ca69";
 
 export default node;

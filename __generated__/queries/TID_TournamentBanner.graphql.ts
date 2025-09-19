@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<a1f0be8c52b177b207778f1f540369ac>>
+ * @generated SignedSource<<4544ea81590329ac086e4fdc5cc573bc>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,17 +11,17 @@
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TID_TournamentBanner$data = {
-  readonly bracketUrl: string | null | undefined;
-  readonly name: string | null | undefined;
-  readonly size: number | null | undefined;
-  readonly tournamentDate: string | null | undefined;
+  readonly bracketUrl: string;
+  readonly name: string;
+  readonly size: number;
+  readonly tournamentDate: string;
   readonly winner: ReadonlyArray<{
     readonly commander: {
       readonly cards: ReadonlyArray<{
-        readonly imageUrls: ReadonlyArray<string> | null | undefined;
-      }> | null | undefined;
-    } | null | undefined;
-  }> | null | undefined;
+        readonly imageUrls: ReadonlyArray<string>;
+      }>;
+    };
+  }>;
   readonly " $fragmentType": "TID_TournamentBanner";
 };
 export type TID_TournamentBanner$key = {
@@ -32,7 +32,9 @@ export type TID_TournamentBanner$key = {
 const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "TID_TournamentBanner",
   "selections": [
     {
@@ -114,6 +116,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "ef7b4750f82b28002be8207fafe048e4";
+(node as any).hash = "e7c8b46a425a12324baccb86fe245326";
 
 export default node;

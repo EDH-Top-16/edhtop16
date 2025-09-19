@@ -40,7 +40,7 @@ function EntryCard({
 }) {
   const entry = useFragment(
     graphql`
-      fragment TID_EntryCard on Entry {
+      fragment TID_EntryCard on Entry @throwOnFieldError {
         standing
         wins
         losses
@@ -141,7 +141,8 @@ function BreakdownGroupCard({
 }) {
   const {commander, conversionRate, entries, topCuts} = useFragment(
     graphql`
-      fragment TID_BreakdownGroupCard on TournamentBreakdownGroup {
+      fragment TID_BreakdownGroupCard on TournamentBreakdownGroup
+      @throwOnFieldError {
         commander {
           name
           breakdownUrl
@@ -194,7 +195,7 @@ function BreakdownGroupCard({
 function TournamentBanner(props: {tournament: TID_TournamentBanner$key}) {
   const tournament = useFragment(
     graphql`
-      fragment TID_TournamentBanner on Tournament {
+      fragment TID_TournamentBanner on Tournament @throwOnFieldError {
         name
         size
         tournamentDate
@@ -272,7 +273,7 @@ function TournamentBanner(props: {tournament: TID_TournamentBanner$key}) {
 function useTournamentMeta(tournamentFromProps: TID_TournamentMeta$key) {
   const tournament = useFragment(
     graphql`
-      fragment TID_TournamentMeta on Tournament {
+      fragment TID_TournamentMeta on Tournament @throwOnFieldError {
         name
       }
     `,
@@ -297,7 +298,7 @@ function TournamentPageShell({
 }>) {
   const tournament = useFragment(
     graphql`
-      fragment TID_TournamentPageShell on Tournament {
+      fragment TID_TournamentPageShell on Tournament @throwOnFieldError {
         TID
         ...TID_TournamentBanner
         ...TID_TournamentMeta
@@ -367,7 +368,9 @@ export const TournamentViewPageFallback: EntryPointComponent<
 > = ({queries, extraProps}) => {
   const {tournament} = usePreloadedQuery(
     graphql`
-      query TID_TournamentFallbackQuery($TID: String!) @preloadable {
+      query TID_TournamentFallbackQuery($TID: String!)
+      @preloadable
+      @throwOnFieldError {
         tournament(TID: $TID) {
           ...TID_TournamentPageShell
         }
@@ -406,7 +409,7 @@ export const TournamentViewPage: EntryPointComponent<
         $showStandings: Boolean!
         $showBreakdown: Boolean!
         $showBreakdownCommander: Boolean!
-      ) @preloadable {
+      ) @preloadable @throwOnFieldError {
         tournament(TID: $TID) {
           ...TID_TournamentPageShell
 

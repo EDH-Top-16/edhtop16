@@ -65,7 +65,8 @@ function Suggestions({
 
   const {searchResults} = useLazyLoadQuery<searchbar_CommanderNamesQuery>(
     graphql`
-      query searchbar_CommanderNamesQuery($searchTypes: [SearchResultType!]!) {
+      query searchbar_CommanderNamesQuery($searchTypes: [SearchResultType!]!)
+      @throwOnFieldError {
         searchResults(types: $searchTypes) {
           name
           url

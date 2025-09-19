@@ -13,9 +13,9 @@ import {StrictMode} from 'react';
 import {renderToString} from 'react-dom/server';
 import {RelayEnvironmentProvider} from 'react-relay/hooks';
 import type {Manifest} from 'vite';
+import {Context} from './lib/server/context';
 import {createServerEnvironment} from './lib/server/relay_server_environment';
 import {App} from './pages/_app';
-import {Context} from './lib/server/context';
 
 const schema = getSchema();
 
@@ -26,6 +26,7 @@ export function createHandler(
 ) {
   const context = new Context();
 
+  // TODO: Why doesn't @include work now?
   const graphqlHandler = createYoga({
     schema,
     context,

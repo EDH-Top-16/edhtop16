@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<12d7a002c1c6d0ef0481fa7bc3f954d0>>
+ * @generated SignedSource<<fdf2427c21b1c8a8e3159f3631be9167>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -12,21 +12,21 @@ import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TID_EntryCard$data = {
   readonly commander: {
-    readonly breakdownUrl: string | null | undefined;
+    readonly breakdownUrl: string;
     readonly cards: ReadonlyArray<{
-      readonly imageUrls: ReadonlyArray<string> | null | undefined;
-    }> | null | undefined;
-    readonly name: string | null | undefined;
-  } | null | undefined;
+      readonly imageUrls: ReadonlyArray<string>;
+    }>;
+    readonly name: string;
+  };
   readonly decklist: string | null | undefined;
-  readonly draws: number | null | undefined;
-  readonly losses: number | null | undefined;
+  readonly draws: number;
+  readonly losses: number;
   readonly player: {
-    readonly isKnownCheater: boolean | null | undefined;
-    readonly name: string | null | undefined;
-  } | null | undefined;
-  readonly standing: number | null | undefined;
-  readonly wins: number | null | undefined;
+    readonly isKnownCheater: boolean;
+    readonly name: string;
+  };
+  readonly standing: number;
+  readonly wins: number;
   readonly " $fragmentType": "TID_EntryCard";
 };
 export type TID_EntryCard$key = {
@@ -45,7 +45,9 @@ var v0 = {
 return {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "TID_EntryCard",
   "selections": [
     {
@@ -145,6 +147,6 @@ return {
 };
 })();
 
-(node as any).hash = "d1156d6019a54860009b45c2e88d9570";
+(node as any).hash = "58bfd2a0f244e933d117a2df7d2ba3e7";
 
 export default node;

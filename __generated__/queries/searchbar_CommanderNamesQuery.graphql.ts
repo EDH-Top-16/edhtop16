@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<51394bfc3e9a6021d94c2eed36269eb5>>
+ * @generated SignedSource<<0acce30c641e451cfc74896705e0bc0d>>
  * @relayHash f5a13fa4bfbf171fe18cd4cb0af93921
  * @lightSyntaxTransform
  * @nogrep
@@ -18,9 +18,9 @@ export type searchbar_CommanderNamesQuery$variables = {
 };
 export type searchbar_CommanderNamesQuery$data = {
   readonly searchResults: ReadonlyArray<{
-    readonly name: string | null | undefined;
-    readonly url: string | null | undefined;
-  }> | null | undefined;
+    readonly name: string;
+    readonly url: string;
+  }>;
 };
 export type searchbar_CommanderNamesQuery = {
   response: searchbar_CommanderNamesQuery$data;
@@ -72,7 +72,9 @@ return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
-    "metadata": null,
+    "metadata": {
+      "throwOnFieldError": true
+    },
     "name": "searchbar_CommanderNamesQuery",
     "selections": (v1/*: any*/),
     "type": "Query",
@@ -95,6 +97,6 @@ return {
 };
 })();
 
-(node as any).hash = "3df9ad8d7a259e942b61f266c6c356aa";
+(node as any).hash = "fa43c0b8fc93d57407c66c3336a869ab";
 
 export default node;

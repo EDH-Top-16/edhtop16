@@ -41,6 +41,8 @@
   },
   "grats": {
     "graphqlSchema": "./__generated__/schema/schema.graphql",
-    "tsSchema": "./__generated__/schema/schema.ts"
+    "tsSchema": "./__generated__/schema/schema.ts",
+    "nullableByDefault": true,
+    "strictSemanticNullability": true
   }
 }

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<f5b24a830e949b7bb1e6338d4ec0bf9d>>
+ * @generated SignedSource<<448c94a1f81dac8dfea7bd8b5b6b897b>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,9 +16,9 @@ export type Commander_entries$data = {
       readonly node: {
         readonly id: string;
         readonly " $fragmentSpreads": FragmentRefs<"Commander_EntryCard">;
-      } | null | undefined;
-    }> | null | undefined;
-  } | null | undefined;
+      };
+    }>;
+  };
   readonly id: string;
   readonly " $fragmentType": "Commander_entries";
 };
@@ -79,6 +79,7 @@ return {
         "path": (v0/*: any*/)
       }
     ],
+    "throwOnFieldError": true,
     "refetch": {
       "connection": {
         "forward": {
@@ -212,6 +213,6 @@ return {
 };
 })();
 
-(node as any).hash = "dd5ecf026b227cd526752087b0600d9b";
+(node as any).hash = "774a0fb8a9ae993f318772a9b5489054";
 
 export default node;

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<90102e869f6853abadb58440c9c77311>>
+ * @generated SignedSource<<9fdbe791d81f38f4c33469753001715f>>
  * @relayHash 9081aa55372566392aee73d3d7e8b274
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@ export type TID_TournamentFallbackQuery$variables = {
 export type TID_TournamentFallbackQuery$data = {
   readonly tournament: {
     readonly " $fragmentSpreads": FragmentRefs<"TID_TournamentPageShell">;
-  } | null | undefined;
+  };
 };
 export type TID_TournamentFallbackQuery = {
   response: TID_TournamentFallbackQuery$data;
@@ -52,7 +52,9 @@ return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
-    "metadata": null,
+    "metadata": {
+      "throwOnFieldError": true
+    },
     "name": "TID_TournamentFallbackQuery",
     "selections": [
       {
@@ -242,7 +244,7 @@ return {
 };
 })();
 
-(node as any).hash = "e185d1afcd4640081daf4d18c29209df";
+(node as any).hash = "ea1e7b61f3bbfcbd87c147207ddfbfe8";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

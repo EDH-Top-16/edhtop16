@@ -2,15 +2,13 @@ import {DB} from '#genfiles/db/types';
 import DataLoader from 'dataloader';
 import {Float, Int} from 'grats';
 import {sql} from 'kysely';
+import {Context} from '../context';
 import {db} from '../db';
 import {Commander, CommanderLoader} from './commander';
 import {Connection, GraphQLNode} from './connection';
 import {Entry} from './entry';
 import {FirstPartyPromo, getActivePromotions} from './promo';
 import {minDateFromTimePeriod, TimePeriod} from './types';
-import {Context} from '../context';
-import {fromGlobalId, toGlobalId} from 'graphql-relay';
-import {ID} from 'grats';
 
 export type TournamentLoader = DataLoader<number, Tournament>;
 
@@ -197,22 +195,39 @@ export class Tournament implements GraphQLNode {
     query = query.where('tournamentDate', '<=', maxDateValue.toISOString());
 
     if (after) {
-      const {id} = fromGlobalId(after);
-      query = query.where('Tournament.id', '<', Number(id));
+      const cursor = TournamentsCursor.fromString(after);
+      if (sortBy === TournamentSortBy.PLAYERS) {
+        query = query.where(({eb, tuple, refTuple}) =>
+          eb(
+            refTuple('size', 'tournamentDate', 'id'),
+            '<',
+            tuple(cursor.size, cursor.date, cursor.id),
+          ),
+        );
+      } else {
+        query = query.where(({eb, tuple, refTuple}) =>
+          eb(
+            refTuple('tournamentDate', 'size', 'id'),
+            '<',
+            tuple(cursor.date, cursor.size, cursor.id),
+          ),
+        );
+      }
     }
 
     if (sortBy === TournamentSortBy.PLAYERS) {
-      query = query.orderBy(['size desc', 'tournamentDate desc']);
+      query = query.orderBy(['size desc', 'tournamentDate desc', 'id desc']);
     } else {
-      query = query.orderBy(['tournamentDate desc', 'size desc']);
+      query = query.orderBy(['tournamentDate desc', 'size desc', 'id desc']);
     }
 
     const rows = await query.limit(first + 1).execute();
 
-    const edges = rows.slice(0, first).map((r) => ({
-      cursor: toGlobalId('Tournament', r.id),
-      node: new Tournament(r),
-    }));
+    const edges = rows.slice(0, first).map((r) => {
+      const node = new Tournament(r);
+      const cursor = TournamentsCursor.fromTournament(node).toString();
+      return {cursor, node};
+    });
 
     return {
       edges,
@@ -223,5 +238,26 @@ export class Tournament implements GraphQLNode {
         endCursor: edges.at(-1)?.cursor ?? null,
       },
     };
+  }
+}
+
+class TournamentsCursor {
+  static fromString(cursor: string) {
+    const [id, size, date] = cursor.split(';');
+    return new TournamentsCursor(Number(id), Number(size), date!);
+  }
+
+  static fromTournament(t: Tournament) {
+    return new TournamentsCursor(t.id, t.size, t.tournamentDate);
+  }
+
+  private constructor(
+    readonly id: number,
+    readonly size: number,
+    readonly date: string,
+  ) {}
+
+  toString() {
+    return [this.id, this.size, this.date].join(';');
   }
 }

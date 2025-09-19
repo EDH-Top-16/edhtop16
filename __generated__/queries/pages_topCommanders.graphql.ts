@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<bb14795de3e85d0e76dbafc8a3af48c8>>
+ * @generated SignedSource<<0bfbbd5d0aab05a671e5861dcde883d2>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,9 +16,9 @@ export type pages_topCommanders$data = {
       readonly node: {
         readonly id: string;
         readonly " $fragmentSpreads": FragmentRefs<"pages_TopCommandersCard">;
-      } | null | undefined;
-    }> | null | undefined;
-  } | null | undefined;
+      };
+    }>;
+  };
   readonly " $fragmentType": "pages_topCommanders";
 };
 export type pages_topCommanders$key = {
@@ -75,6 +75,7 @@ return {
         "path": (v0/*: any*/)
       }
     ],
+    "throwOnFieldError": true,
     "refetch": {
       "connection": {
         "forward": {
@@ -206,6 +207,6 @@ return {
 };
 })();
 
-(node as any).hash = "b5a6c24d9b40c399fa950a403034faa7";
+(node as any).hash = "627a0bbccaaf63862979fe3c1dc8a46b";
 
 export default node;

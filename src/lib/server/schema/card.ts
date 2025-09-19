@@ -1,38 +1,33 @@
 import {DB} from '#genfiles/db/types.js';
 import DataLoader from 'dataloader';
 import {fromGlobalId, toGlobalId} from 'graphql-relay';
-import {ID, Int} from 'grats';
+import {Int} from 'grats';
+import {Context} from '../context';
 import {db} from '../db';
 import {ScryfallCard, scryfallCardSchema} from '../scryfall';
 import {Connection, GraphQLNode} from './connection';
 import {Entry} from './entry';
-import {Context} from '../context';
 
 export type CardLoader = DataLoader<number, Card>;
 
 /** @gqlContext */
 export function createCardLoader(ctx: Context): CardLoader {
-  return ctx.loader(
-    'CardLoader',
-    async (cardIds: readonly number[]) => {
-      const cards = await db
-        .selectFrom('Card')
-        .where('id', 'in', cardIds)
-        .selectAll()
-        .execute();
+  return ctx.loader('CardLoader', async (cardIds: readonly number[]) => {
+    const cards = await db
+      .selectFrom('Card')
+      .where('id', 'in', cardIds)
+      .selectAll()
+      .execute();
 
-      const cardById = new Map<number, Card>();
-      for (const c of cards) {
-        cardById.set(c.id, new Card(c));
-      }
+    const cardById = new Map<number, Card>();
+    for (const c of cards) {
+      cardById.set(c.id, new Card(c));
+    }
 
-      return cardIds.map(
-        (id) =>
-          cardById.get(id) ??
-          new Error(`Could not load card: ${id}`),
-      );
-    },
-  );
+    return cardIds.map(
+      (id) => cardById.get(id) ?? new Error(`Could not load card: ${id}`),
+    );
+  });
 }
 
 /** @gqlInput */

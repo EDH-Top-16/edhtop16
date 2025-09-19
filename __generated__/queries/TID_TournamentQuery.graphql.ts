@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<7a4b5b32857c305aa837265d4ac983f7>>
+ * @generated SignedSource<<99dcd9ea6fe14e3effcca8d32be2087d>>
  * @relayHash 00ff8482d58f2750e72dcfc8b9880052
  * @lightSyntaxTransform
  * @nogrep
@@ -25,19 +25,19 @@ export type TID_TournamentQuery$data = {
     readonly breakdown?: ReadonlyArray<{
       readonly commander: {
         readonly id: string;
-      } | null | undefined;
+      };
       readonly " $fragmentSpreads": FragmentRefs<"TID_BreakdownGroupCard">;
-    }> | null | undefined;
+    }>;
     readonly breakdownEntries?: ReadonlyArray<{
       readonly id: string;
       readonly " $fragmentSpreads": FragmentRefs<"TID_EntryCard">;
-    }> | null | undefined;
+    }>;
     readonly entries?: ReadonlyArray<{
       readonly id: string;
       readonly " $fragmentSpreads": FragmentRefs<"TID_EntryCard">;
-    }> | null | undefined;
+    }>;
     readonly " $fragmentSpreads": FragmentRefs<"TID_TournamentPageShell">;
-  } | null | undefined;
+  };
 };
 export type TID_TournamentQuery = {
   response: TID_TournamentQuery$data;
@@ -215,7 +215,9 @@ return {
       (v4/*: any*/)
     ],
     "kind": "Fragment",
-    "metadata": null,
+    "metadata": {
+      "throwOnFieldError": true
+    },
     "name": "TID_TournamentQuery",
     "selections": [
       {
@@ -551,7 +553,7 @@ return {
 };
 })();
 
-(node as any).hash = "daee1052822b0b2739ff540983b49914";
+(node as any).hash = "b20893fcee6d8b854c159e22c18f33f8";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);
