@@ -16,8 +16,13 @@ import type {Manifest} from 'vite';
 import {Context} from './lib/server/context';
 import {createServerEnvironment} from './lib/server/relay_server_environment';
 import {App} from './pages/_app';
+import {GraphQLSchema, specifiedDirectives} from 'graphql';
 
-const schema = getSchema();
+const schemaConfig = getSchema().toConfig();
+const schema = new GraphQLSchema({
+  ...schemaConfig,
+  directives: [...specifiedDirectives, ...schemaConfig.directives],
+});
 
 export function createHandler(
   template: string,

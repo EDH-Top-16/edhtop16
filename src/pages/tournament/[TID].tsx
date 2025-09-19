@@ -317,8 +317,6 @@ function TournamentPageShell({
   const setSelectedTab = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       const nextKey = (e.target as HTMLButtonElement).id;
-      console.log({nextKey});
-
       replaceRoute('/tournament/:tid', {
         tid: tournament.TID,
         tab: nextKey,

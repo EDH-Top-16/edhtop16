@@ -132,7 +132,12 @@ export class Tournament implements GraphQLNode {
 
   /** @gqlField */
   async breakdown(): Promise<TournamentBreakdownGroup[]> {
-    const groups = await sql<TournamentBreakdownGroup>`
+    const groups = await sql<{
+      commanderId: number;
+      topCuts: number;
+      entries: number;
+      conversionRate: number;
+    }>`
       select
         e."commanderId",
         count(e."commanderId") as entries,
@@ -147,7 +152,15 @@ export class Tournament implements GraphQLNode {
       order by "topCuts" desc, entries desc
     `.execute(db);
 
-    return groups.rows;
+    return groups.rows.map(
+      (r) =>
+        new TournamentBreakdownGroup(
+          r.commanderId,
+          r.topCuts,
+          r.entries,
+          r.conversionRate,
+        ),
+    );
   }
 
   /** @gqlField */
