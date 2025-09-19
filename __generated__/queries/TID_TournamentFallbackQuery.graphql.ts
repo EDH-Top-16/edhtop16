@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<49e51d98ffc93ed72fecfda156fed65d>>
+ * @generated SignedSource<<90102e869f6853abadb58440c9c77311>>
  * @relayHash 9081aa55372566392aee73d3d7e8b274
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@ export type TID_TournamentFallbackQuery$variables = {
 export type TID_TournamentFallbackQuery$data = {
   readonly tournament: {
     readonly " $fragmentSpreads": FragmentRefs<"TID_TournamentPageShell">;
-  };
+  } | null | undefined;
 };
 export type TID_TournamentFallbackQuery = {
   response: TID_TournamentFallbackQuery$data;

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d8db7c2b25e277485aeda37137c5cc89>>
+ * @generated SignedSource<<82696adae1b2d33c23fbd1ff599c2754>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,20 +11,20 @@
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type tournaments_TournamentCard$data = {
-  readonly TID: string;
+  readonly TID: string | null | undefined;
   readonly entries: ReadonlyArray<{
     readonly commander: {
       readonly cards: ReadonlyArray<{
-        readonly imageUrls: ReadonlyArray<string>;
-      }>;
-    };
-    readonly player: {
-      readonly name: string;
+        readonly imageUrls: ReadonlyArray<string> | null | undefined;
+      }> | null | undefined;
     } | null | undefined;
-  }>;
-  readonly name: string;
-  readonly size: number;
-  readonly tournamentDate: string;
+    readonly player: {
+      readonly name: string | null | undefined;
+    } | null | undefined;
+  }> | null | undefined;
+  readonly name: string | null | undefined;
+  readonly size: number | null | undefined;
+  readonly tournamentDate: string | null | undefined;
   readonly " $fragmentType": "tournaments_TournamentCard";
 };
 export type tournaments_TournamentCard$key = {

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b5e34381fc6a2784cd7f231e578f2a65>>
+ * @generated SignedSource<<08ecef7c71458513bb35ba1d8aaab954>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -12,10 +12,10 @@ import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type Commander_CommanderStats$data = {
   readonly stats: {
-    readonly conversionRate: number;
-    readonly count: number;
-    readonly metaShare: number;
-  };
+    readonly conversionRate: number | null | undefined;
+    readonly count: number | null | undefined;
+    readonly metaShare: number | null | undefined;
+  } | null | undefined;
   readonly " $fragmentType": "Commander_CommanderStats";
 };
 export type Commander_CommanderStats$key = {
@@ -58,7 +58,7 @@ const node: ReaderFragment = {
           "name": "filters"
         }
       ],
-      "concreteType": "CommanderStats",
+      "concreteType": "CommanderCalculatedStats",
       "kind": "LinkedField",
       "name": "stats",
       "plural": false,

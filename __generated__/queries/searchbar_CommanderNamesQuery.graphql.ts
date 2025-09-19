@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<2215a3e2a9acc9d7875651736daffc0c>>
+ * @generated SignedSource<<51394bfc3e9a6021d94c2eed36269eb5>>
  * @relayHash f5a13fa4bfbf171fe18cd4cb0af93921
  * @lightSyntaxTransform
  * @nogrep
@@ -18,9 +18,9 @@ export type searchbar_CommanderNamesQuery$variables = {
 };
 export type searchbar_CommanderNamesQuery$data = {
   readonly searchResults: ReadonlyArray<{
-    readonly name: string;
-    readonly url: string;
-  }>;
+    readonly name: string | null | undefined;
+    readonly url: string | null | undefined;
+  }> | null | undefined;
 };
 export type searchbar_CommanderNamesQuery = {
   response: searchbar_CommanderNamesQuery$data;

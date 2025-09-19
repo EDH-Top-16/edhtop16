@@ -1,4 +1,5 @@
 import {DB} from '#genfiles/db/types.js';
+import DataLoader from 'dataloader';
 import {Float, Int} from 'grats';
 import {db} from '../db';
 import {Card} from './card';
@@ -6,6 +7,34 @@ import {Commander, CommanderLoader} from './commander';
 import {GraphQLNode} from './connection';
 import {Player, PlayerLoader} from './player';
 import {Tournament, TournamentLoader} from './tournament';
+import {Context} from '../context';
+
+export type EntryLoader = DataLoader<number, Entry>;
+
+/** @gqlContext */
+export function createEntryLoader(ctx: Context): EntryLoader {
+  return ctx.loader(
+    'EntryLoader',
+    async (entryIds: readonly number[]) => {
+      const entries = await db
+        .selectFrom('Entry')
+        .where('id', 'in', entryIds)
+        .selectAll()
+        .execute();
+
+      const entryById = new Map<number, Entry>();
+      for (const e of entries) {
+        entryById.set(e.id, new Entry(e));
+      }
+
+      return entryIds.map(
+        (id) =>
+          entryById.get(id) ??
+          new Error(`Could not load entry: ${id}`),
+      );
+    },
+  );
+}
 
 /** @gqlInput */
 export interface EntryFilters {
@@ -66,17 +95,29 @@ export class Entry implements GraphQLNode {
 
   /** @gqlField */
   async commander(commanderLoader: CommanderLoader): Promise<Commander> {
-    return await commanderLoader.load(this.row.commanderId);
+    const result = await commanderLoader.load(this.row.commanderId);
+    if (result instanceof Error) {
+      throw result;
+    }
+    return result;
   }
 
   /** @gqlField */
   async player(playerLoader: PlayerLoader): Promise<Player> {
-    return await playerLoader.load(this.row.playerId);
+    const result = await playerLoader.load(this.row.playerId);
+    if (result instanceof Error) {
+      throw result;
+    }
+    return result;
   }
 
   /** @gqlField */
   async tournament(tournamentLoader: TournamentLoader): Promise<Tournament> {
-    return tournamentLoader.load(this.row.tournamentId);
+    const result = await tournamentLoader.load(this.row.tournamentId);
+    if (result instanceof Error) {
+      throw result;
+    }
+    return result;
   }
 
   /** @gqlField */

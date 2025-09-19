@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<6f886fe49c1466c4ce91bb7ce3463cc7>>
+ * @generated SignedSource<<1601ed19436b141de152ddcd023c662c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,7 +11,7 @@
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TID_TournamentMeta$data = {
-  readonly name: string;
+  readonly name: string | null | undefined;
   readonly " $fragmentType": "TID_TournamentMeta";
 };
 export type TID_TournamentMeta$key = {

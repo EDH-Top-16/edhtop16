@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<43d17604c74a2c14dab14d7cab7d903b>>
+ * @generated SignedSource<<652534926f2eee27c178e8ec604f8ed0>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,9 +16,9 @@ export type tournaments_Tournaments$data = {
       readonly node: {
         readonly id: string;
         readonly " $fragmentSpreads": FragmentRefs<"tournaments_TournamentCard">;
-      };
-    }>;
-  };
+      } | null | undefined;
+    }> | null | undefined;
+  } | null | undefined;
   readonly " $fragmentType": "tournaments_Tournaments";
 };
 export type tournaments_Tournaments$key = {
@@ -107,7 +107,7 @@ return {
           "variableName": "sortBy"
         }
       ],
-      "concreteType": "QueryTournamentsConnection",
+      "concreteType": "TournamentConnection",
       "kind": "LinkedField",
       "name": "__tournaments__tournaments_connection",
       "plural": false,
@@ -115,7 +115,7 @@ return {
         {
           "alias": null,
           "args": null,
-          "concreteType": "QueryTournamentsConnectionEdge",
+          "concreteType": "TournamentEdge",
           "kind": "LinkedField",
           "name": "edges",
           "plural": true,

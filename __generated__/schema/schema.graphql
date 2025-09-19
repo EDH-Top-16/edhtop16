@@ -55,16 +55,16 @@ input CardEntriesFilters {
 }
 
 input CommanderStatsFilters {
-  colorId: String!
-  maxDate: String!
-  maxSize: Int!
-  minDate: String!
-  minSize: Int!
-  timePeriod: TimePeriod!
+  colorId: String
+  maxDate: String
+  maxSize: Int
+  minDate: String
+  minSize: Int
+  timePeriod: TimePeriod
 }
 
 input EntriesFilter {
-  maxStanding: Int!
+  maxStanding: Int
   minEventSize: Int!
   timePeriod: TimePeriod!
 }
@@ -97,7 +97,7 @@ type Card implements Node {
   cardPreviewImageUrl: String
   cmc: Int
   colorId: String
-  entries(after: ID, filters: CardEntriesFilters, first: Int! = 20): EntryConnection
+  entries(after: String, filters: CardEntriesFilters, first: Int! = 20): EntryConnection
   id: ID!
   """URL's of art crops for each card face."""
   imageUrls: [String!]
@@ -122,11 +122,11 @@ type Commander implements Node {
   breakdownUrl: String
   cards: [Card!]
   colorId: String
-  entries(after: ID, filters: EntriesFilter, first: Int! = 20, sortBy: EntriesSortBy! = TOP): EntryConnection
+  entries(after: String, filters: EntriesFilter, first: Int! = 20, sortBy: EntriesSortBy! = TOP): EntryConnection
   id: ID!
   name: String
   promo: FirstPartyPromo
-  staples(after: ID, first: Int! = 20): CardConnection
+  staples(after: String, first: Int! = 20): CardConnection
   stats(filters: CommanderStatsFilters!): CommanderCalculatedStats
 }
 
@@ -209,12 +209,13 @@ type Query {
   card(name: String!): Card
   cheaters: [Player!]
   commander(name: String!): Commander
-  commanders(after: ID, colorId: String, first: Int! = 20, minEntries: Int, minTournamentSize: Int, sortBy: CommandersSortBy! = CONVERSION, timePeriod: TimePeriod! = ONE_MONTH): CommanderConnection
+  commanders(after: String, colorId: String, first: Int! = 20, minEntries: Int, minTournamentSize: Int, sortBy: CommandersSortBy! = CONVERSION, timePeriod: TimePeriod! = ONE_MONTH): CommanderConnection
+  node(id: ID!): Node
   player(profile: String!): Player
   searchResults(types: [SearchResultType!]!): [SearchResult!]
   staples: [Card!]
   tournament(TID: String!): Tournament
-  tournaments(after: ID, first: Int! = 20, maxDate: String, maxSize: Int, minDate: String, minSize: Int, search: String, sortBy: TournamentSortBy! = DATE, timePeriod: TimePeriod): TournamentConnection
+  tournaments(after: String, filters: TournamentFilters, first: Int! = 20, sortBy: TournamentSortBy! = DATE): TournamentConnection
 }
 
 type SearchResult {

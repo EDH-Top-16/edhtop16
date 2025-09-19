@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<de7d13d371161dd9f231d20ee2f6ba5a>>
+ * @generated SignedSource<<dbeb3ca5b74802b89807dac918e081b2>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -12,10 +12,10 @@ import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type Commander_CommanderBanner$data = {
   readonly cards: ReadonlyArray<{
-    readonly imageUrls: ReadonlyArray<string>;
-  }>;
-  readonly colorId: string;
-  readonly name: string;
+    readonly imageUrls: ReadonlyArray<string> | null | undefined;
+  }> | null | undefined;
+  readonly colorId: string | null | undefined;
+  readonly name: string | null | undefined;
   readonly " $fragmentType": "Commander_CommanderBanner";
 };
 export type Commander_CommanderBanner$key = {

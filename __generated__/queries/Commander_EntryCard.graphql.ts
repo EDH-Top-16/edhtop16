@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<71e5c5a7e28765700d3a8bd3193b754a>>
+ * @generated SignedSource<<42f6f54976b32d83bff43c94a15b2278>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -12,20 +12,20 @@ import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type Commander_EntryCard$data = {
   readonly decklist: string | null | undefined;
-  readonly draws: number;
-  readonly losses: number;
+  readonly draws: number | null | undefined;
+  readonly losses: number | null | undefined;
   readonly player: {
-    readonly isKnownCheater: boolean;
-    readonly name: string;
+    readonly isKnownCheater: boolean | null | undefined;
+    readonly name: string | null | undefined;
   } | null | undefined;
-  readonly standing: number;
+  readonly standing: number | null | undefined;
   readonly tournament: {
-    readonly TID: string;
-    readonly name: string;
-    readonly size: number;
-    readonly tournamentDate: string;
-  };
-  readonly wins: number;
+    readonly TID: string | null | undefined;
+    readonly name: string | null | undefined;
+    readonly size: number | null | undefined;
+    readonly tournamentDate: string | null | undefined;
+  } | null | undefined;
+  readonly wins: number | null | undefined;
   readonly " $fragmentType": "Commander_EntryCard";
 };
 export type Commander_EntryCard$key = {

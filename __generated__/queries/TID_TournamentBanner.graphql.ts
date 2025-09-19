@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<bead58307de6cfea3184a3aa070e0d9c>>
+ * @generated SignedSource<<a1f0be8c52b177b207778f1f540369ac>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,17 +11,17 @@
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TID_TournamentBanner$data = {
-  readonly bracketUrl: string;
-  readonly name: string;
-  readonly size: number;
-  readonly tournamentDate: string;
+  readonly bracketUrl: string | null | undefined;
+  readonly name: string | null | undefined;
+  readonly size: number | null | undefined;
+  readonly tournamentDate: string | null | undefined;
   readonly winner: ReadonlyArray<{
     readonly commander: {
       readonly cards: ReadonlyArray<{
-        readonly imageUrls: ReadonlyArray<string>;
-      }>;
-    };
-  }>;
+        readonly imageUrls: ReadonlyArray<string> | null | undefined;
+      }> | null | undefined;
+    } | null | undefined;
+  }> | null | undefined;
   readonly " $fragmentType": "TID_TournamentBanner";
 };
 export type TID_TournamentBanner$key = {

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<215d74e6b243c81ec23fa31e663bc29d>>
+ * @generated SignedSource<<df4d881516b7988f1a3843d27b70a451>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,8 +11,8 @@
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type Commander_CommanderPageShell$data = {
-  readonly breakdownUrl: string;
-  readonly name: string;
+  readonly breakdownUrl: string | null | undefined;
+  readonly name: string | null | undefined;
   readonly promo: {
     readonly " $fragmentSpreads": FragmentRefs<"promo_EmbededPromo">;
   } | null | undefined;

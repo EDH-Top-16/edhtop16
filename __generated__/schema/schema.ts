@@ -3,12 +3,13 @@
  * Do not manually edit. Regenerate by running `npx grats`.
  */
 import { createCommanderCardsLoader as createCommanderCardsLoader, commanderStatsLoader as commanderStatsLoader, createCommanderLoader as createCommanderLoader, Commander as queryCommanderResolver, Commander as queryCommandersResolver } from "./../../src/lib/server/schema/commander";
-import { id as commanderIdResolver, id as entryIdResolver, id as playerIdResolver, id as tournamentIdResolver, id as cardIdResolver } from "./../../src/lib/server/schema/connection";
+import { id as commanderIdResolver, id as entryIdResolver, id as playerIdResolver, id as tournamentIdResolver, id as cardIdResolver, node as queryNodeResolver } from "./../../src/lib/server/schema/connection";
 import { createPlayerLoader as createPlayerLoader, Player as queryCheatersResolver, Player as queryPlayerResolver } from "./../../src/lib/server/schema/player";
 import { createTournamentLoader as createTournamentLoader, Tournament as queryTournamentResolver, Tournament as queryTournamentsResolver } from "./../../src/lib/server/schema/tournament";
-import { Card as queryCardResolver, Card as queryStaplesResolver } from "./../../src/lib/server/schema/card";
+import { Card as queryCardResolver, createCardLoader as createCardLoader, Card as queryStaplesResolver } from "./../../src/lib/server/schema/card";
+import { createEntryLoader as createEntryLoader } from "./../../src/lib/server/schema/entry";
 import { searchResults as querySearchResultsResolver } from "./../../src/lib/server/schema/search";
-import { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLID, GraphQLInputObjectType, GraphQLEnumType, GraphQLBoolean, GraphQLFloat, GraphQLInterfaceType } from "graphql";
+import { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLInputObjectType, GraphQLEnumType, GraphQLID, GraphQLBoolean, GraphQLFloat, GraphQLInterfaceType } from "graphql";
 export function getSchema(): GraphQLSchema {
     const TimePeriodType: GraphQLEnumType = new GraphQLEnumType({
         name: "TimePeriod",
@@ -39,7 +40,7 @@ export function getSchema(): GraphQLSchema {
             return {
                 maxStanding: {
                     name: "maxStanding",
-                    type: new GraphQLNonNull(GraphQLInt)
+                    type: GraphQLInt
                 },
                 minEventSize: {
                     name: "minEventSize",
@@ -176,27 +177,27 @@ export function getSchema(): GraphQLSchema {
             return {
                 colorId: {
                     name: "colorId",
-                    type: new GraphQLNonNull(GraphQLString)
+                    type: GraphQLString
                 },
                 maxDate: {
                     name: "maxDate",
-                    type: new GraphQLNonNull(GraphQLString)
+                    type: GraphQLString
                 },
                 maxSize: {
                     name: "maxSize",
-                    type: new GraphQLNonNull(GraphQLInt)
+                    type: GraphQLInt
                 },
                 minDate: {
                     name: "minDate",
-                    type: new GraphQLNonNull(GraphQLString)
+                    type: GraphQLString
                 },
                 minSize: {
                     name: "minSize",
-                    type: new GraphQLNonNull(GraphQLInt)
+                    type: GraphQLInt
                 },
                 timePeriod: {
                     name: "timePeriod",
-                    type: new GraphQLNonNull(TimePeriodType)
+                    type: TimePeriodType
                 }
             };
         }
@@ -236,7 +237,7 @@ export function getSchema(): GraphQLSchema {
                     type: EntryConnectionType,
                     args: {
                         after: {
-                            type: GraphQLID
+                            type: GraphQLString
                         },
                         filters: {
                             type: EntriesFilterType
@@ -274,7 +275,7 @@ export function getSchema(): GraphQLSchema {
                     type: CardConnectionType,
                     args: {
                         after: {
-                            type: GraphQLID
+                            type: GraphQLString
                         },
                         first: {
                             type: new GraphQLNonNull(GraphQLInt),
@@ -611,7 +612,7 @@ export function getSchema(): GraphQLSchema {
                     type: EntryConnectionType,
                     args: {
                         after: {
-                            type: GraphQLID
+                            type: GraphQLString
                         },
                         filters: {
                             type: CardEntriesFiltersType
@@ -760,6 +761,33 @@ export function getSchema(): GraphQLSchema {
             };
         }
     });
+    const TournamentFiltersType: GraphQLInputObjectType = new GraphQLInputObjectType({
+        name: "TournamentFilters",
+        fields() {
+            return {
+                maxDate: {
+                    name: "maxDate",
+                    type: GraphQLString
+                },
+                maxSize: {
+                    name: "maxSize",
+                    type: GraphQLInt
+                },
+                minDate: {
+                    name: "minDate",
+                    type: GraphQLString
+                },
+                minSize: {
+                    name: "minSize",
+                    type: GraphQLInt
+                },
+                timePeriod: {
+                    name: "timePeriod",
+                    type: TimePeriodType
+                }
+            };
+        }
+    });
     const TournamentSortByType: GraphQLEnumType = new GraphQLEnumType({
         name: "TournamentSortBy",
         values: {
@@ -811,7 +839,7 @@ export function getSchema(): GraphQLSchema {
                     type: CommanderConnectionType,
                     args: {
                         after: {
-                            type: GraphQLID
+                            type: GraphQLString
                         },
                         colorId: {
                             type: GraphQLString
@@ -837,6 +865,18 @@ export function getSchema(): GraphQLSchema {
                     },
                     resolve(_source, args) {
                         return queryCommandersResolver.commanders(args.first, args.after, args.minEntries, args.minTournamentSize, args.timePeriod, args.sortBy, args.colorId);
+                    }
+                },
+                node: {
+                    name: "node",
+                    type: NodeType,
+                    args: {
+                        id: {
+                            type: new GraphQLNonNull(GraphQLID)
+                        }
+                    },
+                    resolve(_source, args, context) {
+                        return queryNodeResolver(args.id, createCommanderLoader(context), createEntryLoader(context), createTournamentLoader(context), createCardLoader(context), createPlayerLoader(context));
                     }
                 },
                 player: {
@@ -887,37 +927,22 @@ export function getSchema(): GraphQLSchema {
                     type: TournamentConnectionType,
                     args: {
                         after: {
-                            type: GraphQLID
+                            type: GraphQLString
+                        },
+                        filters: {
+                            type: TournamentFiltersType
                         },
                         first: {
                             type: new GraphQLNonNull(GraphQLInt),
                             defaultValue: 20
                         },
-                        maxDate: {
-                            type: GraphQLString
-                        },
-                        maxSize: {
-                            type: GraphQLInt
-                        },
-                        minDate: {
-                            type: GraphQLString
-                        },
-                        minSize: {
-                            type: GraphQLInt
-                        },
-                        search: {
-                            type: GraphQLString
-                        },
                         sortBy: {
                             type: new GraphQLNonNull(TournamentSortByType),
                             defaultValue: "DATE"
-                        },
-                        timePeriod: {
-                            type: TimePeriodType
                         }
                     },
                     resolve(_source, args) {
-                        return queryTournamentsResolver.tournaments(args.first, args.after, args.search, args.timePeriod, args.minDate, args.maxDate, args.minSize, args.maxSize, args.sortBy);
+                        return queryTournamentsResolver.tournaments(args.first, args.after, args.filters, args.sortBy);
                     }
                 }
             };
@@ -1008,33 +1033,6 @@ export function getSchema(): GraphQLSchema {
                 minWins: {
                     name: "minWins",
                     type: GraphQLInt
-                }
-            };
-        }
-    });
-    const TournamentFiltersType: GraphQLInputObjectType = new GraphQLInputObjectType({
-        name: "TournamentFilters",
-        fields() {
-            return {
-                maxDate: {
-                    name: "maxDate",
-                    type: GraphQLString
-                },
-                maxSize: {
-                    name: "maxSize",
-                    type: GraphQLInt
-                },
-                minDate: {
-                    name: "minDate",
-                    type: GraphQLString
-                },
-                minSize: {
-                    name: "minSize",
-                    type: GraphQLInt
-                },
-                timePeriod: {
-                    name: "timePeriod",
-                    type: TimePeriodType
                 }
             };
         }

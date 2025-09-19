@@ -85,19 +85,19 @@ export enum EntriesSortBy {
 
 /** @gqlInput */
 export interface CommanderStatsFilters {
-  colorId: string;
-  minSize: Int;
-  minDate: string;
-  maxSize: Int;
-  maxDate: string;
-  timePeriod: TimePeriod;
+  colorId?: string;
+  minSize?: Int;
+  minDate?: string;
+  maxSize?: Int;
+  maxDate?: string;
+  timePeriod?: TimePeriod;
 }
 
 /** @gqlInput */
 export interface EntriesFilter {
   timePeriod: TimePeriod;
   minEventSize: Int;
-  maxStanding: Int;
+  maxStanding?: Int;
 }
 
 
@@ -264,7 +264,7 @@ export class Commander implements GraphQLNode {
   /** @gqlField */
   async entries(
     first: Int = 20,
-    after?: ID | null,
+    after?: string | null,
     filters?: EntriesFilter | null,
     sortBy: EntriesSortBy = EntriesSortBy.TOP,
   ): Promise<Connection<Entry>> {
@@ -324,7 +324,7 @@ export class Commander implements GraphQLNode {
   /** @gqlField */
   async staples(
     first: Int = 20,
-    after?: ID | null,
+    after?: string | null,
   ): Promise<Connection<Card>> {
     const oneYearAgo = subYears(new Date(), 1).toISOString();
 
@@ -425,7 +425,7 @@ export class Commander implements GraphQLNode {
   /** @gqlQueryField */
   static async commanders(
     first: Int = 20,
-    after?: ID | null,
+    after?: string | null,
     minEntries?: Int | null,
     minTournamentSize?: Int | null,
     timePeriod: TimePeriod = TimePeriod.ONE_MONTH,

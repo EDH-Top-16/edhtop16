@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<105a2f21237456e4b83da5f6d4a70fce>>
+ * @generated SignedSource<<f5b24a830e949b7bb1e6338d4ec0bf9d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,9 +16,9 @@ export type Commander_entries$data = {
       readonly node: {
         readonly id: string;
         readonly " $fragmentSpreads": FragmentRefs<"Commander_EntryCard">;
-      };
-    }>;
-  };
+      } | null | undefined;
+    }> | null | undefined;
+  } | null | undefined;
   readonly id: string;
   readonly " $fragmentType": "Commander_entries";
 };
@@ -130,7 +130,7 @@ return {
           "variableName": "sortBy"
         }
       ],
-      "concreteType": "CommanderEntriesConnection",
+      "concreteType": "EntryConnection",
       "kind": "LinkedField",
       "name": "__Commander_entries_connection",
       "plural": false,
@@ -138,7 +138,7 @@ return {
         {
           "alias": null,
           "args": null,
-          "concreteType": "CommanderEntriesConnectionEdge",
+          "concreteType": "EntryEdge",
           "kind": "LinkedField",
           "name": "edges",
           "plural": true,

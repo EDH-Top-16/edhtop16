@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d92eb34c938d6aeb898c3fde9ac6a96c>>
+ * @generated SignedSource<<3b2f249868ad5afc88ba918088471bad>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -12,16 +12,16 @@ import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TID_BreakdownGroupCard$data = {
   readonly commander: {
-    readonly breakdownUrl: string;
+    readonly breakdownUrl: string | null | undefined;
     readonly cards: ReadonlyArray<{
-      readonly imageUrls: ReadonlyArray<string>;
-    }>;
-    readonly colorId: string;
-    readonly name: string;
-  };
-  readonly conversionRate: number;
-  readonly entries: number;
-  readonly topCuts: number;
+      readonly imageUrls: ReadonlyArray<string> | null | undefined;
+    }> | null | undefined;
+    readonly colorId: string | null | undefined;
+    readonly name: string | null | undefined;
+  } | null | undefined;
+  readonly conversionRate: number | null | undefined;
+  readonly entries: number | null | undefined;
+  readonly topCuts: number | null | undefined;
   readonly " $fragmentType": "TID_BreakdownGroupCard";
 };
 export type TID_BreakdownGroupCard$key = {

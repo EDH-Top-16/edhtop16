@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<9000ec5dc0d348ac8be2aedb9b975578>>
+ * @generated SignedSource<<3c2a98b7b55573924c79b3e9b20df759>>
  * @relayHash 64af357c502f7d07453219ce4a15b667
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@ export type Commander_CommanderFallbackQuery$variables = {
 export type Commander_CommanderFallbackQuery$data = {
   readonly commander: {
     readonly " $fragmentSpreads": FragmentRefs<"Commander_CommanderPageShell">;
-  };
+  } | null | undefined;
 };
 export type Commander_CommanderFallbackQuery = {
   response: Commander_CommanderFallbackQuery$data;

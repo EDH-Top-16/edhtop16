@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<2cac940233fb699b28e7fc2f94fffcee>>
- * @relayHash 15b1c952364ae9080615dd21b7335603
+ * @generated SignedSource<<b4e7520d3abc2442bc486492e7ee920d>>
+ * @relayHash ba9512b6cedba05b75f702515b9cde45
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 15b1c952364ae9080615dd21b7335603
+// @relayRequestID ba9512b6cedba05b75f702515b9cde45
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -19,7 +19,7 @@ export type AllTournamentsQuery$variables = {
   count?: number | null | undefined;
   cursor?: string | null | undefined;
   minSize?: number | null | undefined;
-  sortBy?: TournamentSortBy | null | undefined;
+  sortBy: TournamentSortBy;
   timePeriod?: TimePeriod | null | undefined;
 };
 export type AllTournamentsQuery$data = {
@@ -141,7 +141,7 @@ return {
       {
         "alias": null,
         "args": (v1/*: any*/),
-        "concreteType": "QueryTournamentsConnection",
+        "concreteType": "TournamentConnection",
         "kind": "LinkedField",
         "name": "tournaments",
         "plural": false,
@@ -149,7 +149,7 @@ return {
           {
             "alias": null,
             "args": null,
-            "concreteType": "QueryTournamentsConnectionEdge",
+            "concreteType": "TournamentEdge",
             "kind": "LinkedField",
             "name": "edges",
             "plural": true,
@@ -310,7 +310,7 @@ return {
     ]
   },
   "params": {
-    "id": "15b1c952364ae9080615dd21b7335603",
+    "id": "ba9512b6cedba05b75f702515b9cde45",
     "metadata": {},
     "name": "AllTournamentsQuery",
     "operationKind": "query",

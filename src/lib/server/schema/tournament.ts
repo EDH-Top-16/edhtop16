@@ -68,8 +68,12 @@ export class TournamentBreakdownGroup {
   ) {}
 
   /** @gqlField */
-  commander(commanderLoader: CommanderLoader): Promise<Commander> {
-    return commanderLoader.load(this.commanderId as number);
+  async commander(commanderLoader: CommanderLoader): Promise<Commander> {
+    const result = await commanderLoader.load(this.commanderId as number);
+    if (result instanceof Error) {
+      throw result;
+    }
+    return result;
   }
 }
 
@@ -167,36 +171,28 @@ export class Tournament implements GraphQLNode {
   /** @gqlQueryField */
   static async tournaments(
     first: Int = 20,
-    after?: ID | null,
-    search?: string | null,
-    timePeriod?: TimePeriod | null,
-    minDate?: string | null,
-    maxDate?: string | null,
-    minSize?: Int | null,
-    maxSize?: Int | null,
+    after?: string | null,
+    filters?: TournamentFilters | null,
     sortBy: TournamentSortBy = TournamentSortBy.DATE,
   ): Promise<Connection<Tournament>> {
     let query = db.selectFrom('Tournament').selectAll();
 
-    if (search) {
-      query = query.where('name', 'like', `%${search}%`);
+    if (filters?.minSize) {
+      query = query.where('size', '>=', filters.minSize);
     }
-    if (minSize) {
-      query = query.where('size', '>=', minSize);
+    if (filters?.maxSize) {
+      query = query.where('size', '<=', filters.maxSize);
     }
-    if (maxSize) {
-      query = query.where('size', '<=', maxSize);
-    }
-    if (timePeriod || minDate) {
+    if (filters?.timePeriod || filters?.minDate) {
       const minDateValue =
-        minDate != null
-          ? new Date(minDate)
-          : minDateFromTimePeriod(timePeriod);
+        filters?.minDate != null
+          ? new Date(filters.minDate)
+          : minDateFromTimePeriod(filters?.timePeriod);
 
       query = query.where('tournamentDate', '>=', minDateValue.toISOString());
     }
-    const maxDateValue = maxDate
-      ? new Date(maxDate)
+    const maxDateValue = filters?.maxDate
+      ? new Date(filters.maxDate)
       : new Date();
     query = query.where('tournamentDate', '<=', maxDateValue.toISOString());
 

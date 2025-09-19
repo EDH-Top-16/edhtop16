@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<2db2d24ea78a33db65c488119e451913>>
+ * @generated SignedSource<<bea6a9945d3a2683cdc8ec25f90bbed1>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,7 +11,7 @@
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TID_TournamentPageShell$data = {
-  readonly TID: string;
+  readonly TID: string | null | undefined;
   readonly promo: {
     readonly " $fragmentSpreads": FragmentRefs<"promo_EmbededPromo">;
   } | null | undefined;

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<46381e7d2dc4f38625c490f30bb04d4c>>
+ * @generated SignedSource<<7a4b5b32857c305aa837265d4ac983f7>>
  * @relayHash 00ff8482d58f2750e72dcfc8b9880052
  * @lightSyntaxTransform
  * @nogrep
@@ -25,19 +25,19 @@ export type TID_TournamentQuery$data = {
     readonly breakdown?: ReadonlyArray<{
       readonly commander: {
         readonly id: string;
-      };
+      } | null | undefined;
       readonly " $fragmentSpreads": FragmentRefs<"TID_BreakdownGroupCard">;
-    }>;
+    }> | null | undefined;
     readonly breakdownEntries?: ReadonlyArray<{
       readonly id: string;
       readonly " $fragmentSpreads": FragmentRefs<"TID_EntryCard">;
-    }>;
+    }> | null | undefined;
     readonly entries?: ReadonlyArray<{
       readonly id: string;
       readonly " $fragmentSpreads": FragmentRefs<"TID_EntryCard">;
-    }>;
+    }> | null | undefined;
     readonly " $fragmentSpreads": FragmentRefs<"TID_TournamentPageShell">;
-  };
+  } | null | undefined;
 };
 export type TID_TournamentQuery = {
   response: TID_TournamentQuery$data;

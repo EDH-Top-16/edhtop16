@@ -1,10 +1,39 @@
 import {DB} from '#genfiles/db/types.js';
+import DataLoader from 'dataloader';
 import {fromGlobalId, toGlobalId} from 'graphql-relay';
 import {ID, Int} from 'grats';
 import {db} from '../db';
 import {ScryfallCard, scryfallCardSchema} from '../scryfall';
 import {Connection, GraphQLNode} from './connection';
 import {Entry} from './entry';
+import {Context} from '../context';
+
+export type CardLoader = DataLoader<number, Card>;
+
+/** @gqlContext */
+export function createCardLoader(ctx: Context): CardLoader {
+  return ctx.loader(
+    'CardLoader',
+    async (cardIds: readonly number[]) => {
+      const cards = await db
+        .selectFrom('Card')
+        .where('id', 'in', cardIds)
+        .selectAll()
+        .execute();
+
+      const cardById = new Map<number, Card>();
+      for (const c of cards) {
+        cardById.set(c.id, new Card(c));
+      }
+
+      return cardIds.map(
+        (id) =>
+          cardById.get(id) ??
+          new Error(`Could not load card: ${id}`),
+      );
+    },
+  );
+}
 
 /** @gqlInput */
 export interface CardEntriesFilters {
@@ -90,7 +119,7 @@ export class Card implements GraphQLNode {
   /** @gqlField */
   async entries(
     first: Int = 20,
-    after?: ID | null,
+    after?: string | null,
     filters?: CardEntriesFilters | null,
   ): Promise<Connection<Entry>> {
     let query = db

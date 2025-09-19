@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<e98251b056685a3c12776e5f62cb0a60>>
+ * @generated SignedSource<<63f0b6f3d82d4e251ff9de55d6ddc2bd>>
  * @relayHash 23f43b9e74814b751d6927a8d18c76e3
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ export type Commander_CommanderQuery$variables = {
 export type Commander_CommanderQuery$data = {
   readonly commander: {
     readonly " $fragmentSpreads": FragmentRefs<"Commander_CommanderPageShell" | "Commander_CommanderStats" | "Commander_entries">;
-  };
+  } | null | undefined;
 };
 export type Commander_CommanderQuery = {
   response: Commander_CommanderQuery$data;
@@ -279,7 +279,7 @@ return {
                 "name": "filters"
               }
             ],
-            "concreteType": "CommanderStats",
+            "concreteType": "CommanderCalculatedStats",
             "kind": "LinkedField",
             "name": "stats",
             "plural": false,
@@ -311,7 +311,7 @@ return {
           {
             "alias": null,
             "args": (v9/*: any*/),
-            "concreteType": "CommanderEntriesConnection",
+            "concreteType": "EntryConnection",
             "kind": "LinkedField",
             "name": "entries",
             "plural": false,
@@ -319,7 +319,7 @@ return {
               {
                 "alias": null,
                 "args": null,
-                "concreteType": "CommanderEntriesConnectionEdge",
+                "concreteType": "EntryEdge",
                 "kind": "LinkedField",
                 "name": "edges",
                 "plural": true,

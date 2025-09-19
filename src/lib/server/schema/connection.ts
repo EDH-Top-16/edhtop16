@@ -1,5 +1,10 @@
-import {toGlobalId} from 'graphql-relay';
+import {toGlobalId, fromGlobalId} from 'graphql-relay';
 import {ID} from 'grats';
+import {Commander, CommanderLoader} from './commander';
+import {Entry, EntryLoader} from './entry';
+import {Tournament, TournamentLoader} from './tournament';
+import {Card, CardLoader} from './card';
+import {Player, PlayerLoader} from './player';
 
 /** @gqlInterface Node */
 export interface GraphQLNode {
@@ -42,3 +47,31 @@ export type PageInfo = {
   /** @gqlField */
   hasPreviousPage: boolean;
 };
+
+/** @gqlQueryField */
+export async function node(
+  id: ID,
+  commanderLoader: CommanderLoader,
+  entryLoader: EntryLoader,
+  tournamentLoader: TournamentLoader,
+  cardLoader: CardLoader,
+  playerLoader: PlayerLoader,
+): Promise<GraphQLNode | null> {
+  const {type, id: rawId} = fromGlobalId(id);
+  const numericId = Number(rawId);
+
+  switch (type) {
+    case 'Commander':
+      return await commanderLoader.load(numericId);
+    case 'Entry':
+      return await entryLoader.load(numericId);
+    case 'Tournament':
+      return await tournamentLoader.load(numericId);
+    case 'Card':
+      return await cardLoader.load(numericId);
+    case 'Player':
+      return await playerLoader.load(numericId);
+    default:
+      return null;
+  }
+}

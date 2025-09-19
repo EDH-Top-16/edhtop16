@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<03fbf598441669551608d9cf3794ebcc>>
- * @relayHash 5ff9379fd35615befef7fb22ec8f0e00
+ * @generated SignedSource<<f2a4f4d04a12b5e393c050d136451c46>>
+ * @relayHash 34b7bfd03b3cea1d950c3a3a7c6802fc
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 5ff9379fd35615befef7fb22ec8f0e00
+// @relayRequestID 34b7bfd03b3cea1d950c3a3a7c6802fc
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -21,8 +21,8 @@ export type TopCommandersQuery$variables = {
   cursor?: string | null | undefined;
   minEntries?: number | null | undefined;
   minTournamentSize?: number | null | undefined;
-  sortBy?: CommandersSortBy | null | undefined;
-  timePeriod?: TimePeriod | null | undefined;
+  sortBy: CommandersSortBy;
+  timePeriod: TimePeriod;
 };
 export type TopCommandersQuery$data = {
   readonly " $fragmentSpreads": FragmentRefs<"pages_topCommanders">;
@@ -151,7 +151,7 @@ return {
       {
         "alias": null,
         "args": (v2/*: any*/),
-        "concreteType": "QueryCommandersConnection",
+        "concreteType": "CommanderConnection",
         "kind": "LinkedField",
         "name": "commanders",
         "plural": false,
@@ -159,7 +159,7 @@ return {
           {
             "alias": null,
             "args": null,
-            "concreteType": "QueryCommandersConnectionEdge",
+            "concreteType": "CommanderEdge",
             "kind": "LinkedField",
             "name": "edges",
             "plural": true,
@@ -210,7 +210,7 @@ return {
                         "name": "filters"
                       }
                     ],
-                    "concreteType": "CommanderStats",
+                    "concreteType": "CommanderCalculatedStats",
                     "kind": "LinkedField",
                     "name": "stats",
                     "plural": false,
@@ -331,7 +331,7 @@ return {
     ]
   },
   "params": {
-    "id": "5ff9379fd35615befef7fb22ec8f0e00",
+    "id": "34b7bfd03b3cea1d950c3a3a7c6802fc",
     "metadata": {},
     "name": "TopCommandersQuery",
     "operationKind": "query",

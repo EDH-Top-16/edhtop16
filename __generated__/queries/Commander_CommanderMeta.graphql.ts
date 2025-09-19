@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<0d2301f3d4210c477ce576c46d045171>>
+ * @generated SignedSource<<02b01eab47bce4364e3526f9c8798b7d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,7 +11,7 @@
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type Commander_CommanderMeta$data = {
-  readonly name: string;
+  readonly name: string | null | undefined;
   readonly " $fragmentType": "Commander_CommanderMeta";
 };
 export type Commander_CommanderMeta$key = {

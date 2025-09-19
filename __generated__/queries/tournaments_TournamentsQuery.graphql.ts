@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b790c483bcd1b74e3c5b8c378bd4f2a5>>
+ * @generated SignedSource<<9f156f42e6109e1c0d93036af8fcf87d>>
  * @relayHash 3a51f41e3bf477628d97c7d880dbc6fc
  * @lightSyntaxTransform
  * @nogrep
@@ -119,7 +119,7 @@ return {
       {
         "alias": null,
         "args": (v3/*: any*/),
-        "concreteType": "QueryTournamentsConnection",
+        "concreteType": "TournamentConnection",
         "kind": "LinkedField",
         "name": "tournaments",
         "plural": false,
@@ -127,7 +127,7 @@ return {
           {
             "alias": null,
             "args": null,
-            "concreteType": "QueryTournamentsConnectionEdge",
+            "concreteType": "TournamentEdge",
             "kind": "LinkedField",
             "name": "edges",
             "plural": true,

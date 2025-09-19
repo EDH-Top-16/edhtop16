@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<bc4963865856d2c90ed612bba8076a84>>
+ * @generated SignedSource<<501ed2e4a285145f12b7a8760d3e418a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,12 +11,12 @@
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type promo_EmbededPromo$data = {
-  readonly backgroundImageUrl: string;
-  readonly buttonText: string;
-  readonly description: ReadonlyArray<string>;
-  readonly href: string;
+  readonly backgroundImageUrl: string | null | undefined;
+  readonly buttonText: string | null | undefined;
+  readonly description: ReadonlyArray<string> | null | undefined;
+  readonly href: string | null | undefined;
   readonly imageUrl: string | null | undefined;
-  readonly title: string;
+  readonly title: string | null | undefined;
   readonly " $fragmentType": "promo_EmbededPromo";
 };
 export type promo_EmbededPromo$key = {

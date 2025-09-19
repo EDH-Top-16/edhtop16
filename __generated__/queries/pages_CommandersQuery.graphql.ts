@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<ba5a486e1c5a1e9c65e3922688066ce4>>
+ * @generated SignedSource<<98ea030bf21ed7cee379cc80d61c0e11>>
  * @relayHash 14745cc7afd103bd6a5ec872679047e4
  * @lightSyntaxTransform
  * @nogrep
@@ -133,7 +133,7 @@ return {
       {
         "alias": null,
         "args": (v6/*: any*/),
-        "concreteType": "QueryCommandersConnection",
+        "concreteType": "CommanderConnection",
         "kind": "LinkedField",
         "name": "commanders",
         "plural": false,
@@ -141,7 +141,7 @@ return {
           {
             "alias": null,
             "args": null,
-            "concreteType": "QueryCommandersConnectionEdge",
+            "concreteType": "CommanderEdge",
             "kind": "LinkedField",
             "name": "edges",
             "plural": true,
@@ -192,7 +192,7 @@ return {
                         "name": "filters"
                       }
                     ],
-                    "concreteType": "CommanderStats",
+                    "concreteType": "CommanderCalculatedStats",
                     "kind": "LinkedField",
                     "name": "stats",
                     "plural": false,

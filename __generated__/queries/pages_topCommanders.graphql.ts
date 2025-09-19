@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<2329427560741b613a6e6193a698c614>>
+ * @generated SignedSource<<bb14795de3e85d0e76dbafc8a3af48c8>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,9 +16,9 @@ export type pages_topCommanders$data = {
       readonly node: {
         readonly id: string;
         readonly " $fragmentSpreads": FragmentRefs<"pages_TopCommandersCard">;
-      };
-    }>;
-  };
+      } | null | undefined;
+    }> | null | undefined;
+  } | null | undefined;
   readonly " $fragmentType": "pages_topCommanders";
 };
 export type pages_topCommanders$key = {
@@ -119,7 +119,7 @@ return {
           "variableName": "timePeriod"
         }
       ],
-      "concreteType": "QueryCommandersConnection",
+      "concreteType": "CommanderConnection",
       "kind": "LinkedField",
       "name": "__pages__commanders_connection",
       "plural": false,
@@ -127,7 +127,7 @@ return {
         {
           "alias": null,
           "args": null,
-          "concreteType": "QueryCommandersConnectionEdge",
+          "concreteType": "CommanderEdge",
           "kind": "LinkedField",
           "name": "edges",
           "plural": true,
