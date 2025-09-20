@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<bc4963865856d2c90ed612bba8076a84>>
+ * @generated SignedSource<<66ffc0be623438b584495d04759b82bb>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -27,7 +27,9 @@ export type promo_EmbededPromo$key = {
 const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "promo_EmbededPromo",
   "selections": [
     {
@@ -77,6 +79,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "a67a802bb9aaa73cec02386ee04000af";
+(node as any).hash = "e3441ef4a9fcb3f5dfb23be9b1e747b3";
 
 export default node;

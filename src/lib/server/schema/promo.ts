@@ -1,16 +1,22 @@
 import {isWithinInterval} from 'date-fns';
-import {builder} from './builder';
 
+/** @gqlType */
 export interface FirstPartyPromo {
   commander?: string;
   tid?: string;
   activeFrom: Date;
   activeUntil: Date;
+  /** @gqlField */
   title: string;
+  /** @gqlField */
   description: string[];
+  /** @gqlField */
   buttonText: string;
+  /** @gqlField */
   backgroundImageUrl: string;
+  /** @gqlField */
   imageUrl?: string;
+  /** @gqlField */
   href: string;
 }
 
@@ -125,16 +131,3 @@ export function getActivePromotions(opts: {commander?: string; tid?: string}) {
       isWithinInterval(now, {start: p.activeFrom, end: p.activeUntil}),
   );
 }
-
-export const FirstPartyPromoRef = builder
-  .objectRef<FirstPartyPromo>('FirstPartyPromo')
-  .implement({
-    fields: (t) => ({
-      title: t.exposeString('title'),
-      description: t.exposeStringList('description'),
-      buttonText: t.exposeString('buttonText'),
-      backgroundImageUrl: t.exposeString('backgroundImageUrl'),
-      imageUrl: t.exposeString('imageUrl', {nullable: true}),
-      href: t.exposeString('href'),
-    }),
-  });

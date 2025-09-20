@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<2329427560741b613a6e6193a698c614>>
+ * @generated SignedSource<<0bfbbd5d0aab05a671e5861dcde883d2>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -75,6 +75,7 @@ return {
         "path": (v0/*: any*/)
       }
     ],
+    "throwOnFieldError": true,
     "refetch": {
       "connection": {
         "forward": {
@@ -119,7 +120,7 @@ return {
           "variableName": "timePeriod"
         }
       ],
-      "concreteType": "QueryCommandersConnection",
+      "concreteType": "CommanderConnection",
       "kind": "LinkedField",
       "name": "__pages__commanders_connection",
       "plural": false,
@@ -127,7 +128,7 @@ return {
         {
           "alias": null,
           "args": null,
-          "concreteType": "QueryCommandersConnectionEdge",
+          "concreteType": "CommanderEdge",
           "kind": "LinkedField",
           "name": "edges",
           "plural": true,
@@ -206,6 +207,6 @@ return {
 };
 })();
 
-(node as any).hash = "b5a6c24d9b40c399fa950a403034faa7";
+(node as any).hash = "627a0bbccaaf63862979fe3c1dc8a46b";
 
 export default node;

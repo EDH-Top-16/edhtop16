@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<71e5c5a7e28765700d3a8bd3193b754a>>
+ * @generated SignedSource<<a71f7e8a3f45afdcad57f84cfd00fb93>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -17,7 +17,7 @@ export type Commander_EntryCard$data = {
   readonly player: {
     readonly isKnownCheater: boolean;
     readonly name: string;
-  } | null | undefined;
+  };
   readonly standing: number;
   readonly tournament: {
     readonly TID: string;
@@ -44,7 +44,9 @@ var v0 = {
 return {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "Commander_EntryCard",
   "selections": [
     {
@@ -140,6 +142,6 @@ return {
 };
 })();
 
-(node as any).hash = "d6479b58fdb921fe6bbd9325480b3c1b";
+(node as any).hash = "ae56c200ab92f1f391153dac58022f2c";
 
 export default node;

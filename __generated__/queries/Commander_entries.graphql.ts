@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<105a2f21237456e4b83da5f6d4a70fce>>
+ * @generated SignedSource<<448c94a1f81dac8dfea7bd8b5b6b897b>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -79,6 +79,7 @@ return {
         "path": (v0/*: any*/)
       }
     ],
+    "throwOnFieldError": true,
     "refetch": {
       "connection": {
         "forward": {
@@ -130,7 +131,7 @@ return {
           "variableName": "sortBy"
         }
       ],
-      "concreteType": "CommanderEntriesConnection",
+      "concreteType": "EntryConnection",
       "kind": "LinkedField",
       "name": "__Commander_entries_connection",
       "plural": false,
@@ -138,7 +139,7 @@ return {
         {
           "alias": null,
           "args": null,
-          "concreteType": "CommanderEntriesConnectionEdge",
+          "concreteType": "EntryEdge",
           "kind": "LinkedField",
           "name": "edges",
           "plural": true,
@@ -212,6 +213,6 @@ return {
 };
 })();
 
-(node as any).hash = "dd5ecf026b227cd526752087b0600d9b";
+(node as any).hash = "774a0fb8a9ae993f318772a9b5489054";
 
 export default node;

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<e98251b056685a3c12776e5f62cb0a60>>
+ * @generated SignedSource<<be49cfe69d74148917058069c9c3511f>>
  * @relayHash 23f43b9e74814b751d6927a8d18c76e3
  * @lightSyntaxTransform
  * @nogrep
@@ -123,7 +123,9 @@ return {
       (v4/*: any*/)
     ],
     "kind": "Fragment",
-    "metadata": null,
+    "metadata": {
+      "throwOnFieldError": true
+    },
     "name": "Commander_CommanderQuery",
     "selections": [
       {
@@ -279,7 +281,7 @@ return {
                 "name": "filters"
               }
             ],
-            "concreteType": "CommanderStats",
+            "concreteType": "CommanderCalculatedStats",
             "kind": "LinkedField",
             "name": "stats",
             "plural": false,
@@ -311,7 +313,7 @@ return {
           {
             "alias": null,
             "args": (v9/*: any*/),
-            "concreteType": "CommanderEntriesConnection",
+            "concreteType": "EntryConnection",
             "kind": "LinkedField",
             "name": "entries",
             "plural": false,
@@ -319,7 +321,7 @@ return {
               {
                 "alias": null,
                 "args": null,
-                "concreteType": "CommanderEntriesConnectionEdge",
+                "concreteType": "EntryEdge",
                 "kind": "LinkedField",
                 "name": "edges",
                 "plural": true,
@@ -498,7 +500,7 @@ return {
 };
 })();
 
-(node as any).hash = "8af3e9bfc924c5385b21b1f8fa2f4524";
+(node as any).hash = "4fc81c2a2ddd866f2ace49860e7367ac";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

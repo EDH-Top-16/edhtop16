@@ -1,279 +1,276 @@
 import {DB} from '#genfiles/db/types';
-import {resolveOffsetConnection} from '@pothos/plugin-relay';
+import DataLoader from 'dataloader';
+import {Float, Int} from 'grats';
 import {sql} from 'kysely';
+import {Context} from '../context';
 import {db} from '../db';
-import {builder} from './builder';
-import {Commander} from './commander';
+import {Commander, CommanderLoader} from './commander';
+import {Connection, GraphQLNode} from './connection';
 import {Entry} from './entry';
-import {FirstPartyPromoRef, getActivePromotions} from './promo';
-import {
-  minDateFromTimePeriod,
-  TimePeriod,
-  TopdeckTournamentRoundType,
-  TopdeckTournamentTableType,
-  TournamentBreakdownGroupType,
-} from './types';
+import {FirstPartyPromo, getActivePromotions} from './promo';
+import {minDateFromTimePeriod, TimePeriod} from './types';
 
-TopdeckTournamentTableType.implement({
-  fields: (t) => ({
-    table: t.exposeInt('table'),
-    roundName: t.exposeString('roundName'),
-    entries: t.loadable({
-      type: [Entry],
-      resolve: (parent) => {
-        return parent.players.map((p) => ({
-          TID: parent.TID,
-          profile: p.id,
-        }));
-      },
-      load: async (keys: {TID: string; profile: string}[]) => {
-        const entries = await sql<DB['Entry'] & {key: string}>`
-          select e.*, t."TID" || ':' || p."topdeckProfile" as key
-          from "Entry" as e
-          left join "Tournament" t on t.id = e."tournamentId"
-          left join "Player" p on p.id = e."playerId"
-          where t."TID" || ':' || p."topdeckProfile" in (${sql.join(
-            keys.map((e) => `${e.TID}:${e.profile}`),
-          )})
-        `.execute(db);
+export type TournamentLoader = DataLoader<number, Tournament>;
 
-        const entriesByKey = new Map(entries.rows.map((e) => [e.key, e]));
-        return keys.map((e) => entriesByKey.get(`${e.TID}:${e.profile}`)!);
-      },
-    }),
-    winnerSeatPosition: t.int({
-      nullable: true,
-      resolve: (parent) => {
-        const winnerIndex = parent.players.findIndex(
-          (p) => p.name === parent.winner,
-        );
+/** @gqlContext */
+export function createTournamentLoader(ctx: Context): TournamentLoader {
+  return ctx.loader(
+    'TournamentLoader',
+    async (tournamentIds: readonly number[]) => {
+      const tournaments = await db
+        .selectFrom('Tournament')
+        .where('id', 'in', tournamentIds)
+        .selectAll()
+        .execute();
 
-        if (winnerIndex < 0) return null;
-        return winnerIndex + 1;
-      },
-    }),
-    winner: t.field({
-      type: Entry,
-      nullable: true,
-      resolve: (parent) => {
-        const winnerPlayer = parent.players.find(
-          (p) => p.name === parent.winner,
-        );
+      const tournamentById = new Map<number, Tournament>();
+      for (const t of tournaments) {
+        tournamentById.set(t.id, new Tournament(t));
+      }
 
-        if (winnerPlayer == null) {
-          return null;
-        }
+      return tournamentIds.map(
+        (id) =>
+          tournamentById.get(id) ??
+          new Error(`Could not load tournament: ${id}`),
+      );
+    },
+  );
+}
 
-        return db
-          .selectFrom('Entry')
-          .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
-          .leftJoin('Player', 'Player.id', 'Entry.playerId')
-          .selectAll('Entry')
-          .where('Tournament.TID', '=', parent.TID)
-          .where('Player.topdeckProfile', '=', winnerPlayer.id)
-          .executeTakeFirst();
-      },
-    }),
-  }),
-});
+/** @gqlEnum */
+export enum TournamentSortBy {
+  PLAYERS = 'PLAYERS',
+  DATE = 'DATE',
+}
 
-TopdeckTournamentRoundType.implement({
-  fields: (t) => ({
-    round: t.string({
-      resolve: (parent) => `${parent.round}`,
-    }),
-    tables: t.field({
-      type: t.listRef(TopdeckTournamentTableType),
-      resolve: (parent) => {
-        return parent.tables.map((t) => ({
-          ...t,
-          TID: parent.TID,
-          roundName: `${parent.round}`,
-        }));
-      },
-    }),
-  }),
-});
+/** @gqlInput */
+export interface TournamentFilters {
+  timePeriod?: TimePeriod;
+  minDate?: string;
+  maxDate?: string;
+  minSize?: Int;
+  maxSize?: Int;
+}
 
-TournamentBreakdownGroupType.implement({
-  fields: (t) => ({
-    topCuts: t.exposeInt('topCuts'),
-    entries: t.exposeInt('entries'),
-    conversionRate: t.exposeFloat('conversionRate'),
-    commander: t.field({
-      type: Commander,
-      resolve: (parent, _args, ctx) => {
-        return Commander.getDataloader(ctx).load(parent.commanderId);
-      },
-    }),
-  }),
-});
+/** @gqlType */
+export class TournamentBreakdownGroup {
+  constructor(
+    /** @gqlField */
+    readonly commanderId: Int,
+    /** @gqlField */
+    readonly topCuts: Int,
+    /** @gqlField */
+    readonly entries: Int,
+    /** @gqlField */
+    readonly conversionRate: Float,
+  ) {}
 
-export const Tournament = builder.loadableNodeRef('Tournament', {
-  id: {parse: (id) => Number(id), resolve: (parent) => parent.id},
-  load: async (ids: number[]) => {
-    const nodes = await db
+  /** @gqlField */
+  async commander(commanderLoader: CommanderLoader): Promise<Commander> {
+    const result = await commanderLoader.load(this.commanderId as number);
+    if (result instanceof Error) {
+      throw result;
+    }
+    return result;
+  }
+}
+
+/** @gqlType */
+export class Tournament implements GraphQLNode {
+  id;
+  __typename = 'Tournament' as const;
+
+  /** @gqlField */
+  TID: string;
+  /** @gqlField */
+  name: string;
+  /** @gqlField */
+  size: Int;
+  /** @gqlField */
+  swissRounds: Int;
+  /** @gqlField */
+  topCut: Int;
+  /** @gqlField */
+  tournamentDate: string;
+
+  constructor(private readonly row: DB['Tournament']) {
+    this.id = row.id;
+    this.TID = row.TID;
+    this.name = row.name;
+    this.size = row.size;
+    this.swissRounds = row.swissRounds;
+    this.topCut = row.topCut;
+    this.tournamentDate = row.tournamentDate;
+  }
+
+  /** @gqlField */
+  async entries(
+    commander?: string | null,
+    maxStanding?: Int | null,
+  ): Promise<Entry[]> {
+    let query = db
+      .selectFrom('Entry')
+      .leftJoin('Commander', 'Commander.id', 'Entry.commanderId')
+      .selectAll('Entry')
+      .where('Entry.tournamentId', '=', this.id);
+
+    if (maxStanding != null) {
+      query = query.where('Entry.standing', '<=', maxStanding);
+    }
+    if (commander != null) {
+      query = query.where('Commander.name', '=', commander);
+    }
+
+    const rows = await query.orderBy('standing asc').execute();
+    return rows.map((r) => new Entry(r));
+  }
+
+  /** @gqlField */
+  bracketUrl(): string {
+    return this.row.bracketUrl ?? `https://topdeck.gg/bracket/${this.TID}`;
+  }
+
+  /** @gqlField */
+  async breakdown(): Promise<TournamentBreakdownGroup[]> {
+    const groups = await sql<{
+      commanderId: number;
+      topCuts: number;
+      entries: number;
+      conversionRate: number;
+    }>`
+      select
+        e."commanderId",
+        count(e."commanderId") as entries,
+        sum(case when e.standing <= t."topCut" then 1 else 0 end) as "topCuts",
+        sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e.id) as "conversionRate"
+      from "Entry" as e
+      left join "Tournament" t on t.id = e."tournamentId"
+      left join "Commander" c on c.id = e."commanderId"
+      where t."id" = ${this.id}
+      and c.name != 'Unknown Commander'
+      group by e."commanderId"
+      order by "topCuts" desc, entries desc
+    `.execute(db);
+
+    return groups.rows.map(
+      (r) =>
+        new TournamentBreakdownGroup(
+          r.commanderId,
+          r.topCuts,
+          r.entries,
+          r.conversionRate,
+        ),
+    );
+  }
+
+  /** @gqlField */
+  promo(): FirstPartyPromo | undefined {
+    return getActivePromotions({tid: this.TID})[0];
+  }
+
+  /** @gqlQueryField */
+  static async tournament(TID: string): Promise<Tournament> {
+    const row = await db
       .selectFrom('Tournament')
       .selectAll()
-      .where('id', 'in', ids)
-      .execute();
+      .where('TID', '=', TID)
+      .executeTakeFirstOrThrow();
 
-    const nodesById = new Map<number, (typeof nodes)[number]>();
-    for (const node of nodes) nodesById.set(node.id, node);
+    return new Tournament(row);
+  }
 
-    return ids.map((id) => nodesById.get(id)!);
-  },
-});
+  /** @gqlQueryField */
+  static async tournaments(
+    first: Int = 20,
+    after?: string | null,
+    filters?: TournamentFilters | null,
+    sortBy: TournamentSortBy = TournamentSortBy.DATE,
+  ): Promise<Connection<Tournament>> {
+    let query = db.selectFrom('Tournament').selectAll();
 
-Tournament.implement({
-  fields: (t) => ({
-    TID: t.exposeString('TID'),
-    name: t.exposeString('name'),
-    size: t.exposeInt('size'),
-    swissRounds: t.exposeInt('swissRounds'),
-    topCut: t.exposeInt('topCut'),
-    tournamentDate: t.string({
-      resolve: (tournament) => tournament.tournamentDate,
-    }),
-    entries: t.field({
-      type: [Entry],
-      args: {maxStanding: t.arg.int(), commander: t.arg.string()},
-      resolve: (parent, args) => {
-        let query = db
-          .selectFrom('Entry')
-          .leftJoin('Commander', 'Commander.id', 'Entry.commanderId')
-          .selectAll('Entry')
-          .where('Entry.tournamentId', '=', parent.id);
+    if (filters?.minSize) {
+      query = query.where('size', '>=', filters.minSize);
+    }
+    if (filters?.maxSize) {
+      query = query.where('size', '<=', filters.maxSize);
+    }
+    if (filters?.timePeriod || filters?.minDate) {
+      const minDateValue =
+        filters?.minDate != null
+          ? new Date(filters.minDate)
+          : minDateFromTimePeriod(filters?.timePeriod);
 
-        if (args.maxStanding) {
-          query = query.where('Entry.standing', '<=', args.maxStanding);
-        }
-        if (args.commander) {
-          query = query.where('Commander.name', '=', args.commander);
-        }
+      query = query.where('tournamentDate', '>=', minDateValue.toISOString());
+    }
+    const maxDateValue = filters?.maxDate
+      ? new Date(filters.maxDate)
+      : new Date();
+    query = query.where('tournamentDate', '<=', maxDateValue.toISOString());
 
-        return query.orderBy('standing asc').execute();
-      },
-    }),
-    rounds: t.field({
-      type: t.listRef(TopdeckTournamentRoundType),
-      resolve: async (parent, _args, ctx) => {
-        const tournament = await ctx.topdeckClient.loadRoundsData(parent.TID);
-        return (
-          tournament?.rounds.map((r) => ({
-            ...r,
-            TID: parent.TID,
-          })) ?? []
+    if (after) {
+      const cursor = TournamentsCursor.fromString(after);
+      if (sortBy === TournamentSortBy.PLAYERS) {
+        query = query.where(({eb, tuple, refTuple}) =>
+          eb(
+            refTuple('size', 'tournamentDate', 'id'),
+            '<',
+            tuple(cursor.size, cursor.date, cursor.id),
+          ),
         );
+      } else {
+        query = query.where(({eb, tuple, refTuple}) =>
+          eb(
+            refTuple('tournamentDate', 'size', 'id'),
+            '<',
+            tuple(cursor.date, cursor.size, cursor.id),
+          ),
+        );
+      }
+    }
+
+    if (sortBy === TournamentSortBy.PLAYERS) {
+      query = query.orderBy(['size desc', 'tournamentDate desc', 'id desc']);
+    } else {
+      query = query.orderBy(['tournamentDate desc', 'size desc', 'id desc']);
+    }
+
+    const rows = await query.limit(first + 1).execute();
+
+    const edges = rows.slice(0, first).map((r) => {
+      const node = new Tournament(r);
+      const cursor = TournamentsCursor.fromTournament(node).toString();
+      return {cursor, node};
+    });
+
+    return {
+      edges,
+      pageInfo: {
+        hasPreviousPage: false,
+        hasNextPage: rows.length > edges.length,
+        startCursor: edges.at(0)?.cursor ?? null,
+        endCursor: edges.at(-1)?.cursor ?? null,
       },
-    }),
-    bracketUrl: t.field({
-      type: 'String',
-      resolve: (parent) => {
-        return parent.bracketUrl ?? `https://topdeck.gg/bracket/${parent.TID}`;
-      },
-    }),
-    breakdown: t.field({
-      type: t.listRef(TournamentBreakdownGroupType),
-      resolve: async (parent) => {
-        type Group = (typeof TournamentBreakdownGroupType)['$inferType'];
-        const groups = await sql<Group>`
-          select
-            e."commanderId",
-            count(e."commanderId") as entries,
-            sum(case when e.standing <= t."topCut" then 1 else 0 end) as "topCuts",
-            sum(case when e.standing <= t."topCut" then 1.0 else 0.0 end) / count(e.id) as "conversionRate"
-          from "Entry" as e
-          left join "Tournament" t on t.id = e."tournamentId"
-          left join "Commander" c on c.id = e."commanderId"
-          where t."id" = ${parent.id}
-          and c.name != 'Unknown Commander'
-          group by e."commanderId"
-          order by "topCuts" desc, entries desc
-        `.execute(db);
+    };
+  }
+}
 
-        return groups.rows;
-      },
-    }),
-    promo: t.field({
-      type: FirstPartyPromoRef,
-      nullable: true,
-      resolve: (parent) => {
-        return getActivePromotions({tid: parent.TID})[0];
-      },
-    }),
-  }),
-});
+class TournamentsCursor {
+  static fromString(cursor: string) {
+    const [id, size, date] = cursor.split(';');
+    return new TournamentsCursor(Number(id), Number(size), date!);
+  }
 
-const TournamentSortBy = builder.enumType('TournamentSortBy', {
-  values: ['PLAYERS', 'DATE'] as const,
-});
+  static fromTournament(t: Tournament) {
+    return new TournamentsCursor(t.id, t.size, t.tournamentDate);
+  }
 
-const TournamentFiltersInput = builder.inputType('TournamentFilters', {
-  fields: (t) => ({
-    timePeriod: t.field({type: TimePeriod}),
-    minDate: t.string(),
-    maxDate: t.string(),
-    minSize: t.int(),
-    maxSize: t.int(),
-  }),
-});
+  private constructor(
+    readonly id: number,
+    readonly size: number,
+    readonly date: string,
+  ) {}
 
-builder.queryField('tournaments', (t) =>
-  t.connection({
-    type: Tournament,
-    args: {
-      search: t.arg.string(),
-      filters: t.arg({type: TournamentFiltersInput}),
-      sortBy: t.arg({type: TournamentSortBy, defaultValue: 'DATE'}),
-    },
-    resolve: async (_, args) =>
-      resolveOffsetConnection({args}, ({limit, offset}) => {
-        let query = db.selectFrom('Tournament').selectAll();
-
-        if (args.search) {
-          query = query.where('name', 'like', `%${args.search}%`);
-        }
-        if (args.filters?.minSize) {
-          query = query.where('size', '>=', args.filters.minSize);
-        }
-        if (args.filters?.maxSize) {
-          query = query.where('size', '<=', args.filters.maxSize);
-        }
-        if (args.filters?.timePeriod || args.filters?.minDate) {
-          const minDate =
-            args.filters?.minDate != null
-              ? new Date(args.filters?.minDate ?? 0)
-              : minDateFromTimePeriod(args.filters?.timePeriod);
-
-          query = query.where('tournamentDate', '>=', minDate.toISOString());
-        }
-        const maxDate = args.filters?.maxDate
-          ? new Date(args.filters.maxDate)
-          : new Date();
-        query = query.where('tournamentDate', '<=', maxDate.toISOString());
-
-        if (args.sortBy === 'PLAYERS') {
-          query = query.orderBy(['size desc', 'tournamentDate desc']);
-        } else {
-          query = query.orderBy(['tournamentDate desc', 'size desc']);
-        }
-
-        return query.limit(limit).offset(offset).execute();
-      }),
-  }),
-);
-
-builder.queryField('tournament', (t) =>
-  t.field({
-    type: Tournament,
-    args: {TID: t.arg.string({required: true})},
-    resolve: async (_root, args) => {
-      return db
-        .selectFrom('Tournament')
-        .selectAll()
-        .where('TID', '=', args.TID)
-        .executeTakeFirstOrThrow();
-    },
-  }),
-);
+  toString() {
+    return [this.id, this.size, this.date].join(';');
+  }
+}

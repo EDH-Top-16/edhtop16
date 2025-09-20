@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<dc78880d95ed40993f6acde2b190b315>>
+ * @generated SignedSource<<fdf2427c21b1c8a8e3159f3631be9167>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -24,7 +24,7 @@ export type TID_EntryCard$data = {
   readonly player: {
     readonly isKnownCheater: boolean;
     readonly name: string;
-  } | null | undefined;
+  };
   readonly standing: number;
   readonly wins: number;
   readonly " $fragmentType": "TID_EntryCard";
@@ -45,7 +45,9 @@ var v0 = {
 return {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "TID_EntryCard",
   "selections": [
     {
@@ -145,6 +147,6 @@ return {
 };
 })();
 
-(node as any).hash = "d1156d6019a54860009b45c2e88d9570";
+(node as any).hash = "58bfd2a0f244e933d117a2df7d2ba3e7";
 
 export default node;

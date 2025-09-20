@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<35895e93eee6126063dd1549ee5a8f96>>
+ * @generated SignedSource<<eb2c9f2c216e505df9db4db8044787ca>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -42,7 +42,9 @@ const node: ReaderFragment = {
     }
   ],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "pages_TopCommandersCard",
   "selections": [
     {
@@ -86,7 +88,7 @@ const node: ReaderFragment = {
           "name": "filters"
         }
       ],
-      "concreteType": "CommanderStats",
+      "concreteType": "CommanderCalculatedStats",
       "kind": "LinkedField",
       "name": "stats",
       "plural": false,
@@ -145,6 +147,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "b689ba146c56ee09971ba19ce0438834";
+(node as any).hash = "1d29b85375e18335bcc5c05e5ba15988";
 
 export default node;
