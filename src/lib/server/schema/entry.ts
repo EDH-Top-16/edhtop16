@@ -13,27 +13,22 @@ export type EntryLoader = DataLoader<number, Entry>;
 
 /** @gqlContext */
 export function createEntryLoader(ctx: Context): EntryLoader {
-  return ctx.loader(
-    'EntryLoader',
-    async (entryIds: readonly number[]) => {
-      const entries = await db
-        .selectFrom('Entry')
-        .where('id', 'in', entryIds)
-        .selectAll()
-        .execute();
+  return ctx.loader('EntryLoader', async (entryIds: readonly number[]) => {
+    const entries = await db
+      .selectFrom('Entry')
+      .where('id', 'in', entryIds)
+      .selectAll()
+      .execute();
 
-      const entryById = new Map<number, Entry>();
-      for (const e of entries) {
-        entryById.set(e.id, new Entry(e));
-      }
+    const entryById = new Map<number, Entry>();
+    for (const e of entries) {
+      entryById.set(e.id, new Entry(e));
+    }
 
-      return entryIds.map(
-        (id) =>
-          entryById.get(id) ??
-          new Error(`Could not load entry: ${id}`),
-      );
-    },
-  );
+    return entryIds.map(
+      (id) => entryById.get(id) ?? new Error(`Could not load entry: ${id}`),
+    );
+  });
 }
 
 /** @gqlInput */
