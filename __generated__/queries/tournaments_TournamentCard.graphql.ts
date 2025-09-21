@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d8db7c2b25e277485aeda37137c5cc89>>
+ * @generated SignedSource<<89692b9ef2526ff387dd85f013f2a986>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -20,7 +20,7 @@ export type tournaments_TournamentCard$data = {
     };
     readonly player: {
       readonly name: string;
-    } | null | undefined;
+    };
   }>;
   readonly name: string;
   readonly size: number;
@@ -43,7 +43,9 @@ var v0 = {
 return {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "tournaments_TournamentCard",
   "selections": [
     {
@@ -132,6 +134,6 @@ return {
 };
 })();
 
-(node as any).hash = "3069c5ecd9ab738c24b7c22d13ba7b37";
+(node as any).hash = "1663b026034fc4f1d3b023b3342d9dff";
 
 export default node;

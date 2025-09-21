@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<0d2301f3d4210c477ce576c46d045171>>
+ * @generated SignedSource<<c08edd78419003edb8933e8ab51e352e>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -22,7 +22,9 @@ export type Commander_CommanderMeta$key = {
 const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "Commander_CommanderMeta",
   "selections": [
     {
@@ -37,6 +39,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "30d1d0da7b09f0de89b939fe1779a77d";
+(node as any).hash = "891cdbe4dd48758e53c23da88b8026d9";
 
 export default node;

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<43d17604c74a2c14dab14d7cab7d903b>>
+ * @generated SignedSource<<55e615f4312a29b21a6c604efe071c92>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -67,6 +67,7 @@ return {
         "path": (v0/*: any*/)
       }
     ],
+    "throwOnFieldError": true,
     "refetch": {
       "connection": {
         "forward": {
@@ -107,7 +108,7 @@ return {
           "variableName": "sortBy"
         }
       ],
-      "concreteType": "QueryTournamentsConnection",
+      "concreteType": "TournamentConnection",
       "kind": "LinkedField",
       "name": "__tournaments__tournaments_connection",
       "plural": false,
@@ -115,7 +116,7 @@ return {
         {
           "alias": null,
           "args": null,
-          "concreteType": "QueryTournamentsConnectionEdge",
+          "concreteType": "TournamentEdge",
           "kind": "LinkedField",
           "name": "edges",
           "plural": true,
@@ -194,6 +195,6 @@ return {
 };
 })();
 
-(node as any).hash = "d5c3a374eefad4c17b87ab36ba1755c4";
+(node as any).hash = "78ac87d122bb597002fca8b2f6669cb1";
 
 export default node;

@@ -39,7 +39,7 @@ import {ModuleType} from '#genfiles/river/js_resource.js';
 function EntryCard(props: {entry: Commander_EntryCard$key}) {
   const entry = useFragment(
     graphql`
-      fragment Commander_EntryCard on Entry {
+      fragment Commander_EntryCard on Entry @throwOnFieldError {
         standing
         wins
         losses
@@ -127,7 +127,7 @@ function EntryCard(props: {entry: Commander_EntryCard$key}) {
 function CommanderStats(props: {commander: Commander_CommanderStats$key}) {
   const commander = useFragment(
     graphql`
-      fragment Commander_CommanderStats on Commander {
+      fragment Commander_CommanderStats on Commander @throwOnFieldError {
         stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {
           conversionRate
           metaShare
@@ -155,7 +155,7 @@ function CommanderBanner({
 }: PropsWithChildren<{commander: Commander_CommanderBanner$key}>) {
   const commander = useFragment(
     graphql`
-      fragment Commander_CommanderBanner on Commander {
+      fragment Commander_CommanderBanner on Commander @throwOnFieldError {
         name
         colorId
         cards {
@@ -204,7 +204,7 @@ function CommanderBanner({
 function useCommanderMeta(commanderFromProps: Commander_CommanderMeta$key) {
   const commander = useFragment(
     graphql`
-      fragment Commander_CommanderMeta on Commander {
+      fragment Commander_CommanderMeta on Commander @throwOnFieldError {
         name
       }
     `,
@@ -237,7 +237,7 @@ export function CommanderPageShell({
 }>) {
   const commander = useFragment(
     graphql`
-      fragment Commander_CommanderPageShell on Commander {
+      fragment Commander_CommanderPageShell on Commander @throwOnFieldError {
         name
         breakdownUrl
         ...Commander_CommanderBanner
@@ -343,7 +343,9 @@ export const CommanderPageFallback: EntryPointComponent<
 > = ({queries, extraProps}) => {
   const {commander} = usePreloadedQuery(
     graphql`
-      query Commander_CommanderFallbackQuery($commander: String!) @preloadable {
+      query Commander_CommanderFallbackQuery($commander: String!)
+      @preloadable
+      @throwOnFieldError {
         commander(name: $commander) {
           ...Commander_CommanderPageShell
         }
@@ -378,7 +380,7 @@ export const CommanderPage: EntryPointComponent<
         $minEventSize: Int!
         $maxStanding: Int
         $timePeriod: TimePeriod!
-      ) @preloadable {
+      ) @preloadable @throwOnFieldError {
         commander(name: $commander) {
           ...Commander_CommanderPageShell
           ...Commander_CommanderStats
@@ -395,6 +397,7 @@ export const CommanderPage: EntryPointComponent<
   >(
     graphql`
       fragment Commander_entries on Commander
+      @throwOnFieldError
       @argumentDefinitions(
         cursor: {type: "String"}
         count: {type: "Int", defaultValue: 48}

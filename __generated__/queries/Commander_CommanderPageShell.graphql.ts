@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<215d74e6b243c81ec23fa31e663bc29d>>
+ * @generated SignedSource<<f5371c7107765b8d4c34a25a78dbe98a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -27,7 +27,9 @@ export type Commander_CommanderPageShell$key = {
 const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "Commander_CommanderPageShell",
   "selections": [
     {
@@ -75,6 +77,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "011cfed20ab1347f49689d7285e3d107";
+(node as any).hash = "42cf5e25d8cd5f6ee6c60c1b92fd9b4d";
 
 export default node;

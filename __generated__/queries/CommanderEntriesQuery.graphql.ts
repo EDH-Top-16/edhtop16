@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<67b2f57fdcec37b307be676abfd2ca52>>
- * @relayHash 6d57a79d7dad9da5f8c78abbefd5ee68
+ * @generated SignedSource<<4a0216fe26e6726220e41f98ef260146>>
+ * @relayHash 7dfc4d9da7c5d233ac5c8d8a745418c8
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 6d57a79d7dad9da5f8c78abbefd5ee68
+// @relayRequestID 7dfc4d9da7c5d233ac5c8d8a745418c8
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -20,9 +20,9 @@ export type CommanderEntriesQuery$variables = {
   cursor?: string | null | undefined;
   id: string;
   maxStanding?: number | null | undefined;
-  minEventSize?: number | null | undefined;
-  sortBy?: EntriesSortBy | null | undefined;
-  timePeriod?: TimePeriod | null | undefined;
+  minEventSize: number;
+  sortBy: EntriesSortBy;
+  timePeriod: TimePeriod;
 };
 export type CommanderEntriesQuery$data = {
   readonly node: {
@@ -212,7 +212,7 @@ return {
               {
                 "alias": null,
                 "args": (v10/*: any*/),
-                "concreteType": "CommanderEntriesConnection",
+                "concreteType": "EntryConnection",
                 "kind": "LinkedField",
                 "name": "entries",
                 "plural": false,
@@ -220,7 +220,7 @@ return {
                   {
                     "alias": null,
                     "args": null,
-                    "concreteType": "CommanderEntriesConnectionEdge",
+                    "concreteType": "EntryEdge",
                     "kind": "LinkedField",
                     "name": "edges",
                     "plural": true,
@@ -387,7 +387,7 @@ return {
     ]
   },
   "params": {
-    "id": "6d57a79d7dad9da5f8c78abbefd5ee68",
+    "id": "7dfc4d9da7c5d233ac5c8d8a745418c8",
     "metadata": {},
     "name": "CommanderEntriesQuery",
     "operationKind": "query",
@@ -396,6 +396,6 @@ return {
 };
 })();
 
-(node as any).hash = "dd5ecf026b227cd526752087b0600d9b";
+(node as any).hash = "774a0fb8a9ae993f318772a9b5489054";
 
 export default node;

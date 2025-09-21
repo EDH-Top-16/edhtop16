@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<bead58307de6cfea3184a3aa070e0d9c>>
+ * @generated SignedSource<<4544ea81590329ac086e4fdc5cc573bc>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -32,7 +32,9 @@ export type TID_TournamentBanner$key = {
 const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "TID_TournamentBanner",
   "selections": [
     {
@@ -114,6 +116,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "ef7b4750f82b28002be8207fafe048e4";
+(node as any).hash = "e7c8b46a425a12324baccb86fe245326";
 
 export default node;

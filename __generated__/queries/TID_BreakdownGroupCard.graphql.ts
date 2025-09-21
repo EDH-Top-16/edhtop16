@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d92eb34c938d6aeb898c3fde9ac6a96c>>
+ * @generated SignedSource<<ffe7a4054f630de36bba03f60a7093aa>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -32,7 +32,9 @@ export type TID_BreakdownGroupCard$key = {
 const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "throwOnFieldError": true
+  },
   "name": "TID_BreakdownGroupCard",
   "selections": [
     {
@@ -111,6 +113,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "19b52b92f2c615da9d95f00b486b5250";
+(node as any).hash = "55e4fea4e22432d0ef04288b64b2a1ba";
 
 export default node;

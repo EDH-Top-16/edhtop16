@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b790c483bcd1b74e3c5b8c378bd4f2a5>>
+ * @generated SignedSource<<2c4100690c36bfec922050b90c2b045e>>
  * @relayHash 3a51f41e3bf477628d97c7d880dbc6fc
  * @lightSyntaxTransform
  * @nogrep
@@ -94,7 +94,9 @@ return {
       (v2/*: any*/)
     ],
     "kind": "Fragment",
-    "metadata": null,
+    "metadata": {
+      "throwOnFieldError": true
+    },
     "name": "tournaments_TournamentsQuery",
     "selections": [
       {
@@ -119,7 +121,7 @@ return {
       {
         "alias": null,
         "args": (v3/*: any*/),
-        "concreteType": "QueryTournamentsConnection",
+        "concreteType": "TournamentConnection",
         "kind": "LinkedField",
         "name": "tournaments",
         "plural": false,
@@ -127,7 +129,7 @@ return {
           {
             "alias": null,
             "args": null,
-            "concreteType": "QueryTournamentsConnectionEdge",
+            "concreteType": "TournamentEdge",
             "kind": "LinkedField",
             "name": "edges",
             "plural": true,
@@ -297,7 +299,7 @@ return {
 };
 })();
 
-(node as any).hash = "2d036af7a2d645b003a71553392b44bb";
+(node as any).hash = "917ae8a98139b512f79814c7525b0421";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

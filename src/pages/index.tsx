@@ -46,7 +46,7 @@ function TopCommandersCard({
 }) {
   const commander = useFragment(
     graphql`
-      fragment pages_TopCommandersCard on Commander {
+      fragment pages_TopCommandersCard on Commander @throwOnFieldError {
         name
         colorId
         breakdownUrl
@@ -313,7 +313,7 @@ export const CommandersPage: EntryPointComponent<
         $minEntries: Int!
         $minTournamentSize: Int!
         $colorId: String
-      ) @preloadable {
+      ) @preloadable @throwOnFieldError {
         ...pages_topCommanders
       }
     `,
@@ -328,6 +328,7 @@ export const CommandersPage: EntryPointComponent<
   >(
     graphql`
       fragment pages_topCommanders on Query
+      @throwOnFieldError
       @argumentDefinitions(
         cursor: {type: "String"}
         count: {type: "Int", defaultValue: 48}
