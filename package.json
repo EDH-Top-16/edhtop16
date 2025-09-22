@@ -7,7 +7,7 @@
     "generate:dbtypes": "DATABASE_URL=edhtop16.db kysely-codegen --out-file=./__generated__/db/types.d.ts",
     "generate:schema": "grats",
     "generate:relay": "relay-compiler",
-    "generate:river": "node --experimental-strip-types scripts/rivergen.mts",
+    "generate:river": "rivergen",
     "build:client": "vite build --outDir dist/client",
     "build:server": "vite build --outDir dist/server --ssr src/entry-server.tsx",
     "build": "npm run build:client && npm run build:server",
@@ -37,7 +37,6 @@
     "js-cookie": "^3.0.5",
     "kysely": "^0.27.5",
     "mongodb": "^6.3.0",
-    "picocolors": "^1.1.1",
     "radix3": "^1.1.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -48,6 +47,7 @@
     "zod": "^3.25.74"
   },
   "devDependencies": {
+    "@edhtop16/rivergen": "workspace:*",
     "@eslint/js": "^9.30.1",
     "@faker-js/faker": "^9.0.3",
     "@reverecre/promise": "^0.1.0",
@@ -74,7 +74,6 @@
     "relay-compiler": "^20.1.1",
     "relay-config": "^12.0.1",
     "tailwindcss": "^4.1.10",
-    "ts-morph": "^26.0.0",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.41.0",
     "undici": "^7.0.0",

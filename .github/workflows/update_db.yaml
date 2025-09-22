@@ -53,11 +53,14 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Setup pnpm
+        run: corepack enable && corepack prepare pnpm@latest --activate
+
       - name: Install Node Dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Generate Application Database
-        run: npm run generate:db
+        run: pnpm run generate:db
         env:
           NODE_OPTIONS: --max-old-space-size=4096
           ENTRIES_DB_URL: ${{ secrets.ATLAS_URI }}

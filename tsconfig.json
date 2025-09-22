@@ -22,7 +22,6 @@
     }
   },
   "include": [
-    "scripts/rivergen.mts",
     "__generated__/**/*.ts",
     "__generated__/**/*.tsx",
     "src/**/*.ts",

@@ -1,0 +1,15 @@
+{
+  "name": "@edhtop16/rivergen",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "bin": "./src/index.mts",
+  "dependencies": {
+    "picocolors": "^1.1.1",
+    "ts-morph": "^26.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.3.1",
+    "typescript": "^5.9.2"
+  }
+}

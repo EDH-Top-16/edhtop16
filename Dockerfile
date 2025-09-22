@@ -5,12 +5,15 @@ WORKDIR /build
 
 ENV NODE_OPTIONS=--max-old-space-size=4096
 
-COPY package.json ./
-COPY package-lock.json ./
-RUN npm ci
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY packages/rivergen/package.json ./packages/rivergen/
+RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN npm run build
+RUN pnpm run build
 
 # Pull application database
 RUN apt-get update
@@ -32,8 +35,12 @@ EXPOSE 8000
 WORKDIR /app
 ENV NODE_ENV=production
 
-COPY package*.json ./
-RUN npm ci
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY packages/rivergen/package.json ./packages/rivergen/
+RUN pnpm install --frozen-lockfile --prod
 
 # Copy build output from build stage and install dependencies.
 COPY --from=build /build/dist ./dist
@@ -44,4 +51,4 @@ COPY relay.config.json ./
 COPY public ./public/
 COPY __generated__/persisted_queries.json ./__generated__/persisted_queries.json
 
-CMD npm start
+CMD pnpm start
