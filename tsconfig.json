@@ -22,7 +22,6 @@
     }
   },
   "include": [
-    "scripts/rivergen.mts",
     "__generated__/**/*.ts",
     "__generated__/**/*.tsx",
     "src/**/*.ts",
@@ -33,7 +32,7 @@
     "devserver.mts",
     "server.mts"
   ],
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "packages"],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"
