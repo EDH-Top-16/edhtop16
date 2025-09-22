@@ -17,10 +17,10 @@ jobs:
           node-version: "20"
       - name: Setup pnpm
         run: corepack enable && corepack prepare pnpm@latest --activate
+      - name: Approve Build Scripts
+        run: pnpm approve-builds --approve-all-builds
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
-      - name: Run Build Scripts
-        run: pnpm rebuild
       - name: Check Formatting
         run: pnpm exec prettier --check .
       - name: Check Lint

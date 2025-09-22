@@ -56,10 +56,11 @@ jobs:
       - name: Setup pnpm
         run: corepack enable && corepack prepare pnpm@latest --activate
 
+      - name: Approve Build Scripts
+        run: pnpm approve-builds --approve-all-builds
+
       - name: Install Node Dependencies
         run: pnpm install --frozen-lockfile
-      - name: Run Build Scripts
-        run: pnpm rebuild
 
       - name: Generate Application Database
         run: pnpm run generate:db
