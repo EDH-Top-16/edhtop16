@@ -11,6 +11,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY packages/rivergen/package.json ./packages/rivergen/
 RUN pnpm install --frozen-lockfile
+RUN pnpm rebuild
 
 COPY . .
 RUN pnpm run build
@@ -41,6 +42,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY packages/rivergen/package.json ./packages/rivergen/
 RUN pnpm install --frozen-lockfile --prod
+RUN pnpm rebuild
 
 # Copy build output from build stage and install dependencies.
 COPY --from=build /build/dist ./dist
