@@ -182,11 +182,14 @@ remote MongoDB data warehouse
 This project uses **pnpm workspaces** for managing multiple packages:
 
 - **Root workspace** (`/`) - Main application code
-- **rivergen package** (`packages/rivergen/`) - River routing code generation tooling
+- **rivergen package** (`packages/rivergen/`) - River routing code generation
+  tooling
 
 **Workspace Commands**:
+
 - `pnpm install` - Install all workspace dependencies
-- `pnpm --filter @edhtop16/rivergen <command>` - Run commands in specific workspace
+- `pnpm --filter @edhtop16/rivergen <command>` - Run commands in specific
+  workspace
 - `rivergen` - Available as binary from rivergen workspace package
 
 ## Important Notes
