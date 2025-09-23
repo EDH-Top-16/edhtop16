@@ -22,7 +22,7 @@ code in this repository.
   changes)
 - `npm run generate:db` - Regenerate SQLite database from scripts
 - `npm run generate:dbtypes` - Generate TypeScript types from database schema
-- `npm run generate:router` - Generate River routing artifacts (see River System
+- `npm run generate:router` - Generate Router routing artifacts (see River System
   below)
 - `npm run generate:schema` - Print GraphQL schema
 
@@ -43,11 +43,11 @@ code in this repository.
 
 **Key Architectural Patterns**
 
-1. **Server-Side Rendering (SSR)**: Uses Vite SSR with custom River routing
+1. **Server-Side Rendering (SSR)**: Uses Vite SSR with custom Router routing
    system
    - Entry points: `src/entry-server.tsx` (SSR) and `src/entry-client.tsx`
      (hydration)
-   - Custom routing via River generates routes in `__generated__/router/`
+   - Custom Router system generates routes in `__generated__/router/`
 
 2. **GraphQL with Relay**:
    - Schema defined in `src/lib/server/schema/` using Pothos
@@ -57,7 +57,7 @@ code in this repository.
 3. **Code Generation Pipeline**:
    - Relay compiler generates query artifacts
    - Kysely generates database types
-   - Custom River system generates routing code
+   - Custom Router system generates routing code
    - All generated files go to `__generated__/`
 
 **Directory Structure**
@@ -123,7 +123,7 @@ annotations
 export function CommanderPage() { ... }
 ```
 
-**Integration**: River connects to the SSR system via `src/entry-server.tsx`
+**Integration**: Router connects to the SSR system via `src/entry-server.tsx`
 which calls `createRouterServerApp()` and processes special HTML directives like
 `<!-- @router:render -->`
 
@@ -182,7 +182,7 @@ remote MongoDB data warehouse
 This project uses **pnpm workspaces** for managing multiple packages:
 
 - **Root workspace** (`/`) - Main application code
-- **pastoria package** (`packages/pastoria/`) - River routing code generation
+- **pastoria package** (`packages/pastoria/`) - Router code generation
   tooling
 
 **Workspace Commands**:
