@@ -1,7 +1,6 @@
 {
   "name": "pastoria",
-  "version": "1.0.0",
-  "private": true,
+  "version": "0.0.1",
   "type": "module",
   "bin": "./src/index.mts",
   "dependencies": {
