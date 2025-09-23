@@ -22,7 +22,7 @@ code in this repository.
   changes)
 - `npm run generate:db` - Regenerate SQLite database from scripts
 - `npm run generate:dbtypes` - Generate TypeScript types from database schema
-- `npm run generate:router` - Generate Router routing artifacts (see River System
+- `npm run generate:router` - Generate Router routing artifacts (see Pastoria System
   below)
 - `npm run generate:schema` - Print GraphQL schema
 
@@ -83,12 +83,12 @@ code in this repository.
 - `#src/*` → `./src/*`
 - `#genfiles/*` → `./__generated__/*`
 
-## River Routing System
+## Pastoria Routing System
 
 **Overview**: Custom routing framework that generates type-safe routes via JSDoc
 annotations
 
-**How River Works**:
+**How Pastoria Works**:
 
 1. **Annotation-Based**: Uses JSDoc tags to declare routes and resources
    - `@route <route-name>` - Creates a new route

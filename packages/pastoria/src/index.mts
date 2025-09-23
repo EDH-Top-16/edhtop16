@@ -3,7 +3,7 @@
  * @fileoverview Router Code Generator
  *
  * This script generates type-safe router configuration files by scanning TypeScript
- * source code for JSDoc annotations. It's part of the "River" routing framework.
+ * source code for JSDoc annotations. It's part of the "Pastoria" routing framework.
  *
  * How it works:
  * 1. Scans all TypeScript files in the project for exported functions/classes
