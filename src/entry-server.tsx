@@ -1,5 +1,5 @@
-import {listRoutes} from '#genfiles/river/router';
-import {createRiverServerApp} from '#genfiles/river/server_router';
+import {listRoutes} from '#genfiles/router/router';
+import {createRouterServerApp} from '#genfiles/router/server_router';
 import {getSchema} from '#genfiles/schema/schema';
 import {usePersistedOperations} from '@graphql-yoga/plugin-persisted-operations';
 import {
@@ -50,12 +50,12 @@ export function createHandler(
   const entryPointHandler: express.Handler = async (req, res) => {
     const head = createHead();
     const env = createServerEnvironment(req, schema, persistedQueries);
-    const RiverApp = await createRiverServerApp(
+    const RouterApp = await createRouterServerApp(
       {getEnvironment: () => env},
       req.originalUrl,
     );
 
-    function evaluateRiverDirective(match: string, directive: string) {
+    function evaluateRouterDirective(match: string, directive: string) {
       switch (directive) {
         case 'render':
           return renderToString(
@@ -63,14 +63,14 @@ export function createHandler(
               <UnheadProvider value={head}>
                 <RelayEnvironmentProvider environment={env}>
                   <App>
-                    <RiverApp />
+                    <RouterApp />
                   </App>
                 </RelayEnvironmentProvider>
               </UnheadProvider>
             </StrictMode>,
           );
         case 'bootstrap':
-          return RiverApp.bootstrap(manifest) ?? match;
+          return RouterApp.bootstrap(manifest) ?? match;
         default:
           return match;
       }
@@ -78,7 +78,7 @@ export function createHandler(
 
     const renderedHtml = await transformHtmlTemplate(
       head,
-      template.replace(/<!--\s*@river:(\w+)\s*-->/g, evaluateRiverDirective),
+      template.replace(/<!--\s*@router:(\w+)\s*-->/g, evaluateRouterDirective),
     );
 
     res.status(200).set({'Content-Type': 'text/html'}).end(renderedHtml);

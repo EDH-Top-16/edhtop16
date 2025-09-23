@@ -22,8 +22,8 @@ code in this repository.
   changes)
 - `npm run generate:db` - Regenerate SQLite database from scripts
 - `npm run generate:dbtypes` - Generate TypeScript types from database schema
-- `npm run generate:river` - Generate River routing artifacts (see River System
-  below)
+- `npm run generate:router` - Generate Router routing artifacts (see Pastoria
+  System below)
 - `npm run generate:schema` - Print GraphQL schema
 
 **Production**
@@ -43,11 +43,11 @@ code in this repository.
 
 **Key Architectural Patterns**
 
-1. **Server-Side Rendering (SSR)**: Uses Vite SSR with custom River routing
+1. **Server-Side Rendering (SSR)**: Uses Vite SSR with custom Router routing
    system
    - Entry points: `src/entry-server.tsx` (SSR) and `src/entry-client.tsx`
      (hydration)
-   - Custom routing via River generates routes in `__generated__/river/`
+   - Custom Router system generates routes in `__generated__/router/`
 
 2. **GraphQL with Relay**:
    - Schema defined in `src/lib/server/schema/` using Pothos
@@ -57,7 +57,7 @@ code in this repository.
 3. **Code Generation Pipeline**:
    - Relay compiler generates query artifacts
    - Kysely generates database types
-   - Custom River system generates routing code
+   - Custom Router system generates routing code
    - All generated files go to `__generated__/`
 
 **Directory Structure**
@@ -68,7 +68,7 @@ code in this repository.
 - `src/pages/` - React components with `.entrypoint.tsx` files for routing
 - `src/components/` - Reusable UI components
 - `__generated__/` - All auto-generated code (types, queries, routing)
-- `packages/` - pnpm workspace packages (rivergen tooling)
+- `packages/` - pnpm workspace packages (pastoria tooling)
 - `scripts/` - Database generation and utility scripts
 
 **Data Layer**
@@ -83,29 +83,30 @@ code in this repository.
 - `#src/*` → `./src/*`
 - `#genfiles/*` → `./__generated__/*`
 
-## River Routing System
+## Pastoria Routing System
 
 **Overview**: Custom routing framework that generates type-safe routes via JSDoc
 annotations
 
-**How River Works**:
+**How Pastoria Works**:
 
 1. **Annotation-Based**: Uses JSDoc tags to declare routes and resources
    - `@route <route-name>` - Creates a new route
    - `@resource <resource-name>` - Marks exports for lazy loading
    - `@param <name> <type>` - Documents route parameters with TypeScript types
 
-2. **Code Generation** (rivergen workspace package):
-   - Located in `packages/rivergen/` as a separate pnpm workspace package
+2. **Code Generation** (pastoria workspace package):
+   - Located in `packages/pastoria/` as a separate pnpm workspace package
    - Scans all TypeScript files for JSDoc annotations
-   - Generates three files from templates in `packages/rivergen/templates/`:
-     - `__generated__/river/js_resource.ts` - Resource configuration for lazy
+   - Generates three files from templates in `packages/pastoria/templates/`:
+     - `__generated__/router/js_resource.ts` - Resource configuration for lazy
        loading
-     - `__generated__/river/router.tsx` - Client-side router with type-safe
+     - `__generated__/router/router.tsx` - Client-side router with type-safe
        routes
-     - `__generated__/river/server_router.ts` - Server-side router configuration
+     - `__generated__/router/server_router.ts` - Server-side router
+       configuration
    - Auto-creates Zod schemas for route parameters enabling runtime validation
-   - Executable via `rivergen` binary command
+   - Executable via `pastoria` binary command
 
 3. **Type Safety**:
    - Route parameters are validated at runtime using generated Zod schemas
@@ -123,9 +124,9 @@ annotations
 export function CommanderPage() { ... }
 ```
 
-**Integration**: River connects to the SSR system via `src/entry-server.tsx`
-which calls `createRiverServerApp()` and processes special HTML directives like
-`<!-- @river:render -->`
+**Integration**: Router connects to the SSR system via `src/entry-server.tsx`
+which calls `createRouterServerApp()` and processes special HTML directives like
+`<!-- @router:render -->`
 
 ## Database System
 
@@ -182,23 +183,22 @@ remote MongoDB data warehouse
 This project uses **pnpm workspaces** for managing multiple packages:
 
 - **Root workspace** (`/`) - Main application code
-- **rivergen package** (`packages/rivergen/`) - River routing code generation
-  tooling
+- **pastoria package** (`packages/pastoria/`) - Router code generation tooling
 
 **Workspace Commands**:
 
 - `pnpm install` - Install all workspace dependencies
-- `pnpm --filter @edhtop16/rivergen <command>` - Run commands in specific
+- `pnpm --filter @edhtop16/pastoria <command>` - Run commands in specific
   workspace
-- `rivergen` - Available as binary from rivergen workspace package
+- `pastoria` - Available as binary from pastoria workspace package
 
 ## Important Notes
 
 - Always run `npm run generate:relay` after modifying GraphQL queries or schema
 - Always run `npm run generate:schema` after modifying GraphQL schema code in
   `src/lib/server/schema/`
-- Always run `npm run generate:river` after adding/modifying JSDoc route
+- Always run `npm run generate:router` after adding/modifying JSDoc route
   annotations
 - Database regeneration completely rebuilds the SQLite database
 - Uses experimental Node.js TypeScript support (`--experimental-strip-types`)
-- Uses pnpm workspaces for managing rivergen tooling as separate package
+- Uses pnpm workspaces for managing pastoria tooling as separate package

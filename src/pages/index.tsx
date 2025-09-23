@@ -8,8 +8,8 @@ import {pages_DisplayPreferencesQuery} from '#genfiles/queries/pages_DisplayPref
 import {pages_topCommanders$key} from '#genfiles/queries/pages_topCommanders.graphql';
 import {pages_TopCommandersCard$key} from '#genfiles/queries/pages_TopCommandersCard.graphql';
 import {TopCommandersQuery} from '#genfiles/queries/TopCommandersQuery.graphql';
-import {ModuleType} from '#genfiles/river/js_resource.js';
-import {EntryPointParams, Link, useNavigation} from '#genfiles/river/router';
+import {ModuleType} from '#genfiles/router/js_resource.js';
+import {EntryPointParams, Link, useNavigation} from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback';
 import {LIST_STYLE_COOKIE_NAME} from '#src/lib/client/display_preferences.js';
 import RectangleStackIcon from '@heroicons/react/24/solid/RectangleStackIcon';

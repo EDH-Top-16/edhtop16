@@ -1,4 +1,4 @@
-import {Link} from '#genfiles/river/router';
+import {Link} from '#genfiles/router/router';
 
 export function Footer() {
   return (
