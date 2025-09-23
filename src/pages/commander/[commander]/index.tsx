@@ -10,7 +10,7 @@ import {
 import {Commander_entries$key} from '#genfiles/queries/Commander_entries.graphql';
 import {Commander_EntryCard$key} from '#genfiles/queries/Commander_EntryCard.graphql';
 import {CommanderEntriesQuery} from '#genfiles/queries/CommanderEntriesQuery.graphql';
-import {EntryPointParams, Link, useNavigation} from '#genfiles/river/router';
+import {EntryPointParams, Link, useNavigation} from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback.jsx';
 import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
@@ -34,7 +34,7 @@ import {Select} from '../../../components/select';
 import {formatOrdinals, formatPercent} from '../../../lib/client/format';
 import {Commander_CommanderStats$key} from '#genfiles/queries/Commander_CommanderStats.graphql.js';
 import {Commander_CommanderFallbackQuery} from '#genfiles/queries/Commander_CommanderFallbackQuery.graphql.js';
-import {ModuleType} from '#genfiles/river/js_resource.js';
+import {ModuleType} from '#genfiles/router/js_resource.js';
 
 function EntryCard(props: {entry: Commander_EntryCard$key}) {
   const entry = useFragment(

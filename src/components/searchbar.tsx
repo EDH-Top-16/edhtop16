@@ -1,5 +1,5 @@
 import {searchbar_CommanderNamesQuery} from '#genfiles/queries/searchbar_CommanderNamesQuery.graphql';
-import {Link} from '#genfiles/river/router';
+import {Link} from '#genfiles/router/router';
 import cn from 'classnames';
 import {useMemo, useRef, useState} from 'react';
 import {graphql, useLazyLoadQuery} from 'react-relay/hooks';

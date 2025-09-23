@@ -1,7 +1,7 @@
 import TID_TournamentFallbackQueryParameters from '#genfiles/queries/TID_TournamentFallbackQuery$parameters';
 import TID_TournamentQueryParameters from '#genfiles/queries/TID_TournamentQuery$parameters';
-import {JSResource, ModuleType} from '#genfiles/river/js_resource';
-import {EntryPointParams} from '#genfiles/river/router';
+import {JSResource, ModuleType} from '#genfiles/router/js_resource';
+import {EntryPointParams} from '#genfiles/router/router';
 import {EntryPoint} from 'react-relay/hooks';
 
 /**

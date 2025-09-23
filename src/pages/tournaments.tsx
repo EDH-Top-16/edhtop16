@@ -7,12 +7,12 @@ import {
   tournaments_TournamentsQuery$variables,
   TournamentSortBy,
 } from '#genfiles/queries/tournaments_TournamentsQuery.graphql';
-import {ModuleType} from '#genfiles/river/js_resource.js';
+import {ModuleType} from '#genfiles/router/js_resource.js';
 import {
   EntryPointParams,
   RouteLink,
   useNavigation,
-} from '#genfiles/river/router';
+} from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback';
 import {useSeoMeta} from '@unhead/react';
 import {format} from 'date-fns';

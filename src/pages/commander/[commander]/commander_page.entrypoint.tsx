@@ -4,8 +4,8 @@ import {
   EntriesSortBy,
   TimePeriod,
 } from '#genfiles/queries/Commander_CommanderQuery.graphql';
-import {JSResource, ModuleType} from '#genfiles/river/js_resource';
-import {EntryPointParams} from '#genfiles/river/router';
+import {JSResource, ModuleType} from '#genfiles/router/js_resource';
+import {EntryPointParams} from '#genfiles/router/router';
 import {EntryPoint} from 'react-relay/hooks';
 
 /**

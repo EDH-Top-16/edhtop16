@@ -1,4 +1,4 @@
-import {Link} from '#genfiles/river/router';
+import {Link} from '#genfiles/router/router';
 import MagnifyingGlassIcon from '@heroicons/react/24/solid/MagnifyingGlassIcon';
 import XMarkIcon from '@heroicons/react/24/solid/XMarkIcon';
 import cn from 'classnames';

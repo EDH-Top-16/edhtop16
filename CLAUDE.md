@@ -47,7 +47,7 @@ code in this repository.
    system
    - Entry points: `src/entry-server.tsx` (SSR) and `src/entry-client.tsx`
      (hydration)
-   - Custom routing via River generates routes in `__generated__/river/`
+   - Custom routing via River generates routes in `__generated__/router/`
 
 2. **GraphQL with Relay**:
    - Schema defined in `src/lib/server/schema/` using Pothos
@@ -68,7 +68,7 @@ code in this repository.
 - `src/pages/` - React components with `.entrypoint.tsx` files for routing
 - `src/components/` - Reusable UI components
 - `__generated__/` - All auto-generated code (types, queries, routing)
-- `packages/` - pnpm workspace packages (rivergen tooling)
+- `packages/` - pnpm workspace packages (pastoria tooling)
 - `scripts/` - Database generation and utility scripts
 
 **Data Layer**
@@ -95,17 +95,17 @@ annotations
    - `@resource <resource-name>` - Marks exports for lazy loading
    - `@param <name> <type>` - Documents route parameters with TypeScript types
 
-2. **Code Generation** (rivergen workspace package):
-   - Located in `packages/rivergen/` as a separate pnpm workspace package
+2. **Code Generation** (pastoria workspace package):
+   - Located in `packages/pastoria/` as a separate pnpm workspace package
    - Scans all TypeScript files for JSDoc annotations
-   - Generates three files from templates in `packages/rivergen/templates/`:
-     - `__generated__/river/js_resource.ts` - Resource configuration for lazy
+   - Generates three files from templates in `packages/pastoria/templates/`:
+     - `__generated__/router/js_resource.ts` - Resource configuration for lazy
        loading
-     - `__generated__/river/router.tsx` - Client-side router with type-safe
+     - `__generated__/router/router.tsx` - Client-side router with type-safe
        routes
-     - `__generated__/river/server_router.ts` - Server-side router configuration
+     - `__generated__/router/server_router.ts` - Server-side router configuration
    - Auto-creates Zod schemas for route parameters enabling runtime validation
-   - Executable via `rivergen` binary command
+   - Executable via `pastoria` binary command
 
 3. **Type Safety**:
    - Route parameters are validated at runtime using generated Zod schemas
@@ -182,15 +182,15 @@ remote MongoDB data warehouse
 This project uses **pnpm workspaces** for managing multiple packages:
 
 - **Root workspace** (`/`) - Main application code
-- **rivergen package** (`packages/rivergen/`) - River routing code generation
+- **pastoria package** (`packages/pastoria/`) - River routing code generation
   tooling
 
 **Workspace Commands**:
 
 - `pnpm install` - Install all workspace dependencies
-- `pnpm --filter @edhtop16/rivergen <command>` - Run commands in specific
+- `pnpm --filter @edhtop16/pastoria <command>` - Run commands in specific
   workspace
-- `rivergen` - Available as binary from rivergen workspace package
+- `pastoria` - Available as binary from pastoria workspace package
 
 ## Important Notes
 
@@ -201,4 +201,4 @@ This project uses **pnpm workspaces** for managing multiple packages:
   annotations
 - Database regeneration completely rebuilds the SQLite database
 - Uses experimental Node.js TypeScript support (`--experimental-strip-types`)
-- Uses pnpm workspaces for managing rivergen tooling as separate package
+- Uses pnpm workspaces for managing pastoria tooling as separate package

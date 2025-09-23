@@ -8,8 +8,8 @@ import {
   TID_TournamentQuery,
   TID_TournamentQuery$variables,
 } from '#genfiles/queries/TID_TournamentQuery.graphql';
-import {ModuleType} from '#genfiles/river/js_resource.js';
-import {EntryPointParams, Link, useNavigation} from '#genfiles/river/router';
+import {ModuleType} from '#genfiles/router/js_resource.js';
+import {EntryPointParams, Link, useNavigation} from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback.jsx';
 import ArrowRightIcon from '@heroicons/react/24/solid/ArrowRightIcon';
 import {useSeoMeta} from '@unhead/react';

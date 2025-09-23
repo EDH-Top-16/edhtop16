@@ -3,8 +3,8 @@ import type {
   TournamentSortBy,
 } from '#genfiles/queries/AllTournamentsQuery.graphql';
 import TournamentsQueryParameters from '#genfiles/queries/tournaments_TournamentsQuery$parameters';
-import {JSResource, ModuleType} from '#genfiles/river/js_resource';
-import {EntryPointParams} from '#genfiles/river/router';
+import {JSResource, ModuleType} from '#genfiles/router/js_resource';
+import {EntryPointParams} from '#genfiles/router/router';
 import {EntryPoint} from 'react-relay/hooks';
 
 /**

@@ -1,5 +1,5 @@
-import {listRoutes} from '#genfiles/river/router';
-import {createRiverServerApp} from '#genfiles/river/server_router';
+import {listRoutes} from '#genfiles/router/router';
+import {createRiverServerApp} from '#genfiles/router/server_router';
 import {getSchema} from '#genfiles/schema/schema';
 import {usePersistedOperations} from '@graphql-yoga/plugin-persisted-operations';
 import {

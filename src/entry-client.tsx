@@ -1,4 +1,4 @@
-import {createRiverApp} from '#genfiles/river/router';
+import {createRiverApp} from '#genfiles/router/router';
 import {createHead, UnheadProvider} from '@unhead/react/client';
 import {StrictMode} from 'react';
 import {hydrateRoot} from 'react-dom/client';
