@@ -7,7 +7,7 @@
     "generate:dbtypes": "DATABASE_URL=edhtop16.db kysely-codegen --out-file=./__generated__/db/types.d.ts",
     "generate:schema": "grats",
     "generate:relay": "relay-compiler",
-    "generate:river": "pastoria",
+    "generate:router": "pastoria",
     "build:client": "vite build --outDir dist/client",
     "build:server": "vite build --outDir dist/server --ssr src/entry-server.tsx",
     "build": "npm run build:client && npm run build:server",

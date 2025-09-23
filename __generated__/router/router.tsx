@@ -34,7 +34,7 @@ import { entrypoint as e3 } from "../../src/pages/tournament/tournament_view.ent
 import { entrypoint as e4 } from "../../src/pages/commander/[commander]/commander_page.entrypoint";
 
 export type AnyPreloadedEntryPoint = PreloadedEntryPoint<any>;
-export type RiverOps = [OperationDescriptor, PayloadData][];
+export type RouterOps = [OperationDescriptor, PayloadData][];
 
 type RouterConf = typeof ROUTER_CONF;
 const ROUTER_CONF = {
@@ -128,7 +128,7 @@ class RouterLocation {
 
   static parse(path: string, method?: 'push' | 'replace' | 'popstate') {
     if (path.startsWith('/')) {
-      path = 'river:' + path;
+      path = 'router:' + path;
     }
 
     try {
@@ -168,19 +168,19 @@ function useLocation(initialPath?: string) {
   return [location, setLocation] as const;
 }
 
-export function river__hydrateStore(
+export function router__hydrateStore(
   provider: IEnvironmentProvider<EnvironmentProviderOptions>,
 ) {
   const env = provider.getEnvironment(null);
-  if ('__river_ops' in window) {
-    const ops = (window as any).__river_ops as RiverOps;
+  if ('__router_ops' in window) {
+    const ops = (window as any).__router_ops as RouterOps;
     for (const [op, payload] of ops) {
       env.commitPayload(op, payload);
     }
   }
 }
 
-export async function river__loadEntryPoint(
+export async function router__loadEntryPoint(
   provider: IEnvironmentProvider<EnvironmentProviderOptions>,
   initialPath?: string,
 ) {
@@ -201,17 +201,17 @@ interface RouterContextValue {
   setLocation: React.Dispatch<React.SetStateAction<RouterLocation>>;
 }
 
-const RiverRouterContext = createContext<RouterContextValue>({
+const RouterContext = createContext<RouterContextValue>({
   location: RouterLocation.parse('/'),
   setLocation: () => {},
 });
 
-export function river__createAppFromEntryPoint(
+export function router__createAppFromEntryPoint(
   provider: IEnvironmentProvider<EnvironmentProviderOptions>,
   initialEntryPoint: AnyPreloadedEntryPoint | null,
   initialPath?: string,
 ) {
-  function RiverApp() {
+  function RouterApp() {
     const [location, setLocation] = useLocation(initialPath);
     const routerContextValue = useMemo(
       (): RouterContextValue => ({
@@ -241,7 +241,7 @@ export function river__createAppFromEntryPoint(
     if (entryPoint == null) return null;
 
     return (
-      <RiverRouterContext value={routerContextValue}>
+      <RouterContext value={routerContextValue}>
         {'fallback' in entryPoint.entryPoints ? (
           <Suspense
             fallback={
@@ -256,24 +256,24 @@ export function river__createAppFromEntryPoint(
         ) : (
           <EntryPointContainer entryPointReference={entryPoint} props={{}} />
         )}
-      </RiverRouterContext>
+      </RouterContext>
     );
   }
 
-  RiverApp.bootstrap = (manifest?: Manifest): string | null => null;
-  return RiverApp;
+  RouterApp.bootstrap = (manifest?: Manifest): string | null => null;
+  return RouterApp;
 }
 
-export async function createRiverApp(
+export async function createRouterApp(
   provider: IEnvironmentProvider<EnvironmentProviderOptions>,
 ) {
-  river__hydrateStore(provider);
-  const ep = await river__loadEntryPoint(provider);
-  return river__createAppFromEntryPoint(provider, ep);
+  router__hydrateStore(provider);
+  const ep = await router__loadEntryPoint(provider);
+  return router__createAppFromEntryPoint(provider, ep);
 }
 
 export function usePath() {
-  const {location} = useContext(RiverRouterContext);
+  const {location} = useContext(RouterContext);
   return location.pathname;
 }
 
@@ -281,12 +281,12 @@ export function useRouteParams<R extends RouteId>(
   routeId: R,
 ): z.infer<RouterConf[R]['schema']> {
   const schema = ROUTER_CONF[routeId].schema;
-  const {location} = useContext(RiverRouterContext);
+  const {location} = useContext(RouterContext);
 
   return schema.parse(location.params()) as z.infer<RouterConf[R]['schema']>;
 }
 
-function river__createPathForRoute(
+function router__createPathForRoute(
   routeId: RouteId,
   inputParams: Record<string, any>,
 ): string {
@@ -317,7 +317,7 @@ function river__createPathForRoute(
   }
 }
 
-function river__evaluateNavigationDirection(nav: NavigationDirection) {
+function router__evaluateNavigationDirection(nav: NavigationDirection) {
   let nextUrl: URL;
   if (typeof nav === 'string') {
     nextUrl = new URL(nav, window.location.origin);
@@ -340,19 +340,19 @@ function river__evaluateNavigationDirection(nav: NavigationDirection) {
 }
 
 export function useNavigation() {
-  const {setLocation} = useContext(RiverRouterContext);
+  const {setLocation} = useContext(RouterContext);
 
   return useMemo(() => {
     function push(nav: NavigationDirection) {
       setLocation(
-        RouterLocation.parse(river__evaluateNavigationDirection(nav), 'push'),
+        RouterLocation.parse(router__evaluateNavigationDirection(nav), 'push'),
       );
     }
 
     function replace(nav: NavigationDirection) {
       setLocation(
         RouterLocation.parse(
-          river__evaluateNavigationDirection(nav),
+          router__evaluateNavigationDirection(nav),
           'replace',
         ),
       );
@@ -364,7 +364,7 @@ export function useNavigation() {
     ) {
       setLocation(
         RouterLocation.parse(
-          river__createPathForRoute(routeId, params),
+          router__createPathForRoute(routeId, params),
           'push',
         ),
       );
@@ -376,7 +376,7 @@ export function useNavigation() {
     ) {
       setLocation((prevLoc) =>
         RouterLocation.parse(
-          river__createPathForRoute(routeId, {...prevLoc.params(), ...params}),
+          router__createPathForRoute(routeId, {...prevLoc.params(), ...params}),
           'replace',
         ),
       );
@@ -432,7 +432,7 @@ export function RouteLink<R extends RouteId>({
   ...props
 }: PropsWithChildren<LinkProps<R>>) {
   const href = useMemo(
-    () => river__createPathForRoute(route, params).toString(),
+    () => router__createPathForRoute(route, params).toString(),
     [params, route],
   );
 

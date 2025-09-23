@@ -22,7 +22,7 @@ code in this repository.
   changes)
 - `npm run generate:db` - Regenerate SQLite database from scripts
 - `npm run generate:dbtypes` - Generate TypeScript types from database schema
-- `npm run generate:river` - Generate River routing artifacts (see River System
+- `npm run generate:router` - Generate River routing artifacts (see River System
   below)
 - `npm run generate:schema` - Print GraphQL schema
 
@@ -124,8 +124,8 @@ export function CommanderPage() { ... }
 ```
 
 **Integration**: River connects to the SSR system via `src/entry-server.tsx`
-which calls `createRiverServerApp()` and processes special HTML directives like
-`<!-- @river:render -->`
+which calls `createRouterServerApp()` and processes special HTML directives like
+`<!-- @router:render -->`
 
 ## Database System
 
@@ -197,7 +197,7 @@ This project uses **pnpm workspaces** for managing multiple packages:
 - Always run `npm run generate:relay` after modifying GraphQL queries or schema
 - Always run `npm run generate:schema` after modifying GraphQL schema code in
   `src/lib/server/schema/`
-- Always run `npm run generate:river` after adding/modifying JSDoc route
+- Always run `npm run generate:router` after adding/modifying JSDoc route
   annotations
 - Database regeneration completely rebuilds the SQLite database
 - Uses experimental Node.js TypeScript support (`--experimental-strip-types`)

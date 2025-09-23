@@ -9,7 +9,7 @@ ENV NODE_OPTIONS=--max-old-space-size=4096
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY packages/rivergen/package.json ./packages/rivergen/
+COPY packages/pastoria/package.json ./packages/pastoria/
 RUN pnpm install --frozen-lockfile
 
 COPY . .
@@ -39,7 +39,7 @@ ENV NODE_ENV=production
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY packages/rivergen/package.json ./packages/rivergen/
+COPY packages/pastoria/package.json ./packages/pastoria/
 RUN pnpm install --frozen-lockfile --prod
 
 # Copy build output from build stage and install dependencies.

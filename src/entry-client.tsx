@@ -1,4 +1,4 @@
-import {createRiverApp} from '#genfiles/router/router';
+import {createRouterApp} from '#genfiles/router/router';
 import {createHead, UnheadProvider} from '@unhead/react/client';
 import {StrictMode} from 'react';
 import {hydrateRoot} from 'react-dom/client';
@@ -9,7 +9,7 @@ import {App} from './pages/_app';
 async function main() {
   const head = createHead();
   const env = getClientEnvironment()!;
-  const RiverApp = await createRiverApp({getEnvironment: () => env});
+  const RouterApp = await createRouterApp({getEnvironment: () => env});
 
   hydrateRoot(
     document.getElementById('root')!,
@@ -17,7 +17,7 @@ async function main() {
       <UnheadProvider head={head}>
         <RelayEnvironmentProvider environment={env}>
           <App>
-            <RiverApp />
+            <RouterApp />
           </App>
         </RelayEnvironmentProvider>
       </UnheadProvider>
