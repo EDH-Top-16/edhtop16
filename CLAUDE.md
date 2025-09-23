@@ -22,8 +22,8 @@ code in this repository.
   changes)
 - `npm run generate:db` - Regenerate SQLite database from scripts
 - `npm run generate:dbtypes` - Generate TypeScript types from database schema
-- `npm run generate:router` - Generate Router routing artifacts (see Pastoria System
-  below)
+- `npm run generate:router` - Generate Router routing artifacts (see Pastoria
+  System below)
 - `npm run generate:schema` - Print GraphQL schema
 
 **Production**
@@ -103,7 +103,8 @@ annotations
        loading
      - `__generated__/router/router.tsx` - Client-side router with type-safe
        routes
-     - `__generated__/router/server_router.ts` - Server-side router configuration
+     - `__generated__/router/server_router.ts` - Server-side router
+       configuration
    - Auto-creates Zod schemas for route parameters enabling runtime validation
    - Executable via `pastoria` binary command
 
@@ -182,8 +183,7 @@ remote MongoDB data warehouse
 This project uses **pnpm workspaces** for managing multiple packages:
 
 - **Root workspace** (`/`) - Main application code
-- **pastoria package** (`packages/pastoria/`) - Router code generation
-  tooling
+- **pastoria package** (`packages/pastoria/`) - Router code generation tooling
 
 **Workspace Commands**:
 
