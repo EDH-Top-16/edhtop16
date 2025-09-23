@@ -1,9 +1,10 @@
 {
-  "name": "@edhtop16/pastoria",
-  "version": "1.0.0",
-  "private": true,
+  "name": "pastoria",
+  "version": "0.0.1",
   "type": "module",
-  "bin": "./src/index.mts",
+  "bin": {
+    "pastoria": "src/index.mts"
+  },
   "dependencies": {
     "picocolors": "^1.1.1",
     "ts-morph": "^26.0.0"
