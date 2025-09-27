@@ -161,7 +161,7 @@ export const StaplesPage: EntryPointComponent<
       colorId={queries.staplesQueryRef.variables.colorId ?? ''}
       type={queries.staplesQueryRef.variables.type ?? ''}
     >
-      <div className="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
         {(data.staples ?? []).map((card) => (
           <StapleCard key={card.id} card={card} />
         ))}
