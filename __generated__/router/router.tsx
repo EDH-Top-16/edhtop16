@@ -81,6 +81,7 @@ const ROUTER_CONF = {
             entrypoint: e5,
             schema: z.object({
               commander: z.pipe(z.string(), z.transform(decodeURIComponent)),
+              tab: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
               sortBy: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
               timePeriod: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
               maxStanding: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),

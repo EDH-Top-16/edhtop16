@@ -10,7 +10,12 @@ import {
 import {Commander_entries$key} from '#genfiles/queries/Commander_entries.graphql';
 import {Commander_EntryCard$key} from '#genfiles/queries/Commander_EntryCard.graphql';
 import {CommanderEntriesQuery} from '#genfiles/queries/CommanderEntriesQuery.graphql';
-import {EntryPointParams, Link, useNavigation} from '#genfiles/router/router';
+import {
+  EntryPointParams,
+  Link,
+  useNavigation,
+  useRouteParams,
+} from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback.jsx';
 import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
@@ -31,9 +36,11 @@ import {LoadMoreButton} from '../../../components/load_more';
 import {Navigation} from '../../../components/navigation';
 import {FirstPartyPromo} from '../../../components/promo';
 import {Select} from '../../../components/select';
+import {Tab, TabList} from '../../../components/tabs';
 import {formatOrdinals, formatPercent} from '../../../lib/client/format';
 import {Commander_CommanderStats$key} from '#genfiles/queries/Commander_CommanderStats.graphql.js';
 import {Commander_CommanderFallbackQuery} from '#genfiles/queries/Commander_CommanderFallbackQuery.graphql.js';
+import {Commander_CommanderStaples$key} from '#genfiles/queries/Commander_CommanderStaples.graphql.js';
 import {ModuleType} from '#genfiles/router/js_resource.js';
 
 function EntryCard(props: {entry: Commander_EntryCard$key}) {
@@ -121,6 +128,126 @@ function EntryCard(props: {entry: Commander_EntryCard$key}) {
         </span>
       </div>
     </Card>
+  );
+}
+
+function StapleCard({card}: {card: any}) {
+  const playRatePercentage = (card.playRateLastYear * 100).toFixed(1);
+
+  return (
+    <Card
+      images={card.imageUrls.map((img: string) => ({
+        src: img,
+        alt: `${card.name} card art`,
+      }))}
+    >
+      <div className="flex h-32 flex-col space-y-2">
+        <a
+          href={card.scryfallUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="line-clamp-2 text-xl font-bold text-white underline decoration-transparent transition-colors hover:text-blue-300 hover:decoration-inherit"
+        >
+          {card.name}
+        </a>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <ColorIdentity identity={card.colorId} />
+            {card.cmc > 0 && (
+              <span className="rounded bg-gray-700 px-2 py-1 font-mono text-xs text-white">
+                {card.cmc}
+              </span>
+            )}
+          </div>
+          <div className="rounded bg-green-900/50 px-2 py-1">
+            <span className="text-xs font-medium text-green-300">
+              Play Rate: {playRatePercentage}%
+            </span>
+          </div>
+        </div>
+        <div className="mt-auto text-sm text-gray-300">{card.type}</div>
+      </div>
+    </Card>
+  );
+}
+
+function CommanderStaples(props: {commander: Commander_CommanderStaples$key}) {
+  const commander = useFragment(
+    graphql`
+      fragment Commander_CommanderStaples on Commander @throwOnFieldError {
+        staples {
+          id
+          name
+          type
+          cmc
+          colorId
+          imageUrls
+          scryfallUrl
+          playRateLastYear
+        }
+      }
+    `,
+    props.commander,
+  );
+
+  return (
+    <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-4 p-6 md:grid-cols-2 xl:grid-cols-3">
+      {commander.staples.map((card) => (
+        <StapleCard key={card.id} card={card} />
+      ))}
+    </div>
+  );
+}
+
+function CommanderEntries(props: {commander: Commander_entries$key}) {
+  const {data, loadNext, isLoadingNext, hasNext} = usePaginationFragment<
+    CommanderEntriesQuery,
+    Commander_entries$key
+  >(
+    graphql`
+      fragment Commander_entries on Commander
+      @throwOnFieldError
+      @argumentDefinitions(
+        cursor: {type: "String"}
+        count: {type: "Int", defaultValue: 48}
+      )
+      @refetchable(queryName: "CommanderEntriesQuery") {
+        entries(
+          first: $count
+          after: $cursor
+          sortBy: $sortBy
+          filters: {
+            minEventSize: $minEventSize
+            maxStanding: $maxStanding
+            timePeriod: $timePeriod
+          }
+        ) @connection(key: "Commander_entries") {
+          edges {
+            node {
+              id
+              ...Commander_EntryCard
+            }
+          }
+        }
+      }
+    `,
+    props.commander,
+  );
+
+  return (
+    <>
+      <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
+        {data.entries.edges.map(({node}) => (
+          <EntryCard key={node.id} entry={node} />
+        ))}
+      </div>
+
+      <LoadMoreButton
+        hasNext={hasNext}
+        isLoadingNext={isLoadingNext}
+        loadNext={loadNext}
+      />
+    </>
   );
 }
 
@@ -223,6 +350,7 @@ export function CommanderPageShell({
   minEventSize,
   sortBy,
   timePeriod,
+  tab,
   stats,
   children,
   ...props
@@ -232,6 +360,7 @@ export function CommanderPageShell({
   minEventSize: number;
   sortBy: EntriesSortBy;
   timePeriod: TimePeriod;
+  tab: 'entries' | 'staples';
   commander: Commander_CommanderPageShell$key;
   stats?: React.ReactNode;
 }>) {
@@ -260,75 +389,115 @@ export function CommanderPageShell({
       <CommanderBanner commander={commander}>{stats}</CommanderBanner>
       {commander.promo && <FirstPartyPromo promo={commander.promo} />}
 
-      <div className="mx-auto grid max-w-(--breakpoint-md) grid-cols-2 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
-        <Select
-          id="commander-sort-by"
-          label="Sort By"
-          value={sortBy}
-          onChange={(e) => {
+      <TabList
+        className="mx-auto max-w-(--breakpoint-md)"
+        border={tab === 'staples'}
+      >
+        <Tab
+          selected={tab === 'entries' || !tab}
+          onClick={() => {
             replaceRoute('/commander/:commander', {
               commander: commander.name,
-              sortBy: e,
+              tab: 'entries',
+              sortBy,
+              timePeriod,
+              maxStanding,
+              minEventSize,
             });
           }}
         >
-          <option value="TOP">Top Performing</option>
-          <option value="NEW">Recent</option>
-        </Select>
+          Tournament Entries
+        </Tab>
 
-        <Select
-          id="commanders-time-period"
-          label="Time Period"
-          value={timePeriod}
-          onChange={(e) => {
+        <Tab
+          selected={tab === 'staples'}
+          onClick={() => {
             replaceRoute('/commander/:commander', {
               commander: commander.name,
-              timePeriod: e,
+              tab: 'staples',
+              sortBy,
+              timePeriod,
+              maxStanding,
+              minEventSize,
             });
           }}
         >
-          <option value="ONE_MONTH">1 Month</option>
-          <option value="THREE_MONTHS">3 Months</option>
-          <option value="SIX_MONTHS">6 Months</option>
-          <option value="ONE_YEAR">1 Year</option>
-          <option value="ALL_TIME">All Time</option>
-          <option value="POST_BAN">Post Ban</option>
-        </Select>
+          Staples
+        </Tab>
+      </TabList>
 
-        <Select
-          id="commander-event-size"
-          label="Event Size"
-          value={`${minEventSize}`}
-          onChange={(e) => {
-            replaceRoute('/commander/:commander', {
-              commander: commander.name,
-              minEventSize: Number(e),
-            });
-          }}
-        >
-          <option value="0">All Events</option>
-          <option value="32">32+ Players</option>
-          <option value="60">60+ Players</option>
-          <option value="100">100+ Players</option>
-        </Select>
+      {tab === 'entries' && (
+        <div className="mx-auto grid max-w-(--breakpoint-md) grid-cols-2 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
+          <Select
+            id="commander-sort-by"
+            label="Sort By"
+            value={sortBy}
+            onChange={(e) => {
+              replaceRoute('/commander/:commander', {
+                commander: commander.name,
+                sortBy: e,
+              });
+            }}
+          >
+            <option value="TOP">Top Performing</option>
+            <option value="NEW">Recent</option>
+          </Select>
 
-        <Select
-          id="commander-event-size"
-          label="Standing"
-          value={`${maxStanding}`}
-          onChange={(e) => {
-            replaceRoute('/commander/:commander', {
-              commander: commander.name,
-              maxStanding: Number(e),
-            });
-          }}
-        >
-          <option value="">All Players</option>
-          <option value="16">Top 16</option>
-          <option value="4">Top 4</option>
-          <option value="1">Winner</option>
-        </Select>
-      </div>
+          <Select
+            id="commanders-time-period"
+            label="Time Period"
+            value={timePeriod}
+            onChange={(e) => {
+              replaceRoute('/commander/:commander', {
+                commander: commander.name,
+                timePeriod: e,
+              });
+            }}
+          >
+            <option value="ONE_MONTH">1 Month</option>
+            <option value="THREE_MONTHS">3 Months</option>
+            <option value="SIX_MONTHS">6 Months</option>
+            <option value="ONE_YEAR">1 Year</option>
+            <option value="ALL_TIME">All Time</option>
+            <option value="POST_BAN">Post Ban</option>
+          </Select>
+
+          <Select
+            id="commander-event-size"
+            label="Event Size"
+            value={`${minEventSize}`}
+            onChange={(e) => {
+              replaceRoute('/commander/:commander', {
+                commander: commander.name,
+                minEventSize: Number(e),
+              });
+            }}
+          >
+            <option value="0">All Events</option>
+            <option value="32">32+ Players</option>
+            <option value="60">60+ Players</option>
+            <option value="100">100+ Players</option>
+          </Select>
+
+          <Select
+            id="commander-event-size"
+            label="Standing"
+            value={`${maxStanding}`}
+            onChange={(e) => {
+              replaceRoute('/commander/:commander', {
+                commander: commander.name,
+                maxStanding: Number(e),
+              });
+            }}
+          >
+            <option value="">All Players</option>
+            <option value="16">Top 16</option>
+            <option value="4">Top 4</option>
+            <option value="1">Winner</option>
+          </Select>
+        </div>
+      )}
+
       {children}
     </>
   );
@@ -339,7 +508,7 @@ export const CommanderPageFallback: EntryPointComponent<
   {commanderFallbackQueryRef: Commander_CommanderFallbackQuery},
   {},
   {},
-  Commander_CommanderQuery$variables
+  Commander_CommanderQuery$variables & {tab: 'entries' | 'staples'}
 > = ({queries, extraProps}) => {
   const {commander} = usePreloadedQuery(
     graphql`
@@ -361,6 +530,7 @@ export const CommanderPageFallback: EntryPointComponent<
       minEventSize={extraProps.minEventSize}
       sortBy={extraProps.sortBy}
       timePeriod={extraProps.timePeriod}
+      tab={extraProps.tab}
     >
       <LoadingIcon />
     </CommanderPageShell>
@@ -376,6 +546,8 @@ export const CommanderPage: EntryPointComponent<
     graphql`
       query Commander_CommanderQuery(
         $commander: String!
+        $showStaples: Boolean!
+        $showEntries: Boolean!
         $sortBy: EntriesSortBy!
         $minEventSize: Int!
         $maxStanding: Int
@@ -384,45 +556,14 @@ export const CommanderPage: EntryPointComponent<
         commander(name: $commander) {
           ...Commander_CommanderPageShell
           ...Commander_CommanderStats
-          ...Commander_entries
+          ...Commander_CommanderStaples
+            @include(if: $showStaples)
+            @alias(as: "staples")
+          ...Commander_entries @include(if: $showEntries) @alias(as: "entries")
         }
       }
     `,
     queries.commanderQueryRef,
-  );
-
-  const {data, loadNext, isLoadingNext, hasNext} = usePaginationFragment<
-    CommanderEntriesQuery,
-    Commander_entries$key
-  >(
-    graphql`
-      fragment Commander_entries on Commander
-      @throwOnFieldError
-      @argumentDefinitions(
-        cursor: {type: "String"}
-        count: {type: "Int", defaultValue: 48}
-      )
-      @refetchable(queryName: "CommanderEntriesQuery") {
-        entries(
-          first: $count
-          after: $cursor
-          sortBy: $sortBy
-          filters: {
-            minEventSize: $minEventSize
-            maxStanding: $maxStanding
-            timePeriod: $timePeriod
-          }
-        ) @connection(key: "Commander_entries") {
-          edges {
-            node {
-              id
-              ...Commander_EntryCard
-            }
-          }
-        }
-      }
-    `,
-    commander,
   );
 
   return (
@@ -432,20 +573,20 @@ export const CommanderPage: EntryPointComponent<
       minEventSize={queries.commanderQueryRef.variables.minEventSize}
       sortBy={queries.commanderQueryRef.variables.sortBy}
       timePeriod={queries.commanderQueryRef.variables.timePeriod}
+      tab={
+        queries.commanderQueryRef.variables.showStaples ? 'staples' : 'entries'
+      }
       stats={<CommanderStats commander={commander} />}
     >
-      <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
-        {data.entries.edges.map(({node}) => (
-          <EntryCard key={node.id} entry={node} />
-        ))}
-      </div>
+      {queries.commanderQueryRef.variables.showStaples &&
+        commander.staples != null && (
+          <CommanderStaples commander={commander.staples} />
+        )}
 
-      <LoadMoreButton
-        hasNext={hasNext}
-        isLoadingNext={isLoadingNext}
-        loadNext={loadNext}
-      />
-
+      {queries.commanderQueryRef.variables.showEntries &&
+        commander.entries != null && (
+          <CommanderEntries commander={commander.entries} />
+        )}
       <Footer />
     </CommanderPageShell>
   );
