@@ -20,12 +20,12 @@ export function Select({
         {label}
       </label>
 
-      <div className="rounded-xl bg-white p-2 text-sm">
+      <div className="w-full rounded-xl bg-white p-2 text-sm">
         <select
           id={id}
           value={value}
           disabled={disabled}
-          className="bg-white"
+          className="w-full bg-white"
           onChange={(e) => {
             onChange?.(e.target.value);
           }}
