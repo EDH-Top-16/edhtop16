@@ -25,6 +25,7 @@ import {
   EntryPoint,
   EntryPointComponent,
   useFragment,
+  useLazyLoadQuery,
   usePaginationFragment,
   usePreloadedQuery,
 } from 'react-relay/hooks';
@@ -38,6 +39,7 @@ import {FirstPartyPromo} from '../../../components/promo';
 import {Select} from '../../../components/select';
 import {Tab, TabList} from '../../../components/tabs';
 import {formatOrdinals, formatPercent} from '../../../lib/client/format';
+import {ServerSafeSuspense} from '../../../lib/client/suspense';
 import {Commander_CommanderStats$key} from '#genfiles/queries/Commander_CommanderStats.graphql.js';
 import {Commander_CommanderFallbackQuery} from '#genfiles/queries/Commander_CommanderFallbackQuery.graphql.js';
 import {Commander_CommanderStaples$key} from '#genfiles/queries/Commander_CommanderStaples.graphql.js';
@@ -392,7 +394,13 @@ function CommanderCardDetail(props: {
             />
           </div>
         </div>
-        <CommanderCardEntries commander={commander} sortBy={props.sortBy} />
+        <ServerSafeSuspense fallback={<div className="text-center text-white">Loading tournament entries...</div>}>
+          <LazyCommanderCardEntries
+            commanderId={commander.id}
+            cardName={card.name}
+            sortBy={props.sortBy}
+          />
+        </ServerSafeSuspense>
       </div>
     </div>
   );
@@ -472,6 +480,40 @@ function CommanderCardEntries(props: {commander: any; sortBy: EntriesSortBy}) {
       />
     </>
   );
+}
+
+function LazyCommanderCardEntries(props: {
+  commanderId: string;
+  cardName: string;
+  sortBy: EntriesSortBy;
+}) {
+  const {node} = useLazyLoadQuery(
+    graphql`
+      query Commander_LazyCardEntriesQuery(
+        $cardName: String
+        $count: Int = 48
+        $cursor: String
+        $sortBy: EntriesSortBy!
+        $id: ID!
+      ) @throwOnFieldError {
+        node(id: $id) {
+          __typename
+          ...Commander_CardEntries @arguments(count: $count, cursor: $cursor)
+        }
+      }
+    `,
+    {
+      id: props.commanderId,
+      cardName: props.cardName,
+      sortBy: props.sortBy,
+    },
+  );
+
+  if (!node) {
+    return <div className="text-center text-white">Card entries not found.</div>;
+  }
+
+  return <CommanderCardEntries commander={node} sortBy={props.sortBy} />;
 }
 
 function CommanderEntries(props: {commander: Commander_entries$key}) {
