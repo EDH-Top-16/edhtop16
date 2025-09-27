@@ -43,7 +43,7 @@ export const entrypoint: EntryPoint<
             showStaples: tab === 'staples',
             showEntries: tab !== 'staples' && !card,
             showCardDetail: !!card,
-            cardName: card || null,
+            cardName: card,
             sortBy: sortBy as EntriesSortBy,
             timePeriod: timePeriod as TimePeriod,
             maxStanding,
@@ -69,7 +69,7 @@ export const entrypoint: EntryPoint<
                   showStaples: tab === 'staples',
                   showEntries: tab !== 'staples' && !card,
                   showCardDetail: !!card,
-                  cardName: card || null,
+                  cardName: card,
                   tab: card
                     ? 'card'
                     : tab === 'staples'

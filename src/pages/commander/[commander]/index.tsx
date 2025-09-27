@@ -9,6 +9,8 @@ import {
 } from '#genfiles/queries/Commander_CommanderQuery.graphql';
 import {Commander_entries$key} from '#genfiles/queries/Commander_entries.graphql';
 import {Commander_EntryCard$key} from '#genfiles/queries/Commander_EntryCard.graphql';
+import {Commander_CardEntries$key} from '#genfiles/queries/Commander_CardEntries.graphql';
+import {Commander_LazyCardEntriesQuery} from '#genfiles/queries/Commander_LazyCardEntriesQuery.graphql';
 import {CommanderEntriesQuery} from '#genfiles/queries/CommanderEntriesQuery.graphql';
 import {
   EntryPointParams,
@@ -437,7 +439,7 @@ function CardEntriesSort({
   );
 }
 
-function CommanderCardEntries(props: {commander: any; sortBy: EntriesSortBy}) {
+function CommanderCardEntries(props: {commander: Commander_CardEntries$key; sortBy: EntriesSortBy}) {
   const {data, loadNext, isLoadingNext, hasNext} = usePaginationFragment(
     graphql`
       fragment Commander_CardEntries on Commander
@@ -487,7 +489,7 @@ function LazyCommanderCardEntries(props: {
   cardName: string;
   sortBy: EntriesSortBy;
 }) {
-  const {commander} = useLazyLoadQuery(
+  const {commander} = useLazyLoadQuery<Commander_LazyCardEntriesQuery>(
     graphql`
       query Commander_LazyCardEntriesQuery(
         $cardName: String
@@ -926,7 +928,7 @@ export const CommanderPage: EntryPointComponent<
             ? 'staples'
             : 'entries'
       }
-      cardName={queries.commanderQueryRef.variables.cardName}
+      cardName={queries.commanderQueryRef.variables.cardName ?? undefined}
       stats={<CommanderStats commander={commander} />}
     >
       {queries.commanderQueryRef.variables.showStaples &&
@@ -944,7 +946,7 @@ export const CommanderPage: EntryPointComponent<
         queries.commanderQueryRef.variables.cardName && (
           <CommanderCardDetail
             commander={commander.cardDetail}
-            cardName={queries.commanderQueryRef.variables.cardName}
+            cardName={queries.commanderQueryRef.variables.cardName ?? undefined}
             sortBy={queries.commanderQueryRef.variables.sortBy}
           />
         )}
