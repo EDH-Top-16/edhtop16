@@ -3,7 +3,7 @@ import DataLoader from 'dataloader';
 import {subYears} from 'date-fns';
 import {fromGlobalId, toGlobalId} from 'graphql-relay';
 import {Float, Int} from 'grats';
-import {sql} from 'kysely';
+import {Selectable, sql} from 'kysely';
 import {Context} from '../context';
 import {db} from '../db';
 import {Card} from './card';
@@ -266,7 +266,7 @@ export class Commander implements GraphQLNode {
   /** @gqlField */
   readonly colorId: string;
 
-  constructor(private readonly row: DB['Commander']) {
+  constructor(private readonly row: Selectable<DB['Commander']>) {
     this.id = row.id;
     this.name = row.name;
     this.colorId = row.colorId;

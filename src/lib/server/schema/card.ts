@@ -2,7 +2,7 @@ import {DB} from '#genfiles/db/types.js';
 import DataLoader from 'dataloader';
 import {fromGlobalId, toGlobalId} from 'graphql-relay';
 import {Int, Float} from 'grats';
-import {sql} from 'kysely';
+import {Selectable, sql} from 'kysely';
 import {Context} from '../context';
 import {db} from '../db';
 import {ScryfallCard, scryfallCardSchema} from '../scryfall';
@@ -48,7 +48,7 @@ export class Card implements GraphQLNode {
   /** @gqlField */
   readonly oracleId: string;
 
-  constructor(private readonly row: DB['Card']) {
+  constructor(private readonly row: Selectable<DB['Card']>) {
     this.id = row.id;
     this.name = row.name;
     this.oracleId = row.oracleId;
