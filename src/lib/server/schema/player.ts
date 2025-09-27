@@ -2,6 +2,7 @@ import {DB} from '#genfiles/db/types.js';
 import DataLoader from 'dataloader';
 import {isAfter} from 'date-fns';
 import {Float, Int} from 'grats';
+import {Selectable} from 'kysely';
 import {Context} from '../context';
 import {db} from '../db';
 import {GraphQLNode} from './connection';
@@ -71,7 +72,7 @@ export class Player implements GraphQLNode {
   /** @gqlField */
   readonly topdeckProfile: string | null;
 
-  constructor(row: DB['Player']) {
+  constructor(row: Selectable<DB['Player']>) {
     this.id = row.id;
     this.name = row.name;
     this.topdeckProfile = row.topdeckProfile;

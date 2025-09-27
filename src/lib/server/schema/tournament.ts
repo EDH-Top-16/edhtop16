@@ -1,7 +1,7 @@
 import {DB} from '#genfiles/db/types';
 import DataLoader from 'dataloader';
 import {Float, Int} from 'grats';
-import {sql} from 'kysely';
+import {Selectable, sql} from 'kysely';
 import {Context} from '../context';
 import {db} from '../db';
 import {Commander, CommanderLoader} from './commander';
@@ -93,7 +93,7 @@ export class Tournament implements GraphQLNode {
   /** @gqlField */
   tournamentDate: string;
 
-  constructor(private readonly row: DB['Tournament']) {
+  constructor(private readonly row: Selectable<DB['Tournament']>) {
     this.id = row.id;
     this.TID = row.TID;
     this.name = row.name;

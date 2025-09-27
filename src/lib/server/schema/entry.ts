@@ -1,13 +1,14 @@
 import {DB} from '#genfiles/db/types.js';
 import DataLoader from 'dataloader';
 import {Float, Int} from 'grats';
+import {Selectable} from 'kysely';
+import {Context} from '../context';
 import {db} from '../db';
 import {Card} from './card';
 import {Commander, CommanderLoader} from './commander';
 import {GraphQLNode} from './connection';
 import {Player, PlayerLoader} from './player';
 import {Tournament, TournamentLoader} from './tournament';
-import {Context} from '../context';
 
 export type EntryLoader = DataLoader<number, Entry>;
 
@@ -77,7 +78,7 @@ export class Entry implements GraphQLNode {
   /** @gqlField */
   readonly lossesBracket: Int;
 
-  constructor(private readonly row: DB['Entry']) {
+  constructor(private readonly row: Selectable<DB['Entry']>) {
     this.id = row.id;
     this.standing = row.standing;
     this.decklist = row.decklist;
