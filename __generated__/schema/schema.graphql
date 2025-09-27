@@ -136,6 +136,7 @@ type Card implements Node {
   imageUrls: [String!] @semanticNonNull
   name: String @semanticNonNull
   oracleId: String @semanticNonNull
+  playRateLastYear: Float @semanticNonNull
   """Link to the card on Scryfall."""
   scryfallUrl: String @semanticNonNull
   type: String @semanticNonNull
@@ -236,7 +237,7 @@ type Query {
   node(id: ID!): Node
   player(profile: String!): Player @semanticNonNull
   searchResults(types: [SearchResultType!]!): [SearchResult!] @semanticNonNull
-  staples: [Card!] @semanticNonNull
+  staples(colorId: String, type: String): [Card!] @semanticNonNull
   tournament(TID: String!): Tournament @semanticNonNull
   tournaments(after: String, filters: TournamentFilters, first: Int! = 20, sortBy: TournamentSortBy! = DATE): TournamentConnection @semanticNonNull
 }

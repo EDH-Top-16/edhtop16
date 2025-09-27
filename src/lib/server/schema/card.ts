@@ -1,7 +1,8 @@
 import {DB} from '#genfiles/db/types.js';
 import DataLoader from 'dataloader';
 import {fromGlobalId, toGlobalId} from 'graphql-relay';
-import {Int} from 'grats';
+import {Int, Float} from 'grats';
+import {sql} from 'kysely';
 import {Context} from '../context';
 import {db} from '../db';
 import {ScryfallCard, scryfallCardSchema} from '../scryfall';
@@ -112,6 +113,11 @@ export class Card implements GraphQLNode {
   }
 
   /** @gqlField */
+  playRateLastYear(): Float {
+    return this.row.playRateLastYear ?? 0;
+  }
+
+  /** @gqlField */
   async entries(
     first: Int = 20,
     after?: string | null,
@@ -176,14 +182,65 @@ export class Card implements GraphQLNode {
   }
 
   /** @gqlQueryField */
-  static async staples(): Promise<Card[]> {
-    const rows = await db
+  static async staples(
+    colorId?: string | null,
+    type?: string | null,
+  ): Promise<Card[]> {
+    let query = db
       .selectFrom('Card')
       .selectAll()
-      .where('playRateLastYear', '>=', 0.01)
-      .orderBy('playRateLastYear desc')
-      .execute();
+      .where('playRateLastYear', '>=', 0.01);
 
-    return rows.map((r) => new Card(r));
+    if (colorId) {
+      // Build color identity filter using JSON functions
+      const colors = ['W', 'U', 'B', 'R', 'G', 'C'];
+      const expectedColors = colorId === 'C' ? [] : colorId.split('');
+
+      // For each color position, check if it should be present or absent
+      for (const color of colors) {
+        if (color === 'C') continue; // Skip colorless in the array check
+
+        const shouldHaveColor = expectedColors.includes(color);
+        if (shouldHaveColor) {
+          // Color should be present in the color_identity array
+          query = query.where(
+            db.fn('json_extract', ['data', sql`'$.color_identity'`]),
+            'like',
+            `%"${color}"%`,
+          );
+        } else {
+          // Color should NOT be present in the color_identity array
+          query = query.where(
+            db.fn('json_extract', ['data', sql`'$.color_identity'`]),
+            'not like',
+            `%"${color}"%`,
+          );
+        }
+      }
+
+      // Handle colorless case - should have empty color_identity array
+      if (colorId === 'C') {
+        query = query.where(
+          db.fn('json_extract', ['data', sql`'$.color_identity'`]),
+          '=',
+          '[]',
+        );
+      }
+    }
+
+    if (type) {
+      // Filter cards by type (case-insensitive partial match)
+      query = query.where(
+        db.fn('lower', [db.fn('json_extract', ['data', sql`'$.type_line'`])]),
+        'like',
+        `%${type.toLowerCase()}%`,
+      );
+    }
+
+    const rows = await query.orderBy('playRateLastYear desc').execute();
+
+    const cards = rows.map((r) => new Card(r));
+
+    return cards;
   }
 }

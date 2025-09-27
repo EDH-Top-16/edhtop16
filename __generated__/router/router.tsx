@@ -29,9 +29,10 @@ import type {Manifest} from 'vite';
 import * as z from 'zod/v4-mini';
 import { entrypoint as e0 } from "../../src/pages/about.entrypoint";
 import { entrypoint as e1 } from "../../src/pages/index.entrypoint";
-import { entrypoint as e2 } from "../../src/pages/tournaments.entrypoint";
-import { entrypoint as e3 } from "../../src/pages/tournament/tournament_view.entrypoint";
-import { entrypoint as e4 } from "../../src/pages/commander/[commander]/commander_page.entrypoint";
+import { entrypoint as e2 } from "../../src/pages/staples.entrypoint";
+import { entrypoint as e3 } from "../../src/pages/tournaments.entrypoint";
+import { entrypoint as e4 } from "../../src/pages/tournament/tournament_view.entrypoint";
+import { entrypoint as e5 } from "../../src/pages/commander/[commander]/commander_page.entrypoint";
 
 export type AnyPreloadedEntryPoint = PreloadedEntryPoint<any>;
 export type RouterOps = [OperationDescriptor, PayloadData][];
@@ -53,8 +54,15 @@ const ROUTER_CONF = {
               display: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
             })
         } as const,
-    "/tournaments": {
+    "/staples": {
             entrypoint: e2,
+            schema: z.object({
+              colorId: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+              type: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+            })
+        } as const,
+    "/tournaments": {
+            entrypoint: e3,
             schema: z.object({
               minSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
               sortBy: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
@@ -62,7 +70,7 @@ const ROUTER_CONF = {
             })
         } as const,
     "/tournament/:tid": {
-            entrypoint: e3,
+            entrypoint: e4,
             schema: z.object({
               tid: z.pipe(z.string(), z.transform(decodeURIComponent)),
               commander: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
@@ -70,7 +78,7 @@ const ROUTER_CONF = {
             })
         } as const,
     "/commander/:commander": {
-            entrypoint: e4,
+            entrypoint: e5,
             schema: z.object({
               commander: z.pipe(z.string(), z.transform(decodeURIComponent)),
               sortBy: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
