@@ -87,7 +87,7 @@ function StaplesPageShell({
           </p>
         </div>
 
-        <div className="mb-8 flex flex-col items-start space-y-4 lg:flex-row lg:items-end lg:space-y-0">
+        <div className="mb-8 flex flex-col items-start space-y-4 md:flex-row md:items-end md:space-y-0">
           <div className="flex-1">
             <ColorSelection
               selected={colorId}
@@ -97,7 +97,7 @@ function StaplesPageShell({
             />
           </div>
 
-          <div className="flex">
+          <div className="w-full md:w-auto">
             <Select
               id="staples-type-filter"
               label="Type Filter"
