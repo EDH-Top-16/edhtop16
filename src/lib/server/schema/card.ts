@@ -228,19 +228,20 @@ export class Card implements GraphQLNode {
       }
     }
 
+    if (type) {
+      // Filter cards by type (case-insensitive partial match)
+      query = query.where(
+        db.fn('lower', [db.fn('json_extract', ['data', sql`'$.type_line'`])]),
+        'like',
+        `%${type.toLowerCase()}%`
+      );
+    }
+
     const rows = await query
       .orderBy('playRateLastYear desc')
       .execute();
 
-    let cards = rows.map((r) => new Card(r));
-
-    if (type) {
-      // Filter cards by type (case-insensitive partial match)
-      cards = cards.filter((card) => {
-        const cardType = card.type().toLowerCase();
-        return cardType.includes(type.toLowerCase());
-      });
-    }
+    const cards = rows.map((r) => new Card(r));
 
     return cards;
   }
