@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<5062b85e5d68aab15cfc169817514801>>
+ * @generated SignedSource<<bcf9a122b3d9fa84034025d0342c0eb8>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,6 +11,7 @@
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type Commander_CommanderStaples$data = {
+  readonly name: string;
   readonly staples: ReadonlyArray<{
     readonly cmc: number;
     readonly colorId: string;
@@ -28,7 +29,15 @@ export type Commander_CommanderStaples$key = {
   readonly " $fragmentSpreads": FragmentRefs<"Commander_CommanderStaples">;
 };
 
-const node: ReaderFragment = {
+const node: ReaderFragment = (function(){
+var v0 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
+  "storageKey": null
+};
+return {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": {
@@ -36,6 +45,7 @@ const node: ReaderFragment = {
   },
   "name": "Commander_CommanderStaples",
   "selections": [
+    (v0/*: any*/),
     {
       "alias": null,
       "args": null,
@@ -51,13 +61,7 @@ const node: ReaderFragment = {
           "name": "id",
           "storageKey": null
         },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "name",
-          "storageKey": null
-        },
+        (v0/*: any*/),
         {
           "alias": null,
           "args": null,
@@ -107,7 +111,8 @@ const node: ReaderFragment = {
   "type": "Commander",
   "abstractKey": null
 };
+})();
 
-(node as any).hash = "8600b0a1ebfc5bc0adc7d3b4b56fa821";
+(node as any).hash = "eec29da5196a66bc1b8a4c489f58ee62";
 
 export default node;

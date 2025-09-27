@@ -131,8 +131,9 @@ function EntryCard(props: {entry: Commander_EntryCard$key}) {
   );
 }
 
-function StapleCard({card}: {card: any}) {
+function StapleCard({card, commanderName}: {card: any; commanderName: string}) {
   const playRatePercentage = (card.playRateLastYear * 100).toFixed(1);
+  const {replaceRoute} = useNavigation();
 
   return (
     <Card
@@ -142,14 +143,18 @@ function StapleCard({card}: {card: any}) {
       }))}
     >
       <div className="flex h-32 flex-col space-y-2">
-        <a
-          href={card.scryfallUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="line-clamp-2 text-xl font-bold text-white underline decoration-transparent transition-colors hover:text-blue-300 hover:decoration-inherit"
+        <button
+          onClick={() => {
+            replaceRoute('/commander/:commander', {
+              commander: commanderName,
+              tab: 'card',
+              card: card.name,
+            });
+          }}
+          className="line-clamp-2 cursor-pointer text-left text-xl font-bold text-white underline decoration-transparent transition-colors hover:decoration-inherit"
         >
           {card.name}
-        </a>
+        </button>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <ColorIdentity identity={card.colorId} />
@@ -175,6 +180,7 @@ function CommanderStaples(props: {commander: Commander_CommanderStaples$key}) {
   const commander = useFragment(
     graphql`
       fragment Commander_CommanderStaples on Commander @throwOnFieldError {
+        name
         staples {
           id
           name
@@ -193,9 +199,278 @@ function CommanderStaples(props: {commander: Commander_CommanderStaples$key}) {
   return (
     <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-4 p-6 md:grid-cols-2 xl:grid-cols-3">
       {commander.staples.map((card) => (
-        <StapleCard key={card.id} card={card} />
+        <StapleCard key={card.id} card={card} commanderName={commander.name} />
       ))}
     </div>
+  );
+}
+
+function CommanderCardDetail(props: {
+  commander: any;
+  cardName: string;
+  sortBy: EntriesSortBy;
+}) {
+  const commander = useFragment(
+    graphql`
+      fragment Commander_CardDetail on Commander @throwOnFieldError {
+        name
+        cardDetail(cardName: $cardName) {
+          name
+          type
+          cmc
+          colorId
+          imageUrls
+          scryfallUrl
+          cardPreviewImageUrl
+        }
+        cardWinrateStats(cardName: $cardName, timePeriod: THREE_MONTHS) {
+          withCard {
+            totalEntries
+            topCuts
+            conversionRate
+          }
+          withoutCard {
+            totalEntries
+            topCuts
+            conversionRate
+          }
+        }
+        ...Commander_CardEntries
+      }
+    `,
+    props.commander,
+  );
+
+  const card = commander.cardDetail;
+  const stats = commander.cardWinrateStats;
+
+  if (!card) {
+    return (
+      <div className="mx-auto max-w-4xl p-6 text-center">
+        <h2 className="text-2xl text-white">Card not found</h2>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-6xl p-6">
+      <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Card Info */}
+        <div className="flex flex-col items-center space-y-4">
+          {card.cardPreviewImageUrl && (
+            <img
+              src={card.cardPreviewImageUrl}
+              alt={card.name}
+              className="max-w-xs rounded-lg shadow-lg"
+            />
+          )}
+          <div className="text-center">
+            <a
+              href={card.scryfallUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-3xl font-bold text-white underline decoration-transparent transition-colors hover:text-blue-300 hover:decoration-inherit"
+            >
+              {card.name}
+            </a>
+            <p className="text-lg text-gray-300">{card.type}</p>
+            <div className="mt-2 flex items-center justify-center space-x-2">
+              <ColorIdentity identity={card.colorId} />
+              {card.cmc > 0 && (
+                <span className="rounded bg-gray-700 px-2 py-1 font-mono text-sm text-white">
+                  {card.cmc}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Winrate Stats */}
+        <div className="space-y-6">
+          <h3 className="text-2xl font-bold text-white">
+            Performance Stats (Last 3 Months)
+          </h3>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="rounded-lg bg-green-900/30 p-4">
+              <h4 className="text-lg font-semibold text-green-300">
+                With {card.name}
+              </h4>
+              <div className="mt-2 space-y-1">
+                <div className="text-white">
+                  <span className="font-bold">
+                    {stats.withCard.totalEntries}
+                  </span>{' '}
+                  entries
+                </div>
+                <div className="text-white">
+                  <span className="font-bold">{stats.withCard.topCuts}</span>{' '}
+                  top cuts
+                </div>
+                <div className="text-green-300">
+                  <span className="font-bold">
+                    {formatPercent(stats.withCard.conversionRate)}
+                  </span>{' '}
+                  conversion rate
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-lg bg-red-900/30 p-4">
+              <h4 className="text-lg font-semibold text-red-300">
+                Without {card.name}
+              </h4>
+              <div className="mt-2 space-y-1">
+                <div className="text-white">
+                  <span className="font-bold">
+                    {stats.withoutCard.totalEntries}
+                  </span>{' '}
+                  entries
+                </div>
+                <div className="text-white">
+                  <span className="font-bold">{stats.withoutCard.topCuts}</span>{' '}
+                  top cuts
+                </div>
+                <div className="text-red-300">
+                  <span className="font-bold">
+                    {formatPercent(stats.withoutCard.conversionRate)}
+                  </span>{' '}
+                  conversion rate
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {stats.withCard.totalEntries > 0 &&
+            stats.withoutCard.totalEntries > 0 && (
+              <div className="rounded-lg bg-blue-900/30 p-4">
+                <h4 className="text-lg font-semibold text-blue-300">Impact</h4>
+                <div className="mt-2">
+                  <div className="text-white">
+                    {stats.withCard.conversionRate >
+                    stats.withoutCard.conversionRate ? (
+                      <span className="text-green-400">
+                        +
+                        {formatPercent(
+                          stats.withCard.conversionRate -
+                            stats.withoutCard.conversionRate,
+                        )}{' '}
+                        higher conversion rate
+                      </span>
+                    ) : stats.withCard.conversionRate <
+                      stats.withoutCard.conversionRate ? (
+                      <span className="text-red-400">
+                        {formatPercent(
+                          stats.withCard.conversionRate -
+                            stats.withoutCard.conversionRate,
+                        )}{' '}
+                        lower conversion rate
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">
+                        No significant impact on conversion rate
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+        </div>
+      </div>
+
+      {/* Card Entries */}
+      <div className="mt-8">
+        <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+          <h3 className="text-2xl font-bold text-white">
+            Tournament Entries Using {card.name}
+          </h3>
+          <div className="flex gap-4">
+            <CardEntriesSort
+              commanderName={commander.name}
+              cardName={card.name}
+              currentSort={props.sortBy}
+            />
+          </div>
+        </div>
+        <CommanderCardEntries commander={commander} sortBy={props.sortBy} />
+      </div>
+    </div>
+  );
+}
+
+function CardEntriesSort({
+  commanderName,
+  cardName,
+  currentSort,
+}: {
+  commanderName: string;
+  cardName: string;
+  currentSort: EntriesSortBy;
+}) {
+  const {replaceRoute} = useNavigation();
+
+  return (
+    <Select
+      id="card-entries-sort"
+      label="Sort By"
+      value={currentSort}
+      onChange={(sortBy) => {
+        replaceRoute('/commander/:commander', {
+          commander: commanderName,
+          tab: 'card',
+          card: cardName,
+          sortBy,
+        });
+      }}
+    >
+      <option value="TOP">Top Performing</option>
+      <option value="NEW">Recent</option>
+    </Select>
+  );
+}
+
+function CommanderCardEntries(props: {commander: any; sortBy: EntriesSortBy}) {
+  const {data, loadNext, isLoadingNext, hasNext} = usePaginationFragment(
+    graphql`
+      fragment Commander_CardEntries on Commander
+      @throwOnFieldError
+      @argumentDefinitions(
+        cursor: {type: "String"}
+        count: {type: "Int", defaultValue: 48}
+      )
+      @refetchable(queryName: "CommanderCardEntriesQuery") {
+        cardEntries(
+          cardName: $cardName
+          first: $count
+          after: $cursor
+          sortBy: $sortBy
+        ) @connection(key: "Commander_cardEntries") {
+          edges {
+            node {
+              id
+              ...Commander_EntryCard
+            }
+          }
+        }
+      }
+    `,
+    props.commander,
+  );
+
+  return (
+    <>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {data.cardEntries.edges.map(({node}) => (
+          <EntryCard key={node.id} entry={node} />
+        ))}
+      </div>
+
+      <LoadMoreButton
+        hasNext={hasNext}
+        isLoadingNext={isLoadingNext}
+        loadNext={loadNext}
+      />
+    </>
   );
 }
 
@@ -351,6 +626,7 @@ export function CommanderPageShell({
   sortBy,
   timePeriod,
   tab,
+  cardName,
   stats,
   children,
   ...props
@@ -360,7 +636,8 @@ export function CommanderPageShell({
   minEventSize: number;
   sortBy: EntriesSortBy;
   timePeriod: TimePeriod;
-  tab: 'entries' | 'staples';
+  tab: 'entries' | 'staples' | 'card';
+  cardName?: string;
   commander: Commander_CommanderPageShell$key;
   stats?: React.ReactNode;
 }>) {
@@ -391,7 +668,7 @@ export function CommanderPageShell({
 
       <TabList
         className="mx-auto max-w-(--breakpoint-md)"
-        border={tab === 'staples'}
+        border={tab === 'staples' || tab === 'card'}
       >
         <Tab
           selected={tab === 'entries' || !tab}
@@ -403,6 +680,8 @@ export function CommanderPageShell({
               timePeriod,
               maxStanding,
               minEventSize,
+              // Explicitly clear card parameter
+              card: undefined,
             });
           }}
         >
@@ -419,11 +698,32 @@ export function CommanderPageShell({
               timePeriod,
               maxStanding,
               minEventSize,
+              // Explicitly clear card parameter
+              card: undefined,
             });
           }}
         >
           Staples
         </Tab>
+
+        {cardName && tab === 'card' && (
+          <Tab
+            selected={tab === 'card'}
+            onClick={() => {
+              replaceRoute('/commander/:commander', {
+                commander: commander.name,
+                tab: 'card',
+                card: cardName,
+                sortBy,
+                timePeriod,
+                maxStanding,
+                minEventSize,
+              });
+            }}
+          >
+            {cardName}
+          </Tab>
+        )}
       </TabList>
 
       {tab === 'entries' && (
@@ -508,7 +808,10 @@ export const CommanderPageFallback: EntryPointComponent<
   {commanderFallbackQueryRef: Commander_CommanderFallbackQuery},
   {},
   {},
-  Commander_CommanderQuery$variables & {tab: 'entries' | 'staples'}
+  Commander_CommanderQuery$variables & {
+    tab: 'entries' | 'staples' | 'card';
+    cardName?: string;
+  }
 > = ({queries, extraProps}) => {
   const {commander} = usePreloadedQuery(
     graphql`
@@ -531,6 +834,7 @@ export const CommanderPageFallback: EntryPointComponent<
       sortBy={extraProps.sortBy}
       timePeriod={extraProps.timePeriod}
       tab={extraProps.tab}
+      cardName={extraProps.cardName}
     >
       <LoadingIcon />
     </CommanderPageShell>
@@ -548,6 +852,8 @@ export const CommanderPage: EntryPointComponent<
         $commander: String!
         $showStaples: Boolean!
         $showEntries: Boolean!
+        $showCardDetail: Boolean!
+        $cardName: String
         $sortBy: EntriesSortBy!
         $minEventSize: Int!
         $maxStanding: Int
@@ -560,6 +866,9 @@ export const CommanderPage: EntryPointComponent<
             @include(if: $showStaples)
             @alias(as: "staples")
           ...Commander_entries @include(if: $showEntries) @alias(as: "entries")
+          ...Commander_CardDetail
+            @include(if: $showCardDetail)
+            @alias(as: "cardDetail")
         }
       }
     `,
@@ -574,8 +883,13 @@ export const CommanderPage: EntryPointComponent<
       sortBy={queries.commanderQueryRef.variables.sortBy}
       timePeriod={queries.commanderQueryRef.variables.timePeriod}
       tab={
-        queries.commanderQueryRef.variables.showStaples ? 'staples' : 'entries'
+        queries.commanderQueryRef.variables.showCardDetail
+          ? 'card'
+          : queries.commanderQueryRef.variables.showStaples
+            ? 'staples'
+            : 'entries'
       }
+      cardName={queries.commanderQueryRef.variables.cardName}
       stats={<CommanderStats commander={commander} />}
     >
       {queries.commanderQueryRef.variables.showStaples &&
@@ -586,6 +900,16 @@ export const CommanderPage: EntryPointComponent<
       {queries.commanderQueryRef.variables.showEntries &&
         commander.entries != null && (
           <CommanderEntries commander={commander.entries} />
+        )}
+
+      {queries.commanderQueryRef.variables.showCardDetail &&
+        commander.cardDetail != null &&
+        queries.commanderQueryRef.variables.cardName && (
+          <CommanderCardDetail
+            commander={commander.cardDetail}
+            cardName={queries.commanderQueryRef.variables.cardName}
+            sortBy={queries.commanderQueryRef.variables.sortBy}
+          />
         )}
       <Footer />
     </CommanderPageShell>

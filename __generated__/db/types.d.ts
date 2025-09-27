@@ -3,9 +3,15 @@
  * Please do not edit it manually.
  */
 
+import type { ColumnType } from "kysely";
+
+export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
+  ? ColumnType<S, I | undefined, U>
+  : ColumnType<T, T | undefined, T>;
+
 export interface Card {
   data: string;
-  id: number;
+  id: Generated<number>;
   name: string;
   oracleId: string;
   playRateLastYear: number | null;
@@ -13,7 +19,7 @@ export interface Card {
 
 export interface Commander {
   colorId: string;
-  id: number;
+  id: Generated<number>;
   name: string;
 }
 
@@ -26,7 +32,7 @@ export interface Entry {
   commanderId: number;
   decklist: string | null;
   draws: number;
-  id: number;
+  id: Generated<number>;
   lossesBracket: number;
   lossesSwiss: number;
   playerId: number;
@@ -37,14 +43,14 @@ export interface Entry {
 }
 
 export interface Player {
-  id: number;
+  id: Generated<number>;
   name: string;
   topdeckProfile: string | null;
 }
 
 export interface Tournament {
   bracketUrl: string | null;
-  id: number;
+  id: Generated<number>;
   name: string;
   size: number;
   swissRounds: number;

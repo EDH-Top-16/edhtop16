@@ -144,6 +144,9 @@ type Card implements Node {
 
 type Commander implements Node {
   breakdownUrl: String @semanticNonNull
+  cardDetail(cardName: String): Card
+  cardEntries(after: String, cardName: String, first: Int! = 20, sortBy: EntriesSortBy! = TOP): EntryConnection @semanticNonNull
+  cardWinrateStats(cardName: String, timePeriod: TimePeriod! = THREE_MONTHS): CommanderCardWinrateStats @semanticNonNull
   cards: [Card!] @semanticNonNull
   colorId: String @semanticNonNull
   entries(after: String, filters: EntriesFilter, first: Int! = 20, sortBy: EntriesSortBy! = TOP): EntryConnection @semanticNonNull
@@ -159,6 +162,17 @@ type CommanderCalculatedStats {
   count: Int @semanticNonNull
   metaShare: Float @semanticNonNull
   topCuts: Int @semanticNonNull
+}
+
+type CommanderCardStats {
+  conversionRate: Float @semanticNonNull
+  topCuts: Int @semanticNonNull
+  totalEntries: Int @semanticNonNull
+}
+
+type CommanderCardWinrateStats {
+  withCard: CommanderCardStats @semanticNonNull
+  withoutCard: CommanderCardStats @semanticNonNull
 }
 
 type CommanderConnection {
