@@ -394,7 +394,7 @@ function CommanderCardDetail(props: {
             />
           </div>
         </div>
-        <ServerSafeSuspense fallback={<div className="text-center text-white">Loading tournament entries...</div>}>
+        <ServerSafeSuspense fallback={<LoadingIcon />}>
           <LazyCommanderCardEntries
             commanderName={commander.name}
             cardName={card.name}
