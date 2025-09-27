@@ -1,5 +1,5 @@
 import {defineConfig} from '@rsbuild/core';
-import pluginReact from '@rsbuild/plugin-react';
+import {pluginReact} from '@rsbuild/plugin-react';
 import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
@@ -11,8 +11,10 @@ export default defineConfig({
   ],
   source: {
     entry: {
-      server: './src/entry-server.tsx',
+      'entry-server': './src/entry-server.tsx',
     },
+  },
+  resolve: {
     alias: {
       '#src': resolve(currentDir, './src'),
       '#genfiles': resolve(currentDir, './__generated__'),
@@ -43,11 +45,13 @@ export default defineConfig({
       config.output = {
         ...config.output,
         clean: true,
-        filename: 'entry-server.mjs',
+        filename: '[name].mjs',
         chunkFilename: '[name].mjs',
         library: {type: 'module'},
         chunkFormat: 'module',
       };
+      config.optimization ??= {};
+      config.optimization.minimize = false;
       return config;
     },
   },

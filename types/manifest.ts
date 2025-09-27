@@ -5,5 +5,6 @@ export type Manifest = Record<
     css?: string[];
     assets?: string[];
     isEntry?: boolean;
+    imports?: string[];
   }
 >;
