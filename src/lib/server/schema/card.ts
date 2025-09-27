@@ -206,14 +206,14 @@ export class Card implements GraphQLNode {
           query = query.where(
             db.fn('json_extract', ['data', sql`'$.color_identity'`]),
             'like',
-            `%"${color}"%`
+            `%"${color}"%`,
           );
         } else {
           // Color should NOT be present in the color_identity array
           query = query.where(
             db.fn('json_extract', ['data', sql`'$.color_identity'`]),
             'not like',
-            `%"${color}"%`
+            `%"${color}"%`,
           );
         }
       }
@@ -223,7 +223,7 @@ export class Card implements GraphQLNode {
         query = query.where(
           db.fn('json_extract', ['data', sql`'$.color_identity'`]),
           '=',
-          '[]'
+          '[]',
         );
       }
     }
@@ -233,13 +233,11 @@ export class Card implements GraphQLNode {
       query = query.where(
         db.fn('lower', [db.fn('json_extract', ['data', sql`'$.type_line'`])]),
         'like',
-        `%${type.toLowerCase()}%`
+        `%${type.toLowerCase()}%`,
       );
     }
 
-    const rows = await query
-      .orderBy('playRateLastYear desc')
-      .execute();
+    const rows = await query.orderBy('playRateLastYear desc').execute();
 
     const cards = rows.map((r) => new Card(r));
 
