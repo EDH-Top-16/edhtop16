@@ -396,7 +396,7 @@ function CommanderCardDetail(props: {
         </div>
         <ServerSafeSuspense fallback={<div className="text-center text-white">Loading tournament entries...</div>}>
           <LazyCommanderCardEntries
-            commanderId={commander.id}
+            commanderName={commander.name}
             cardName={card.name}
             sortBy={props.sortBy}
           />
@@ -483,37 +483,32 @@ function CommanderCardEntries(props: {commander: any; sortBy: EntriesSortBy}) {
 }
 
 function LazyCommanderCardEntries(props: {
-  commanderId: string;
+  commanderName: string;
   cardName: string;
   sortBy: EntriesSortBy;
 }) {
-  const {node} = useLazyLoadQuery(
+  const {commander} = useLazyLoadQuery(
     graphql`
       query Commander_LazyCardEntriesQuery(
         $cardName: String
         $count: Int = 48
         $cursor: String
         $sortBy: EntriesSortBy!
-        $id: ID!
+        $commanderName: String!
       ) @throwOnFieldError {
-        node(id: $id) {
-          __typename
+        commander(name: $commanderName) {
           ...Commander_CardEntries @arguments(count: $count, cursor: $cursor)
         }
       }
     `,
     {
-      id: props.commanderId,
+      commanderName: props.commanderName,
       cardName: props.cardName,
       sortBy: props.sortBy,
     },
   );
 
-  if (!node) {
-    return <div className="text-center text-white">Card entries not found.</div>;
-  }
-
-  return <CommanderCardEntries commander={node} sortBy={props.sortBy} />;
+  return <CommanderCardEntries commander={commander} sortBy={props.sortBy} />;
 }
 
 function CommanderEntries(props: {commander: Commander_entries$key}) {
