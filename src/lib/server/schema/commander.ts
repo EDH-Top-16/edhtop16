@@ -100,6 +100,24 @@ export interface EntriesFilter {
 }
 
 /** @gqlType */
+interface CommanderCardStats {
+  /** @gqlField */
+  totalEntries: Int;
+  /** @gqlField */
+  topCuts: Int;
+  /** @gqlField */
+  conversionRate: Float;
+}
+
+/** @gqlType */
+interface CommanderCardWinrateStats {
+  /** @gqlField */
+  withCard: CommanderCardStats;
+  /** @gqlField */
+  withoutCard: CommanderCardStats;
+}
+
+/** @gqlType */
 interface CommanderCalculatedStats {
   /** @gqlField */
   count: Int;
@@ -342,6 +360,217 @@ export class Commander implements GraphQLNode {
   /** @gqlField */
   async cards(commanderLoader: CommanderCardsLoader): Promise<Card[]> {
     return await commanderLoader.load(this.name);
+  }
+
+  /** @gqlField */
+  async cardDetail(cardName?: string | null): Promise<Card | null> {
+    if (!cardName) return null;
+    const card = await db
+      .selectFrom('Card')
+      .where('name', '=', cardName)
+      .selectAll()
+      .executeTakeFirst();
+
+    return card ? new Card(card) : null;
+  }
+
+  /** @gqlField */
+  async cardWinrateStats(
+    cardName?: string | null,
+    timePeriod: TimePeriod = TimePeriod.THREE_MONTHS,
+  ): Promise<CommanderCardWinrateStats> {
+    if (!cardName) {
+      return {
+        withCard: {totalEntries: 0, topCuts: 0, conversionRate: 0},
+        withoutCard: {totalEntries: 0, topCuts: 0, conversionRate: 0},
+      };
+    }
+    const minDate = minDateFromTimePeriod(timePeriod);
+
+    // Get the card ID
+    const card = await db
+      .selectFrom('Card')
+      .where('name', '=', cardName)
+      .select('id')
+      .executeTakeFirst();
+
+    if (!card) {
+      return {
+        withCard: {totalEntries: 0, topCuts: 0, conversionRate: 0},
+        withoutCard: {totalEntries: 0, topCuts: 0, conversionRate: 0},
+      };
+    }
+
+    // Entries with the card
+    const withCardStats = await db
+      .selectFrom('Entry')
+      .innerJoin('DecklistItem', 'DecklistItem.entryId', 'Entry.id')
+      .innerJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+      .where('Entry.commanderId', '=', this.id)
+      .where('DecklistItem.cardId', '=', card.id)
+      .where('Tournament.tournamentDate', '>=', minDate.toISOString())
+      .select((eb) => [
+        eb.fn.count<number>('Entry.id').as('totalEntries'),
+        eb.fn
+          .sum<number>(
+            eb
+              .case()
+              .when('Entry.standing', '<=', eb.ref('Tournament.topCut'))
+              .then(1)
+              .else(0)
+              .end(),
+          )
+          .as('topCuts'),
+      ])
+      .executeTakeFirstOrThrow();
+
+    // Entries without the card
+    const withoutCardStats = await db
+      .selectFrom('Entry')
+      .leftJoin('DecklistItem', (join) =>
+        join
+          .onRef('DecklistItem.entryId', '=', 'Entry.id')
+          .on('DecklistItem.cardId', '=', card.id),
+      )
+      .innerJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+      .where('Entry.commanderId', '=', this.id)
+      .where('DecklistItem.cardId', 'is', null)
+      .where('Tournament.tournamentDate', '>=', minDate.toISOString())
+      .select((eb) => [
+        eb.fn.count<number>('Entry.id').as('totalEntries'),
+        eb.fn
+          .sum<number>(
+            eb
+              .case()
+              .when('Entry.standing', '<=', eb.ref('Tournament.topCut'))
+              .then(1)
+              .else(0)
+              .end(),
+          )
+          .as('topCuts'),
+      ])
+      .executeTakeFirstOrThrow();
+
+    return {
+      withCard: {
+        totalEntries: withCardStats.totalEntries,
+        topCuts: withCardStats.topCuts || 0,
+        conversionRate:
+          withCardStats.totalEntries > 0
+            ? (withCardStats.topCuts || 0) / withCardStats.totalEntries
+            : 0,
+      },
+      withoutCard: {
+        totalEntries: withoutCardStats.totalEntries,
+        topCuts: withoutCardStats.topCuts || 0,
+        conversionRate:
+          withoutCardStats.totalEntries > 0
+            ? (withoutCardStats.topCuts || 0) / withoutCardStats.totalEntries
+            : 0,
+      },
+    };
+  }
+
+  /** @gqlField */
+  async cardEntries(
+    cardName?: string | null,
+    first: Int = 20,
+    after?: string | null,
+    sortBy: EntriesSortBy = EntriesSortBy.TOP,
+  ): Promise<Connection<Entry>> {
+    if (!cardName) {
+      return {
+        edges: [],
+        pageInfo: {
+          hasPreviousPage: false,
+          hasNextPage: false,
+          startCursor: null,
+          endCursor: null,
+        },
+      };
+    }
+    const card = await db
+      .selectFrom('Card')
+      .where('name', '=', cardName)
+      .select('id')
+      .executeTakeFirst();
+
+    if (!card) {
+      return {
+        edges: [],
+        pageInfo: {
+          hasPreviousPage: false,
+          hasNextPage: false,
+          startCursor: null,
+          endCursor: null,
+        },
+      };
+    }
+
+    let query = db
+      .selectFrom('Entry')
+      .innerJoin('DecklistItem', 'DecklistItem.entryId', 'Entry.id')
+      .innerJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+      .where('Entry.commanderId', '=', this.id)
+      .where('DecklistItem.cardId', '=', card.id)
+      .selectAll('Entry')
+      .select(['Tournament.tournamentDate', 'Tournament.size']);
+
+    if (after) {
+      const cursor = CommanderEntriesCursor.fromString(after);
+      if (sortBy === EntriesSortBy.NEW) {
+        query = query.where(({eb, tuple, refTuple}) =>
+          eb(
+            refTuple('Tournament.tournamentDate', 'Entry.id'),
+            '<',
+            tuple(cursor.date, cursor.id),
+          ),
+        );
+      } else {
+        query = query.where(({eb, tuple, refTuple, and, or}) =>
+          or([
+            eb('standing', '>', cursor.standing),
+            and([
+              eb('standing', '=', cursor.standing),
+              eb(
+                refTuple('Tournament.size', 'Entry.id'),
+                '<',
+                tuple(cursor.size, cursor.id),
+              ),
+            ]),
+          ]),
+        );
+      }
+    }
+
+    query = query.orderBy(
+      sortBy === EntriesSortBy.NEW
+        ? ['Tournament.tournamentDate desc', 'id desc']
+        : ['Entry.standing asc', 'Tournament.size desc', 'id desc'],
+    );
+
+    const rows = await query.limit(first + 1).execute();
+
+    const edges = rows.slice(0, first).map((r) => {
+      const node = new Entry(r);
+      const cursor = CommanderEntriesCursor.fromEntry(
+        node,
+        r.tournamentDate,
+        r.size,
+      ).toString();
+
+      return {cursor, node};
+    });
+
+    return {
+      edges,
+      pageInfo: {
+        hasPreviousPage: false,
+        hasNextPage: rows.length > edges.length,
+        startCursor: edges.at(0)?.cursor ?? null,
+        endCursor: edges.at(-1)?.cursor ?? null,
+      },
+    };
   }
 
   /** @gqlField */
