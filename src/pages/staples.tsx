@@ -101,7 +101,7 @@ function StaplesPageShell({
             <Select
               id="staples-type-filter"
               label="Type Filter"
-              value={type}
+              value={type || 'all'}
               onChange={(value) => {
                 replaceRoute('/staples', {colorId: colorId ?? null, type: value === 'all' ? null : value});
               }}
