@@ -205,31 +205,24 @@ export class Card implements GraphQLNode {
 
   /** @gqlQueryField */
   static async staples(colorId?: string | null): Promise<Card[]> {
-    let query = db
+    const rows = await db
       .selectFrom('Card')
       .selectAll()
-      .where('playRateLastYear', '>=', 0.01);
-
-    if (colorId) {
-      // Filter cards that match the color identity exactly or are a subset of it
-      query = query.where((eb) => {
-        const colorSet = new Set(Array.from(colorId));
-        const colorConditions: any[] = [];
-
-        // For each possible color combination that is a subset of the selected colors
-        const allCombinations = generateColorCombinations(colorId);
-        for (const combo of allCombinations) {
-          colorConditions.push(eb('colorId', '=', combo));
-        }
-
-        return eb.or(colorConditions);
-      });
-    }
-
-    const rows = await query
+      .where('playRateLastYear', '>=', 0.01)
       .orderBy('playRateLastYear desc')
       .execute();
 
-    return rows.map((r) => new Card(r));
+    const cards = rows.map((r) => new Card(r));
+
+    if (colorId) {
+      // Filter cards that match the color identity exactly or are a subset of it
+      const allowedCombinations = generateColorCombinations(colorId);
+      return cards.filter((card) => {
+        const cardColorId = card.colorId();
+        return allowedCombinations.includes(cardColorId);
+      });
+    }
+
+    return cards;
   }
 }

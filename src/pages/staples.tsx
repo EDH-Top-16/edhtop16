@@ -88,7 +88,7 @@ function StaplesPageShell({
           <ColorSelection
             selected={colorId}
             onChange={(value) => {
-              replaceRoute('/staples', {colorId: value || null});
+              replaceRoute('/staples', {colorId: value ?? null});
             }}
           />
         </div>
@@ -102,7 +102,7 @@ function StaplesPageShell({
 /** @resource m#staples_fallback */
 export const StaplesPageFallback: EntryPointComponent<{}, {}, {colorId?: string}> = ({extraProps}) => {
   return (
-    <StaplesPageShell colorId={extraProps.colorId || ''}>
+    <StaplesPageShell colorId={extraProps.colorId ?? ''}>
       <LoadingIcon />
     </StaplesPageShell>
   );
@@ -132,9 +132,9 @@ export const StaplesPage: EntryPointComponent<
   );
 
   return (
-    <StaplesPageShell colorId={queries.staplesQueryRef.variables.colorId || ''}>
+    <StaplesPageShell colorId={queries.staplesQueryRef.variables.colorId ?? ''}>
       <div className="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
-        {data.staples.map((card) => (
+        {(data.staples ?? []).map((card) => (
           <StapleCard key={card.id} card={card} />
         ))}
       </div>
