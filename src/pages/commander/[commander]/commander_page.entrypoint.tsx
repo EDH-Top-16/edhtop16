@@ -16,6 +16,7 @@ import {EntryPoint} from 'react-relay/hooks';
  * @param {string?} timePeriod
  * @param {number?} maxStanding
  * @param {number?} minEventSize
+ * @param {string?} card
  */
 export const entrypoint: EntryPoint<
   ModuleType<'m#commander_page'>,
@@ -30,6 +31,7 @@ export const entrypoint: EntryPoint<
       timePeriod = 'ONE_YEAR',
       maxStanding,
       minEventSize = 60,
+      card,
     } = schema.parse(params);
 
     return {
@@ -40,10 +42,12 @@ export const entrypoint: EntryPoint<
             commander,
             showStaples: tab === 'staples',
             showEntries: tab !== 'staples',
+            showCardOptions: tab === 'card',
             sortBy: sortBy as EntriesSortBy,
             timePeriod: timePeriod as TimePeriod,
             maxStanding,
             minEventSize,
+            cardName: card ?? null,
           },
         },
       },
@@ -64,11 +68,17 @@ export const entrypoint: EntryPoint<
                   commander,
                   showStaples: tab === 'staples',
                   showEntries: tab !== 'staples',
-                  tab: tab === 'staples' ? 'staples' : 'entries',
+                  tab:
+                    tab === 'staples'
+                      ? 'staples'
+                      : tab === 'card'
+                        ? 'card'
+                        : 'entries',
                   sortBy: sortBy as EntriesSortBy,
                   timePeriod: timePeriod as TimePeriod,
                   maxStanding,
                   minEventSize,
+                  cardName: card ?? null,
                 },
               };
             },

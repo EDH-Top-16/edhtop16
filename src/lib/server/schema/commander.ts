@@ -1,6 +1,6 @@
 import {DB} from '#genfiles/db/types.js';
 import DataLoader from 'dataloader';
-import {subYears} from 'date-fns';
+import {formatISO, startOfWeek, subMonths, subYears} from 'date-fns';
 import {fromGlobalId, toGlobalId} from 'graphql-relay';
 import {Float, Int} from 'grats';
 import {sql} from 'kysely';
@@ -80,6 +80,228 @@ export enum CommandersSortBy {
 export enum EntriesSortBy {
   NEW = 'NEW',
   TOP = 'TOP',
+}
+
+interface CommanderCardFilters extends EntriesFilter {
+  timePeriod: TimePeriod;
+  minEventSize: Int;
+  maxStanding?: Int | null;
+}
+
+/** @gqlType */
+export class CommanderCardWinRatePoint {
+  constructor(
+    /** @gqlField */ readonly periodStart: string,
+    /** @gqlField */ readonly winRateWithCard: Float | null,
+    /** @gqlField */ readonly winRateWithoutCard: Float | null,
+    /** @gqlField */ readonly withCount: Int,
+    /** @gqlField */ readonly withoutCount: Int,
+  ) {}
+}
+
+/** @gqlType */
+export class CommanderCardDetails {
+  constructor(
+    private readonly commanderId: number,
+    private readonly cardRow: DB['Card'],
+    private readonly filters: CommanderCardFilters,
+    private readonly sortBy: EntriesSortBy,
+  ) {}
+
+  /** @gqlField */
+  card(): Card {
+    return new Card(this.cardRow);
+  }
+
+  private createCursor(entry: Entry, tournamentDate: string, size: number) {
+    return CommanderEntriesCursor.fromEntry(
+      entry,
+      tournamentDate,
+      size,
+    ).toString();
+  }
+
+  /** @gqlField */
+  async winRateSeries(): Promise<CommanderCardWinRatePoint[]> {
+    const cutoff = subMonths(new Date(), 3).toISOString();
+
+    const [entries, entriesWithCard] = await Promise.all([
+      db
+        .selectFrom('Entry')
+        .innerJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+        .select([
+          'Entry.id as entryId',
+          'Entry.winsSwiss',
+          'Entry.winsBracket',
+          'Entry.lossesSwiss',
+          'Entry.lossesBracket',
+          'Entry.draws',
+          'Tournament.tournamentDate',
+        ])
+        .where('Entry.commanderId', '=', this.commanderId)
+        .where('Tournament.tournamentDate', '>=', cutoff)
+        .execute(),
+      db
+        .selectFrom('DecklistItem')
+        .innerJoin('Entry', 'Entry.id', 'DecklistItem.entryId')
+        .innerJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+        .select(['DecklistItem.entryId'])
+        .where('DecklistItem.cardId', '=', this.cardRow.id)
+        .where('Entry.commanderId', '=', this.commanderId)
+        .where('Tournament.tournamentDate', '>=', cutoff)
+        .execute(),
+    ]);
+
+    const entryIdsWithCard = new Set(entriesWithCard.map((row) => row.entryId));
+
+    const buckets = new Map<
+      string,
+      {
+        withWins: number;
+        withGames: number;
+        withCount: number;
+        withoutWins: number;
+        withoutGames: number;
+        withoutCount: number;
+      }
+    >();
+
+    for (const row of entries) {
+      const tournamentDate = new Date(row.tournamentDate);
+      const bucketKey = formatISO(
+        startOfWeek(tournamentDate, {weekStartsOn: 1}),
+        {
+          representation: 'date',
+        },
+      );
+
+      const bucket = buckets.get(bucketKey) ?? {
+        withWins: 0,
+        withGames: 0,
+        withCount: 0,
+        withoutWins: 0,
+        withoutGames: 0,
+        withoutCount: 0,
+      };
+
+      const wins = row.winsSwiss + row.winsBracket;
+      const losses = row.lossesSwiss + row.lossesBracket;
+      const games = wins + losses + row.draws;
+      const target = entryIdsWithCard.has(row.entryId) ? 'with' : 'without';
+
+      if (games > 0) {
+        if (target === 'with') {
+          bucket.withWins += wins;
+          bucket.withGames += games;
+        } else {
+          bucket.withoutWins += wins;
+          bucket.withoutGames += games;
+        }
+      }
+
+      if (target === 'with') {
+        bucket.withCount += 1;
+      } else {
+        bucket.withoutCount += 1;
+      }
+
+      buckets.set(bucketKey, bucket);
+    }
+
+    const sortedKeys = Array.from(buckets.keys()).sort();
+    return sortedKeys.map((key) => {
+      const bucket = buckets.get(key)!;
+      const withRate =
+        bucket.withGames > 0 ? bucket.withWins / bucket.withGames : null;
+      const withoutRate =
+        bucket.withoutGames > 0
+          ? bucket.withoutWins / bucket.withoutGames
+          : null;
+
+      return new CommanderCardWinRatePoint(
+        key,
+        withRate,
+        withoutRate,
+        bucket.withCount,
+        bucket.withoutCount,
+      );
+    });
+  }
+
+  /** @gqlField */
+  async entries(
+    first: Int = 20,
+    after?: string | null,
+  ): Promise<Connection<Entry>> {
+    const minDate = minDateFromTimePeriod(this.filters.timePeriod);
+
+    let query = db
+      .selectFrom('Entry')
+      .innerJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+      .innerJoin('DecklistItem', 'DecklistItem.entryId', 'Entry.id')
+      .where('Entry.commanderId', '=', this.commanderId)
+      .where('DecklistItem.cardId', '=', this.cardRow.id)
+      .where('Tournament.size', '>=', this.filters.minEventSize)
+      .where('Tournament.tournamentDate', '>=', minDate.toISOString())
+      .selectAll('Entry')
+      .select(['Tournament.tournamentDate', 'Tournament.size']);
+
+    if (this.filters.maxStanding != null) {
+      query = query.where('Entry.standing', '<=', this.filters.maxStanding);
+    }
+
+    if (after) {
+      const cursor = CommanderEntriesCursor.fromString(after);
+      if (this.sortBy === EntriesSortBy.NEW) {
+        query = query.where(({eb, tuple, refTuple}) =>
+          eb(
+            refTuple('Tournament.tournamentDate', 'Entry.id'),
+            '<',
+            tuple(cursor.date, cursor.id),
+          ),
+        );
+      } else {
+        query = query.where(({eb, tuple, refTuple, and, or}) =>
+          or([
+            eb('standing', '>', cursor.standing),
+            and([
+              eb('standing', '=', cursor.standing),
+              eb(
+                refTuple('Tournament.size', 'Entry.id'),
+                '<',
+                tuple(cursor.size, cursor.id),
+              ),
+            ]),
+          ]),
+        );
+      }
+    }
+
+    query = query.orderBy(
+      this.sortBy === EntriesSortBy.NEW
+        ? ['Tournament.tournamentDate desc', 'Entry.id desc']
+        : ['Entry.standing asc', 'Tournament.size desc', 'Entry.id desc'],
+    );
+
+    const rows = await query.limit(first + 1).execute();
+
+    const edges = rows.slice(0, first).map((r) => {
+      const node = new Entry(r);
+      const cursor = this.createCursor(node, r.tournamentDate, r.size);
+
+      return {cursor, node};
+    });
+
+    return {
+      edges,
+      pageInfo: {
+        hasPreviousPage: false,
+        hasNextPage: rows.length > edges.length,
+        startCursor: edges.at(0)?.cursor ?? null,
+        endCursor: edges.at(-1)?.cursor ?? null,
+      },
+    };
+  }
 }
 
 /** @gqlInput */
@@ -342,6 +564,41 @@ export class Commander implements GraphQLNode {
   /** @gqlField */
   async cards(commanderLoader: CommanderCardsLoader): Promise<Card[]> {
     return await commanderLoader.load(this.name);
+  }
+
+  /** @gqlField */
+  async cardDetails(
+    cardName?: string | null,
+    filters?: EntriesFilter | null,
+    sortBy: EntriesSortBy = EntriesSortBy.TOP,
+  ): Promise<CommanderCardDetails | null> {
+    if (!cardName) {
+      return null;
+    }
+
+    const cardRow = await db
+      .selectFrom('Card')
+      .selectAll()
+      .where('name', '=', cardName)
+      .executeTakeFirst();
+
+    if (!cardRow) {
+      return null;
+    }
+
+    const normalizedFilters: CommanderCardFilters = {
+      minEventSize: filters?.minEventSize ?? 60,
+      timePeriod: filters?.timePeriod ?? TimePeriod.ONE_YEAR,
+      maxStanding:
+        filters?.maxStanding == null ? null : Number(filters.maxStanding),
+    };
+
+    return new CommanderCardDetails(
+      this.id,
+      cardRow,
+      normalizedFilters,
+      sortBy,
+    );
   }
 
   /** @gqlField */

@@ -7,20 +7,17 @@ import {
   EntriesSortBy,
   TimePeriod,
 } from '#genfiles/queries/Commander_CommanderQuery.graphql';
+import {Commander_CardTab$key} from '#genfiles/queries/Commander_CardTab.graphql';
 import {Commander_entries$key} from '#genfiles/queries/Commander_entries.graphql';
 import {Commander_EntryCard$key} from '#genfiles/queries/Commander_EntryCard.graphql';
 import {CommanderEntriesQuery} from '#genfiles/queries/CommanderEntriesQuery.graphql';
-import {
-  EntryPointParams,
-  Link,
-  useNavigation,
-  useRouteParams,
-} from '#genfiles/router/router';
+import {CommanderCardEntriesQuery} from '#genfiles/queries/CommanderCardEntriesQuery.graphql';
+import {EntryPointParams, Link, useNavigation} from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback.jsx';
 import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
 import {format} from 'date-fns';
-import {PropsWithChildren} from 'react';
+import {PropsWithChildren, useEffect} from 'react';
 import {
   EntryPoint,
   EntryPointComponent,
@@ -251,6 +248,383 @@ function CommanderEntries(props: {commander: Commander_entries$key}) {
   );
 }
 
+function WinRateLineChart({
+  series,
+}: {
+  series: readonly {
+    periodStart: string;
+    winRateWithCard: number | null;
+    winRateWithoutCard: number | null;
+    withCount: number;
+    withoutCount: number;
+  }[];
+}) {
+  if (!series || series.length === 0) {
+    return (
+      <div className="rounded-xl bg-black/40 p-6 text-center text-white/70">
+        Not enough tournament data from the last three months to chart this
+        card.
+      </div>
+    );
+  }
+
+  const width = 720;
+  const height = 320;
+  const padding = {top: 24, right: 24, bottom: 48, left: 64};
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+
+  const clamp = (value: number) => Math.max(0, Math.min(1, value));
+  const xForIndex = (index: number) => {
+    if (series.length <= 1) {
+      return padding.left + chartWidth / 2;
+    }
+
+    return padding.left + (index / (series.length - 1)) * chartWidth;
+  };
+
+  const yForValue = (value: number | null) => {
+    if (value == null) return null;
+    const clamped = clamp(value);
+    return padding.top + (1 - clamped) * chartHeight;
+  };
+
+  const pathFromPoints = (points: {x: number; y: number | null}[]) => {
+    let started = false;
+    let path = '';
+
+    for (const point of points) {
+      if (point.y == null) {
+        started = false;
+        continue;
+      }
+
+      const command = `${point.x.toFixed(2)} ${point.y.toFixed(2)}`;
+      if (!started) {
+        path += `M ${command}`;
+        started = true;
+      } else {
+        path += ` L ${command}`;
+      }
+    }
+
+    return path;
+  };
+
+  const withPoints = series.map((point, index) => ({
+    x: xForIndex(index),
+    y: yForValue(point.winRateWithCard),
+  }));
+  const withoutPoints = series.map((point, index) => ({
+    x: xForIndex(index),
+    y: yForValue(point.winRateWithoutCard),
+  }));
+
+  const gridValues = [0, 0.25, 0.5, 0.75, 1];
+  const labelStep = Math.max(1, Math.ceil(series.length / 6));
+  const latestPoint = series.at(-1);
+  const formatRate = (value: number | null) =>
+    value == null ? '—' : `${Math.round(value * 1000) / 10}%`;
+
+  return (
+    <div className="rounded-xl bg-black/40 p-6 text-white">
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-4">
+        <div className="space-y-1">
+          <h3 className="text-lg font-semibold">Win Rate (last 3 months)</h3>
+          <p className="text-sm text-white/70">
+            Weekly win rate of this commander with and without the selected card
+            in the deck.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-4 text-sm text-white/80">
+          <div className="flex items-center gap-2">
+            <span className="inline-block h-2 w-6 rounded-full bg-emerald-400" />
+            <span>With card ({formatRate(latestPoint?.winRateWithCard)})</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block h-2 w-6 rounded-full bg-sky-400" />
+            <span>
+              Without card ({formatRate(latestPoint?.winRateWithoutCard)})
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="h-64 w-full"
+        role="img"
+        aria-label="Line chart showing win rate with and without the selected card"
+      >
+        <g stroke="#ffffff30" strokeWidth={1}>
+          <line
+            x1={padding.left}
+            y1={height - padding.bottom}
+            x2={width - padding.right}
+            y2={height - padding.bottom}
+          />
+          <line
+            x1={padding.left}
+            y1={padding.top}
+            x2={padding.left}
+            y2={height - padding.bottom}
+          />
+        </g>
+
+        {gridValues.map((value) => {
+          const y = yForValue(value)!;
+          return (
+            <g key={value}>
+              <line
+                x1={padding.left}
+                x2={width - padding.right}
+                y1={y}
+                y2={y}
+                stroke="#ffffff10"
+                strokeDasharray="4 4"
+              />
+              <text
+                x={padding.left - 12}
+                y={y + 4}
+                fontSize={12}
+                fill="#ffffffa0"
+                textAnchor="end"
+              >
+                {Math.round(value * 100)}%
+              </text>
+            </g>
+          );
+        })}
+
+        {series.map((point, index) => {
+          if (index % labelStep !== 0 && index !== series.length - 1) {
+            return null;
+          }
+
+          const x = xForIndex(index);
+          const dateLabel = format(new Date(point.periodStart), 'MMM d');
+          return (
+            <text
+              key={point.periodStart}
+              x={x}
+              y={height - padding.bottom + 24}
+              fontSize={12}
+              fill="#ffffffa0"
+              textAnchor="middle"
+            >
+              {dateLabel}
+            </text>
+          );
+        })}
+
+        <path
+          d={pathFromPoints(withoutPoints)}
+          fill="none"
+          stroke="#38bdf8"
+          strokeWidth={2}
+        />
+        <path
+          d={pathFromPoints(withPoints)}
+          fill="none"
+          stroke="#34d399"
+          strokeWidth={2}
+        />
+
+        {withPoints.map((point, index) => {
+          if (point.y == null) return null;
+          return (
+            <circle
+              key={`with-${index}`}
+              cx={point.x}
+              cy={point.y}
+              r={3}
+              fill="#34d399"
+            />
+          );
+        })}
+
+        {withoutPoints.map((point, index) => {
+          if (point.y == null) return null;
+          return (
+            <circle
+              key={`without-${index}`}
+              cx={point.x}
+              cy={point.y}
+              r={3}
+              fill="#38bdf8"
+            />
+          );
+        })}
+      </svg>
+
+      <div className="mt-4 flex flex-wrap gap-6 text-sm text-white/70">
+        <span>
+          Entries with card: <strong>{latestPoint?.withCount ?? 0}</strong>
+        </span>
+        <span>
+          Entries without card:{' '}
+          <strong>{latestPoint?.withoutCount ?? 0}</strong>
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function CommanderCardDetailView({
+  commanderName,
+  cardName,
+  cardOptions,
+  commanderRef,
+}: {
+  commanderName: string;
+  cardName?: string | null;
+  cardOptions: readonly {id: string; name: string}[];
+  commanderRef: Commander_CardTab$key;
+}) {
+  const {data, loadNext, hasNext, isLoadingNext} = usePaginationFragment<
+    CommanderCardEntriesQuery,
+    Commander_CardTab$key
+  >(
+    graphql`
+      fragment Commander_CardTab on Commander
+      @argumentDefinitions(
+        cardName: {type: "String"}
+        cursor: {type: "String"}
+        count: {type: "Int", defaultValue: 48}
+        sortBy: {type: "EntriesSortBy!"}
+        minEventSize: {type: "Int!"}
+        maxStanding: {type: "Int"}
+        timePeriod: {type: "TimePeriod!"}
+      )
+      @refetchable(queryName: "CommanderCardEntriesQuery") {
+        cardDetails(
+          cardName: $cardName
+          filters: {
+            minEventSize: $minEventSize
+            maxStanding: $maxStanding
+            timePeriod: $timePeriod
+          }
+          sortBy: $sortBy
+        ) {
+          card {
+            name
+            scryfallUrl
+            cardPreviewImageUrl
+          }
+          winRateSeries {
+            periodStart
+            winRateWithCard
+            winRateWithoutCard
+            withCount
+            withoutCount
+          }
+          entries(first: $count, after: $cursor)
+            @connection(key: "Commander_cardEntries__entries") {
+            edges {
+              node {
+                id
+                ...Commander_EntryCard
+              }
+            }
+          }
+        }
+      }
+    `,
+    commanderRef,
+  );
+
+  const cardDetails = data.cardDetails;
+  const card = cardDetails?.card;
+
+  const entries =
+    cardDetails?.entries.edges
+      .map((edge) => edge?.node)
+      .filter((edge): edge is NonNullable<typeof edge> => edge != null) ?? [];
+
+  if (!cardDetails) {
+    return (
+      <div className="mx-auto max-w-(--breakpoint-md) p-6 text-center text-white/70">
+        We don't have any recorded data for {cardName ?? 'this card'} with{' '}
+        {commanderName} yet.
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto flex w-full max-w-(--breakpoint-xl) flex-col gap-6 p-6">
+      <div className="flex flex-col items-center gap-6 rounded-xl bg-black/40 p-6 text-center text-white sm:flex-row sm:items-start sm:text-left">
+        {card?.cardPreviewImageUrl && (
+          <img
+            src={card.cardPreviewImageUrl}
+            alt={`${card.name} card art`}
+            className="h-auto w-36 rounded-lg shadow-lg"
+            loading="lazy"
+          />
+        )}
+
+        <div className="space-y-3">
+          <h2 className="text-2xl font-semibold">
+            {card?.name ?? cardName ?? 'Select a card'}
+          </h2>
+          <p className="text-sm text-white/70">
+            Performance of {commanderName} with and without this card in the
+            deck.
+          </p>
+
+          {card?.scryfallUrl && (
+            <div className="flex flex-wrap gap-3 text-sm">
+              <a
+                className="text-blue-300 underline decoration-transparent transition hover:decoration-inherit"
+                href={card.scryfallUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                View on Scryfall
+              </a>
+            </div>
+          )}
+
+          <p className="text-xs tracking-wide text-white/60 uppercase">
+            {cardOptions.length} card option
+            {cardOptions.length === 1 ? '' : 's'}
+            available
+          </p>
+        </div>
+      </div>
+
+      <WinRateLineChart series={cardDetails.winRateSeries ?? []} />
+
+      <div className="space-y-4">
+        <div className="flex items-baseline justify-between">
+          <h3 className="text-xl font-semibold text-white">
+            Tournament entries using {card?.name ?? cardName ?? 'this card'}
+          </h3>
+        </div>
+
+        {entries.length === 0 ? (
+          <p className="rounded-xl bg-black/40 p-6 text-center text-white/70">
+            No recorded entries using this card with {commanderName} for the
+            selected filters yet.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {entries.map((entry) => (
+              <EntryCard key={entry.id} entry={entry} />
+            ))}
+          </div>
+        )}
+
+        <LoadMoreButton
+          hasNext={hasNext}
+          isLoadingNext={isLoadingNext}
+          loadNext={loadNext}
+        />
+      </div>
+    </div>
+  );
+}
+
 function CommanderStats(props: {commander: Commander_CommanderStats$key}) {
   const commander = useFragment(
     graphql`
@@ -351,6 +725,8 @@ export function CommanderPageShell({
   sortBy,
   timePeriod,
   tab,
+  cardName,
+  cardOptions = [],
   stats,
   children,
   ...props
@@ -360,7 +736,9 @@ export function CommanderPageShell({
   minEventSize: number;
   sortBy: EntriesSortBy;
   timePeriod: TimePeriod;
-  tab: 'entries' | 'staples';
+  tab: 'entries' | 'staples' | 'card';
+  cardName?: string | null;
+  cardOptions?: readonly {id: string; name: string}[];
   commander: Commander_CommanderPageShell$key;
   stats?: React.ReactNode;
 }>) {
@@ -382,6 +760,8 @@ export function CommanderPageShell({
 
   useCommanderMeta(commander);
   const {replaceRoute} = useNavigation();
+  const cardSelectValue = cardName ?? '';
+  const maxStandingValue = maxStanding == null ? '' : String(maxStanding ?? '');
 
   return (
     <>
@@ -424,10 +804,50 @@ export function CommanderPageShell({
         >
           Staples
         </Tab>
+
+        <Tab
+          selected={tab === 'card'}
+          onClick={() => {
+            replaceRoute('/commander/:commander', {
+              commander: commander.name,
+              tab: 'card',
+              sortBy,
+              timePeriod,
+              maxStanding,
+              minEventSize,
+              card: cardName ?? undefined,
+            });
+          }}
+        >
+          Card Details
+        </Tab>
       </TabList>
 
-      {tab === 'entries' && (
+      {tab !== 'staples' && (
         <div className="mx-auto grid max-w-(--breakpoint-md) grid-cols-2 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
+          {tab === 'card' && (
+            <Select
+              id="commander-card"
+              label="Card"
+              value={cardSelectValue}
+              disabled={cardOptions.length === 0}
+              onChange={(value) => {
+                replaceRoute('/commander/:commander', {
+                  commander: commander.name,
+                  tab: 'card',
+                  card: value || undefined,
+                });
+              }}
+            >
+              <option value="">Select a card</option>
+              {cardOptions.map((option) => (
+                <option key={option.id} value={option.name}>
+                  {option.name}
+                </option>
+              ))}
+            </Select>
+          )}
+
           <Select
             id="commander-sort-by"
             label="Sort By"
@@ -482,11 +902,11 @@ export function CommanderPageShell({
           <Select
             id="commander-event-size"
             label="Standing"
-            value={`${maxStanding}`}
+            value={maxStandingValue}
             onChange={(e) => {
               replaceRoute('/commander/:commander', {
                 commander: commander.name,
-                maxStanding: Number(e),
+                maxStanding: e === '' ? undefined : Number(e),
               });
             }}
           >
@@ -508,7 +928,10 @@ export const CommanderPageFallback: EntryPointComponent<
   {commanderFallbackQueryRef: Commander_CommanderFallbackQuery},
   {},
   {},
-  Commander_CommanderQuery$variables & {tab: 'entries' | 'staples'}
+  Commander_CommanderQuery$variables & {
+    tab: 'entries' | 'staples' | 'card';
+    cardName?: string | null;
+  }
 > = ({queries, extraProps}) => {
   const {commander} = usePreloadedQuery(
     graphql`
@@ -531,6 +954,8 @@ export const CommanderPageFallback: EntryPointComponent<
       sortBy={extraProps.sortBy}
       timePeriod={extraProps.timePeriod}
       tab={extraProps.tab}
+      cardName={extraProps.cardName}
+      cardOptions={[]}
     >
       <LoadingIcon />
     </CommanderPageShell>
@@ -542,16 +967,19 @@ export const CommanderPage: EntryPointComponent<
   {commanderQueryRef: Commander_CommanderQuery},
   {fallback: EntryPoint<ModuleType<'m#commander_page_fallback'>>}
 > = ({queries}) => {
+  const {replaceRoute} = useNavigation();
   const {commander} = usePreloadedQuery(
     graphql`
       query Commander_CommanderQuery(
         $commander: String!
         $showStaples: Boolean!
         $showEntries: Boolean!
+        $showCardOptions: Boolean!
         $sortBy: EntriesSortBy!
         $minEventSize: Int!
         $maxStanding: Int
         $timePeriod: TimePeriod!
+        $cardName: String
       ) @preloadable @throwOnFieldError {
         commander(name: $commander) {
           ...Commander_CommanderPageShell
@@ -560,33 +988,83 @@ export const CommanderPage: EntryPointComponent<
             @include(if: $showStaples)
             @alias(as: "staples")
           ...Commander_entries @include(if: $showEntries) @alias(as: "entries")
+          ...Commander_CardTab
+            @include(if: $showCardOptions)
+            @arguments(
+              cardName: $cardName
+              sortBy: $sortBy
+              minEventSize: $minEventSize
+              maxStanding: $maxStanding
+              timePeriod: $timePeriod
+            )
+          cardDetailOptions: staples @include(if: $showCardOptions) {
+            id
+            name
+          }
         }
       }
     `,
     queries.commanderQueryRef,
   );
 
+  const variables = queries.commanderQueryRef.variables;
+  const cardOptions = commander.cardDetailOptions ?? [];
+  const firstCardOption = cardOptions.at(0)?.name ?? null;
+  const currentTab = variables.showCardOptions
+    ? 'card'
+    : variables.showStaples
+      ? 'staples'
+      : 'entries';
+  const cardName = variables.cardName ?? null;
+  useEffect(() => {
+    if (variables.showCardOptions && !cardName && firstCardOption) {
+      replaceRoute('/commander/:commander', {
+        commander: commander.name,
+        tab: 'card',
+        card: firstCardOption,
+      });
+    }
+  }, [
+    replaceRoute,
+    variables.showCardOptions,
+    cardName,
+    firstCardOption,
+    commander.name,
+  ]);
+
   return (
     <CommanderPageShell
       commander={commander}
-      maxStanding={queries.commanderQueryRef.variables.maxStanding}
-      minEventSize={queries.commanderQueryRef.variables.minEventSize}
-      sortBy={queries.commanderQueryRef.variables.sortBy}
-      timePeriod={queries.commanderQueryRef.variables.timePeriod}
-      tab={
-        queries.commanderQueryRef.variables.showStaples ? 'staples' : 'entries'
-      }
+      maxStanding={variables.maxStanding}
+      minEventSize={variables.minEventSize}
+      sortBy={variables.sortBy}
+      timePeriod={variables.timePeriod}
+      tab={currentTab}
+      cardName={cardName}
+      cardOptions={cardOptions}
       stats={<CommanderStats commander={commander} />}
     >
-      {queries.commanderQueryRef.variables.showStaples &&
-        commander.staples != null && (
-          <CommanderStaples commander={commander.staples} />
-        )}
+      {variables.showStaples && commander.staples != null && (
+        <CommanderStaples commander={commander.staples} />
+      )}
 
-      {queries.commanderQueryRef.variables.showEntries &&
-        commander.entries != null && (
-          <CommanderEntries commander={commander.entries} />
-        )}
+      {variables.showEntries && commander.entries != null && (
+        <CommanderEntries commander={commander.entries} />
+      )}
+
+      {currentTab === 'card' &&
+        (cardName ? (
+          <CommanderCardDetailView
+            commanderName={commander.name}
+            cardName={cardName}
+            cardOptions={cardOptions}
+            commanderRef={commander}
+          />
+        ) : (
+          <div className="mx-auto max-w-(--breakpoint-md) p-6 text-center text-white/70">
+            Select a card to view detailed performance data.
+          </div>
+        ))}
       <Footer />
     </CommanderPageShell>
   );

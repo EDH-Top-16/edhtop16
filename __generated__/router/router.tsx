@@ -86,6 +86,7 @@ const ROUTER_CONF = {
               timePeriod: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
               maxStanding: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
               minEventSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
+              card: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
             })
         } as const
 } as const;
