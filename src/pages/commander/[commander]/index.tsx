@@ -439,7 +439,10 @@ function CardEntriesSort({
   );
 }
 
-function CommanderCardEntries(props: {commander: Commander_CardEntries$key; sortBy: EntriesSortBy}) {
+function CommanderCardEntries(props: {
+  commander: Commander_CardEntries$key;
+  sortBy: EntriesSortBy;
+}) {
   const {data, loadNext, isLoadingNext, hasNext} = usePaginationFragment(
     graphql`
       fragment Commander_CardEntries on Commander
