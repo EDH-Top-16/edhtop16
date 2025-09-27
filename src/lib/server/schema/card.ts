@@ -2,6 +2,7 @@ import {DB} from '#genfiles/db/types.js';
 import DataLoader from 'dataloader';
 import {fromGlobalId, toGlobalId} from 'graphql-relay';
 import {Int, Float} from 'grats';
+import {sql} from 'kysely';
 import {Context} from '../context';
 import {db} from '../db';
 import {ScryfallCard, scryfallCardSchema} from '../scryfall';
@@ -185,22 +186,53 @@ export class Card implements GraphQLNode {
     colorId?: string | null,
     type?: string | null,
   ): Promise<Card[]> {
-    const rows = await db
+    let query = db
       .selectFrom('Card')
       .selectAll()
-      .where('playRateLastYear', '>=', 0.01)
+      .where('playRateLastYear', '>=', 0.01);
+
+    if (colorId) {
+      // Build color identity filter using JSON functions
+      const colors = ['W', 'U', 'B', 'R', 'G', 'C'];
+      const expectedColors = colorId === 'C' ? [] : colorId.split('');
+
+      // For each color position, check if it should be present or absent
+      for (const color of colors) {
+        if (color === 'C') continue; // Skip colorless in the array check
+
+        const shouldHaveColor = expectedColors.includes(color);
+        if (shouldHaveColor) {
+          // Color should be present in the color_identity array
+          query = query.where(
+            db.fn('json_extract', ['data', sql`'$.color_identity'`]),
+            'like',
+            `%"${color}"%`
+          );
+        } else {
+          // Color should NOT be present in the color_identity array
+          query = query.where(
+            db.fn('json_extract', ['data', sql`'$.color_identity'`]),
+            'not like',
+            `%"${color}"%`
+          );
+        }
+      }
+
+      // Handle colorless case - should have empty color_identity array
+      if (colorId === 'C') {
+        query = query.where(
+          db.fn('json_extract', ['data', sql`'$.color_identity'`]),
+          '=',
+          '[]'
+        );
+      }
+    }
+
+    const rows = await query
       .orderBy('playRateLastYear desc')
       .execute();
 
     let cards = rows.map((r) => new Card(r));
-
-    if (colorId) {
-      // Filter cards that match the color identity exactly
-      cards = cards.filter((card) => {
-        const cardColorId = card.colorId();
-        return cardColorId === colorId;
-      });
-    }
 
     if (type) {
       // Filter cards by type (case-insensitive partial match)
