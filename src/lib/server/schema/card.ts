@@ -10,29 +10,6 @@ import {Entry} from './entry';
 
 export type CardLoader = DataLoader<number, Card>;
 
-function generateColorCombinations(colorId: string): string[] {
-  const colors = Array.from(colorId);
-  const combinations: string[] = [];
-
-  // Generate all possible non-empty subsets of the colors
-  for (let i = 1; i < (1 << colors.length); i++) {
-    let combo = '';
-    for (let j = 0; j < colors.length; j++) {
-      if (i & (1 << j)) {
-        combo += colors[j];
-      }
-    }
-    combinations.push(combo);
-  }
-
-  // Add colorless if not already included
-  if (!combinations.includes('C')) {
-    combinations.push('C');
-  }
-
-  return combinations;
-}
-
 /** @gqlContext */
 export function createCardLoader(ctx: Context): CardLoader {
   return ctx.loader('CardLoader', async (cardIds: readonly number[]) => {
@@ -215,11 +192,10 @@ export class Card implements GraphQLNode {
     const cards = rows.map((r) => new Card(r));
 
     if (colorId) {
-      // Filter cards that match the color identity exactly or are a subset of it
-      const allowedCombinations = generateColorCombinations(colorId);
+      // Filter cards that match the color identity exactly
       return cards.filter((card) => {
         const cardColorId = card.colorId();
-        return allowedCombinations.includes(cardColorId);
+        return cardColorId === colorId;
       });
     }
 
