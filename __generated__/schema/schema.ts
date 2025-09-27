@@ -1078,10 +1078,13 @@ export function getSchema(): GraphQLSchema {
                     args: {
                         colorId: {
                             type: GraphQLString
+                        },
+                        type: {
+                            type: GraphQLString
                         }
                     },
                     resolve(_source, args) {
-                        return assertNonNull(queryStaplesResolver.staples(args.colorId));
+                        return assertNonNull(queryStaplesResolver.staples(args.colorId, args.type));
                     }
                 },
                 tournament: {

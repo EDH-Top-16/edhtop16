@@ -181,7 +181,7 @@ export class Card implements GraphQLNode {
   }
 
   /** @gqlQueryField */
-  static async staples(colorId?: string | null): Promise<Card[]> {
+  static async staples(colorId?: string | null, type?: string | null): Promise<Card[]> {
     const rows = await db
       .selectFrom('Card')
       .selectAll()
@@ -189,13 +189,21 @@ export class Card implements GraphQLNode {
       .orderBy('playRateLastYear desc')
       .execute();
 
-    const cards = rows.map((r) => new Card(r));
+    let cards = rows.map((r) => new Card(r));
 
     if (colorId) {
       // Filter cards that match the color identity exactly
-      return cards.filter((card) => {
+      cards = cards.filter((card) => {
         const cardColorId = card.colorId();
         return cardColorId === colorId;
+      });
+    }
+
+    if (type) {
+      // Filter cards by type (case-insensitive partial match)
+      cards = cards.filter((card) => {
+        const cardType = card.type().toLowerCase();
+        return cardType.includes(type.toLowerCase());
       });
     }
 

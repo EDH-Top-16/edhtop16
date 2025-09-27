@@ -12,6 +12,7 @@ import {Card} from '../components/card';
 import {ColorSelection} from '../components/color_selection';
 import {Footer} from '../components/footer';
 import {Navigation} from '../components/navigation';
+import {Select} from '../components/select';
 import {ColorIdentity} from '../assets/icons/colors';
 
 function StapleCard({card}: {card: any}) {
@@ -58,9 +59,11 @@ function StapleCard({card}: {card: any}) {
 
 function StaplesPageShell({
   colorId,
+  type,
   children,
 }: {
   colorId: string;
+  type: string;
   children: React.ReactNode;
 }) {
   useSeoMeta({
@@ -84,13 +87,35 @@ function StaplesPageShell({
           </p>
         </div>
 
-        <div className="mb-8">
-          <ColorSelection
-            selected={colorId}
-            onChange={(value) => {
-              replaceRoute('/staples', {colorId: value ?? null});
-            }}
-          />
+        <div className="mb-8 flex flex-col items-start space-y-4 lg:flex-row lg:items-end lg:space-y-0">
+          <div className="flex-1">
+            <ColorSelection
+              selected={colorId}
+              onChange={(value) => {
+                replaceRoute('/staples', {colorId: value ?? null, type: type ?? null});
+              }}
+            />
+          </div>
+
+          <div className="flex">
+            <Select
+              id="staples-type-filter"
+              label="Type Filter"
+              value={type}
+              onChange={(value) => {
+                replaceRoute('/staples', {colorId: colorId ?? null, type: value === 'all' ? null : value});
+              }}
+            >
+              <option value="all">All Types</option>
+              <option value="creature">Creature</option>
+              <option value="instant">Instant</option>
+              <option value="sorcery">Sorcery</option>
+              <option value="artifact">Artifact</option>
+              <option value="enchantment">Enchantment</option>
+              <option value="planeswalker">Planeswalker</option>
+              <option value="land">Land</option>
+            </Select>
+          </div>
         </div>
 
         {children}
@@ -100,9 +125,9 @@ function StaplesPageShell({
 }
 
 /** @resource m#staples_fallback */
-export const StaplesPageFallback: EntryPointComponent<{}, {}, {colorId?: string}> = ({extraProps}) => {
+export const StaplesPageFallback: EntryPointComponent<{}, {}, {colorId?: string; type?: string}> = ({extraProps}) => {
   return (
-    <StaplesPageShell colorId={extraProps.colorId ?? ''}>
+    <StaplesPageShell colorId={extraProps.colorId ?? ''} type={extraProps.type ?? ''}>
       <LoadingIcon />
     </StaplesPageShell>
   );
@@ -115,8 +140,8 @@ export const StaplesPage: EntryPointComponent<
 > = ({queries}) => {
   const data = usePreloadedQuery(
     graphql`
-      query staples_StaplesQuery($colorId: String) @preloadable {
-        staples(colorId: $colorId) {
+      query staples_StaplesQuery($colorId: String, $type: String) @preloadable {
+        staples(colorId: $colorId, type: $type) {
           id
           name
           type
@@ -132,7 +157,10 @@ export const StaplesPage: EntryPointComponent<
   );
 
   return (
-    <StaplesPageShell colorId={queries.staplesQueryRef.variables.colorId ?? ''}>
+    <StaplesPageShell
+      colorId={queries.staplesQueryRef.variables.colorId ?? ''}
+      type={queries.staplesQueryRef.variables.type ?? ''}
+    >
       <div className="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
         {(data.staples ?? []).map((card) => (
           <StapleCard key={card.id} card={card} />

@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<ecf9fde32d54f9e5dc474db34fa5d427>>
- * @relayHash e4e676a53204c1d4f815b1136e8c3206
+ * @generated SignedSource<<e8e07a3b0e4885696d00e55b9e296eeb>>
+ * @relayHash c918e0053b7f625df0212cb65bb99b67
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,11 +9,12 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID e4e676a53204c1d4f815b1136e8c3206
+// @relayRequestID c918e0053b7f625df0212cb65bb99b67
 
 import { ConcreteRequest } from 'relay-runtime';
 export type staples_StaplesQuery$variables = {
   colorId?: string | null | undefined;
+  type?: string | null | undefined;
 };
 export type staples_StaplesQuery$data = {
   readonly staples: ReadonlyArray<{
@@ -38,6 +39,11 @@ var v0 = [
     "defaultValue": null,
     "kind": "LocalArgument",
     "name": "colorId"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "type"
   }
 ],
 v1 = [
@@ -48,6 +54,11 @@ v1 = [
         "kind": "Variable",
         "name": "colorId",
         "variableName": "colorId"
+      },
+      {
+        "kind": "Variable",
+        "name": "type",
+        "variableName": "type"
       }
     ],
     "concreteType": "Card",
@@ -133,7 +144,7 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "id": "e4e676a53204c1d4f815b1136e8c3206",
+    "id": "c918e0053b7f625df0212cb65bb99b67",
     "metadata": {},
     "name": "staples_StaplesQuery",
     "operationKind": "query",
@@ -142,7 +153,7 @@ return {
 };
 })();
 
-(node as any).hash = "3b4b11a5b56edc73fdc5daf6c3586608";
+(node as any).hash = "34c041ce483a854df1767a9407fa17e3";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

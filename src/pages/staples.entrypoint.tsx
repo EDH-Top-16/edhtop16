@@ -6,6 +6,7 @@ import {EntryPoint} from 'react-relay/hooks';
 /**
  * @route /staples
  * @param {string?} colorId
+ * @param {string?} type
  */
 export const entrypoint: EntryPoint<
   ModuleType<'m#staples'>,
@@ -13,7 +14,7 @@ export const entrypoint: EntryPoint<
 > = {
   root: JSResource.fromModuleId('m#staples'),
   getPreloadProps({schema, params}) {
-    const {colorId} = schema.parse(params);
+    const {colorId, type} = schema.parse(params);
 
     return {
       queries: {
@@ -21,6 +22,7 @@ export const entrypoint: EntryPoint<
           parameters: StaplesQueryParameters,
           variables: {
             colorId,
+            type,
           },
         },
       },
@@ -34,6 +36,7 @@ export const entrypoint: EntryPoint<
                 queries: {},
                 extraProps: {
                   colorId,
+                  type,
                 },
               };
             },

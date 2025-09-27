@@ -58,6 +58,7 @@ const ROUTER_CONF = {
             entrypoint: e2,
             schema: z.object({
               colorId: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+              type: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
             })
         } as const,
     "/tournaments": {

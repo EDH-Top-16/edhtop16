@@ -237,7 +237,7 @@ type Query {
   node(id: ID!): Node
   player(profile: String!): Player @semanticNonNull
   searchResults(types: [SearchResultType!]!): [SearchResult!] @semanticNonNull
-  staples(colorId: String): [Card!] @semanticNonNull
+  staples(colorId: String, type: String): [Card!] @semanticNonNull
   tournament(TID: String!): Tournament @semanticNonNull
   tournaments(after: String, filters: TournamentFilters, first: Int! = 20, sortBy: TournamentSortBy! = DATE): TournamentConnection @semanticNonNull
 }
