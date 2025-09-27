@@ -3,10 +3,10 @@ import dotenv from 'dotenv';
 import express from 'express';
 import {readFile} from 'node:fs/promises';
 import pc from 'picocolors';
-import type {Manifest} from 'vite';
+import type {Manifest} from './types/manifest';
 
 const INDEX_HTML = 'dist/client/index.html';
-const MANIFEST_JSON = 'dist/client/.vite/manifest.json';
+const MANIFEST_JSON = 'dist/client/manifest.json';
 const QUERIES_JSON = '__generated__/persisted_queries.json';
 const ENTRY_SERVER = './dist/server/entry-server.mjs';
 

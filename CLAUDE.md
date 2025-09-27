@@ -35,7 +35,7 @@ code in this repository.
 **Framework Stack**
 
 - **React 19** with **Relay** for GraphQL data fetching
-- **Vite** for build tooling with SSR support
+- **Rsbuild** for build tooling with SSR support
 - **Express** server with GraphQL Yoga
 - **SQLite** (Better SQLite3) for local data + **MongoDB** for external data
 - **TailwindCSS** for styling
@@ -43,7 +43,7 @@ code in this repository.
 
 **Key Architectural Patterns**
 
-1. **Server-Side Rendering (SSR)**: Uses Vite SSR with custom Router routing
+1. **Server-Side Rendering (SSR)**: Uses Rsbuild SSR with custom Router routing
    system
    - Entry points: `src/entry-server.tsx` (SSR) and `src/entry-client.tsx`
      (hydration)

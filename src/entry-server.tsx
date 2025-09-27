@@ -12,7 +12,7 @@ import {createYoga, GraphQLParams} from 'graphql-yoga';
 import {StrictMode} from 'react';
 import {renderToString} from 'react-dom/server';
 import {RelayEnvironmentProvider} from 'react-relay/hooks';
-import type {Manifest} from 'vite';
+import type {Manifest} from '../types/manifest';
 import {Context} from './lib/server/context';
 import {createServerEnvironment} from './lib/server/relay_server_environment';
 import {App} from './pages/_app';
