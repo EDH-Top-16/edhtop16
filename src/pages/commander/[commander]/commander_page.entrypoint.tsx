@@ -11,6 +11,7 @@ import {EntryPoint} from 'react-relay/hooks';
 /**
  * @route /commander/:commander
  * @param {string} commander
+ * @param {string?} tab
  * @param {string?} sortBy
  * @param {string?} timePeriod
  * @param {number?} maxStanding
@@ -24,6 +25,7 @@ export const entrypoint: EntryPoint<
   getPreloadProps({params, schema}) {
     const {
       commander,
+      tab = 'entries',
       sortBy = 'TOP',
       timePeriod = 'ONE_YEAR',
       maxStanding,
@@ -36,6 +38,8 @@ export const entrypoint: EntryPoint<
           parameters: CommanderQueryParameters,
           variables: {
             commander,
+            showStaples: tab === 'staples',
+            showEntries: tab !== 'staples',
             sortBy: sortBy as EntriesSortBy,
             timePeriod: timePeriod as TimePeriod,
             maxStanding,
@@ -58,6 +62,9 @@ export const entrypoint: EntryPoint<
                 },
                 extraProps: {
                   commander,
+                  showStaples: tab === 'staples',
+                  showEntries: tab !== 'staples',
+                  tab: tab === 'staples' ? 'staples' : 'entries',
                   sortBy: sortBy as EntriesSortBy,
                   timePeriod: timePeriod as TimePeriod,
                   maxStanding,

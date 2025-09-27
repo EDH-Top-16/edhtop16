@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<be49cfe69d74148917058069c9c3511f>>
- * @relayHash 23f43b9e74814b751d6927a8d18c76e3
+ * @generated SignedSource<<d5e67057c45536647ee3d4ba9fa6f46e>>
+ * @relayHash 1066c14cebcfed306be6d9b319451c97
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 23f43b9e74814b751d6927a8d18c76e3
+// @relayRequestID 1066c14cebcfed306be6d9b319451c97
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -19,12 +19,20 @@ export type Commander_CommanderQuery$variables = {
   commander: string;
   maxStanding?: number | null | undefined;
   minEventSize: number;
+  showEntries: boolean;
+  showStaples: boolean;
   sortBy: EntriesSortBy;
   timePeriod: TimePeriod;
 };
 export type Commander_CommanderQuery$data = {
   readonly commander: {
-    readonly " $fragmentSpreads": FragmentRefs<"Commander_CommanderPageShell" | "Commander_CommanderStats" | "Commander_entries">;
+    readonly entries?: {
+      readonly " $fragmentSpreads": FragmentRefs<"Commander_entries">;
+    } | null | undefined;
+    readonly staples?: {
+      readonly " $fragmentSpreads": FragmentRefs<"Commander_CommanderStaples">;
+    } | null | undefined;
+    readonly " $fragmentSpreads": FragmentRefs<"Commander_CommanderPageShell" | "Commander_CommanderStats">;
   };
 };
 export type Commander_CommanderQuery = {
@@ -51,40 +59,64 @@ v2 = {
 v3 = {
   "defaultValue": null,
   "kind": "LocalArgument",
-  "name": "sortBy"
+  "name": "showEntries"
 },
 v4 = {
   "defaultValue": null,
   "kind": "LocalArgument",
+  "name": "showStaples"
+},
+v5 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "sortBy"
+},
+v6 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
   "name": "timePeriod"
 },
-v5 = [
+v7 = [
   {
     "kind": "Variable",
     "name": "name",
     "variableName": "commander"
   }
 ],
-v6 = {
+v8 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "name",
   "storageKey": null
 },
-v7 = {
+v9 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "colorId",
+  "storageKey": null
+},
+v10 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "imageUrls",
+  "storageKey": null
+},
+v11 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
 },
-v8 = {
+v12 = {
   "kind": "Variable",
   "name": "timePeriod",
   "variableName": "timePeriod"
 },
-v9 = [
+v13 = [
   {
     "fields": [
       {
@@ -97,7 +129,7 @@ v9 = [
         "name": "minEventSize",
         "variableName": "minEventSize"
       },
-      (v8/*: any*/)
+      (v12/*: any*/)
     ],
     "kind": "ObjectValue",
     "name": "filters"
@@ -120,7 +152,9 @@ return {
       (v1/*: any*/),
       (v2/*: any*/),
       (v3/*: any*/),
-      (v4/*: any*/)
+      (v4/*: any*/),
+      (v5/*: any*/),
+      (v6/*: any*/)
     ],
     "kind": "Fragment",
     "metadata": {
@@ -130,7 +164,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v7/*: any*/),
         "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "commander",
@@ -147,9 +181,50 @@ return {
             "name": "Commander_CommanderStats"
           },
           {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "Commander_entries"
+            "condition": "showStaples",
+            "kind": "Condition",
+            "passingValue": true,
+            "selections": [
+              {
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "args": null,
+                      "kind": "FragmentSpread",
+                      "name": "Commander_CommanderStaples"
+                    }
+                  ],
+                  "type": "Commander",
+                  "abstractKey": null
+                },
+                "kind": "AliasedInlineFragmentSpread",
+                "name": "staples"
+              }
+            ]
+          },
+          {
+            "condition": "showEntries",
+            "kind": "Condition",
+            "passingValue": true,
+            "selections": [
+              {
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "args": null,
+                      "kind": "FragmentSpread",
+                      "name": "Commander_entries"
+                    }
+                  ],
+                  "type": "Commander",
+                  "abstractKey": null
+                },
+                "kind": "AliasedInlineFragmentSpread",
+                "name": "entries"
+              }
+            ]
           }
         ],
         "storageKey": null
@@ -162,23 +237,25 @@ return {
   "operation": {
     "argumentDefinitions": [
       (v0/*: any*/),
+      (v4/*: any*/),
       (v3/*: any*/),
+      (v5/*: any*/),
       (v2/*: any*/),
       (v1/*: any*/),
-      (v4/*: any*/)
+      (v6/*: any*/)
     ],
     "kind": "Operation",
     "name": "Commander_CommanderQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v7/*: any*/),
         "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "commander",
         "plural": false,
         "selections": [
-          (v6/*: any*/),
+          (v8/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -186,13 +263,7 @@ return {
             "name": "breakdownUrl",
             "storageKey": null
           },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "colorId",
-            "storageKey": null
-          },
+          (v9/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -201,14 +272,8 @@ return {
             "name": "cards",
             "plural": true,
             "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "imageUrls",
-                "storageKey": null
-              },
-              (v7/*: any*/)
+              (v10/*: any*/),
+              (v11/*: any*/)
             ],
             "storageKey": null
           },
@@ -275,7 +340,7 @@ return {
                     "name": "minSize",
                     "variableName": "minEventSize"
                   },
-                  (v8/*: any*/)
+                  (v12/*: any*/)
                 ],
                 "kind": "ObjectValue",
                 "name": "filters"
@@ -310,125 +375,191 @@ return {
             ],
             "storageKey": null
           },
+          (v11/*: any*/),
           {
-            "alias": null,
-            "args": (v9/*: any*/),
-            "concreteType": "EntryConnection",
-            "kind": "LinkedField",
-            "name": "entries",
-            "plural": false,
+            "condition": "showStaples",
+            "kind": "Condition",
+            "passingValue": true,
             "selections": [
               {
                 "alias": null,
                 "args": null,
-                "concreteType": "EntryEdge",
+                "concreteType": "Card",
                 "kind": "LinkedField",
-                "name": "edges",
+                "name": "staples",
                 "plural": true,
+                "selections": [
+                  (v11/*: any*/),
+                  (v8/*: any*/),
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "type",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "cmc",
+                    "storageKey": null
+                  },
+                  (v9/*: any*/),
+                  (v10/*: any*/),
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "scryfallUrl",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "playRateLastYear",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "condition": "showEntries",
+            "kind": "Condition",
+            "passingValue": true,
+            "selections": [
+              {
+                "alias": null,
+                "args": (v13/*: any*/),
+                "concreteType": "EntryConnection",
+                "kind": "LinkedField",
+                "name": "entries",
+                "plural": false,
                 "selections": [
                   {
                     "alias": null,
                     "args": null,
-                    "concreteType": "Entry",
+                    "concreteType": "EntryEdge",
                     "kind": "LinkedField",
-                    "name": "node",
-                    "plural": false,
+                    "name": "edges",
+                    "plural": true,
                     "selections": [
-                      (v7/*: any*/),
                       {
                         "alias": null,
                         "args": null,
-                        "kind": "ScalarField",
-                        "name": "standing",
-                        "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "wins",
-                        "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "losses",
-                        "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "draws",
-                        "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "decklist",
-                        "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "concreteType": "Player",
+                        "concreteType": "Entry",
                         "kind": "LinkedField",
-                        "name": "player",
+                        "name": "node",
                         "plural": false,
                         "selections": [
-                          (v6/*: any*/),
+                          (v11/*: any*/),
                           {
                             "alias": null,
                             "args": null,
                             "kind": "ScalarField",
-                            "name": "isKnownCheater",
+                            "name": "standing",
                             "storageKey": null
                           },
-                          (v7/*: any*/)
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "wins",
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "losses",
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "draws",
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "decklist",
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "concreteType": "Player",
+                            "kind": "LinkedField",
+                            "name": "player",
+                            "plural": false,
+                            "selections": [
+                              (v8/*: any*/),
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "isKnownCheater",
+                                "storageKey": null
+                              },
+                              (v11/*: any*/)
+                            ],
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "concreteType": "Tournament",
+                            "kind": "LinkedField",
+                            "name": "tournament",
+                            "plural": false,
+                            "selections": [
+                              (v8/*: any*/),
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "size",
+                                "storageKey": null
+                              },
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "tournamentDate",
+                                "storageKey": null
+                              },
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "TID",
+                                "storageKey": null
+                              },
+                              (v11/*: any*/)
+                            ],
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "__typename",
+                            "storageKey": null
+                          }
                         ],
                         "storageKey": null
                       },
                       {
                         "alias": null,
                         "args": null,
-                        "concreteType": "Tournament",
-                        "kind": "LinkedField",
-                        "name": "tournament",
-                        "plural": false,
-                        "selections": [
-                          (v6/*: any*/),
-                          {
-                            "alias": null,
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "size",
-                            "storageKey": null
-                          },
-                          {
-                            "alias": null,
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "tournamentDate",
-                            "storageKey": null
-                          },
-                          {
-                            "alias": null,
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "TID",
-                            "storageKey": null
-                          },
-                          (v7/*: any*/)
-                        ],
-                        "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
                         "kind": "ScalarField",
-                        "name": "__typename",
+                        "name": "cursor",
                         "storageKey": null
                       }
                     ],
@@ -437,8 +568,26 @@ return {
                   {
                     "alias": null,
                     "args": null,
-                    "kind": "ScalarField",
-                    "name": "cursor",
+                    "concreteType": "PageInfo",
+                    "kind": "LinkedField",
+                    "name": "pageInfo",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "endCursor",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "hasNextPage",
+                        "storageKey": null
+                      }
+                    ],
                     "storageKey": null
                   }
                 ],
@@ -446,52 +595,25 @@ return {
               },
               {
                 "alias": null,
-                "args": null,
-                "concreteType": "PageInfo",
-                "kind": "LinkedField",
-                "name": "pageInfo",
-                "plural": false,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "endCursor",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "hasNextPage",
-                    "storageKey": null
-                  }
+                "args": (v13/*: any*/),
+                "filters": [
+                  "sortBy",
+                  "filters"
                 ],
-                "storageKey": null
+                "handle": "connection",
+                "key": "Commander_entries",
+                "kind": "LinkedHandle",
+                "name": "entries"
               }
-            ],
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": (v9/*: any*/),
-            "filters": [
-              "sortBy",
-              "filters"
-            ],
-            "handle": "connection",
-            "key": "Commander_entries",
-            "kind": "LinkedHandle",
-            "name": "entries"
-          },
-          (v7/*: any*/)
+            ]
+          }
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "id": "23f43b9e74814b751d6927a8d18c76e3",
+    "id": "1066c14cebcfed306be6d9b319451c97",
     "metadata": {},
     "name": "Commander_CommanderQuery",
     "operationKind": "query",
@@ -500,7 +622,7 @@ return {
 };
 })();
 
-(node as any).hash = "4fc81c2a2ddd866f2ace49860e7367ac";
+(node as any).hash = "36809df4bc27db42a683b723bbb0eeed";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);
