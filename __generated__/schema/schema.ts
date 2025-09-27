@@ -772,6 +772,13 @@ export function getSchema(): GraphQLSchema {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));
                     }
                 },
+                playRateLastYear: {
+                    name: "playRateLastYear",
+                    type: GraphQLFloat,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
                 scryfallUrl: {
                     description: "Link to the card on Scryfall.",
                     name: "scryfallUrl",
@@ -1068,8 +1075,13 @@ export function getSchema(): GraphQLSchema {
                 staples: {
                     name: "staples",
                     type: new GraphQLList(new GraphQLNonNull(CardType)),
-                    resolve() {
-                        return assertNonNull(queryStaplesResolver.staples());
+                    args: {
+                        colorId: {
+                            type: GraphQLString
+                        }
+                    },
+                    resolve(_source, args) {
+                        return assertNonNull(queryStaplesResolver.staples(args.colorId));
                     }
                 },
                 tournament: {

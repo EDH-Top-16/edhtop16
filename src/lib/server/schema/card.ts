@@ -1,7 +1,7 @@
 import {DB} from '#genfiles/db/types.js';
 import DataLoader from 'dataloader';
 import {fromGlobalId, toGlobalId} from 'graphql-relay';
-import {Int} from 'grats';
+import {Int, Float} from 'grats';
 import {Context} from '../context';
 import {db} from '../db';
 import {ScryfallCard, scryfallCardSchema} from '../scryfall';
@@ -9,6 +9,29 @@ import {Connection, GraphQLNode} from './connection';
 import {Entry} from './entry';
 
 export type CardLoader = DataLoader<number, Card>;
+
+function generateColorCombinations(colorId: string): string[] {
+  const colors = Array.from(colorId);
+  const combinations: string[] = [];
+
+  // Generate all possible non-empty subsets of the colors
+  for (let i = 1; i < (1 << colors.length); i++) {
+    let combo = '';
+    for (let j = 0; j < colors.length; j++) {
+      if (i & (1 << j)) {
+        combo += colors[j];
+      }
+    }
+    combinations.push(combo);
+  }
+
+  // Add colorless if not already included
+  if (!combinations.includes('C')) {
+    combinations.push('C');
+  }
+
+  return combinations;
+}
 
 /** @gqlContext */
 export function createCardLoader(ctx: Context): CardLoader {
@@ -112,6 +135,11 @@ export class Card implements GraphQLNode {
   }
 
   /** @gqlField */
+  playRateLastYear(): Float {
+    return this.row.playRateLastYear ?? 0;
+  }
+
+  /** @gqlField */
   async entries(
     first: Int = 20,
     after?: string | null,
@@ -176,11 +204,29 @@ export class Card implements GraphQLNode {
   }
 
   /** @gqlQueryField */
-  static async staples(): Promise<Card[]> {
-    const rows = await db
+  static async staples(colorId?: string | null): Promise<Card[]> {
+    let query = db
       .selectFrom('Card')
       .selectAll()
-      .where('playRateLastYear', '>=', 0.01)
+      .where('playRateLastYear', '>=', 0.01);
+
+    if (colorId) {
+      // Filter cards that match the color identity exactly or are a subset of it
+      query = query.where((eb) => {
+        const colorSet = new Set(Array.from(colorId));
+        const colorConditions: any[] = [];
+
+        // For each possible color combination that is a subset of the selected colors
+        const allCombinations = generateColorCombinations(colorId);
+        for (const combo of allCombinations) {
+          colorConditions.push(eb('colorId', '=', combo));
+        }
+
+        return eb.or(colorConditions);
+      });
+    }
+
+    const rows = await query
       .orderBy('playRateLastYear desc')
       .execute();
 

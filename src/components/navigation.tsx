@@ -16,7 +16,7 @@ export function Navigation({
   }, []);
 
   return (
-    <nav className="font-title sticky top-0 z-20 grid w-full grid-cols-[auto_auto_auto_1fr] items-center gap-x-6 gap-y-3 bg-[#312d5a] px-4 py-3 text-white md:px-8">
+    <nav className="font-title sticky top-0 z-20 grid w-full grid-cols-[auto_auto_auto_auto_1fr] items-center gap-x-6 gap-y-3 bg-[#312d5a] px-4 py-3 text-white md:px-8">
       <Link href="/" className="text-xl font-black">
         EDHTop16
       </Link>
@@ -35,6 +35,13 @@ export function Navigation({
         Tournaments
       </Link>
 
+      <Link
+        href="/staples"
+        className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm"
+      >
+        Staples
+      </Link>
+
       <button
         className="block justify-self-end md:hidden"
         onClick={toggleSearch}
@@ -48,7 +55,7 @@ export function Navigation({
 
       <div
         className={cn(
-          'col-span-4 justify-end md:col-span-1 md:flex',
+          'col-span-5 justify-end md:col-span-1 md:flex',
           mobileSearchOpen ? 'flex' : 'hidden',
         )}
       >
