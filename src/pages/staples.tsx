@@ -4,6 +4,7 @@ import {EntryPointParams, useNavigation} from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback';
 import {useSeoMeta} from '@unhead/react';
 import {
+  EntryPoint,
   EntryPointComponent,
   graphql,
   usePreloadedQuery,
@@ -131,6 +132,7 @@ function StaplesPageShell({
 
 /** @resource m#staples_fallback */
 export const StaplesPageFallback: EntryPointComponent<
+  {},
   {},
   {},
   {colorId?: string; type?: string}
