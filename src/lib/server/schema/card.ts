@@ -181,7 +181,10 @@ export class Card implements GraphQLNode {
   }
 
   /** @gqlQueryField */
-  static async staples(colorId?: string | null, type?: string | null): Promise<Card[]> {
+  static async staples(
+    colorId?: string | null,
+    type?: string | null,
+  ): Promise<Card[]> {
     const rows = await db
       .selectFrom('Card')
       .selectAll()

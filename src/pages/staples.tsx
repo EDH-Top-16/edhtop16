@@ -30,7 +30,7 @@ function StapleCard({card}: {card: any}) {
           href={card.scryfallUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="line-clamp-2 text-xl font-bold text-white hover:text-blue-300 underline decoration-transparent hover:decoration-inherit transition-colors"
+          className="line-clamp-2 text-xl font-bold text-white underline decoration-transparent transition-colors hover:text-blue-300 hover:decoration-inherit"
         >
           {card.name}
         </a>
@@ -38,20 +38,18 @@ function StapleCard({card}: {card: any}) {
           <div className="flex items-center space-x-2">
             <ColorIdentity identity={card.colorId} />
             {card.cmc > 0 && (
-              <span className="rounded bg-gray-700 px-2 py-1 text-white font-mono text-xs">
+              <span className="rounded bg-gray-700 px-2 py-1 font-mono text-xs text-white">
                 {card.cmc}
               </span>
             )}
           </div>
           <div className="rounded bg-green-900/50 px-2 py-1">
-            <span className="text-green-300 text-xs font-medium">
+            <span className="text-xs font-medium text-green-300">
               Play Rate: {playRatePercentage}%
             </span>
           </div>
         </div>
-        <div className="mt-auto text-sm text-gray-300">
-          {card.type}
-        </div>
+        <div className="mt-auto text-sm text-gray-300">{card.type}</div>
       </div>
     </Card>
   );
@@ -83,7 +81,8 @@ function StaplesPageShell({
             cEDH Staples
           </h1>
           <p className="mt-2 text-gray-400">
-            The most popular cards in competitive EDH, based on tournament data from the last year.
+            The most popular cards in competitive EDH, based on tournament data
+            from the last year.
           </p>
         </div>
 
@@ -92,7 +91,10 @@ function StaplesPageShell({
             <ColorSelection
               selected={colorId}
               onChange={(value) => {
-                replaceRoute('/staples', {colorId: value ?? null, type: type ?? null});
+                replaceRoute('/staples', {
+                  colorId: value ?? null,
+                  type: type ?? null,
+                });
               }}
             />
           </div>
@@ -103,7 +105,10 @@ function StaplesPageShell({
               label="Type Filter"
               value={type || 'all'}
               onChange={(value) => {
-                replaceRoute('/staples', {colorId: colorId ?? null, type: value === 'all' ? null : value});
+                replaceRoute('/staples', {
+                  colorId: colorId ?? null,
+                  type: value === 'all' ? null : value,
+                });
               }}
             >
               <option value="all">All Types</option>
@@ -125,9 +130,16 @@ function StaplesPageShell({
 }
 
 /** @resource m#staples_fallback */
-export const StaplesPageFallback: EntryPointComponent<{}, {}, {colorId?: string; type?: string}> = ({extraProps}) => {
+export const StaplesPageFallback: EntryPointComponent<
+  {},
+  {},
+  {colorId?: string; type?: string}
+> = ({extraProps}) => {
   return (
-    <StaplesPageShell colorId={extraProps.colorId ?? ''} type={extraProps.type ?? ''}>
+    <StaplesPageShell
+      colorId={extraProps.colorId ?? ''}
+      type={extraProps.type ?? ''}
+    >
       <LoadingIcon />
     </StaplesPageShell>
   );
