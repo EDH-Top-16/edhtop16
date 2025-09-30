@@ -2,7 +2,6 @@ import {staples_StaplesQuery} from '#genfiles/queries/staples_StaplesQuery.graph
 import {ModuleType} from '#genfiles/router/js_resource.js';
 import {EntryPointParams, useNavigation} from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback';
-// import {useSeoMeta} from '@unhead/react';
 import {
   EntryPoint,
   EntryPointComponent,
@@ -65,15 +64,12 @@ function StaplesPageShell({
   type: string;
   children: React.ReactNode;
 }) {
-  // useSeoMeta({
-  //   title: 'cEDH Staples',
-  //   description: 'Discover the most played cards in competitive EDH!',
-  // });
-
   const {replaceRoute} = useNavigation();
 
   return (
     <>
+      <title>cEDH Staples</title>
+      <meta name="description" content="Discover the most played cards in competitive EDH!" />
       <Navigation searchType="tournament" />
 
       <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">

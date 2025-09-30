@@ -14,7 +14,6 @@ import {LoadingIcon} from '#src/components/fallback';
 import {LIST_STYLE_COOKIE_NAME} from '#src/lib/client/display_preferences.js';
 import RectangleStackIcon from '@heroicons/react/24/solid/RectangleStackIcon';
 import TableCellsIcon from '@heroicons/react/24/solid/TableCellsIcon';
-// import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
 import {PropsWithChildren, useCallback, useMemo} from 'react';
 import {useClientQuery} from 'react-relay';
@@ -151,16 +150,13 @@ function CommandersPageShell({
   sortBy: CommandersSortBy;
   timePeriod: TimePeriod;
 }>) {
-  // useSeoMeta({
-  //   title: 'cEDH Commanders',
-  //   description: 'Discover top performing commanders in cEDH!',
-  // });
-
   const {replaceRoute} = useNavigation();
   const [display, toggleDisplay] = useCommandersDisplay();
 
   return (
     <>
+      <title>cEDH Commanders</title>
+      <meta name="description" content="Discover top performing commanders in cEDH!" />
       <Navigation />
 
       <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">

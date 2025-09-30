@@ -1,15 +1,11 @@
-// import {useSeoMeta} from '@unhead/react';
 import {Navigation} from '../components/navigation';
 
 /** @resource m#about */
 export function AboutPage() {
-  // useSeoMeta({
-  //   title: 'About',
-  //   description: 'About Us',
-  // });
-
   return (
     <>
+      <title>About</title>
+      <meta name="description" content="About Us" />
       <Navigation />
 
       <div className="mx-auto my-8 flex w-full max-w-(--breakpoint-md) flex-col items-center gap-6 px-8 text-white">

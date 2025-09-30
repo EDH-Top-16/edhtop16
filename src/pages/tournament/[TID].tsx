@@ -12,7 +12,6 @@ import {ModuleType} from '#genfiles/router/js_resource.js';
 import {EntryPointParams, Link, useNavigation} from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback.jsx';
 import ArrowRightIcon from '@heroicons/react/24/solid/ArrowRightIcon';
-// import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
 import {format} from 'date-fns';
 import {MouseEvent, PropsWithChildren, useCallback, useMemo} from 'react';
@@ -280,10 +279,7 @@ function useTournamentMeta(tournamentFromProps: TID_TournamentMeta$key) {
     tournamentFromProps,
   );
 
-  // useSeoMeta({
-  //   title: tournament.name,
-  //   description: `Top Performing cEDH decks at ${tournament.name}`,
-  // });
+  return tournament;
 }
 
 function TournamentPageShell({
@@ -311,7 +307,7 @@ function TournamentPageShell({
     props.tournament,
   );
 
-  useTournamentMeta(tournament);
+  const tournamentMeta = useTournamentMeta(tournament);
 
   const {replaceRoute} = useNavigation();
   const setSelectedTab = useCallback(
@@ -328,6 +324,8 @@ function TournamentPageShell({
 
   return (
     <>
+      <title>{tournamentMeta.name}</title>
+      <meta name="description" content={`Top Performing cEDH decks at ${tournamentMeta.name}`} />
       <Navigation />
       <TournamentBanner tournament={tournament} />
       {tournament.promo && <FirstPartyPromo promo={tournament.promo} />}
