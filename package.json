@@ -3,6 +3,8 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
+    "format": "prettier -w .",
+    "lint": "eslint .",
     "generate:db": "rm -f edhtop16.db && node -r ts-node/register scripts/generate-database.ts",
     "generate:dbtypes": "DATABASE_URL=edhtop16.db kysely-codegen --out-file=./__generated__/db/types.d.ts",
     "generate:schema": "grats",

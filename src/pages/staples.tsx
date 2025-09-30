@@ -69,7 +69,10 @@ function StaplesPageShell({
   return (
     <>
       <title>cEDH Staples</title>
-      <meta name="description" content="Discover the most played cards in competitive EDH!" />
+      <meta
+        name="description"
+        content="Discover the most played cards in competitive EDH!"
+      />
       <Navigation searchType="tournament" />
 
       <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">

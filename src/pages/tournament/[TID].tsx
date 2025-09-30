@@ -325,7 +325,10 @@ function TournamentPageShell({
   return (
     <>
       <title>{tournamentMeta.name}</title>
-      <meta name="description" content={`Top Performing cEDH decks at ${tournamentMeta.name}`} />
+      <meta
+        name="description"
+        content={`Top Performing cEDH decks at ${tournamentMeta.name}`}
+      />
       <Navigation />
       <TournamentBanner tournament={tournament} />
       {tournament.promo && <FirstPartyPromo promo={tournament.promo} />}

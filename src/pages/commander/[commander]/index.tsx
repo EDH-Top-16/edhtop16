@@ -701,7 +701,10 @@ export function CommanderPageShell({
   return (
     <>
       <title>{commanderMeta.name}</title>
-      <meta name="description" content={`Top Performing and Recent Decklists for ${commanderMeta.name} in cEDH`} />
+      <meta
+        name="description"
+        content={`Top Performing and Recent Decklists for ${commanderMeta.name} in cEDH`}
+      />
       <Navigation />
       <CommanderBanner commander={commander}>{stats}</CommanderBanner>
       {commander.promo && <FirstPartyPromo promo={commander.promo} />}

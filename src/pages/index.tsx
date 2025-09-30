@@ -156,7 +156,10 @@ function CommandersPageShell({
   return (
     <>
       <title>cEDH Commanders</title>
-      <meta name="description" content="Discover top performing commanders in cEDH!" />
+      <meta
+        name="description"
+        content="Discover top performing commanders in cEDH!"
+      />
       <Navigation />
 
       <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">

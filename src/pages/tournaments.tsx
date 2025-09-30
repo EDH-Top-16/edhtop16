@@ -105,7 +105,10 @@ function TournamentsPageShell({
   return (
     <>
       <title>cEDH Tournaments</title>
-      <meta name="description" content="Discover top and recent cEDH tournaments!" />
+      <meta
+        name="description"
+        content="Discover top and recent cEDH tournaments!"
+      />
       <Navigation searchType="tournament" />
 
       <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">
