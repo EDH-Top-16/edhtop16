@@ -19,7 +19,7 @@ import {
   useRouteParams,
 } from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback.jsx';
-import {useSeoMeta} from '@unhead/react';
+// import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
 import {format} from 'date-fns';
 import {PropsWithChildren} from 'react';
@@ -655,10 +655,10 @@ function useCommanderMeta(commanderFromProps: Commander_CommanderMeta$key) {
     commanderFromProps,
   );
 
-  useSeoMeta({
-    title: commander.name,
-    description: `Top Performing and Recent Decklists for ${commander.name} in cEDH`,
-  });
+  // useSeoMeta({
+  //   title: commander.name,
+  //   description: `Top Performing and Recent Decklists for ${commander.name} in cEDH`,
+  // });
 }
 
 export function CommanderPageShell({

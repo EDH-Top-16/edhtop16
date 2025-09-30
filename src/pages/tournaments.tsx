@@ -14,7 +14,7 @@ import {
   useNavigation,
 } from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback';
-import {useSeoMeta} from '@unhead/react';
+// import {useSeoMeta} from '@unhead/react';
 import {format} from 'date-fns';
 import {PropsWithChildren, useMemo} from 'react';
 import {
@@ -101,10 +101,10 @@ function TournamentsPageShell({
   timePeriod: TimePeriod;
   minSize: string;
 }>) {
-  useSeoMeta({
-    title: 'cEDH Tournaments',
-    description: 'Discover top and recent cEDH tournaments!',
-  });
+  // useSeoMeta({
+  //   title: 'cEDH Tournaments',
+  //   description: 'Discover top and recent cEDH tournaments!',
+  // });
 
   const {replaceRoute} = useNavigation();
 

@@ -16,7 +16,7 @@ export interface RelayResolverContext {
 export function createServerEnvironment(
   req: Request,
   schema: GraphQLSchema,
-  persistedQueries?: Record<string, string>,
+  persistedQueries: Record<string, string>,
 ) {
   const networkFetchFunction: FetchFunction = async (request, variables) => {
     let source = request.text;

@@ -20,6 +20,7 @@ import {
   router__createAppFromEntryPoint,
   router__loadEntryPoint,
   RouterOps,
+  RouterBootstrap,
 } from './router';
 
 type AnyPreloadedQuery = PreloadedQuery<OperationType>;
@@ -28,22 +29,36 @@ function router__bootstrapScripts(
   entryPoint: AnyPreloadedEntryPoint,
   ops: RouterOps,
   manifest?: Manifest,
-) {
-  let bootstrap = `
-      <script type="text/javascript">
-        window.__router_ops = ${serialize(ops)};
-      </script>`;
+): RouterBootstrap {
+  const bootstrap: RouterBootstrap = {
+    preloadModules: [],
+    preloadStylesheets: [],
+    bootstrapModules: [],
+    bootstrapScriptContent: `window.__router_ops = ${serialize(ops)};`,
+  };
 
   const rootModuleSrc = JSResource.srcOfModuleId(entryPoint.rootModuleID);
   if (rootModuleSrc == null) return bootstrap;
+
+  if (process.env.NODE_ENV !== 'production') {
+    bootstrap.bootstrapModules.push('/@vite/client', '/src/entry-client.tsx');
+    bootstrap.preloadStylesheets.push('/src/globals.css');
+  } else {
+    const mainChunk = manifest?.[rootModuleSrc];
+    if (mainChunk) {
+      bootstrap.bootstrapModules.push('/' + mainChunk.file);
+    }
+  }
 
   function crawlImports(moduleName: string) {
     const chunk = manifest?.[moduleName];
     if (!chunk) return;
 
     chunk.imports?.forEach(crawlImports);
-    bootstrap =
-      `<link rel="modulepreload" href="${chunk.file}" />\n` + bootstrap;
+    bootstrap.preloadModules.push('/' + chunk.file);
+    if (chunk?.css) {
+      bootstrap.preloadStylesheets.push(...chunk.css.map((css) => '/' + css));
+    }
   }
 
   crawlImports(rootModuleSrc);

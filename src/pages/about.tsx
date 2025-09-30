@@ -1,12 +1,12 @@
-import {useSeoMeta} from '@unhead/react';
+// import {useSeoMeta} from '@unhead/react';
 import {Navigation} from '../components/navigation';
 
 /** @resource m#about */
 export function AboutPage() {
-  useSeoMeta({
-    title: 'About',
-    description: 'About Us',
-  });
+  // useSeoMeta({
+  //   title: 'About',
+  //   description: 'About Us',
+  // });
 
   return (
     <>

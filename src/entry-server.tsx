@@ -2,15 +2,10 @@ import {listRoutes} from '#genfiles/router/router';
 import {createRouterServerApp} from '#genfiles/router/server_router';
 import {getSchema} from '#genfiles/schema/schema';
 import {usePersistedOperations} from '@graphql-yoga/plugin-persisted-operations';
-import {
-  createHead,
-  transformHtmlTemplate,
-  UnheadProvider,
-} from '@unhead/react/server';
 import express from 'express';
 import {createYoga, GraphQLParams} from 'graphql-yoga';
 import {StrictMode} from 'react';
-import {renderToString} from 'react-dom/server';
+import {renderToPipeableStream, renderToString} from 'react-dom/server';
 import {RelayEnvironmentProvider} from 'react-relay/hooks';
 import type {Manifest} from 'vite';
 import {Context} from './lib/server/context';
@@ -25,13 +20,11 @@ const schema = new GraphQLSchema({
 });
 
 export function createHandler(
-  template: string,
   persistedQueries: Record<string, string>,
   manifest?: Manifest,
 ) {
   const context = new Context();
 
-  // TODO: Why doesn't @include work now?
   const graphqlHandler = createYoga({
     schema,
     context,
@@ -48,40 +41,42 @@ export function createHandler(
   });
 
   const entryPointHandler: express.Handler = async (req, res) => {
-    const head = createHead();
     const env = createServerEnvironment(req, schema, persistedQueries);
     const RouterApp = await createRouterServerApp(
       {getEnvironment: () => env},
       req.originalUrl,
     );
 
-    function evaluateRouterDirective(match: string, directive: string) {
-      switch (directive) {
-        case 'render':
-          return renderToString(
-            <StrictMode>
-              <UnheadProvider value={head}>
-                <RelayEnvironmentProvider environment={env}>
-                  <App>
-                    <RouterApp />
-                  </App>
-                </RelayEnvironmentProvider>
-              </UnheadProvider>
-            </StrictMode>,
-          );
-        case 'bootstrap':
-          return RouterApp.bootstrap(manifest) ?? match;
-        default:
-          return match;
-      }
-    }
+    const {
+      preloadModules,
+      preloadStylesheets,
+      bootstrapScriptContent,
+      bootstrapModules,
+    } = RouterApp.bootstrap(manifest);
 
-    const renderedHtml = await transformHtmlTemplate(
-      head,
-      template.replace(/<!--\s*@router:(\w+)\s*-->/g, evaluateRouterDirective),
+    const app = (
+      <StrictMode>
+        <RelayEnvironmentProvider environment={env}>
+          <RouterApp.Shell
+            preloadModules={preloadModules}
+            preloadStylesheets={preloadStylesheets}
+          >
+            <App>
+              <RouterApp />
+            </App>
+          </RouterApp.Shell>
+        </RelayEnvironmentProvider>
+      </StrictMode>
     );
 
-    res.status(200).set({'Content-Type': 'text/html'}).end(renderedHtml);
+    const {pipe} = renderToPipeableStream(app, {
+      bootstrapScriptContent,
+      bootstrapModules,
+      onShellReady() {
+        res.setHeader('Content-Type', 'text/html');
+        pipe(res);
+      },
+    });
   };
 
   const r = express.Router();

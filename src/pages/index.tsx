@@ -14,7 +14,7 @@ import {LoadingIcon} from '#src/components/fallback';
 import {LIST_STYLE_COOKIE_NAME} from '#src/lib/client/display_preferences.js';
 import RectangleStackIcon from '@heroicons/react/24/solid/RectangleStackIcon';
 import TableCellsIcon from '@heroicons/react/24/solid/TableCellsIcon';
-import {useSeoMeta} from '@unhead/react';
+// import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
 import {PropsWithChildren, useCallback, useMemo} from 'react';
 import {useClientQuery} from 'react-relay';
@@ -151,10 +151,10 @@ function CommandersPageShell({
   sortBy: CommandersSortBy;
   timePeriod: TimePeriod;
 }>) {
-  useSeoMeta({
-    title: 'cEDH Commanders',
-    description: 'Discover top performing commanders in cEDH!',
-  });
+  // useSeoMeta({
+  //   title: 'cEDH Commanders',
+  //   description: 'Discover top performing commanders in cEDH!',
+  // });
 
   const {replaceRoute} = useNavigation();
   const [display, toggleDisplay] = useCommandersDisplay();
@@ -166,7 +166,7 @@ function CommandersPageShell({
       <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">
         <div className="flex w-full items-baseline gap-4">
           <h1 className="font-title mb-8 flex-1 text-5xl font-extrabold text-white">
-            cEDH Metagame Breakdown
+            cEDH Metagame Breakdown!!!
           </h1>
 
           <button className="cursor-pointer" onClick={toggleDisplay}>
