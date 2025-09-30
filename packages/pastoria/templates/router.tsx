@@ -10,6 +10,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import {preinit, preloadModule} from 'react-dom';
 import {
   EntryPoint,
   EntryPointContainer,
@@ -159,11 +160,60 @@ const RouterContext = createContext<RouterContextValue>({
   setLocation: () => {},
 });
 
+export interface RouterBootstrap {
+  preloadModules: string[];
+  preloadStylesheets: string[];
+  bootstrapScriptContent: string;
+  bootstrapModules: string[];
+}
+
 export function router__createAppFromEntryPoint(
   provider: IEnvironmentProvider<EnvironmentProviderOptions>,
   initialEntryPoint: AnyPreloadedEntryPoint | null,
   initialPath?: string,
 ) {
+  function RouterShell({
+    preloadModules,
+    preloadStylesheets,
+    children,
+  }: PropsWithChildren<{
+    preloadModules?: string[];
+    preloadStylesheets?: string[];
+  }>) {
+    for (const m of preloadModules ?? []) {
+      preloadModule(m, {as: 'script'});
+    }
+
+    for (const s of preloadStylesheets ?? []) {
+      preinit(s, {as: 'style'});
+    }
+
+    return (
+      <html>
+        <head>
+          <meta charSet="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+          {process.env.NODE_ENV !== 'production' && (
+            <script
+              type="module"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  import RefreshRuntime from 'http://localhost:3000/@react-refresh'
+                  RefreshRuntime.injectIntoGlobalHook(window)
+                  window.$RefreshReg$ = () => {}
+                  window.$RefreshSig$ = () => (type) => type
+                  window.__vite_plugin_react_preamble_installed__ = true`,
+              }}
+            />
+          )}
+        </head>
+
+        <body>{children}</body>
+      </html>
+    );
+  }
+
   function RouterApp() {
     const [location, setLocation] = useLocation(initialPath);
     const routerContextValue = useMemo(
@@ -213,7 +263,14 @@ export function router__createAppFromEntryPoint(
     );
   }
 
-  RouterApp.bootstrap = (manifest?: Manifest): string | null => null;
+  RouterApp.Shell = RouterShell;
+  RouterApp.bootstrap = (manifest?: Manifest): RouterBootstrap => ({
+    preloadModules: [],
+    preloadStylesheets: [],
+    bootstrapScriptContent: '',
+    bootstrapModules: [],
+  });
+
   return RouterApp;
 }
 

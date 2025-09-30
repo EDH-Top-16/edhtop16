@@ -18,14 +18,11 @@ async function createServer() {
       await readFile('__generated__/persisted_queries.json', 'utf-8'),
     );
 
-    let template = await readFile('index.html', 'utf-8');
-    template = await vite.transformIndexHtml(req.originalUrl, template);
-
     const {createHandler} = (await vite.ssrLoadModule(
       '/src/entry-server.tsx',
     )) as typeof import('./src/entry-server');
 
-    const handler = createHandler(template, persistedQueries);
+    const handler = createHandler(persistedQueries);
     handler(req, res, next);
   });
 

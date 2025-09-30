@@ -2,7 +2,6 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import {cjsInterop} from 'vite-plugin-cjs-interop';
 import type {UserConfig} from 'vite';
-import unheadVite from '@unhead/addons/vite';
 
 export default {
   server: {middlewareMode: true},
@@ -10,9 +9,11 @@ export default {
   build: {
     manifest: true,
     ssrManifest: true,
+    rollupOptions: {
+      input: '/src/entry-client.tsx',
+    },
   },
   plugins: [
-    unheadVite(),
     tailwindcss(),
     react({babel: {plugins: ['relay']}}),
     cjsInterop({

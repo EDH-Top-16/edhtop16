@@ -16,9 +16,6 @@ importers:
       '@types/cookie-parser':
         specifier: ^1.4.9
         version: 1.4.9(@types/express@5.0.3)
-      '@unhead/react':
-        specifier: ^2.0.11
-        version: 2.0.17(react@19.1.1)
       better-sqlite3:
         specifier: ^11.7.2
         version: 11.10.0
@@ -89,9 +86,6 @@ importers:
         specifier: ^3.25.74
         version: 3.25.76
     devDependencies:
-      '@edhtop16/pastoria':
-        specifier: workspace:*
-        version: link:packages/pastoria
       '@eslint/js':
         specifier: ^9.30.1
         version: 9.36.0
@@ -131,9 +125,6 @@ importers:
       '@types/serialize-javascript':
         specifier: ^5.0.4
         version: 5.0.4
-      '@unhead/addons':
-        specifier: ^2.0.11
-        version: 2.0.17(rollup@4.52.0)
       '@vitejs/plugin-react':
         specifier: ^4.6.0
         version: 4.7.0(vite@6.3.6(@types/node@20.3.1)(jiti@2.5.1)(lightningcss@1.30.1))
@@ -155,6 +146,9 @@ importers:
       kysely-codegen:
         specifier: ^0.17.0
         version: 0.17.0(better-sqlite3@11.10.0)(kysely@0.27.6)
+      pastoria:
+        specifier: workspace:*
+        version: link:packages/pastoria
       prettier:
         specifier: ^3.0.3
         version: 3.6.2
@@ -1070,18 +1064,6 @@ packages:
         integrity: sha512-+d0F4MKMCbeVUJwG96uQ4SgAznZNSq93I3V+9NHA4OpvqG8mRCpGdKmK8l/dl02h2CCDHwW2FqilnTyDcAnqjA==,
       }
 
-  '@rollup/pluginutils@5.3.0':
-    resolution:
-      {
-        integrity: sha512-5EdhGZtnu3V88ces7s53hhfK5KSASnJZv8Lulpc04cWO3REESroJXg73DFsOmgbU2BhwV0E20bu2IDZb3VKW4Q==,
-      }
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-
   '@rollup/rollup-android-arm-eabi@4.52.0':
     resolution:
       {
@@ -1690,20 +1672,6 @@ packages:
       }
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@unhead/addons@2.0.17':
-    resolution:
-      {
-        integrity: sha512-pqyK4ErECQD+AJGAr+XYbFFXhQzi9EGKW8PXG/5AwldWSjW8bZgCMBU78ZSIJYzlwM3JCyX5Ekbb/UkjaFBhFg==,
-      }
-
-  '@unhead/react@2.0.17':
-    resolution:
-      {
-        integrity: sha512-Mg8yDWUMf2eH8uZQ7vHvVaeV/HBqEzO/ThYf2VQKvfy1ZuiynFoGp8UNnC1sCA6Efbg4sPPX33BlCqdnr6vJcg==,
-      }
-    peerDependencies:
-      react: '>=18.3.1'
-
   '@vitejs/plugin-react@4.7.0':
     resolution:
       {
@@ -1828,13 +1796,6 @@ packages:
       {
         integrity: sha512-BSHWgDSAiKs50o2Re8ppvp3seVHXSRM44cdSsT9FfNEUUZLOGWVCsiWaRPWM1Znn+mqZ1OfVZ3z3DWEzSp7hRA==,
       }
-
-  ast-kit@2.1.2:
-    resolution:
-      {
-        integrity: sha512-cl76xfBQM6pztbrFWRnxbrDm9EOqDr1BF6+qQnnDZG2Co2LjyUktkN9GTJfBAfdae+DbT2nJf2nCGAdDDN7W2g==,
-      }
-    engines: {node: '>=20.18.0'}
 
   babel-plugin-macros@2.8.0:
     resolution:
@@ -2062,12 +2023,6 @@ packages:
     resolution:
       {
         integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==,
-      }
-
-  confbox@0.1.8:
-    resolution:
-      {
-        integrity: sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w==,
       }
 
   content-disposition@1.0.0:
@@ -2437,12 +2392,6 @@ packages:
       }
     engines: {node: '>=4.0'}
 
-  estree-walker@2.0.2:
-    resolution:
-      {
-        integrity: sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==,
-      }
-
   estree-walker@3.0.3:
     resolution:
       {
@@ -2781,12 +2730,6 @@ packages:
         integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==,
       }
     engines: {node: '>= 0.4'}
-
-  hookable@5.5.3:
-    resolution:
-      {
-        integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==,
-      }
 
   http-errors@2.0.0:
     resolution:
@@ -3224,13 +3167,6 @@ packages:
         integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==,
       }
 
-  magic-string-ast@1.0.2:
-    resolution:
-      {
-        integrity: sha512-8ngQgLhcT0t3YBdn9CGkZqCYlvwW9pm7aWJwd7AxseVWf1RU8ZHCQvG1mt3N5vvUme+pXTcHB8G/7fE666U8Vw==,
-      }
-    engines: {node: '>=20.18.0'}
-
   magic-string@0.30.19:
     resolution:
       {
@@ -3349,12 +3285,6 @@ packages:
     resolution:
       {
         integrity: sha512-gKLcREMhtuZRwRAfqP3RFW+TK4JqApVBtOIftVgjuABpAtpxhPGaDcfvbhNvD0B8iD1oUr/txX35NjcaY6Ns/A==,
-      }
-
-  mlly@1.8.0:
-    resolution:
-      {
-        integrity: sha512-l8D9ODSRWLe2KHJSifWGwBqpTZXIXTeo8mlKjY+E2HAakaTeNpqAyBZ8GSqLzHgw4XmHmC8whvpjJNMbFZN7/g==,
       }
 
   mongodb-connection-string-url@3.0.2:
@@ -3586,12 +3516,6 @@ packages:
       }
     engines: {node: '>=8'}
 
-  pathe@2.0.3:
-    resolution:
-      {
-        integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==,
-      }
-
   picocolors@1.1.1:
     resolution:
       {
@@ -3611,12 +3535,6 @@ packages:
         integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==,
       }
     engines: {node: '>=12'}
-
-  pkg-types@1.3.1:
-    resolution:
-      {
-        integrity: sha512-/Jm5M4RvtBFVkKWRu2BLUTNP8/M2a+UwuAX+ae4770q1qVGtfjG+WTCupoZixokjmHiry8uI+dlY8KXYV5HVVQ==,
-      }
 
   pluralize@8.0.0:
     resolution:
@@ -4270,12 +4188,6 @@ packages:
       }
     hasBin: true
 
-  ufo@1.6.1:
-    resolution:
-      {
-        integrity: sha512-9a4/uxlTWJ4+a5i0ooc1rU7C7YOw3wT+UGqdeNNHWnOF9qcMBgLRS+4IYUqbczewFx4mLEig6gawh7X6mFlEkA==,
-      }
-
   undici@7.16.0:
     resolution:
       {
@@ -4283,32 +4195,12 @@ packages:
       }
     engines: {node: '>=20.18.1'}
 
-  unhead@2.0.17:
-    resolution:
-      {
-        integrity: sha512-xX3PCtxaE80khRZobyWCVxeFF88/Tg9eJDcJWY9us727nsTC7C449B8BUfVBmiF2+3LjPcmqeoB2iuMs0U4oJQ==,
-      }
-
   unpipe@1.0.0:
     resolution:
       {
         integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==,
       }
     engines: {node: '>= 0.8'}
-
-  unplugin-ast@0.15.2:
-    resolution:
-      {
-        integrity: sha512-PXVdmrQHT2O9orC2b30HLBsrDJRcrVxjHOANzk8Zz0LHuCcIUBhghfN5dacCQ4nWM7lpcsU3AqRLtdf0ws/rtg==,
-      }
-    engines: {node: '>=20.18.0'}
-
-  unplugin@2.3.10:
-    resolution:
-      {
-        integrity: sha512-6NCPkv1ClwH+/BGE9QeoTIl09nuiAt0gS28nn1PvYXsGKRwM2TCbFA2QiilmehPDTXIe684k4rZI1yl3A1PCUw==,
-      }
-    engines: {node: '>=18.12.0'}
 
   update-browserslist-db@1.1.3:
     resolution:
@@ -4413,12 +4305,6 @@ packages:
         integrity: sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==,
       }
     engines: {node: '>=12'}
-
-  webpack-virtual-modules@0.6.2:
-    resolution:
-      {
-        integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==,
-      }
 
   whatwg-url@14.2.0:
     resolution:
@@ -4957,14 +4843,6 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.0-beta.27': {}
 
-  '@rollup/pluginutils@5.3.0(rollup@4.52.0)':
-    dependencies:
-      '@types/estree': 1.0.8
-      estree-walker: 2.0.2
-      picomatch: 4.0.3
-    optionalDependencies:
-      rollup: 4.52.0
-
   '@rollup/rollup-android-arm-eabi@4.52.0':
     optional: true
 
@@ -5317,23 +5195,6 @@ snapshots:
       '@typescript-eslint/types': 8.44.0
       eslint-visitor-keys: 4.2.1
 
-  '@unhead/addons@2.0.17(rollup@4.52.0)':
-    dependencies:
-      '@rollup/pluginutils': 5.3.0(rollup@4.52.0)
-      estree-walker: 3.0.3
-      magic-string: 0.30.19
-      mlly: 1.8.0
-      ufo: 1.6.1
-      unplugin: 2.3.10
-      unplugin-ast: 0.15.2
-    transitivePeerDependencies:
-      - rollup
-
-  '@unhead/react@2.0.17(react@19.1.1)':
-    dependencies:
-      react: 19.1.1
-      unhead: 2.0.17
-
   '@vitejs/plugin-react@4.7.0(vite@6.3.6(@types/node@20.3.1)(jiti@2.5.1)(lightningcss@1.30.1))':
     dependencies:
       '@babel/core': 7.28.4
@@ -5418,11 +5279,6 @@ snapshots:
   argparse@2.0.1: {}
 
   asap@2.0.6: {}
-
-  ast-kit@2.1.2:
-    dependencies:
-      '@babel/parser': 7.28.4
-      pathe: 2.0.3
 
   babel-plugin-macros@2.8.0:
     dependencies:
@@ -5559,8 +5415,6 @@ snapshots:
   commander@10.0.1: {}
 
   concat-map@0.0.1: {}
-
-  confbox@0.1.8: {}
 
   content-disposition@1.0.0:
     dependencies:
@@ -5791,8 +5645,6 @@ snapshots:
 
   estraverse@5.3.0: {}
 
-  estree-walker@2.0.2: {}
-
   estree-walker@3.0.3:
     dependencies:
       '@types/estree': 1.0.8
@@ -6018,8 +5870,6 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  hookable@5.5.3: {}
-
   http-errors@2.0.0:
     dependencies:
       depd: 2.0.0
@@ -6209,10 +6059,6 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  magic-string-ast@1.0.2:
-    dependencies:
-      magic-string: 0.30.19
-
   magic-string@0.30.19:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -6263,13 +6109,6 @@ snapshots:
       minipass: 7.1.2
 
   mkdirp-classic@0.5.3: {}
-
-  mlly@1.8.0:
-    dependencies:
-      acorn: 8.15.0
-      pathe: 2.0.3
-      pkg-types: 1.3.1
-      ufo: 1.6.1
 
   mongodb-connection-string-url@3.0.2:
     dependencies:
@@ -6385,19 +6224,11 @@ snapshots:
 
   path-type@4.0.0: {}
 
-  pathe@2.0.3: {}
-
   picocolors@1.1.1: {}
 
   picomatch@2.3.1: {}
 
   picomatch@4.0.3: {}
-
-  pkg-types@1.3.1:
-    dependencies:
-      confbox: 0.1.8
-      mlly: 1.8.0
-      pathe: 2.0.3
 
   pluralize@8.0.0: {}
 
@@ -6799,29 +6630,9 @@ snapshots:
 
   ua-parser-js@1.0.41: {}
 
-  ufo@1.6.1: {}
-
   undici@7.16.0: {}
 
-  unhead@2.0.17:
-    dependencies:
-      hookable: 5.5.3
-
   unpipe@1.0.0: {}
-
-  unplugin-ast@0.15.2:
-    dependencies:
-      '@babel/generator': 7.28.3
-      ast-kit: 2.1.2
-      magic-string-ast: 1.0.2
-      unplugin: 2.3.10
-
-  unplugin@2.3.10:
-    dependencies:
-      '@jridgewell/remapping': 2.3.5
-      acorn: 8.15.0
-      picomatch: 4.0.3
-      webpack-virtual-modules: 0.6.2
 
   update-browserslist-db@1.1.3(browserslist@4.26.2):
     dependencies:
@@ -6866,8 +6677,6 @@ snapshots:
   webidl-conversions@3.0.1: {}
 
   webidl-conversions@7.0.0: {}
-
-  webpack-virtual-modules@0.6.2: {}
 
   whatwg-url@14.2.0:
     dependencies:

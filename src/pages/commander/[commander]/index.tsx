@@ -19,7 +19,6 @@ import {
   useRouteParams,
 } from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback.jsx';
-import {useSeoMeta} from '@unhead/react';
 import cn from 'classnames';
 import {format} from 'date-fns';
 import {PropsWithChildren} from 'react';
@@ -655,10 +654,7 @@ function useCommanderMeta(commanderFromProps: Commander_CommanderMeta$key) {
     commanderFromProps,
   );
 
-  useSeoMeta({
-    title: commander.name,
-    description: `Top Performing and Recent Decklists for ${commander.name} in cEDH`,
-  });
+  return commander;
 }
 
 export function CommanderPageShell({
@@ -699,11 +695,16 @@ export function CommanderPageShell({
     props.commander,
   );
 
-  useCommanderMeta(commander);
+  const commanderMeta = useCommanderMeta(commander);
   const {replaceRoute} = useNavigation();
 
   return (
     <>
+      <title>{commanderMeta.name}</title>
+      <meta
+        name="description"
+        content={`Top Performing and Recent Decklists for ${commanderMeta.name} in cEDH`}
+      />
       <Navigation />
       <CommanderBanner commander={commander}>{stats}</CommanderBanner>
       {commander.promo && <FirstPartyPromo promo={commander.promo} />}
