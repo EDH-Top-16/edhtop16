@@ -32,7 +32,13 @@ type ColorIconProps = {color: string} & Omit<
   'color'
 >;
 
-export function ColorIcon({color, alt, width = 20, height = 20, ...imgProps}: ColorIconProps) {
+export function ColorIcon({
+  color,
+  alt,
+  width = 20,
+  height = 20,
+  ...imgProps
+}: ColorIconProps) {
   const normalizedColor = color as ColorSymbol;
   const src = COLOR_ICON_URLS[normalizedColor];
 
@@ -42,7 +48,15 @@ export function ColorIcon({color, alt, width = 20, height = 20, ...imgProps}: Co
 
   const resolvedAlt = alt ?? COLOR_ICON_ALTS[normalizedColor];
 
-  return <img src={src} alt={resolvedAlt} width={width} height={height} {...imgProps} />;
+  return (
+    <img
+      src={src}
+      alt={resolvedAlt}
+      width={width}
+      height={height}
+      {...imgProps}
+    />
+  );
 }
 
 export function ColorIdentity({identity}: {identity: string}) {

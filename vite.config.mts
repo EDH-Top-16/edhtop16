@@ -7,6 +7,7 @@ export default {
   server: {middlewareMode: true},
   appType: 'custom',
   build: {
+    assetsInlineLimit: 0,
     manifest: true,
     ssrManifest: true,
     rollupOptions: {
