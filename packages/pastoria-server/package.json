@@ -1,0 +1,21 @@
+{
+  "name": "pastoria-server",
+  "version": "1.0.0",
+  "description": "",
+  "bin": {
+    "pastoria-server": "src/index.mts"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "vite": "^6.3.6",
+    "@types/node": "20.3.1"
+  }
+}

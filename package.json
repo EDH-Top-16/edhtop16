@@ -9,12 +9,10 @@
     "generate:dbtypes": "DATABASE_URL=edhtop16.db kysely-codegen --out-file=./__generated__/db/types.d.ts",
     "generate:schema": "grats",
     "generate:relay": "relay-compiler",
-    "generate:router": "pastoria",
-    "build:client": "vite build --outDir dist/client",
-    "build:server": "vite build --outDir dist/server --ssr src/entry-server.tsx",
-    "build": "npm run build:client && npm run build:server",
-    "dev": "node --experimental-strip-types devserver.mts",
-    "start": "NODE_ENV=production node --experimental-strip-types server.mts"
+    "generate:router": "pastoria gen",
+    "build": "pastoria build",
+    "dev": "pastoria dev",
+    "start": "NODE_ENV=production pastoria-server"
   },
   "imports": {
     "#src/*": "./src/*",
@@ -38,6 +36,8 @@
     "js-cookie": "^3.0.5",
     "kysely": "^0.27.5",
     "mongodb": "^6.3.0",
+    "pastoria-runtime": "workspace:*",
+    "pastoria-server": "workspace:*",
     "picocolors": "^1.1.1",
     "radix3": "^1.1.2",
     "react": "^19.1.0",
