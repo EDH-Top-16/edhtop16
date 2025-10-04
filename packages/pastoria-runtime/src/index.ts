@@ -1,1 +1,5 @@
-export const CLIENT = true;
+export {
+  relayClientEnvironment,
+  RelayResolverContext,
+  AnyPreloadedEntryPoint,
+} from './relay_client_environment';

@@ -1,9 +1,8 @@
-import {
-  EnvironmentProviderOptions,
-  IEnvironmentProvider,
-  OperationDescriptor,
-  PreloadedQuery,
-} from 'react-relay/hooks';
+import type {Request} from 'express';
+import {GraphQLSchema} from 'graphql';
+import {AnyPreloadedEntryPoint} from 'pastoria-runtime';
+import {createServerEnvironment} from 'pastoria-runtime/server';
+import {OperationDescriptor, PreloadedQuery} from 'react-relay/hooks';
 import {
   createOperationDescriptor,
   GraphQLResponse,
@@ -16,11 +15,10 @@ import serialize from 'serialize-javascript';
 import type {Manifest} from 'vite';
 import {JSResource} from './js_resource';
 import {
-  AnyPreloadedEntryPoint,
   router__createAppFromEntryPoint,
   router__loadEntryPoint,
-  RouterOps,
   RouterBootstrap,
+  RouterOps,
 } from './router';
 
 type AnyPreloadedQuery = PreloadedQuery<OperationType>;
@@ -111,12 +109,23 @@ async function router__loadQueries(entryPoint: AnyPreloadedEntryPoint) {
 }
 
 export async function createRouterServerApp(
-  provider: IEnvironmentProvider<EnvironmentProviderOptions>,
-  initialPath: string,
+  req: Request,
+  schema: GraphQLSchema,
+  persistedQueries: Record<string, string>,
+  createContext: () => unknown,
 ) {
+  const initialPath = req.originalUrl;
+  const context = createContext();
+  const provider = createServerEnvironment(
+    req,
+    schema,
+    persistedQueries,
+    context,
+  );
+
   const ep = await router__loadEntryPoint(provider, initialPath);
   const ops = ep != null ? await router__loadQueries(ep) : [];
-  const RouterApp = router__createAppFromEntryPoint(provider, ep, initialPath);
+  const RouterApp = router__createAppFromEntryPoint(ep, provider, initialPath);
 
   if (ep != null) {
     RouterApp.bootstrap = (manifest) =>

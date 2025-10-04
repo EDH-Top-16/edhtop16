@@ -1,50 +1,46 @@
 import {Request} from 'express';
 import {graphql, GraphQLSchema} from 'graphql';
+import {Environment, Network, RecordSource, Store} from 'relay-runtime';
 import {
-  Environment,
-  FetchFunction,
-  Network,
-  RecordSource,
-  Store,
-} from 'relay-runtime';
-import {Context} from './context';
-
-export interface RelayResolverContext {
-  cookies?: Request['cookies'];
-}
+  EnvironmentProvider,
+  RelayResolverContext,
+} from '../relay_client_environment';
 
 export function createServerEnvironment(
   req: Request,
   schema: GraphQLSchema,
   persistedQueries: Record<string, string>,
-) {
-  const networkFetchFunction: FetchFunction = async (request, variables) => {
+  contextValue: unknown,
+): EnvironmentProvider {
+  const network = Network.create(async (request, variables) => {
     let source = request.text;
     if (source == null && request.id) {
       source = persistedQueries?.[request.id] ?? null;
-    }
-
-    if (source == null) {
+    } else if (source == null) {
       throw new Error(`Could not find source for query: ${request.id}`);
     }
 
     const results = await graphql({
       schema,
       source,
+      contextValue,
       variableValues: variables,
-      contextValue: new Context(),
     });
 
     return results as any;
+  });
+
+  const resolverContext: RelayResolverContext = {
+    cookies: req.cookies,
   };
 
-  return new Environment({
-    network: Network.create(networkFetchFunction),
-    store: new Store(new RecordSource(), {
-      resolverContext: {
-        cookies: req.cookies,
-      } satisfies RelayResolverContext,
-    }),
+  const env = new Environment({
+    network,
+    store: new Store(new RecordSource(), {resolverContext}),
     isServer: true,
   });
+
+  return {
+    getEnvironment: () => env,
+  };
 }

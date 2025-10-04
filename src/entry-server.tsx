@@ -1,17 +1,14 @@
 import {listRoutes} from '#genfiles/router/router';
 import {createRouterServerApp} from '#genfiles/router/server_router';
 import {getSchema} from '#genfiles/schema/schema';
+import {Context} from '#src/lib/server/context';
+import {App} from '#src/pages/_app';
 import {usePersistedOperations} from '@graphql-yoga/plugin-persisted-operations';
 import express from 'express';
-import {createYoga, GraphQLParams} from 'graphql-yoga';
-import {StrictMode} from 'react';
-import {renderToPipeableStream, renderToString} from 'react-dom/server';
-import {RelayEnvironmentProvider} from 'react-relay/hooks';
-import type {Manifest} from 'vite';
-import {Context} from './lib/server/context';
-import {createServerEnvironment} from './lib/server/relay_server_environment';
-import {App} from './pages/_app';
 import {GraphQLSchema, specifiedDirectives} from 'graphql';
+import {createYoga, GraphQLParams} from 'graphql-yoga';
+import {renderToPipeableStream} from 'react-dom/server';
+import type {Manifest} from 'vite';
 
 const schemaConfig = getSchema().toConfig();
 const schema = new GraphQLSchema({
@@ -23,11 +20,12 @@ export function createHandler(
   persistedQueries: Record<string, string>,
   manifest?: Manifest,
 ) {
-  const context = new Context();
-
-  const graphqlHandler = createYoga({
+  const graphqlHandler = createYoga<{req: express.Request}>({
     schema,
-    context,
+    context: ({req}) => {
+      console.log(req);
+      return new Context(req);
+    },
     plugins: [
       // eslint-disable-next-line react-hooks/rules-of-hooks
       usePersistedOperations({
@@ -41,10 +39,11 @@ export function createHandler(
   });
 
   const entryPointHandler: express.Handler = async (req, res) => {
-    const env = createServerEnvironment(req, schema, persistedQueries);
     const RouterApp = await createRouterServerApp(
-      {getEnvironment: () => env},
-      req.originalUrl,
+      req,
+      schema,
+      persistedQueries,
+      () => new Context(req),
     );
 
     const {
@@ -54,29 +53,21 @@ export function createHandler(
       bootstrapModules,
     } = RouterApp.bootstrap(manifest);
 
-    const app = (
-      <StrictMode>
-        <RelayEnvironmentProvider environment={env}>
-          <RouterApp.Shell
-            preloadModules={preloadModules}
-            preloadStylesheets={preloadStylesheets}
-          >
-            <App>
-              <RouterApp />
-            </App>
-          </RouterApp.Shell>
-        </RelayEnvironmentProvider>
-      </StrictMode>
-    );
-
-    const {pipe} = renderToPipeableStream(app, {
-      bootstrapScriptContent,
-      bootstrapModules,
-      onShellReady() {
-        res.setHeader('Content-Type', 'text/html');
-        pipe(res);
+    const {pipe} = renderToPipeableStream(
+      <RouterApp
+        App={App}
+        preloadModules={preloadModules}
+        preloadStylesheets={preloadStylesheets}
+      />,
+      {
+        bootstrapScriptContent,
+        bootstrapModules,
+        onShellReady() {
+          res.setHeader('Content-Type', 'text/html');
+          pipe(res);
+        },
       },
-    });
+    );
   };
 
   const r = express.Router();

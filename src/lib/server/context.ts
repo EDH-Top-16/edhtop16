@@ -1,7 +1,10 @@
 import DataLoader from 'dataloader';
+import express from 'express';
 
 /** @gqlContext */
 export class Context {
+  constructor(private readonly request: express.Request) {}
+
   private readonly DERIVED_CACHE = new Map<string, unknown>();
 
   derived = <T>(key: string, make: () => T): T => {

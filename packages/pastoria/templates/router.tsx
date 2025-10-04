@@ -1,8 +1,10 @@
+import {relayClientEnvironment, AnyPreloadedEntryPoint} from 'pastoria-runtime';
 import {createRouter} from 'radix3';
 import {
   AnchorHTMLAttributes,
   createContext,
   PropsWithChildren,
+  StrictMode,
   Suspense,
   useCallback,
   useContext,
@@ -17,14 +19,13 @@ import {
   EnvironmentProviderOptions,
   IEnvironmentProvider,
   loadEntryPoint,
-  PreloadedEntryPoint,
+  RelayEnvironmentProvider,
   useEntryPointLoader,
 } from 'react-relay/hooks';
 import {OperationDescriptor, PayloadData} from 'relay-runtime';
 import type {Manifest} from 'vite';
 import * as z from 'zod/v4-mini';
 
-export type AnyPreloadedEntryPoint = PreloadedEntryPoint<any>;
 export type RouterOps = [OperationDescriptor, PayloadData][];
 
 type RouterConf = typeof ROUTER_CONF;
@@ -167,11 +168,20 @@ export interface RouterBootstrap {
   bootstrapModules: string[];
 }
 
+const REACT_REFRESH_SCRIPT = `
+import RefreshRuntime from 'http://localhost:3000/@react-refresh'
+RefreshRuntime.injectIntoGlobalHook(window)
+window.$RefreshReg$ = () => {}
+window.$RefreshSig$ = () => (type) => type
+window.__vite_plugin_react_preamble_installed__ = true`;
+
 export function router__createAppFromEntryPoint(
-  provider: IEnvironmentProvider<EnvironmentProviderOptions>,
   initialEntryPoint: AnyPreloadedEntryPoint | null,
+  provider: IEnvironmentProvider<EnvironmentProviderOptions>,
   initialPath?: string,
 ) {
+  const env = provider.getEnvironment(null);
+
   function RouterShell({
     preloadModules,
     preloadStylesheets,
@@ -189,32 +199,32 @@ export function router__createAppFromEntryPoint(
     }
 
     return (
-      <html>
-        <head>
-          <meta charSet="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <StrictMode>
+        <RelayEnvironmentProvider environment={env}>
+          <html>
+            <head>
+              <meta charSet="utf-8" />
+              <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1"
+              />
 
-          {process.env.NODE_ENV !== 'production' && (
-            <script
-              type="module"
-              dangerouslySetInnerHTML={{
-                __html: `
-                  import RefreshRuntime from 'http://localhost:3000/@react-refresh'
-                  RefreshRuntime.injectIntoGlobalHook(window)
-                  window.$RefreshReg$ = () => {}
-                  window.$RefreshSig$ = () => (type) => type
-                  window.__vite_plugin_react_preamble_installed__ = true`,
-              }}
-            />
-          )}
-        </head>
+              {process.env.NODE_ENV !== 'production' && (
+                <script
+                  type="module"
+                  dangerouslySetInnerHTML={{__html: REACT_REFRESH_SCRIPT}}
+                />
+              )}
+            </head>
 
-        <body>{children}</body>
-      </html>
+            <body>{children}</body>
+          </html>
+        </RelayEnvironmentProvider>
+      </StrictMode>
     );
   }
 
-  function RouterApp() {
+  function RouterCore() {
     const [location, setLocation] = useLocation(initialPath);
     const routerContextValue = useMemo(
       (): RouterContextValue => ({
@@ -263,7 +273,25 @@ export function router__createAppFromEntryPoint(
     );
   }
 
-  RouterApp.Shell = RouterShell;
+  function RouterApp(props: {
+    preloadModules?: string[];
+    preloadStylesheets?: string[];
+    App?: React.ComponentType<PropsWithChildren<{}>>;
+  }) {
+    return (
+      <RouterShell
+        preloadModules={props.preloadModules}
+        preloadStylesheets={props.preloadStylesheets}
+      >
+        {props.App == null ? (
+          <RouterCore />
+        ) : (
+          <props.App children={<RouterCore />} />
+        )}
+      </RouterShell>
+    );
+  }
+
   RouterApp.bootstrap = (manifest?: Manifest): RouterBootstrap => ({
     preloadModules: [],
     preloadStylesheets: [],
@@ -274,12 +302,12 @@ export function router__createAppFromEntryPoint(
   return RouterApp;
 }
 
-export async function createRouterApp(
-  provider: IEnvironmentProvider<EnvironmentProviderOptions>,
-) {
+export async function createRouterApp() {
+  const provider = relayClientEnvironment;
+
   router__hydrateStore(provider);
   const ep = await router__loadEntryPoint(provider);
-  return router__createAppFromEntryPoint(provider, ep);
+  return router__createAppFromEntryPoint(ep, provider);
 }
 
 export function usePath() {
