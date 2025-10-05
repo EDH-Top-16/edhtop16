@@ -165,7 +165,7 @@ function CommandersPageShell({
       <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">
         <div className="flex w-full items-baseline gap-4">
           <h1 className="font-title mb-8 flex-1 text-5xl font-extrabold text-white">
-            cEDH Metagame Breakdown!!!
+            cEDH Metagame Breakdown
           </h1>
 
           <button className="cursor-pointer" onClick={toggleDisplay}>
