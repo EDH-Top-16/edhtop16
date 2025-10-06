@@ -3,10 +3,21 @@ import {
   EnvironmentProviderOptions,
   IEnvironmentProvider,
   PreloadedEntryPoint,
+  PreloadedQuery,
 } from 'react-relay';
-import {Environment, Network, RecordSource, Store} from 'relay-runtime';
+import {
+  Environment,
+  Network,
+  OperationDescriptor,
+  OperationType,
+  PayloadData,
+  RecordSource,
+  Store,
+} from 'relay-runtime';
 
+export type AnyPreloadedQuery = PreloadedQuery<OperationType>;
 export type AnyPreloadedEntryPoint = PreloadedEntryPoint<any>;
+export type RouterOps = [OperationDescriptor, PayloadData][];
 
 export type EnvironmentProvider =
   IEnvironmentProvider<EnvironmentProviderOptions>;

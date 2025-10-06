@@ -22,6 +22,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "@graphql-yoga/plugin-persisted-operations": "^3.14.0",
+    "graphql-yoga": "^5.13.4",
+    "serialize-javascript": "^6.0.2"
+  },
   "devDependencies": {
     "typescript": "^5.9.2",
     "@types/express": "^5.0.3",

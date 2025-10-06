@@ -38,12 +38,6 @@ const ROUTER_TEMPLATE = path.join(
   '../templates/router.tsx',
 );
 
-const SERVER_ROUTER_FILENAME = '__generated__/router/server_router.ts';
-const SERVER_ROUTER_TEMPLATE = path.join(
-  path.dirname(new URL(import.meta.url).pathname),
-  '../templates/server_router.ts',
-);
-
 async function loadRouterFiles(project: Project) {
   async function loadSourceFile(fileName: string, templateFileName: string) {
     const template = await readFile(templateFileName, 'utf-8');
@@ -58,13 +52,12 @@ async function loadRouterFiles(project: Project) {
     });
   }
 
-  const [jsResource, router, serverRouter] = await Promise.all([
+  const [jsResource, router] = await Promise.all([
     loadSourceFile(JS_RESOURCE_FILENAME, JS_RESOURCE_TEMPLATE),
     loadSourceFile(ROUTER_FILENAME, ROUTER_TEMPLATE),
-    loadSourceFile(SERVER_ROUTER_FILENAME, SERVER_ROUTER_TEMPLATE),
   ]);
 
-  return {jsResource, router, serverRouter} as const;
+  return {jsResource, router} as const;
 }
 
 type RouterResource = {
@@ -279,9 +272,5 @@ export async function generatePastoriaArtifacts() {
     );
   }
 
-  await Promise.all([
-    routerFiles.jsResource.save(),
-    routerFiles.router.save(),
-    routerFiles.serverRouter.save(),
-  ]);
+  await Promise.all([routerFiles.jsResource.save(), routerFiles.router.save()]);
 }
