@@ -78,6 +78,7 @@ function collectRouterNodes(project: Project) {
   const routes: RouterRoute[] = [];
 
   function visitRouterNodes(sourceFile: SourceFile) {
+    // TODO: Skip sourceFile if regex isn't used at all.
     sourceFile.getExportSymbols().forEach((symbol) => {
       let routerResource = null as RouterResource | null;
       let routerRoute = null as RouterRoute | null;
