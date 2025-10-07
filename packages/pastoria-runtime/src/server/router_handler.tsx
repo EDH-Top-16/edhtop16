@@ -223,8 +223,11 @@ function bootstrapScripts(
   }
 
   if (process.env.NODE_ENV !== 'production') {
-    bootstrap.bootstrapModules.push('/@vite/client', '/src/entry-client.tsx');
     bootstrap.preloadStylesheets.push('/src/globals.css');
+    bootstrap.bootstrapModules.push(
+      '/@vite/client',
+      '/@id/virtual:pastoria-entry-client.tsx',
+    );
   } else if (entryPoint != null) {
     const rootModuleSrc = srcOfModuleId(entryPoint.rootModuleID);
     if (rootModuleSrc == null) return bootstrap;

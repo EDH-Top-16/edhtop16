@@ -21,7 +21,10 @@ interface ServerEntry {
 
 const MANIFEST_JSON = 'dist/client/.vite/manifest.json';
 const QUERIES_JSON = '__generated__/persisted_queries.json';
-const ENTRY_SERVER = path.join(process.cwd(), 'dist/server/entry-server.mjs');
+const ENTRY_SERVER = path.join(
+  process.cwd(),
+  'dist/server/virtual_pastoria-entry-server.mjs',
+);
 
 async function createServer() {
   dotenv.config();

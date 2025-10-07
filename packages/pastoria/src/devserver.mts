@@ -36,7 +36,7 @@ export async function startDevserver(opts: {port: string}) {
     );
 
     const {createHandler} = (await vite.ssrLoadModule(
-      '/src/entry-server.tsx',
+      'virtual:pastoria-entry-server.tsx',
     )) as ServerEntry;
 
     const handler = createHandler(persistedQueries);
