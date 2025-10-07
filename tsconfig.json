@@ -28,9 +28,7 @@
     "src/**/*.tsx",
     "types/*.ts",
     "src/entry-client.tsx",
-    "src/entry-server.tsx",
-    "devserver.mts",
-    "server.mts"
+    "src/entry-server.tsx"
   ],
   "exclude": ["node_modules", "packages"],
   "ts-node": {

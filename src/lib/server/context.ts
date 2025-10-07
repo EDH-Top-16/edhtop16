@@ -2,6 +2,8 @@ import DataLoader from 'dataloader';
 
 /** @gqlContext */
 export class Context {
+  constructor() {}
+
   private readonly DERIVED_CACHE = new Map<string, unknown>();
 
   derived = <T>(key: string, make: () => T): T => {

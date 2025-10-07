@@ -3,11 +3,18 @@
  * Do not modify this file directly. Instead, edit the template at router.tsx.
  */
 
+import {
+  AnyPreloadedEntryPoint,
+  EnvironmentProvider,
+  relayClientEnvironment,
+  RouterOps,
+} from 'pastoria-runtime';
 import {createRouter} from 'radix3';
 import {
   AnchorHTMLAttributes,
   createContext,
   PropsWithChildren,
+  StrictMode,
   Suspense,
   useCallback,
   useContext,
@@ -19,14 +26,10 @@ import {preinit, preloadModule} from 'react-dom';
 import {
   EntryPoint,
   EntryPointContainer,
-  EnvironmentProviderOptions,
-  IEnvironmentProvider,
   loadEntryPoint,
-  PreloadedEntryPoint,
+  RelayEnvironmentProvider,
   useEntryPointLoader,
 } from 'react-relay/hooks';
-import {OperationDescriptor, PayloadData} from 'relay-runtime';
-import type {Manifest} from 'vite';
 import * as z from 'zod/v4-mini';
 import { entrypoint as e0 } from "../../src/pages/about.entrypoint";
 import { entrypoint as e1 } from "../../src/pages/index.entrypoint";
@@ -34,9 +37,6 @@ import { entrypoint as e2 } from "../../src/pages/staples.entrypoint";
 import { entrypoint as e3 } from "../../src/pages/tournaments.entrypoint";
 import { entrypoint as e4 } from "../../src/pages/tournament/tournament_view.entrypoint";
 import { entrypoint as e5 } from "../../src/pages/commander/[commander]/commander_page.entrypoint";
-
-export type AnyPreloadedEntryPoint = PreloadedEntryPoint<any>;
-export type RouterOps = [OperationDescriptor, PayloadData][];
 
 type RouterConf = typeof ROUTER_CONF;
 const ROUTER_CONF = {
@@ -179,9 +179,7 @@ function useLocation(initialPath?: string) {
   return [location, setLocation] as const;
 }
 
-export function router__hydrateStore(
-  provider: IEnvironmentProvider<EnvironmentProviderOptions>,
-) {
+export function router__hydrateStore(provider: EnvironmentProvider) {
   const env = provider.getEnvironment(null);
   if ('__router_ops' in window) {
     const ops = (window as any).__router_ops as RouterOps;
@@ -192,7 +190,7 @@ export function router__hydrateStore(
 }
 
 export async function router__loadEntryPoint(
-  provider: IEnvironmentProvider<EnvironmentProviderOptions>,
+  provider: EnvironmentProvider,
   initialPath?: string,
 ) {
   if (!initialPath) initialPath = window.location.href;
@@ -217,18 +215,20 @@ const RouterContext = createContext<RouterContextValue>({
   setLocation: () => {},
 });
 
-export interface RouterBootstrap {
-  preloadModules: string[];
-  preloadStylesheets: string[];
-  bootstrapScriptContent: string;
-  bootstrapModules: string[];
-}
+const REACT_REFRESH_SCRIPT = `
+import RefreshRuntime from 'http://localhost:3000/@react-refresh'
+RefreshRuntime.injectIntoGlobalHook(window)
+window.$RefreshReg$ = () => {}
+window.$RefreshSig$ = () => (type) => type
+window.__vite_plugin_react_preamble_installed__ = true`;
 
 export function router__createAppFromEntryPoint(
-  provider: IEnvironmentProvider<EnvironmentProviderOptions>,
   initialEntryPoint: AnyPreloadedEntryPoint | null,
+  provider: EnvironmentProvider,
   initialPath?: string,
 ) {
+  const env = provider.getEnvironment(null);
+
   function RouterShell({
     preloadModules,
     preloadStylesheets,
@@ -246,32 +246,32 @@ export function router__createAppFromEntryPoint(
     }
 
     return (
-      <html>
-        <head>
-          <meta charSet="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <StrictMode>
+        <RelayEnvironmentProvider environment={env}>
+          <html>
+            <head>
+              <meta charSet="utf-8" />
+              <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1"
+              />
 
-          {process.env.NODE_ENV !== 'production' && (
-            <script
-              type="module"
-              dangerouslySetInnerHTML={{
-                __html: `
-                  import RefreshRuntime from 'http://localhost:3000/@react-refresh'
-                  RefreshRuntime.injectIntoGlobalHook(window)
-                  window.$RefreshReg$ = () => {}
-                  window.$RefreshSig$ = () => (type) => type
-                  window.__vite_plugin_react_preamble_installed__ = true`,
-              }}
-            />
-          )}
-        </head>
+              {process.env.NODE_ENV !== 'production' && (
+                <script
+                  type="module"
+                  dangerouslySetInnerHTML={{__html: REACT_REFRESH_SCRIPT}}
+                />
+              )}
+            </head>
 
-        <body>{children}</body>
-      </html>
+            <body>{children}</body>
+          </html>
+        </RelayEnvironmentProvider>
+      </StrictMode>
     );
   }
 
-  function RouterApp() {
+  function RouterCore() {
     const [location, setLocation] = useLocation(initialPath);
     const routerContextValue = useMemo(
       (): RouterContextValue => ({
@@ -320,23 +320,34 @@ export function router__createAppFromEntryPoint(
     );
   }
 
-  RouterApp.Shell = RouterShell;
-  RouterApp.bootstrap = (manifest?: Manifest): RouterBootstrap => ({
-    preloadModules: [],
-    preloadStylesheets: [],
-    bootstrapScriptContent: '',
-    bootstrapModules: [],
-  });
+  function RouterApp(props: {
+    preloadModules?: string[];
+    preloadStylesheets?: string[];
+    App?: React.ComponentType<PropsWithChildren<{}>> | null;
+  }) {
+    return (
+      <RouterShell
+        preloadModules={props.preloadModules}
+        preloadStylesheets={props.preloadStylesheets}
+      >
+        {props.App == null ? (
+          <RouterCore />
+        ) : (
+          <props.App children={<RouterCore />} />
+        )}
+      </RouterShell>
+    );
+  }
 
   return RouterApp;
 }
 
-export async function createRouterApp(
-  provider: IEnvironmentProvider<EnvironmentProviderOptions>,
-) {
+export async function createRouterApp() {
+  const provider = relayClientEnvironment;
+
   router__hydrateStore(provider);
   const ep = await router__loadEntryPoint(provider);
-  return router__createAppFromEntryPoint(provider, ep);
+  return router__createAppFromEntryPoint(ep, provider);
 }
 
 export function usePath() {
