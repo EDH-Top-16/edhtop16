@@ -9,11 +9,9 @@ ENV NODE_OPTIONS=--max-old-space-size=4096
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY packages/pastoria/package.json ./packages/pastoria/
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm run -r build
 RUN pnpm run build
 
 # Pull application database
@@ -40,14 +38,12 @@ ENV NODE_ENV=production
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY packages/pastoria/package.json ./packages/pastoria/
 RUN pnpm install --frozen-lockfile --prod
 
 # Copy build output from build stage and install dependencies.
 COPY --from=build /build/dist ./dist
 COPY --from=build /build/edhtop16.db ./
 
-COPY server.mts ./
 COPY relay.config.json ./
 COPY public ./public/
 COPY __generated__/persisted_queries.json ./__generated__/persisted_queries.json
