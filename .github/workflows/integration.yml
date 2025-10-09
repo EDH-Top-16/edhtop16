@@ -23,8 +23,6 @@ jobs:
         run: pnpm exec prettier --check .
       - name: Check Lint
         run: pnpm exec eslint .
-      - name: Build Packages
-        run: pnpm run -r build
       - name: Check Types
         run: pnpm exec tsc
   build-server:

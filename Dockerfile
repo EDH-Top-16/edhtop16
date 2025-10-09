@@ -13,7 +13,6 @@ COPY packages/pastoria/package.json ./packages/pastoria/
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm run -r build
 RUN pnpm run build
 
 # Pull application database

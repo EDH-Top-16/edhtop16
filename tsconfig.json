@@ -27,10 +27,8 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "types/*.ts",
-    "src/entry-client.tsx",
-    "src/entry-server.tsx"
   ],
-  "exclude": ["node_modules", "packages"],
+  "exclude": ["node_modules"],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"
