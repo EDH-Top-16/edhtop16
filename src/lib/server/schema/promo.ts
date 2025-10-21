@@ -23,6 +23,48 @@ export interface FirstPartyPromo {
 const promos: FirstPartyPromo[] = [
   {
     commander: `Kraum, Ludevic's Opus / Tymna the Weaver`,
+    activeFrom: new Date('2025-10-20'),
+    activeUntil: new Date('2025-11-04'),
+    title: 'Looking to make your deck stand out?',
+    description: [
+      'doot loot is the best place for cEDH bling!',
+      'Rare japanese and russian foils, signed and altered cards, daily deals and monthly giveaways!',
+    ],
+    buttonText: 'Join 2,000 other members today!',
+    backgroundImageUrl: '/promos/251020/TnK_Background.png',
+    imageUrl: '/promos/dootyloottransparent.webp',
+    href: 'https://discord.gg/dootloot',
+  },
+  {
+    commander: `Rograkh, Son of Rohgahh / Silas Renn, Seeker Adept`,
+    activeFrom: new Date('2025-10-20'),
+    activeUntil: new Date('2025-11-04'),
+    title: 'Looking to make your deck stand out?',
+    description: [
+      'doot loot is the best place for cEDH bling!',
+      'Rare japanese and russian foils, signed and altered cards, daily deals and monthly giveaways!',
+    ],
+    buttonText: 'Join 2,000 other members today!',
+    backgroundImageUrl: '/promos/251020/RogSi_Background.png',
+    imageUrl: '/promos/dootyloottransparent.webp',
+    href: 'https://discord.gg/dootloot',
+  },
+  {
+    commander: 'Rograkh, Son of Rohgahh / Thrasios, Triton Hero',
+    activeFrom: new Date('2025-10-20'),
+    activeUntil: new Date('2025-11-04'),
+    title: 'Looking to make your deck stand out?',
+    description: [
+      'doot loot is the best place for cEDH bling!',
+      'Rare japanese and russian foils, signed and altered cards, daily deals and monthly giveaways!',
+    ],
+    buttonText: 'Join 2,000 other members today!',
+    backgroundImageUrl: '/promos/251020/rogthras_background.png',
+    imageUrl: '/promos/dootyloottransparent.webp',
+    href: 'https://discord.gg/dootloot',
+  },
+  {
+    commander: `Kraum, Ludevic's Opus / Tymna the Weaver`,
     activeFrom: new Date('2025-07-15'),
     activeUntil: new Date('2025-07-23'),
     title: 'Looking to up your Bling Game?',
