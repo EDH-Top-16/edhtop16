@@ -1,5 +1,6 @@
 import {promo_EmbededPromo$key} from '#genfiles/queries/promo_EmbededPromo.graphql';
 import {graphql, useFragment} from 'react-relay/hooks';
+import cn from 'classnames';
 
 export function FirstPartyPromo(props: {promo: promo_EmbededPromo$key}) {
   const promo = useFragment(
@@ -42,7 +43,14 @@ export function FirstPartyPromo(props: {promo: promo_EmbededPromo$key}) {
             <p className="mb-2 text-xs text-white/90 md:mb-3 md:text-sm lg:text-base">
               {promo.description.map((text, i) => {
                 return (
-                  <span key={i} className="block">
+                  <span
+                    key={i}
+                    className={cn(
+                      'block',
+                      i === 0 && 'font-bold',
+                      i > 0 && 'pt-2',
+                    )}
+                  >
                     {text}
                   </span>
                 );
