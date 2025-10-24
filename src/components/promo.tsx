@@ -47,7 +47,7 @@ export function FirstPartyPromo(props: {promo: promo_EmbededPromo$key}) {
                     key={i}
                     className={cn(
                       'block',
-                      i === 0 && 'font-bold',
+                      i === 0 && promo.description.length > 1 && 'font-bold',
                       i > 0 && 'pt-2',
                     )}
                   >

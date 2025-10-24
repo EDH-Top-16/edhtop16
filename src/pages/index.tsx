@@ -33,6 +33,7 @@ import {LoadMoreButton} from '../components/load_more';
 import {Navigation} from '../components/navigation';
 import {Select} from '../components/select';
 import {formatPercent} from '../lib/client/format';
+import {FirstPartyPromo} from '#src/components/promo.jsx';
 
 function TopCommandersCard({
   display = 'card',
@@ -314,6 +315,9 @@ export const CommandersPage: EntryPointComponent<
         $colorId: String
       ) @preloadable @throwOnFieldError {
         ...pages_topCommanders
+        homePagePromo {
+          ...promo_EmbededPromo
+        }
       }
     `,
     queries.commandersQueryRef,
@@ -362,6 +366,8 @@ export const CommandersPage: EntryPointComponent<
       minEntries={queries.commandersQueryRef.variables.minEntries}
       minTournamentSize={queries.commandersQueryRef.variables.minTournamentSize}
     >
+      {query.homePagePromo && <FirstPartyPromo promo={query.homePagePromo} />}
+
       <div
         className={cn(
           'mx-auto grid w-full pb-4',

@@ -57,11 +57,11 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0
       pastoria-runtime:
-        specifier: ^1.0.6
-        version: 1.0.6(express@5.1.0)(graphql@17.0.0-alpha.9)(pastoria-config@1.0.0)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76)
+        specifier: ^1.0.9
+        version: 1.0.9(express@5.1.0)(graphql@17.0.0-alpha.9)(pastoria-config@1.0.0)(radix3@1.1.2)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76)
       pastoria-server:
-        specifier: ^1.0.7
-        version: 1.0.7(pastoria-config@1.0.0)(pastoria-runtime@1.0.6(express@5.1.0)(graphql@17.0.0-alpha.9)(pastoria-config@1.0.0)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76))
+        specifier: ^1.0.11
+        version: 1.0.11(express@5.1.0)(pastoria-config@1.0.0)(pastoria-runtime@1.0.9(express@5.1.0)(graphql@17.0.0-alpha.9)(pastoria-config@1.0.0)(radix3@1.1.2)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76))
       picocolors:
         specifier: ^1.1.1
         version: 1.1.1
@@ -148,8 +148,8 @@ importers:
         specifier: ^0.17.0
         version: 0.17.0(better-sqlite3@11.10.0)(kysely@0.27.6)
       pastoria:
-        specifier: ^1.0.6
-        version: 1.0.6(@types/node@22.18.8)(jiti@2.6.1)(lightningcss@1.30.1)(pastoria-config@1.0.0)
+        specifier: ^1.0.9
+        version: 1.0.9(@types/node@22.18.8)(express@5.1.0)(jiti@2.6.1)(lightningcss@1.30.1)(pastoria-config@1.0.0)(tailwindcss@4.1.14)
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
@@ -1078,6 +1078,9 @@ packages:
 
   babel-plugin-relay@16.2.0:
     resolution: {integrity: sha512-+3n7kSFH5MelySnO5MLXl2S+Bq4nAGcdWylXeqNXZODbzgYtqak194Z4u5KElLAHGhsyKIMTW7qazBPvMbxhFQ==}
+
+  babel-plugin-relay@20.1.1:
+    resolution: {integrity: sha512-BWlqLPiHbxZTxlyng2rVgsZCwztHNje7H8FR4c+UKy3ErQJBG6BKLr9vUdeR7mAZCH2v0sOAxNhG6zR1FrWjAg==}
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -2034,30 +2037,34 @@ packages:
   pastoria-config@1.0.0:
     resolution: {integrity: sha512-sHiZkqhq8tlLPhJT86t422SLj+G23pnbLhTeUvWMzqNoCEJ4midrEdmnfIb6RxDHEvzuwP1f0kLShx6tkwH1bA==}
 
-  pastoria-runtime@1.0.6:
-    resolution: {integrity: sha512-P8Zi65Ip+TfsQD0s2U6QLFD0A2m2an+fs/vUGo+Q3iTCcmk9kJddcoNo9MTK4ztryVamxqppPnsClBuA3mmXTg==}
+  pastoria-runtime@1.0.9:
+    resolution: {integrity: sha512-UGN3zoMAvCX7/cE9y/kHb7jEQxx7gkgomsnqd7MG+qmLZN9F7BiC+FwTH5Dv5/COUhNxEaKeCLal/t4knCS4YA==}
     peerDependencies:
       express: ^5.1.0
       graphql: 17.0.0-alpha.9
       pastoria-config: 1.0.0
+      radix3: ^1.1.2
       react: ^19.2.0
       react-dom: ^19.2.0
       react-relay: ^20.1.1
       relay-runtime: ^20.1.1
       zod: ^3.25.76
 
-  pastoria-server@1.0.7:
-    resolution: {integrity: sha512-myCKPzgnldYOI3xj0pyVJ4U7igp/sPgPx/Enciii4ELAdboOaY/DY2vZi65DqIa7T+BHIwYtzVgOBGl7RhfgOA==}
+  pastoria-server@1.0.11:
+    resolution: {integrity: sha512-PS2eoIDfFC/hJspD+tSNK5vPmKD30S3CLgFgwMx0PEJk985/TFLBRUc1nngF9g1Y7kTvtVjEWsjxyOTZAROc+Q==}
     hasBin: true
     peerDependencies:
+      express: ^5.1.0
       pastoria-config: 1.0.0
-      pastoria-runtime: 1.0.6
+      pastoria-runtime: 1.0.9
 
-  pastoria@1.0.6:
-    resolution: {integrity: sha512-0arNBVhUKpBLWyIJUd3JLuwyi+WcuiPXq160aEifHwkopMhHVvwQmbByevLU5anivm7Lfuv68sOgSXaLhEYYTg==}
+  pastoria@1.0.9:
+    resolution: {integrity: sha512-yqKE/Zn9tme0hO/7RU7ttM/EW266TMR4LeeskxPzmSvX2u/iTkyE1ffvjZ8pU/5BI16ctg89wIADWQLRn2Fcuw==}
     hasBin: true
     peerDependencies:
+      express: ^5.1.0
       pastoria-config: 1.0.0
+      tailwindcss: ^4.1.14
 
   path-browserify@1.0.1:
     resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
@@ -3442,6 +3449,12 @@ snapshots:
       cosmiconfig: 5.2.1
       graphql: 15.3.0
 
+  babel-plugin-relay@20.1.1:
+    dependencies:
+      babel-plugin-macros: 2.8.0
+      cosmiconfig: 5.2.1
+      graphql: 15.3.0
+
   balanced-match@1.0.2: {}
 
   base64-js@1.5.1: {}
@@ -4341,12 +4354,13 @@ snapshots:
 
   pastoria-config@1.0.0: {}
 
-  pastoria-runtime@1.0.6(express@5.1.0)(graphql@17.0.0-alpha.9)(pastoria-config@1.0.0)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76):
+  pastoria-runtime@1.0.9(express@5.1.0)(graphql@17.0.0-alpha.9)(pastoria-config@1.0.0)(radix3@1.1.2)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76):
     dependencies:
       dataloader: 2.2.3
       express: 5.1.0
       graphql: 17.0.0-alpha.9
       pastoria-config: 1.0.0
+      radix3: 1.1.2
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
       react-relay: 20.1.1(react@19.2.0)
@@ -4354,28 +4368,28 @@ snapshots:
       serialize-javascript: 6.0.2
       zod: 3.25.76
 
-  pastoria-server@1.0.7(pastoria-config@1.0.0)(pastoria-runtime@1.0.6(express@5.1.0)(graphql@17.0.0-alpha.9)(pastoria-config@1.0.0)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76)):
+  pastoria-server@1.0.11(express@5.1.0)(pastoria-config@1.0.0)(pastoria-runtime@1.0.9(express@5.1.0)(graphql@17.0.0-alpha.9)(pastoria-config@1.0.0)(radix3@1.1.2)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76)):
     dependencies:
       cookie-parser: 1.4.7
       dotenv: 16.6.1
       express: 5.1.0
       pastoria-config: 1.0.0
-      pastoria-runtime: 1.0.6(express@5.1.0)(graphql@17.0.0-alpha.9)(pastoria-config@1.0.0)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76)
+      pastoria-runtime: 1.0.9(express@5.1.0)(graphql@17.0.0-alpha.9)(pastoria-config@1.0.0)(radix3@1.1.2)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76)
       picocolors: 1.1.1
-    transitivePeerDependencies:
-      - supports-color
 
-  pastoria@1.0.6(@types/node@22.18.8)(jiti@2.6.1)(lightningcss@1.30.1)(pastoria-config@1.0.0):
+  pastoria@1.0.9(@types/node@22.18.8)(express@5.1.0)(jiti@2.6.1)(lightningcss@1.30.1)(pastoria-config@1.0.0)(tailwindcss@4.1.14):
     dependencies:
       '@tailwindcss/vite': 4.1.14(vite@7.1.9(@types/node@22.18.8)(jiti@2.6.1)(lightningcss@1.30.1))
       '@vitejs/plugin-react': 5.0.4(vite@7.1.9(@types/node@22.18.8)(jiti@2.6.1)(lightningcss@1.30.1))
       babel-plugin-react-compiler: 1.0.0
+      babel-plugin-relay: 20.1.1
       commander: 14.0.1
       cookie-parser: 1.4.7
       dotenv: 16.6.1
       express: 5.1.0
       pastoria-config: 1.0.0
       picocolors: 1.1.1
+      tailwindcss: 4.1.14
       ts-morph: 26.0.0
       vite: 7.1.9(@types/node@22.18.8)(jiti@2.6.1)(lightningcss@1.30.1)
       vite-plugin-cjs-interop: 2.3.0(vite@7.1.9(@types/node@22.18.8)(jiti@2.6.1)(lightningcss@1.30.1))

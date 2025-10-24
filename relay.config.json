@@ -6,6 +6,6 @@
   "artifactDirectory": "./__generated__/queries",
   "eagerEsModules": true,
   "persistConfig": {
-    "file": "./__generated__/persisted_queries.json"
+    "file": "./__generated__/router/persisted_queries.json"
   }
 }

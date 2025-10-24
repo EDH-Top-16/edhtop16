@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<2ebd50b1be35f0850239a686d55e6e40>>
- * @relayHash 14745cc7afd103bd6a5ec872679047e4
+ * @generated SignedSource<<f43f0183c0f6d7a29675e62fc5684f3f>>
+ * @relayHash 3fc40ec58b75759ccc83989c5a3694a9
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 14745cc7afd103bd6a5ec872679047e4
+// @relayRequestID 3fc40ec58b75759ccc83989c5a3694a9
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -23,6 +23,9 @@ export type pages_CommandersQuery$variables = {
   timePeriod: TimePeriod;
 };
 export type pages_CommandersQuery$data = {
+  readonly homePagePromo: {
+    readonly " $fragmentSpreads": FragmentRefs<"promo_EmbededPromo">;
+  } | null | undefined;
   readonly " $fragmentSpreads": FragmentRefs<"pages_topCommanders">;
 };
 export type pages_CommandersQuery = {
@@ -115,6 +118,22 @@ return {
         "args": null,
         "kind": "FragmentSpread",
         "name": "pages_topCommanders"
+      },
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "FirstPartyPromo",
+        "kind": "LinkedField",
+        "name": "homePagePromo",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "promo_EmbededPromo"
+          }
+        ],
+        "storageKey": null
       }
     ],
     "type": "Query",
@@ -311,11 +330,64 @@ return {
         "key": "pages__commanders",
         "kind": "LinkedHandle",
         "name": "commanders"
+      },
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "FirstPartyPromo",
+        "kind": "LinkedField",
+        "name": "homePagePromo",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "title",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "description",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "buttonText",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "backgroundImageUrl",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "imageUrl",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "href",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
       }
     ]
   },
   "params": {
-    "id": "14745cc7afd103bd6a5ec872679047e4",
+    "id": "3fc40ec58b75759ccc83989c5a3694a9",
     "metadata": {},
     "name": "pages_CommandersQuery",
     "operationKind": "query",
@@ -324,7 +396,7 @@ return {
 };
 })();
 
-(node as any).hash = "292d2f6aa39943b5bcca348d425c6241";
+(node as any).hash = "b0fc745ee1a1d9e2e9c60492835f6804";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);
