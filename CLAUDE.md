@@ -52,7 +52,7 @@ code in this repository.
 2. **GraphQL with Relay**:
    - Schema defined in `src/lib/server/schema/` using Pothos
    - Relay queries in `__generated__/queries/`
-   - Persisted queries in `__generated__/persisted_queries.json`
+   - Persisted queries in `__generated__/router/persisted_queries.json`
 
 3. **Code Generation Pipeline**:
    - Relay compiler generates query artifacts
