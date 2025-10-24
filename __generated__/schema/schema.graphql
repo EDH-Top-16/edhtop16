@@ -248,6 +248,7 @@ type Query {
   cheaters: [Player!] @semanticNonNull
   commander(name: String!): Commander @semanticNonNull
   commanders(after: String, colorId: String, first: Int! = 20, minEntries: Int, minTournamentSize: Int, sortBy: CommandersSortBy! = CONVERSION, timePeriod: TimePeriod! = ONE_MONTH): CommanderConnection @semanticNonNull
+  homePagePromo: FirstPartyPromo
   node(id: ID!): Node
   player(profile: String!): Player @semanticNonNull
   searchResults(types: [SearchResultType!]!): [SearchResult!] @semanticNonNull

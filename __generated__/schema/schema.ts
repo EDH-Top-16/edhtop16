@@ -8,6 +8,7 @@ import { id as commanderIdResolver, id as entryIdResolver, id as playerIdResolve
 import { createPlayerLoader as createPlayerLoader, Player as queryCheatersResolver, Player as queryPlayerResolver } from "./../../src/lib/server/schema/player";
 import { createTournamentLoader as createTournamentLoader, Tournament as queryTournamentResolver, Tournament as queryTournamentsResolver } from "./../../src/lib/server/schema/tournament";
 import { Card as queryCardResolver, createCardLoader as createCardLoader, Card as queryStaplesResolver } from "./../../src/lib/server/schema/card";
+import { homePagePromo as queryHomePagePromoResolver } from "./../../src/lib/server/schema/promo";
 import { createEntryLoader as createEntryLoader } from "./../../src/lib/server/schema/entry";
 import { searchResults as querySearchResultsResolver } from "./../../src/lib/server/schema/search";
 async function assertNonNull<T>(value: T | Promise<T>): Promise<T> {
@@ -1134,6 +1135,13 @@ export function getSchema(): GraphQLSchema {
                     },
                     resolve(_source, args) {
                         return assertNonNull(queryCommandersResolver.commanders(args.first, args.after, args.minEntries, args.minTournamentSize, args.timePeriod, args.sortBy, args.colorId));
+                    }
+                },
+                homePagePromo: {
+                    name: "homePagePromo",
+                    type: FirstPartyPromoType,
+                    resolve() {
+                        return queryHomePagePromoResolver();
                     }
                 },
                 node: {

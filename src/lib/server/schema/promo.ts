@@ -22,6 +22,16 @@ export interface FirstPartyPromo {
 
 const promos: FirstPartyPromo[] = [
   {
+    activeFrom: new Date('2025-10-23'),
+    activeUntil: new Date('2025-11-01'),
+    title: 'The 2025 cEDH Community Survey is live!',
+    description: ['Voice your opinion where it will be heard.'],
+    buttonText: 'Take the Survey',
+    backgroundImageUrl: '/promos/251023/study.jpg',
+    imageUrl: '/promos/251023/oracle.png',
+    href: 'https://topdeck.gg/survey/cedh-2025-q4',
+  },
+  {
     commander: `Kraum, Ludevic's Opus / Tymna the Weaver`,
     activeFrom: new Date('2025-10-20'),
     activeUntil: new Date('2025-11-04'),
@@ -165,11 +175,21 @@ const promos: FirstPartyPromo[] = [
 ];
 
 export function getActivePromotions(opts: {commander?: string; tid?: string}) {
+  const filter: (p: FirstPartyPromo) => boolean = opts.commander
+    ? (p) => p.commander === opts.commander
+    : opts.tid
+      ? (p) => p.tid === opts.tid
+      : () => true;
+
   const now = Date.now();
   return promos.filter(
     (p) =>
-      ((opts.commander != null && p.commander === opts.commander) ||
-        (opts.tid != null && p.tid === opts.tid)) &&
+      filter(p) &&
       isWithinInterval(now, {start: p.activeFrom, end: p.activeUntil}),
   );
+}
+
+/** @gqlQueryField */
+export function homePagePromo(): FirstPartyPromo | null {
+  return getActivePromotions({}).at(0) ?? null;
 }

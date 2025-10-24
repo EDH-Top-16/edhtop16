@@ -46,6 +46,6 @@ COPY --from=build /build/edhtop16.db ./
 
 COPY relay.config.json ./
 COPY public ./public/
-COPY __generated__/persisted_queries.json ./__generated__/persisted_queries.json
+COPY __generated__/router/persisted_queries.json ./__generated__/router/persisted_queries.json
 
 CMD pnpm start
