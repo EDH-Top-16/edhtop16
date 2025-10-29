@@ -901,6 +901,38 @@ export function getSchema(): GraphQLSchema {
             return [NodeType];
         }
     });
+    const CheaterInfoType: GraphQLObjectType = new GraphQLObjectType({
+        name: "CheaterInfo",
+        fields() {
+            return {
+                activeDate: {
+                    name: "activeDate",
+                    type: GraphQLString
+                },
+                expiration: {
+                    name: "expiration",
+                    type: GraphQLString,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                player: {
+                    name: "player",
+                    type: PlayerType,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                source: {
+                    name: "source",
+                    type: GraphQLString,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                }
+            };
+        }
+    });
     const CommanderEdgeType: GraphQLObjectType = new GraphQLObjectType({
         name: "CommanderEdge",
         fields() {
@@ -1087,7 +1119,7 @@ export function getSchema(): GraphQLSchema {
                 },
                 cheaters: {
                     name: "cheaters",
-                    type: new GraphQLList(new GraphQLNonNull(PlayerType)),
+                    type: new GraphQLList(new GraphQLNonNull(CheaterInfoType)),
                     resolve() {
                         return assertNonNull(queryCheatersResolver.cheaters());
                     }
@@ -1335,6 +1367,6 @@ export function getSchema(): GraphQLSchema {
                 }
             })],
         query: QueryType,
-        types: [CommandersSortByType, EntriesSortByType, EntrySortByType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CommanderStatsFiltersType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, PageInfoType, PlayerType, QueryType, SearchResultType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType]
+        types: [CommandersSortByType, EntriesSortByType, EntrySortByType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CommanderStatsFiltersType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, CheaterInfoType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, PageInfoType, PlayerType, QueryType, SearchResultType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType]
     });
 }

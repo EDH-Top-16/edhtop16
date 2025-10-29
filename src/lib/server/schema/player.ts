@@ -12,47 +12,52 @@ const ALL_KNOWN_CHEATERS: {
   topdeckProfile: string;
   expiration: Date;
   activeDate?: Date;
+  source: string;
 }[] = [
-  // https://docs.google.com/document/d/1m7aHiwIl11RKnpp7aYVzOA8daPijgbygbLreWi5cmeM/edit?tab=t.0
   {
     topdeckProfile: 'eUiV4NK8aWXDzUpX8ieUCC8C9On1',
     expiration: new Date('2026-03-21'),
+    source:
+      'https://docs.google.com/document/d/1m7aHiwIl11RKnpp7aYVzOA8daPijgbygbLreWi5cmeM/edit?tab=t.0',
   },
-  // https://docs.google.com/document/d/1HVo6lrWz252eu-8eNVzjY0MPddOt-uucFQobKDMI7Zk/edit?usp=drivesdk
   {
     topdeckProfile: 'QnHqzI3FgmgQsJOLZNU9CuizkKC3',
     expiration: new Date('2025-01-01'),
+    source:
+      'https://docs.google.com/document/d/1HVo6lrWz252eu-8eNVzjY0MPddOt-uucFQobKDMI7Zk/edit?usp=drivesdk',
   },
-  // https://www.youtube.com/watch?v=qrKIr3PL2RE, top left player.
   {
     topdeckProfile: 'DtMLwxHSFUVsK6Lpe2ebySzLIP32',
     expiration: new Date('2027-02-10'),
     activeDate: new Date('2025-08-13T03:00:00.000Z'),
+    source: 'https://www.youtube.com/watch?v=qrKIr3PL2RE, top left player.',
   },
-  // https://www.youtube.com/watch?v=RKb2wqHtcdk&t=12065s, top left player.
   {
     topdeckProfile: 'NoplwPOalyPYtwTf4sgflMhSsgr1',
     expiration: new Date('2027-04-03'),
+    source:
+      'https://www.youtube.com/watch?v=RKb2wqHtcdk&t=12065s, top left player.',
   },
-  // https://www.youtube.com/watch?v=5CRCaN8f7Pc
   {
     topdeckProfile: 'eWwAraLMM5b1BDDeStW07aHTt3j2',
     expiration: new Date('2027-04-29'),
+    source: 'https://www.youtube.com/watch?v=5CRCaN8f7Pc',
   },
-  // https://www.youtube.com/watch?v=5CRCaN8f7Pc
   {
     topdeckProfile: 'tCU2ZjGXPSWWDdMtlkjJ7ddFHnS2',
     expiration: new Date('2027-04-29'),
+    source: 'https://www.youtube.com/watch?v=5CRCaN8f7Pc',
   },
-  // https://x.com/FenoDreams/status/1983361668982747281
   {
     topdeckProfile: '0Gmzn7myNwYxPFhVdZEyZISngx72',
     expiration: new Date('2027-04-29'),
+    source: 'https://x.com/FenoDreams/status/1983361668982747281',
   },
-  // https://drive.google.com/file/d/1DHbOmAdFyzMK3UNwrtjf3oyXOt9C9yvw/view?usp=drive_link
   {
     topdeckProfile: 'O5vGNnGpjIVyV2SYOqr0pBCWqJq2',
     expiration: new Date('2027-04-29'),
+    source:
+      'https://drive.google.com/file/d/1DHbOmAdFyzMK3UNwrtjf3oyXOt9C9yvw/view?usp=drive_link',
   },
 ];
 
@@ -256,16 +261,56 @@ export class Player implements GraphQLNode {
   }
 
   /** @gqlQueryField */
-  static async cheaters(): Promise<Player[]> {
-    const allCheaters = ALL_KNOWN_CHEATERS.map((p) => p.topdeckProfile);
-    if (allCheaters.length === 0) return [];
+  static async cheaters(): Promise<CheaterInfo[]> {
+    if (ALL_KNOWN_CHEATERS.length === 0) return [];
 
+    const allCheaters = ALL_KNOWN_CHEATERS.map((p) => p.topdeckProfile);
     const players = await db
       .selectFrom('Player')
       .selectAll()
       .where('topdeckProfile', 'in', allCheaters)
       .execute();
 
-    return players.map((p) => new Player(p));
+    const playerByProfile = new Map(
+      players.map((p) => [p.topdeckProfile, new Player(p)]),
+    );
+
+    return ALL_KNOWN_CHEATERS.map((cheaterData) => {
+      const player = playerByProfile.get(cheaterData.topdeckProfile);
+      if (!player) {
+        throw new Error(
+          `Could not find player for cheater: ${cheaterData.topdeckProfile}`,
+        );
+      }
+      return new CheaterInfo(player, cheaterData);
+    });
+  }
+}
+
+/** @gqlType */
+export class CheaterInfo {
+  constructor(
+    private readonly _player: Player,
+    private readonly _data: (typeof ALL_KNOWN_CHEATERS)[number],
+  ) {}
+
+  /** @gqlField */
+  player(): Player {
+    return this._player;
+  }
+
+  /** @gqlField */
+  source(): string {
+    return this._data.source;
+  }
+
+  /** @gqlField */
+  expiration(): string {
+    return this._data.expiration.toISOString();
+  }
+
+  /** @gqlField */
+  activeDate(): string | null {
+    return this._data.activeDate?.toISOString() ?? null;
   }
 }

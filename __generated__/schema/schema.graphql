@@ -142,6 +142,13 @@ type Card implements Node {
   type: String @semanticNonNull
 }
 
+type CheaterInfo {
+  activeDate: String
+  expiration: String @semanticNonNull
+  player: Player @semanticNonNull
+  source: String @semanticNonNull
+}
+
 type Commander implements Node {
   breakdownUrl: String @semanticNonNull
   cardDetail(cardName: String): Card
@@ -245,7 +252,7 @@ type Player implements Node {
 
 type Query {
   card(name: String!): Card @semanticNonNull
-  cheaters: [Player!] @semanticNonNull
+  cheaters: [CheaterInfo!] @semanticNonNull
   commander(name: String!): Commander @semanticNonNull
   commanders(after: String, colorId: String, first: Int! = 20, minEntries: Int, minTournamentSize: Int, sortBy: CommandersSortBy! = CONVERSION, timePeriod: TimePeriod! = ONE_MONTH): CommanderConnection @semanticNonNull
   homePagePromo: FirstPartyPromo
