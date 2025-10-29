@@ -289,28 +289,19 @@ export class Player implements GraphQLNode {
 
 /** @gqlType */
 export class CheaterInfo {
-  constructor(
-    private readonly _player: Player,
-    private readonly _data: (typeof ALL_KNOWN_CHEATERS)[number],
-  ) {}
-
   /** @gqlField */
-  player(): Player {
-    return this._player;
-  }
-
+  readonly player: Player;
   /** @gqlField */
-  source(): string {
-    return this._data.source;
-  }
-
+  readonly source: string;
   /** @gqlField */
-  expiration(): string {
-    return this._data.expiration.toISOString();
-  }
-
+  readonly expiration: string;
   /** @gqlField */
-  activeDate(): string | null {
-    return this._data.activeDate?.toISOString() ?? null;
+  readonly activeDate: string | null;
+
+  constructor(player: Player, data: (typeof ALL_KNOWN_CHEATERS)[number]) {
+    this.player = player;
+    this.source = data.source;
+    this.expiration = data.expiration.toISOString();
+    this.activeDate = data.activeDate?.toISOString() ?? null;
   }
 }
