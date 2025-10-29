@@ -34,6 +34,26 @@ const ALL_KNOWN_CHEATERS: {
     topdeckProfile: 'NoplwPOalyPYtwTf4sgflMhSsgr1',
     expiration: new Date('2027-04-03'),
   },
+  // https://www.youtube.com/watch?v=5CRCaN8f7Pc
+  {
+    topdeckProfile: 'eWwAraLMM5b1BDDeStW07aHTt3j2',
+    expiration: new Date('2027-04-29'),
+  },
+  // https://www.youtube.com/watch?v=5CRCaN8f7Pc
+  {
+    topdeckProfile: 'tCU2ZjGXPSWWDdMtlkjJ7ddFHnS2',
+    expiration: new Date('2027-04-29'),
+  },
+  // https://x.com/FenoDreams/status/1983361668982747281
+  {
+    topdeckProfile: '0Gmzn7myNwYxPFhVdZEyZISngx72',
+    expiration: new Date('2027-04-29'),
+  },
+  // https://drive.google.com/file/d/1DHbOmAdFyzMK3UNwrtjf3oyXOt9C9yvw/view?usp=drive_link
+  {
+    topdeckProfile: 'O5vGNnGpjIVyV2SYOqr0pBCWqJq2',
+    expiration: new Date('2027-04-29'),
+  },
 ];
 
 const now = Date.now();
