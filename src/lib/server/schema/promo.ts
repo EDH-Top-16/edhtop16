@@ -34,7 +34,7 @@ const promos: FirstPartyPromo[] = [
   {
     commander: `Kraum, Ludevic's Opus / Tymna the Weaver`,
     activeFrom: new Date('2025-10-20'),
-    activeUntil: new Date('2025-11-18'),
+    activeUntil: new Date('2025-12-02'),
     title: 'Looking to make your deck stand out?',
     description: [
       'doot loot is the best place for cEDH bling!',
@@ -48,7 +48,7 @@ const promos: FirstPartyPromo[] = [
   {
     commander: `Rograkh, Son of Rohgahh / Silas Renn, Seeker Adept`,
     activeFrom: new Date('2025-10-20'),
-    activeUntil: new Date('2025-11-18'),
+    activeUntil: new Date('2025-12-02'),
     title: 'Looking to make your deck stand out?',
     description: [
       'doot loot is the best place for cEDH bling!',
@@ -62,7 +62,7 @@ const promos: FirstPartyPromo[] = [
   {
     commander: 'Rograkh, Son of Rohgahh / Thrasios, Triton Hero',
     activeFrom: new Date('2025-10-20'),
-    activeUntil: new Date('2025-11-18'),
+    activeUntil: new Date('2025-12-02'),
     title: 'Looking to make your deck stand out?',
     description: [
       'doot loot is the best place for cEDH bling!',
