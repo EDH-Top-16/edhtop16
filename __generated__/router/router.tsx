@@ -31,65 +31,65 @@ import {
   useEntryPointLoader,
 } from 'react-relay/hooks';
 import * as z from 'zod/v4-mini';
-import { entrypoint as e0 } from "../../src/pages/about.entrypoint";
-import { entrypoint as e1 } from "../../src/pages/index.entrypoint";
-import { entrypoint as e2 } from "../../src/pages/staples.entrypoint";
-import { entrypoint as e3 } from "../../src/pages/tournaments.entrypoint";
-import { entrypoint as e4 } from "../../src/pages/tournament/tournament_view.entrypoint";
-import { entrypoint as e5 } from "../../src/pages/commander/[commander]/commander_page.entrypoint";
+import { JSResource, ModuleType } from "./js_resource";
+import staples_StaplesQueryParameters from "#genfiles/queries/staples_StaplesQuery$parameters";
+import tournaments_TournamentsQueryParameters from "#genfiles/queries/tournaments_TournamentsQuery$parameters";
+import { entrypoint as e0 } from "../../src/pages/index.entrypoint";
+import { entrypoint as e1 } from "../../src/pages/tournament/tournament_view.entrypoint";
+import { entrypoint as e2 } from "../../src/pages/commander/[commander]/commander_page.entrypoint";
 
 type RouterConf = typeof ROUTER_CONF;
 const ROUTER_CONF = {
-    "/about": {
-            entrypoint: e0,
-            schema: z.object({})
-        } as const,
-    "/": {
-            entrypoint: e1,
-            schema: z.object({
-              minSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
-              minEntries: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
-              sortBy: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              timePeriod: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              colorId: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              display: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-            })
-        } as const,
-    "/staples": {
-            entrypoint: e2,
-            schema: z.object({
-              colorId: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              type: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-            })
-        } as const,
-    "/tournaments": {
-            entrypoint: e3,
-            schema: z.object({
-              minSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
-              sortBy: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              timePeriod: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-            })
-        } as const,
-    "/tournament/:tid": {
-            entrypoint: e4,
-            schema: z.object({
-              tid: z.pipe(z.string(), z.transform(decodeURIComponent)),
-              commander: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              tab: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-            })
-        } as const,
-    "/commander/:commander": {
-            entrypoint: e5,
-            schema: z.object({
-              commander: z.pipe(z.string(), z.transform(decodeURIComponent)),
-              tab: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              card: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              sortBy: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              timePeriod: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
-              maxStanding: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
-              minEventSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
-            })
-        } as const
+  "/about": {
+      entrypoint: entrypoint_routeabout(),
+      schema: z.object({})
+    } as const,
+  "/staples": {
+      entrypoint: entrypoint_routestaples(),
+      schema: z.object({
+        colorId: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+        type: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+      })
+    } as const,
+  "/tournaments": {
+      entrypoint: entrypoint_routetournaments(),
+      schema: z.object({
+        minSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
+        sortBy: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/tournaments_TournamentsQuery.graphql').TournamentSortBy)), z.transform(s => s == null ? undefined : s)),
+        timePeriod: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/tournaments_TournamentsQuery.graphql').TimePeriod)), z.transform(s => s == null ? undefined : s)),
+      })
+    } as const,
+  "/": {
+      entrypoint: e0,
+      schema: z.object({
+        minSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
+        minEntries: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
+        sortBy: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+        timePeriod: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+        colorId: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+        display: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+      })
+    } as const,
+  "/tournament/:tid": {
+      entrypoint: e1,
+      schema: z.object({
+        tid: z.pipe(z.string(), z.transform(decodeURIComponent)),
+        commander: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+        tab: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+      })
+    } as const,
+  "/commander/:commander": {
+      entrypoint: e2,
+      schema: z.object({
+        commander: z.pipe(z.string(), z.transform(decodeURIComponent)),
+        tab: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+        card: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+        sortBy: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+        timePeriod: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)),
+        maxStanding: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
+        minEventSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)),
+      })
+    } as const
 } as const;
 
 export type RouteId = keyof RouterConf;
@@ -302,20 +302,7 @@ export function router__createAppFromEntryPoint(
 
     return (
       <RouterContext value={routerContextValue}>
-        {'fallback' in entryPoint.entryPoints ? (
-          <Suspense
-            fallback={
-              <EntryPointContainer
-                entryPointReference={entryPoint.entryPoints.fallback}
-                props={{}}
-              />
-            }
-          >
-            <EntryPointContainer entryPointReference={entryPoint} props={{}} />
-          </Suspense>
-        ) : (
-          <EntryPointContainer entryPointReference={entryPoint} props={{}} />
-        )}
+        <EntryPointContainer entryPointReference={entryPoint} props={{}} />
       </RouterContext>
     );
   }
@@ -519,4 +506,92 @@ export function RouteLink<R extends RouteId>({
 
 export function listRoutes() {
   return Object.keys(ROUTER_CONF);
+}
+
+function entrypoint_routeabout(): EntryPoint<ModuleType<'route(/about)'>, EntryPointParams<'/about'>> {
+  return {
+    root: JSResource.fromModuleId('route(/about)'),
+    getPreloadProps({params, schema}) {
+      const variables = schema.parse(params);
+      return {
+        queries: {
+        }
+        ,
+        entryPoints: {
+        }
+      }
+    }
+  }
+}
+
+function entrypoint_routestaples(): EntryPoint<ModuleType<'route(/staples)'>, EntryPointParams<'/staples'>> {
+  return {
+    root: JSResource.fromModuleId('route(/staples)'),
+    getPreloadProps({params, schema}) {
+      const variables = schema.parse(params);
+      return {
+        queries: {
+        }
+        ,
+        entryPoints: {
+          staplesRef: {
+            entryPointParams: {},
+            entryPoint: {
+              root: JSResource.fromModuleId('route(/staples)#staples_page'),
+              getPreloadProps() {
+                return {
+                  queries: {
+                    staplesQueryRef: {
+                      parameters: staples_StaplesQueryParameters,
+                      variables
+                    }
+                    ,
+                  }
+                  ,
+                  entryPoints: {
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+function entrypoint_routetournaments(): EntryPoint<ModuleType<'route(/tournaments)'>, EntryPointParams<'/tournaments'>> {
+  return {
+    root: JSResource.fromModuleId('route(/tournaments)'),
+    getPreloadProps({params, schema}) {
+      const variables = schema.parse(params);
+      return {
+        queries: {
+        }
+        ,
+        entryPoints: {
+          tournamentsRef: {
+            entryPointParams: {},
+            entryPoint: {
+              root: JSResource.fromModuleId('route(/tournaments)#tournaments'),
+              getPreloadProps() {
+                return {
+                  queries: {
+                    tournamentQueryRef: {
+                      parameters: tournaments_TournamentsQueryParameters,
+                      variables
+                    }
+                    ,
+                  }
+                  ,
+                  entryPoints: {
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

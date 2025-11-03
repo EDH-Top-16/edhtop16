@@ -7,50 +7,50 @@ import type {JSResourceReference} from 'react-relay/hooks';
 
 type ResourceConf = typeof RESOURCE_CONF;
 const RESOURCE_CONF = {
-    "m#about": {
-            src: "src/pages/about.tsx",
-            loader: () => import("../../src/pages/about").then(m => m.AboutPage)
-        },
-    "m#index_fallback": {
-            src: "src/pages/index.tsx",
-            loader: () => import("../../src/pages/index").then(m => m.CommandersPageFallback)
-        },
-    "m#index": {
-            src: "src/pages/index.tsx",
-            loader: () => import("../../src/pages/index").then(m => m.CommandersPage)
-        },
-    "m#staples_fallback": {
-            src: "src/pages/staples.tsx",
-            loader: () => import("../../src/pages/staples").then(m => m.StaplesPageFallback)
-        },
-    "m#staples": {
-            src: "src/pages/staples.tsx",
-            loader: () => import("../../src/pages/staples").then(m => m.StaplesPage)
-        },
-    "m#tournaments_fallback": {
-            src: "src/pages/tournaments.tsx",
-            loader: () => import("../../src/pages/tournaments").then(m => m.TournamentsPageFallback)
-        },
-    "m#tournaments": {
-            src: "src/pages/tournaments.tsx",
-            loader: () => import("../../src/pages/tournaments").then(m => m.TournamentsPage)
-        },
-    "m#tournament_view_fallback": {
-            src: "src/pages/tournament/[TID].tsx",
-            loader: () => import("../../src/pages/tournament/[TID]").then(m => m.TournamentViewPageFallback)
-        },
-    "m#tournament_view": {
-            src: "src/pages/tournament/[TID].tsx",
-            loader: () => import("../../src/pages/tournament/[TID]").then(m => m.TournamentViewPage)
-        },
-    "m#commander_page_fallback": {
-            src: "src/pages/commander/[commander]/index.tsx",
-            loader: () => import("../../src/pages/commander/[commander]/index").then(m => m.CommanderPageFallback)
-        },
-    "m#commander_page": {
-            src: "src/pages/commander/[commander]/index.tsx",
-            loader: () => import("../../src/pages/commander/[commander]/index").then(m => m.CommanderPage)
-        }
+  "route(/about)": {
+      src: "src/about.tsx",
+      loader: () => import("../../src/about").then(m => m.AboutPage)
+    },
+  "route(/staples)": {
+      src: "src/staples.tsx",
+      loader: () => import("../../src/staples").then(m => m.StaplesPageShell)
+    },
+  "route(/staples)#staples_page": {
+      src: "src/staples.tsx",
+      loader: () => import("../../src/staples").then(m => m.StaplesPage)
+    },
+  "route(/tournaments)": {
+      src: "src/tournaments.tsx",
+      loader: () => import("../../src/tournaments").then(m => m.TournamentsPageShell)
+    },
+  "route(/tournaments)#tournaments": {
+      src: "src/tournaments.tsx",
+      loader: () => import("../../src/tournaments").then(m => m.TournamentsPage)
+    },
+  "m#index_fallback": {
+      src: "src/pages/index.tsx",
+      loader: () => import("../../src/pages/index").then(m => m.CommandersPageFallback)
+    },
+  "m#index": {
+      src: "src/pages/index.tsx",
+      loader: () => import("../../src/pages/index").then(m => m.CommandersPage)
+    },
+  "m#tournament_view_fallback": {
+      src: "src/pages/tournament/[TID].tsx",
+      loader: () => import("../../src/pages/tournament/[TID]").then(m => m.TournamentViewPageFallback)
+    },
+  "m#tournament_view": {
+      src: "src/pages/tournament/[TID].tsx",
+      loader: () => import("../../src/pages/tournament/[TID]").then(m => m.TournamentViewPage)
+    },
+  "m#commander_page_fallback": {
+      src: "src/pages/commander/[commander]/index.tsx",
+      loader: () => import("../../src/pages/commander/[commander]/index").then(m => m.CommanderPageFallback)
+    },
+  "m#commander_page": {
+      src: "src/pages/commander/[commander]/index.tsx",
+      loader: () => import("../../src/pages/commander/[commander]/index").then(m => m.CommanderPage)
+    }
 } as const;
 
 type ModuleId = keyof ResourceConf;

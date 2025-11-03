@@ -3,4 +3,4 @@
  * Do not modify this file directly.
  */
 
-export {App as App} from '../../src/pages/_app';
+export {App as App} from '../../src/_app';

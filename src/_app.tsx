@@ -1,7 +1,7 @@
 import {Edhtop16Fallback} from '#src/components/fallback';
 import {PropsWithChildren, Suspense} from 'react';
 
-import '../globals.css';
+import './globals.css';
 
 /** @appRoot */
 export function App({children}: PropsWithChildren<{}>) {

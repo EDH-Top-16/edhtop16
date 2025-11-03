@@ -1,34 +1,30 @@
 import {AllTournamentsQuery} from '#genfiles/queries/AllTournamentsQuery.graphql';
 import {tournaments_TournamentCard$key} from '#genfiles/queries/tournaments_TournamentCard.graphql';
 import {tournaments_Tournaments$key} from '#genfiles/queries/tournaments_Tournaments.graphql';
-import {
-  TimePeriod,
-  tournaments_TournamentsQuery,
-  tournaments_TournamentsQuery$variables,
-  TournamentSortBy,
-} from '#genfiles/queries/tournaments_TournamentsQuery.graphql';
+import {tournaments_TournamentsQuery} from '#genfiles/queries/tournaments_TournamentsQuery.graphql';
 import {ModuleType} from '#genfiles/router/js_resource.js';
 import {
-  EntryPointParams,
   RouteLink,
   useNavigation,
+  useRouteParams,
 } from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback';
 import {format} from 'date-fns';
-import {PropsWithChildren, useMemo} from 'react';
+import {Suspense, useMemo} from 'react';
 import {
   EntryPoint,
   EntryPointComponent,
+  EntryPointContainer,
   graphql,
   useFragment,
   usePaginationFragment,
   usePreloadedQuery,
 } from 'react-relay/hooks';
-import {Card} from '../components/card';
-import {Footer} from '../components/footer';
-import {LoadMoreButton} from '../components/load_more';
-import {Navigation} from '../components/navigation';
-import {Select} from '../components/select';
+import {Card} from './components/card';
+import {Footer} from './components/footer';
+import {LoadMoreButton} from './components/load_more';
+import {Navigation} from './components/navigation';
+import {Select} from './components/select';
 
 function TournamentCard(props: {commander: tournaments_TournamentCard$key}) {
   const tournament = useFragment(
@@ -90,16 +86,16 @@ function TournamentCard(props: {commander: tournaments_TournamentCard$key}) {
   );
 }
 
-function TournamentsPageShell({
-  sortBy,
-  timePeriod,
-  minSize,
-  children,
-}: PropsWithChildren<{
-  sortBy: TournamentSortBy;
-  timePeriod: TimePeriod;
-  minSize: string;
-}>) {
+/** @route /tournaments */
+export const TournamentsPageShell: EntryPointComponent<
+  {},
+  {tournamentsRef: EntryPoint<ModuleType<'route(/tournaments)#tournaments'>>}
+> = ({entryPoints}) => {
+  const {
+    sortBy = 'DATE',
+    timePeriod = 'ALL_TIME',
+    minSize = 0,
+  } = useRouteParams('/tournaments');
   const {replaceRoute} = useNavigation();
 
   return (
@@ -133,7 +129,7 @@ function TournamentsPageShell({
             <Select
               id="tournaments-players"
               label="Players"
-              value={minSize}
+              value={`${minSize}`}
               onChange={(value) => {
                 replaceRoute('/tournaments', {minSize: Number(value)});
               }}
@@ -162,41 +158,28 @@ function TournamentsPageShell({
           </div>
         </div>
 
-        {children}
+        <Suspense fallback={<LoadingIcon />}>
+          <EntryPointContainer
+            entryPointReference={entryPoints.tournamentsRef}
+            props={{}}
+          />
+        </Suspense>
       </div>
     </>
   );
-}
-
-/** @resource m#tournaments_fallback */
-export const TournamentsPageFallback: EntryPointComponent<
-  {},
-  {},
-  {},
-  tournaments_TournamentsQuery$variables
-> = ({extraProps}) => {
-  return (
-    <TournamentsPageShell
-      sortBy={extraProps.sortBy}
-      timePeriod={extraProps.timePeriod}
-      minSize={`${extraProps.minSize}`}
-    >
-      <LoadingIcon />
-    </TournamentsPageShell>
-  );
 };
 
-/** @resource m#tournaments */
+/** @resource route(/tournaments)#tournaments */
 export const TournamentsPage: EntryPointComponent<
   {tournamentQueryRef: tournaments_TournamentsQuery},
-  {fallback: EntryPoint<ModuleType<'m#tournaments_fallback'>>}
+  {}
 > = ({queries}) => {
   const query = usePreloadedQuery(
     graphql`
       query tournaments_TournamentsQuery(
-        $timePeriod: TimePeriod!
-        $sortBy: TournamentSortBy!
-        $minSize: Int!
+        $timePeriod: TimePeriod = ALL_TIME
+        $sortBy: TournamentSortBy = DATE
+        $minSize: Int = 0
       ) @preloadable @throwOnFieldError {
         ...tournaments_Tournaments
       }
@@ -235,11 +218,7 @@ export const TournamentsPage: EntryPointComponent<
   );
 
   return (
-    <TournamentsPageShell
-      sortBy={queries.tournamentQueryRef.variables.sortBy}
-      timePeriod={queries.tournamentQueryRef.variables.timePeriod}
-      minSize={`${queries.tournamentQueryRef.variables.minSize}`}
-    >
+    <>
       <div className="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
         {data.tournaments.edges.map((edge) => (
           <TournamentCard key={edge.node.id} commander={edge.node} />
@@ -253,6 +232,6 @@ export const TournamentsPage: EntryPointComponent<
       />
 
       <Footer />
-    </TournamentsPageShell>
+    </>
   );
 };
