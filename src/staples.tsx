@@ -1,19 +1,21 @@
 import {staples_StaplesQuery} from '#genfiles/queries/staples_StaplesQuery.graphql';
 import {ModuleType} from '#genfiles/router/js_resource.js';
-import {EntryPointParams, useNavigation} from '#genfiles/router/router';
+import {useNavigation, useRouteParams} from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback';
+import {Suspense} from 'react';
 import {
   EntryPoint,
   EntryPointComponent,
+  EntryPointContainer,
   graphql,
   usePreloadedQuery,
 } from 'react-relay/hooks';
-import {Card} from '../components/card';
-import {ColorSelection} from '../components/color_selection';
-import {Footer} from '../components/footer';
-import {Navigation} from '../components/navigation';
-import {Select} from '../components/select';
-import {ColorIdentity} from '../assets/icons/colors';
+import {ColorIdentity} from './assets/icons/colors';
+import {Card} from './components/card';
+import {ColorSelection} from './components/color_selection';
+import {Footer} from './components/footer';
+import {Navigation} from './components/navigation';
+import {Select} from './components/select';
 
 function StapleCard({card}: {card: any}) {
   const playRatePercentage = (card.playRateLastYear * 100).toFixed(1);
@@ -55,15 +57,12 @@ function StapleCard({card}: {card: any}) {
   );
 }
 
-function StaplesPageShell({
-  colorId,
-  type,
-  children,
-}: {
-  colorId: string;
-  type: string;
-  children: React.ReactNode;
-}) {
+/** @route /staples */
+export const StaplesPageShell: EntryPointComponent<
+  {},
+  {staplesRef: EntryPoint<ModuleType<'route(/staples)#staples_page'>>}
+> = ({entryPoints}) => {
+  const {colorId = '', type = ''} = useRouteParams('/staples');
   const {replaceRoute} = useNavigation();
 
   return (
@@ -92,8 +91,8 @@ function StaplesPageShell({
               selected={colorId}
               onChange={(value) => {
                 replaceRoute('/staples', {
-                  colorId: value ?? null,
-                  type: type ?? null,
+                  colorId: value || null,
+                  type: type || null,
                 });
               }}
             />
@@ -106,7 +105,7 @@ function StaplesPageShell({
               value={type || 'all'}
               onChange={(value) => {
                 replaceRoute('/staples', {
-                  colorId: colorId ?? null,
+                  colorId: colorId || null,
                   type: value === 'all' ? null : value,
                 });
               }}
@@ -123,33 +122,21 @@ function StaplesPageShell({
           </div>
         </div>
 
-        {children}
+        <Suspense fallback={<LoadingIcon />}>
+          <EntryPointContainer
+            entryPointReference={entryPoints.staplesRef}
+            props={{}}
+          />
+        </Suspense>
       </div>
     </>
   );
-}
-
-/** @resource m#staples_fallback */
-export const StaplesPageFallback: EntryPointComponent<
-  {},
-  {},
-  {},
-  {colorId?: string; type?: string}
-> = ({extraProps}) => {
-  return (
-    <StaplesPageShell
-      colorId={extraProps.colorId ?? ''}
-      type={extraProps.type ?? ''}
-    >
-      <LoadingIcon />
-    </StaplesPageShell>
-  );
 };
 
-/** @resource m#staples */
+/** @resource route(/staples)#staples_page */
 export const StaplesPage: EntryPointComponent<
   {staplesQueryRef: staples_StaplesQuery},
-  {fallback: EntryPoint<ModuleType<'m#staples_fallback'>>}
+  {}
 > = ({queries}) => {
   const data = usePreloadedQuery(
     graphql`
@@ -170,10 +157,7 @@ export const StaplesPage: EntryPointComponent<
   );
 
   return (
-    <StaplesPageShell
-      colorId={queries.staplesQueryRef.variables.colorId ?? ''}
-      type={queries.staplesQueryRef.variables.type ?? ''}
-    >
+    <>
       <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
         {(data.staples ?? []).map((card) => (
           <StapleCard key={card.id} card={card} />
@@ -181,6 +165,6 @@ export const StaplesPage: EntryPointComponent<
       </div>
 
       <Footer />
-    </StaplesPageShell>
+    </>
   );
 };

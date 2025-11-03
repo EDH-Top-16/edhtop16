@@ -9,8 +9,9 @@ import {pages_topCommanders$key} from '#genfiles/queries/pages_topCommanders.gra
 import {pages_TopCommandersCard$key} from '#genfiles/queries/pages_TopCommandersCard.graphql';
 import {TopCommandersQuery} from '#genfiles/queries/TopCommandersQuery.graphql';
 import {ModuleType} from '#genfiles/router/js_resource.js';
-import {EntryPointParams, Link, useNavigation} from '#genfiles/router/router';
+import {Link, useNavigation} from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback';
+import {FirstPartyPromo} from '#src/components/promo.jsx';
 import {LIST_STYLE_COOKIE_NAME} from '#src/lib/client/display_preferences.js';
 import RectangleStackIcon from '@heroicons/react/24/solid/RectangleStackIcon';
 import TableCellsIcon from '@heroicons/react/24/solid/TableCellsIcon';
@@ -33,7 +34,6 @@ import {LoadMoreButton} from '../components/load_more';
 import {Navigation} from '../components/navigation';
 import {Select} from '../components/select';
 import {formatPercent} from '../lib/client/format';
-import {FirstPartyPromo} from '#src/components/promo.jsx';
 
 function TopCommandersCard({
   display = 'card',
