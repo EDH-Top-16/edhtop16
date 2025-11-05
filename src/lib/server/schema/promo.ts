@@ -179,7 +179,7 @@ export function getActivePromotions(opts: {commander?: string; tid?: string}) {
     ? (p) => p.commander === opts.commander
     : opts.tid
       ? (p) => p.tid === opts.tid
-      : () => true;
+      : (p) => !p.commander && !p.tid;
 
   const now = Date.now();
   return promos.filter(
