@@ -1,6 +1,9 @@
-import {Navigation} from '../components/navigation';
+import {Navigation} from './components/navigation';
 
-/** @resource m#about */
+/**
+ * @route /about
+ * @resource route(/about)
+ */
 export function AboutPage() {
   return (
     <>
@@ -70,13 +73,6 @@ export function AboutPage() {
         <h1 className="font-title flex-1 text-5xl font-extrabold text-white">
           Our Team
         </h1>
-
-        {/* <Image
-          src={TeamImage}
-          width={300}
-          alt="ryan and jason"
-          className="rounded-lg shadow-sm"
-        /> */}
 
         <p className="w-full">
           EDHTop16 is developed and maintained by Ryan Delaney and Jason Qiu.

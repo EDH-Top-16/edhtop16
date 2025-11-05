@@ -4,6 +4,7 @@ edhtop16.db*
 /scraper/target
 dist/
 target
+.pastoriainfo
 
 # dependencies
 /node_modules
