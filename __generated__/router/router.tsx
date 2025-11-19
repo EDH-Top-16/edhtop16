@@ -533,7 +533,7 @@ function entrypoint_route(): EntryPoint<ModuleType<'route(/)'>, EntryPointParams
         queries: {
           promoQueryRef: {
             parameters: commanders_HomePagePromoQueryParameters,
-            variables
+            variables: {}
           }
           ,
         }
@@ -548,7 +548,7 @@ function entrypoint_route(): EntryPoint<ModuleType<'route(/)'>, EntryPointParams
                   queries: {
                     commandersQueryRef: {
                       parameters: commanders_CommandersQueryParameters,
-                      variables
+                      variables: {colorId: variables.colorId, minEntries: variables.minEntries, minSize: variables.minSize, sortBy: variables.sortBy, timePeriod: variables.timePeriod}
                     }
                     ,
                   }
@@ -559,6 +559,7 @@ function entrypoint_route(): EntryPoint<ModuleType<'route(/)'>, EntryPointParams
               }
             }
           }
+          ,
         }
       }
     }
@@ -584,7 +585,7 @@ function entrypoint_routestaples(): EntryPoint<ModuleType<'route(/staples)'>, En
                   queries: {
                     staplesQueryRef: {
                       parameters: staples_StaplesQueryParameters,
-                      variables
+                      variables: {colorId: variables.colorId, type: variables.type}
                     }
                     ,
                   }
@@ -595,6 +596,7 @@ function entrypoint_routestaples(): EntryPoint<ModuleType<'route(/staples)'>, En
               }
             }
           }
+          ,
         }
       }
     }
@@ -620,7 +622,7 @@ function entrypoint_routetournaments(): EntryPoint<ModuleType<'route(/tournament
                   queries: {
                     tournamentQueryRef: {
                       parameters: tournaments_TournamentsQueryParameters,
-                      variables
+                      variables: {minSize: variables.minSize, sortBy: variables.sortBy, timePeriod: variables.timePeriod}
                     }
                     ,
                   }
@@ -631,6 +633,7 @@ function entrypoint_routetournaments(): EntryPoint<ModuleType<'route(/tournament
               }
             }
           }
+          ,
         }
       }
     }
