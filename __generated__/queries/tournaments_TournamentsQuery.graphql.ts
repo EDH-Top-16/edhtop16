@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<2c4100690c36bfec922050b90c2b045e>>
- * @relayHash 3a51f41e3bf477628d97c7d880dbc6fc
+ * @generated SignedSource<<8d9309b0237d1b9bc8fad57673d76d9f>>
+ * @relayHash ef3bdae62f01977952054607a3801b92
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,16 +9,16 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 3a51f41e3bf477628d97c7d880dbc6fc
+// @relayRequestID ef3bdae62f01977952054607a3801b92
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type TournamentSortBy = "DATE" | "PLAYERS" | "%future added value";
 export type tournaments_TournamentsQuery$variables = {
-  minSize: number;
-  sortBy: TournamentSortBy;
-  timePeriod: TimePeriod;
+  minSize?: number | null | undefined;
+  sortBy?: TournamentSortBy | null | undefined;
+  timePeriod?: TimePeriod | null | undefined;
 };
 export type tournaments_TournamentsQuery$data = {
   readonly " $fragmentSpreads": FragmentRefs<"tournaments_Tournaments">;
@@ -30,17 +30,17 @@ export type tournaments_TournamentsQuery = {
 
 const node: ConcreteRequest = (function(){
 var v0 = {
-  "defaultValue": null,
+  "defaultValue": 0,
   "kind": "LocalArgument",
   "name": "minSize"
 },
 v1 = {
-  "defaultValue": null,
+  "defaultValue": "DATE",
   "kind": "LocalArgument",
   "name": "sortBy"
 },
 v2 = {
-  "defaultValue": null,
+  "defaultValue": "ALL_TIME",
   "kind": "LocalArgument",
   "name": "timePeriod"
 },
@@ -290,7 +290,7 @@ return {
     ]
   },
   "params": {
-    "id": "3a51f41e3bf477628d97c7d880dbc6fc",
+    "id": "ef3bdae62f01977952054607a3801b92",
     "metadata": {},
     "name": "tournaments_TournamentsQuery",
     "operationKind": "query",
@@ -299,7 +299,7 @@ return {
 };
 })();
 
-(node as any).hash = "917ae8a98139b512f79814c7525b0421";
+(node as any).hash = "a510f928c7916bc8621e1aa30f18203e";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

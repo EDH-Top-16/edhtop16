@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<e8e07a3b0e4885696d00e55b9e296eeb>>
- * @relayHash c918e0053b7f625df0212cb65bb99b67
+ * @generated SignedSource<<0092a14fd5e3a35871b820738795c8cc>>
+ * @relayHash 007bc969df126551752b76e97de065a3
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,23 +9,18 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID c918e0053b7f625df0212cb65bb99b67
+// @relayRequestID 007bc969df126551752b76e97de065a3
 
 import { ConcreteRequest } from 'relay-runtime';
+import { FragmentRefs } from "relay-runtime";
 export type staples_StaplesQuery$variables = {
   colorId?: string | null | undefined;
   type?: string | null | undefined;
 };
 export type staples_StaplesQuery$data = {
   readonly staples: ReadonlyArray<{
-    readonly cmc: number | null | undefined;
-    readonly colorId: string | null | undefined;
     readonly id: string;
-    readonly imageUrls: ReadonlyArray<string> | null | undefined;
-    readonly name: string | null | undefined;
-    readonly playRateLastYear: number | null | undefined;
-    readonly scryfallUrl: string | null | undefined;
-    readonly type: string | null | undefined;
+    readonly " $fragmentSpreads": FragmentRefs<"staples_StaplesCard">;
   }> | null | undefined;
 };
 export type staples_StaplesQuery = {
@@ -48,91 +43,48 @@ var v0 = [
 ],
 v1 = [
   {
-    "alias": null,
-    "args": [
-      {
-        "kind": "Variable",
-        "name": "colorId",
-        "variableName": "colorId"
-      },
-      {
-        "kind": "Variable",
-        "name": "type",
-        "variableName": "type"
-      }
-    ],
-    "concreteType": "Card",
-    "kind": "LinkedField",
-    "name": "staples",
-    "plural": true,
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "id",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "name",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "type",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "cmc",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "colorId",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "imageUrls",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "scryfallUrl",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "playRateLastYear",
-        "storageKey": null
-      }
-    ],
-    "storageKey": null
+    "kind": "Variable",
+    "name": "colorId",
+    "variableName": "colorId"
+  },
+  {
+    "kind": "Variable",
+    "name": "type",
+    "variableName": "type"
   }
-];
+],
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "staples_StaplesQuery",
-    "selections": (v1/*: any*/),
+    "selections": [
+      {
+        "alias": null,
+        "args": (v1/*: any*/),
+        "concreteType": "Card",
+        "kind": "LinkedField",
+        "name": "staples",
+        "plural": true,
+        "selections": [
+          (v2/*: any*/),
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "staples_StaplesCard"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
     "type": "Query",
     "abstractKey": null
   },
@@ -141,10 +93,72 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
     "name": "staples_StaplesQuery",
-    "selections": (v1/*: any*/)
+    "selections": [
+      {
+        "alias": null,
+        "args": (v1/*: any*/),
+        "concreteType": "Card",
+        "kind": "LinkedField",
+        "name": "staples",
+        "plural": true,
+        "selections": [
+          (v2/*: any*/),
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "type",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "cmc",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "colorId",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "imageUrls",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "scryfallUrl",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "playRateLastYear",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
   },
   "params": {
-    "id": "c918e0053b7f625df0212cb65bb99b67",
+    "id": "007bc969df126551752b76e97de065a3",
     "metadata": {},
     "name": "staples_StaplesQuery",
     "operationKind": "query",
@@ -153,7 +167,7 @@ return {
 };
 })();
 
-(node as any).hash = "34c041ce483a854df1767a9407fa17e3";
+(node as any).hash = "9c48641feb3571ca3b2f64c22c23f78a";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);
