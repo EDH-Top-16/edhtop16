@@ -1,3 +1,4 @@
+import {staples_StaplesCard$key} from '#genfiles/queries/staples_StaplesCard.graphql.js';
 import {staples_StaplesQuery} from '#genfiles/queries/staples_StaplesQuery.graphql';
 import {ModuleType} from '#genfiles/router/js_resource.js';
 import {useNavigation, useRouteParams} from '#genfiles/router/router';
@@ -8,6 +9,7 @@ import {
   EntryPointComponent,
   EntryPointContainer,
   graphql,
+  useFragment,
   usePreloadedQuery,
 } from 'react-relay/hooks';
 import {ColorIdentity} from './assets/icons/colors';
@@ -17,7 +19,23 @@ import {Footer} from './components/footer';
 import {Navigation} from './components/navigation';
 import {Select} from './components/select';
 
-function StapleCard({card}: {card: any}) {
+function StapleCard(props: {card: staples_StaplesCard$key}) {
+  const card = useFragment(
+    graphql`
+      fragment staples_StaplesCard on Card @throwOnFieldError {
+        id
+        name
+        type
+        cmc
+        colorId
+        imageUrls
+        scryfallUrl
+        playRateLastYear
+      }
+    `,
+    props.card,
+  );
+
   const playRatePercentage = (card.playRateLastYear * 100).toFixed(1);
 
   return (
@@ -143,13 +161,7 @@ export const StaplesPage: EntryPointComponent<
       query staples_StaplesQuery($colorId: String, $type: String) @preloadable {
         staples(colorId: $colorId, type: $type) {
           id
-          name
-          type
-          cmc
-          colorId
-          imageUrls
-          scryfallUrl
-          playRateLastYear
+          ...staples_StaplesCard
         }
       }
     `,

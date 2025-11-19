@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<27461b4081dd19a4eded500d02a2024c>>
- * @relayHash f58d870e9e29169826b25ea9336637bc
+ * @generated SignedSource<<5474350d410327905b20f4aae47b9a79>>
+ * @relayHash 65da936044b2a3f1dcefe90d50618d78
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,87 +9,68 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID f58d870e9e29169826b25ea9336637bc
+// @relayRequestID 65da936044b2a3f1dcefe90d50618d78
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type CommandersSortBy = "CONVERSION" | "POPULARITY" | "TOP_CUTS" | "%future added value";
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
-export type TopCommandersQuery$variables = {
+export type commanders_CommandersQuery$variables = {
   colorId?: string | null | undefined;
-  count?: number | null | undefined;
-  cursor?: string | null | undefined;
   minEntries?: number | null | undefined;
   minSize?: number | null | undefined;
-  sortBy: CommandersSortBy;
-  timePeriod: TimePeriod;
+  sortBy?: CommandersSortBy | null | undefined;
+  timePeriod?: TimePeriod | null | undefined;
 };
-export type TopCommandersQuery$data = {
+export type commanders_CommandersQuery$data = {
   readonly " $fragmentSpreads": FragmentRefs<"commanders_topCommanders">;
 };
-export type TopCommandersQuery = {
-  response: TopCommandersQuery$data;
-  variables: TopCommandersQuery$variables;
+export type commanders_CommandersQuery = {
+  response: commanders_CommandersQuery$data;
+  variables: commanders_CommandersQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = [
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "colorId"
-  },
-  {
-    "defaultValue": 48,
-    "kind": "LocalArgument",
-    "name": "count"
-  },
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "cursor"
-  },
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "minEntries"
-  },
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "minSize"
-  },
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "sortBy"
-  },
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "timePeriod"
-  }
-],
+var v0 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "colorId"
+},
 v1 = {
+  "defaultValue": 20,
+  "kind": "LocalArgument",
+  "name": "minEntries"
+},
+v2 = {
+  "defaultValue": 60,
+  "kind": "LocalArgument",
+  "name": "minSize"
+},
+v3 = {
+  "defaultValue": "POPULARITY",
+  "kind": "LocalArgument",
+  "name": "sortBy"
+},
+v4 = {
+  "defaultValue": "SIX_MONTHS",
+  "kind": "LocalArgument",
+  "name": "timePeriod"
+},
+v5 = {
   "kind": "Variable",
   "name": "timePeriod",
   "variableName": "timePeriod"
 },
-v2 = [
-  {
-    "kind": "Variable",
-    "name": "after",
-    "variableName": "cursor"
-  },
+v6 = [
   {
     "kind": "Variable",
     "name": "colorId",
     "variableName": "colorId"
   },
   {
-    "kind": "Variable",
+    "kind": "Literal",
     "name": "first",
-    "variableName": "count"
+    "value": 48
   },
   {
     "kind": "Variable",
@@ -106,9 +87,9 @@ v2 = [
     "name": "sortBy",
     "variableName": "sortBy"
   },
-  (v1/*: any*/)
+  (v5/*: any*/)
 ],
-v3 = {
+v7 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -117,24 +98,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v0/*: any*/),
+      (v1/*: any*/),
+      (v2/*: any*/),
+      (v3/*: any*/),
+      (v4/*: any*/)
+    ],
     "kind": "Fragment",
-    "metadata": null,
-    "name": "TopCommandersQuery",
+    "metadata": {
+      "throwOnFieldError": true
+    },
+    "name": "commanders_CommandersQuery",
     "selections": [
       {
-        "args": [
-          {
-            "kind": "Variable",
-            "name": "count",
-            "variableName": "count"
-          },
-          {
-            "kind": "Variable",
-            "name": "cursor",
-            "variableName": "cursor"
-          }
-        ],
+        "args": null,
         "kind": "FragmentSpread",
         "name": "commanders_topCommanders"
       }
@@ -144,13 +122,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v4/*: any*/),
+      (v3/*: any*/),
+      (v1/*: any*/),
+      (v2/*: any*/),
+      (v0/*: any*/)
+    ],
     "kind": "Operation",
-    "name": "TopCommandersQuery",
+    "name": "commanders_CommandersQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v6/*: any*/),
         "concreteType": "CommanderConnection",
         "kind": "LinkedField",
         "name": "commanders",
@@ -172,7 +156,7 @@ return {
                 "name": "node",
                 "plural": false,
                 "selections": [
-                  (v3/*: any*/),
+                  (v7/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -204,7 +188,7 @@ return {
                             "name": "minSize",
                             "variableName": "minSize"
                           },
-                          (v1/*: any*/)
+                          (v5/*: any*/)
                         ],
                         "kind": "ObjectValue",
                         "name": "filters"
@@ -261,7 +245,7 @@ return {
                         "name": "imageUrls",
                         "storageKey": null
                       },
-                      (v3/*: any*/)
+                      (v7/*: any*/)
                     ],
                     "storageKey": null
                   },
@@ -315,7 +299,7 @@ return {
       },
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v6/*: any*/),
         "filters": [
           "timePeriod",
           "sortBy",
@@ -331,15 +315,18 @@ return {
     ]
   },
   "params": {
-    "id": "f58d870e9e29169826b25ea9336637bc",
+    "id": "65da936044b2a3f1dcefe90d50618d78",
     "metadata": {},
-    "name": "TopCommandersQuery",
+    "name": "commanders_CommandersQuery",
     "operationKind": "query",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "ce5f422630b9caae16afa5ccd3861155";
+(node as any).hash = "4a66b0af4655ceb2ed434f7c8abfc88f";
+
+import { PreloadableQueryRegistry } from 'relay-runtime';
+PreloadableQueryRegistry.set(node.params.id, node);
 
 export default node;

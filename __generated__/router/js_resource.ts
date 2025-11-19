@@ -11,6 +11,26 @@ const RESOURCE_CONF = {
       src: "src/about.tsx",
       loader: () => import("../../src/about").then(m => m.AboutPage)
     },
+  "m#commander_stats": {
+      src: "src/commander_page.tsx",
+      loader: () => import("../../src/commander_page").then(m => m.CommanderStats)
+    },
+  "m#commander_page": {
+      src: "src/commander_page.tsx",
+      loader: () => import("../../src/commander_page").then(m => m.CommanderPage)
+    },
+  "m#commander_page_shell": {
+      src: "src/commander_page.tsx",
+      loader: () => import("../../src/commander_page").then(m => m.CommanderPageShell)
+    },
+  "route(/)": {
+      src: "src/commanders.tsx",
+      loader: () => import("../../src/commanders").then(m => m.CommandersPageShell)
+    },
+  "m#index": {
+      src: "src/commanders.tsx",
+      loader: () => import("../../src/commanders").then(m => m.CommandersPage)
+    },
   "route(/staples)": {
       src: "src/staples.tsx",
       loader: () => import("../../src/staples").then(m => m.StaplesPageShell)
@@ -19,6 +39,14 @@ const RESOURCE_CONF = {
       src: "src/staples.tsx",
       loader: () => import("../../src/staples").then(m => m.StaplesPage)
     },
+  "m#tournament_page_shell": {
+      src: "src/tournament_view.tsx",
+      loader: () => import("../../src/tournament_view").then(m => m.TournamentPageShell)
+    },
+  "m#tournament_view": {
+      src: "src/tournament_view.tsx",
+      loader: () => import("../../src/tournament_view").then(m => m.TournamentViewPage)
+    },
   "route(/tournaments)": {
       src: "src/tournaments.tsx",
       loader: () => import("../../src/tournaments").then(m => m.TournamentsPageShell)
@@ -26,30 +54,6 @@ const RESOURCE_CONF = {
   "route(/tournaments)#tournaments": {
       src: "src/tournaments.tsx",
       loader: () => import("../../src/tournaments").then(m => m.TournamentsPage)
-    },
-  "m#index_fallback": {
-      src: "src/pages/index.tsx",
-      loader: () => import("../../src/pages/index").then(m => m.CommandersPageFallback)
-    },
-  "m#index": {
-      src: "src/pages/index.tsx",
-      loader: () => import("../../src/pages/index").then(m => m.CommandersPage)
-    },
-  "m#tournament_view_fallback": {
-      src: "src/pages/tournament/[TID].tsx",
-      loader: () => import("../../src/pages/tournament/[TID]").then(m => m.TournamentViewPageFallback)
-    },
-  "m#tournament_view": {
-      src: "src/pages/tournament/[TID].tsx",
-      loader: () => import("../../src/pages/tournament/[TID]").then(m => m.TournamentViewPage)
-    },
-  "m#commander_page_fallback": {
-      src: "src/pages/commander/[commander]/index.tsx",
-      loader: () => import("../../src/pages/commander/[commander]/index").then(m => m.CommanderPageFallback)
-    },
-  "m#commander_page": {
-      src: "src/pages/commander/[commander]/index.tsx",
-      loader: () => import("../../src/pages/commander/[commander]/index").then(m => m.CommanderPage)
     }
 } as const;
 
