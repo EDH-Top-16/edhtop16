@@ -1,0 +1,21 @@
+[package]
+name = "scraper"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0"
+serde = "1.0.188"
+serde_json = "1.0"
+futures = "0.3.28"
+tokio = { version = "1.32.0", features = ["full"] }
+reqwest = { version = "0.12", features = ["json"] }
+simple_logger = "5.0.0"
+log = "0.4.26"
+governor = "0.8.1"
+dotenvy = "0.15.7"
+regex = "1.11.1"
+clap = { version = "4.5.37", features = ["derive"] }
+
+[dependencies.mongodb]
+version = "3.2.1"

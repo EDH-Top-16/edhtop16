@@ -3,175 +3,61 @@
  * well-shaped form.
  */
 
+import {faker} from '@faker-js/faker';
+import {workerPool} from '@reverecre/promise';
 import Database from 'better-sqlite3';
-import Dataloader from 'dataloader';
 import {subYears} from 'date-fns';
-import {Kysely, SqliteDialect} from 'kysely';
+import {MongoClient} from 'mongodb';
 import {createWriteStream} from 'node:fs';
 import fs from 'node:fs/promises';
 import {parseArgs} from 'node:util';
 import pc from 'picocolors';
 import * as undici from 'undici';
 import {z} from 'zod/v4';
-import type {DB} from '../__generated__/db/types';
 import {ScryfallCard, scryfallCardSchema} from '../src/lib/server/scryfall';
 
-class TopDeckClient {
-  static readonly player = z.object({
-    id: z.string(),
-    name: z.string(),
-    username: z.string().nullable(),
-    pronouns: z.string().nullable(),
-    profileImage: z.string().nullable(),
-    headerImage: z.string().nullable(),
-    elo: z.number().nullable(),
-    gamesPlayed: z.number().nullable(),
-    about: z.string().nullable(),
-    twitter: z.string().nullable(),
-    youtube: z.string().nullable(),
-  });
+/** Tournament IDs to exclude from ingestion */
+const EXCLUDED_TOURNAMENT_IDS = [
+  'spicerack:2269579',
+  'spicerack:2269574',
+  'spicerack:2269571',
+];
 
-  static readonly tournament = z.object({
-    TID: z.string(),
-    tournamentName: z.string(),
-    swissNum: z.number(),
-    startDate: z.number(),
-    game: z.string(),
-    format: z.string(),
-    averageElo: z.number(),
-    modeElo: z.number(),
-    medianElo: z.number(),
-    topElo: z.number(),
-    eventData: z.object({
-      lat: z.number().optional(),
-      lng: z.number().optional(),
-      city: z.string().optional(),
-      state: z.string().optional(),
-      location: z.string().optional(),
-      headerImage: z.string().optional(),
-    }),
-    topCut: z.number(),
-    standings: z.array(z.object({id: z.string()})),
-  });
-
-  static readonly tournamentDetail = z.object({
-    data: z.object({
-      name: z.string(),
-      game: z.string(),
-      format: z.string(),
-      startDate: z.number(),
-    }),
-    standings: z.array(
-      z.object({
-        name: z.string(),
-        id: z.string(),
-        decklist: z.string().nullable(),
-        deckObj: z
-          .object({
-            Commanders: z.record(
-              z.string(),
-              z.object({id: z.string(), count: z.number()}),
-            ),
-            Mainboard: z.record(
-              z.string(),
-              z.object({id: z.string(), count: z.number()}),
-            ),
-            metadata: z.object({
-              game: z.string(),
-              format: z.string(),
-              importedFrom: z.string(),
-            }),
-          })
-          .nullable(),
-        standing: z.number(),
-        points: z.number(),
-        winRate: z.number(),
-        opponentWinRate: z.number(),
-      }),
-    ),
-  });
-
-  private readonly apiKey: string;
-  private readonly baseUrl = 'https://topdeck.gg/api/v2';
-
-  constructor(apiKey: string) {
-    this.apiKey = apiKey;
-  }
-
-  private async request<T>(
-    method: 'GET' | 'POST',
-    endpoint: string,
-    schema: z.ZodType<T>,
-    body?: Record<string, unknown>,
-  ): Promise<T> {
-    const headers: Record<string, string> = {
-      Authorization: this.apiKey,
-      Accept: '*/*',
-      'User-Agent': 'edhtop16/2.0',
-    };
-
-    if (body) {
-      headers['Content-Type'] = 'application/json';
-    }
-
-    const response = await undici.request(`${this.baseUrl}${endpoint}`, {
-      method,
-      headers,
-      body: body ? JSON.stringify(body) : undefined,
-    });
-
-    if (response.statusCode >= 400) {
-      throw new Error(
-        `TopDeck API request failed: ${response.statusCode} - ${await response.body.text()}`,
-      );
-    }
-
-    const json = await response.body.json();
-    return schema.parse(json);
-  }
-
-  readonly players = new Dataloader(
-    (ids: readonly string[]) => {
-      const queryString = ids
-        .map((id) => `id=${encodeURIComponent(id)}`)
-        .join('&');
-
-      return this.request(
-        'GET',
-        `/player?${queryString}`,
-        z.array(TopDeckClient.player),
-      );
+const args = parseArgs({
+  options: {
+    tid: {
+      type: 'string',
+      multiple: true,
     },
-    {maxBatchSize: 15},
+    anonymize: {
+      type: 'boolean',
+    },
+  },
+});
+
+if (!process.env.ENTRIES_DB_URL) {
+  console.log(
+    pc.red(
+      'Could not generate database!\nMust provide ENTRIES_DB_URL environment variable',
+    ),
   );
 
-  readonly tournaments = new Dataloader((tids: readonly string[]) => {
-    return Promise.all(
-      tids.map((tournamentId) => {
-        return this.request(
-          'GET',
-          `/tournaments/${tournamentId}`,
-          TopDeckClient.tournamentDetail,
-        );
-      }),
-    );
-  });
-
-  async listTournaments(options: {
-    game: string;
-    format: string;
-    columns: string[];
-    last?: number;
-    tids?: string[];
-  }) {
-    return this.request(
-      'POST',
-      '/tournaments',
-      z.array(TopDeckClient.tournament),
-      options,
-    );
-  }
+  process.exit(1);
 }
+
+/** Connection to the raw entries database. */
+const mongo = new MongoClient(process.env.ENTRIES_DB_URL);
+
+/** Connection to local SQLite database seeded from data warehouse. */
+const db = new Database('edhtop16.db');
+
+// Turn off journalizing and start a transaction for faster inserts.
+console.log(pc.green(`Connected to local SQLite database!`));
+db.pragma('journal_mode = OFF');
+db.pragma('synchronous = 0');
+db.pragma('cache_size = 1000000');
+db.pragma('locking_mode = EXCLUSIVE');
+db.pragma('temp_store = MEMORY');
 
 class ScryfallDatabase {
   private static scryfallBulkDataSchema = z.object({
@@ -255,12 +141,12 @@ class ScryfallDatabase {
   readonly cardByOracleId: ReadonlyMap<string, ScryfallCard>;
   readonly cardByName: ReadonlyMap<string, ScryfallCard>;
 
-  private constructor(cards: ScryfallCard[]) {
+  private constructor(private readonly cards: ScryfallCard[]) {
     const cardByScryfallId = new Map<string, ScryfallCard>();
     const cardByOracleId = new Map<string, ScryfallCard>();
     const cardByName = new Map<string, ScryfallCard>();
 
-    for (const card of cards) {
+    for (const card of this.cards) {
       cardByScryfallId.set(card.id, card);
       cardByOracleId.set(card.oracle_id, card);
       cardByName.set(card.name, card);
@@ -272,60 +158,168 @@ class ScryfallDatabase {
   }
 }
 
-const args = parseArgs({
-  options: {
-    tid: {
-      type: 'string',
-      multiple: true,
-    },
-    anonymize: {
-      type: 'boolean',
-    },
-  },
+const topdeckTournamentSchema = z.object({
+  TID: z.string(),
+  tournamentName: z.string(),
+  size: z.number().int(),
+  date: z.date(),
+  dateCreated: z.number().int(),
+  swissNum: z.number().int(),
+  topCut: z.number().int(),
+  bracketUrl: z.string().optional(),
 });
 
-if (!process.env.TOPDECK_GG_API_KEY) {
-  console.error(pc.red('Must provide TOPDECK_GG_API_KEY!'));
-  process.exit(1);
+const jsonImportedSchema = z.object({
+  TID: z.string(),
+  tournamentName: z.string(),
+  players: z.number().int(),
+  startDate: z.number().int(),
+  swissRounds: z.number().int(),
+  topCut: z.number().int(),
+  bracketUrl: z.string().optional(),
+});
+
+async function getTournaments(
+  tids?: string[],
+): Promise<z.infer<typeof jsonImportedSchema>[]> {
+  const tournamentSchema = z.union([
+    topdeckTournamentSchema,
+    jsonImportedSchema,
+  ]);
+
+  const metadataFilters = {TID: {$nin: EXCLUDED_TOURNAMENT_IDS}};
+  if (tids) {
+    metadataFilters.TID.$nin = EXCLUDED_TOURNAMENT_IDS;
+  }
+
+  const tournaments = mongo
+    .db('cedhtop16')
+    .collection('metadata')
+    .find(metadataFilters)
+    .sort({date: 'desc'})
+    .map((doc) => {
+      const result = tournamentSchema.safeParse(doc);
+      if (!result.success) {
+        console.error(
+          `Could not parse document ${doc.TID} (${doc.tournamentName}): ${result.error.message}`,
+        );
+
+        return false;
+      }
+
+      return result.data;
+    });
+
+  return (await tournaments.toArray())
+    .filter((t) => t !== false)
+    .map((t) => {
+      if ('players' in t) return t;
+
+      return {
+        TID: t.TID,
+        tournamentName: t.tournamentName,
+        bracketUrl: t.bracketUrl,
+        players: t.size,
+        startDate: t.dateCreated,
+        swissRounds: t.swissNum,
+        topCut: t.topCut,
+      };
+    });
 }
 
-/** Topdeck.gg API client. */
-const topdeckClient = new TopDeckClient(process.env.TOPDECK_GG_API_KEY);
-
-/** Connection to local SQLite database seeded from data warehouse. */
-const dbConnection = new Database('edhtop16.db');
-
-const db = new Kysely<DB>({
-  dialect: new SqliteDialect({database: dbConnection}),
+type Entry = z.infer<typeof entrySchema>;
+const entrySchema = z.object({
+  name: z.string().trim(),
+  profile: z.string().nullable().optional(),
+  decklist: z.string().nullable(),
+  winsSwiss: z.number().int(),
+  winsBracket: z.number().int(),
+  draws: z.number().int(),
+  lossesSwiss: z.number().int(),
+  lossesBracket: z.number().int(),
+  standing: z.number().int(),
+  colorID: z.string().nullable().optional(),
+  commander: z.string().nullable().optional(),
+  mainDeck: z.array(z.string()).nullish(),
+  deckObj: z
+    .object({
+      Commanders: z.record(
+        z.string(),
+        z.object({
+          id: z.string(),
+          count: z.number().int(),
+        }),
+      ),
+      Mainboard: z.record(
+        z.string(),
+        z.object({
+          id: z.string(),
+          count: z.number().int(),
+        }),
+      ),
+    })
+    .nullable()
+    .optional(),
 });
 
-console.log(pc.green(`Connected to local SQLite database!`));
+async function getTournamentEntries(tournamentId: string) {
+  const entries = mongo
+    .db('cedhtop16')
+    .collection(tournamentId)
+    .find()
+    .map((doc) => {
+      const result = entrySchema.safeParse(doc);
+      if (!result.success) {
+        console.error(
+          `Could not parse document ${tournamentId} / ${doc.name}: ${result.error.message}`,
+        );
 
-/** @returns Map of TID to database ID. */
-async function createTournaments(
-  tournaments: z.infer<typeof TopDeckClient.tournament>[],
-): Promise<Map<string, number>> {
+        return false;
+      }
+
+      return result.data;
+    });
+
+  return (await entries.toArray()).filter((e) => e !== false);
+}
+
+async function createTournaments(tids?: string[]) {
+  const insertTournament = db.prepare(`
+    INSERT INTO "Tournament"
+    ("TID", "name", "tournamentDate", "size", "swissRounds", "topCut", "bracketUrl")
+    VALUES (?, ?, ?, ?, ?, ?, ?);
+  `);
+
+  const tournaments = await getTournaments(tids);
   console.log(
     pc.yellow(`Importing ${pc.cyan(tournaments.length)} tournaments!`),
   );
 
-  const insertedTournaments = await db
-    .insertInto('Tournament')
-    .values(
-      tournaments.map((t) => ({
-        TID: t.TID,
-        name: t.tournamentName,
-        tournamentDate: new Date(t.startDate * 1000).toISOString(),
-        size: t.standings.length,
-        swissRounds: t.swissNum,
-        topCut: t.topCut,
-        bracketUrl: `https://topdeck.gg/bracket/${t.TID}`,
-      })),
-    )
-    .returning(['id', 'TID'])
-    .execute();
+  const tournamentIdByTid = new Map<string, number>();
 
-  return new Map(insertedTournaments.map((t) => [t.TID, t.id]));
+  db.transaction(() => {
+    for (const t of tournaments) {
+      console.log(
+        `Creating tournament: ${pc.cyan(t.tournamentName)} ${pc.dim(
+          `[${t.TID}]`,
+        )}`,
+      );
+
+      const {lastInsertRowid} = insertTournament.run(
+        t.TID,
+        t.tournamentName,
+        new Date(t.startDate * 1000).toISOString(),
+        t.players,
+        t.swissRounds,
+        t.topCut,
+        t.bracketUrl,
+      );
+
+      tournamentIdByTid.set(t.TID, lastInsertRowid as number);
+    }
+  })();
+
+  return tournamentIdByTid;
 }
 
 function wubrgify(colorIdentity: string[]): string {
@@ -354,287 +348,489 @@ function wubrgify(colorIdentity: string[]): string {
   }
 }
 
-/** @returns Map of commander name to database ID. */
-async function createCommanders(
-  tournaments: z.infer<typeof TopDeckClient.tournament>[],
+function parseRawDecklist(
+  decklist: string,
+  defaultCards: ScryfallDatabase,
   oracleCards: ScryfallDatabase,
-): Promise<Map<string, number>> {
-  const tournamentDetails = await topdeckClient.tournaments.loadMany(
-    tournaments.map((t) => t.TID),
-  );
+): {
+  commander: string;
+  colorID: string;
+  maindeck: string[];
+  decklistUrl: string | null;
+} {
+  // Raw decklists from Topdeck have the form:
+  //
+  //     ~~Commanders~~
+  //     1 Commander Name
+  //     1 Partner Name (may be absent)
+  //
+  //     ~~Mainboard~~
+  //     N Card Name
+  //     N Card Name
+  //     etc..
+  //
+  //    Imported from <decklist url>
+  //
+  // We parse those commander names, then "normalize" them by grabbing the
+  // Scryfall ID from `oracleCards`, then use that ID to grab the default name
+  // from `defaultCards`. Then we sort and join the names with ` / ` to get our
+  // commander name. For color ID, we take both cards and join the color
+  // identities together.
+  //
+  // For the maindeck we want to return a list of Scryfall card IDs, so we just
+  // grab the ID based on the card name in `oracleCards`, making sure to add
+  // duplicate items in the array for card counts >1.
 
-  const commanders = tournamentDetails
-    .filter((t) => 'standings' in t)
-    .flatMap((t) =>
-      t.standings.map((s) => ({
-        name: Object.keys(s.deckObj?.Commanders ?? {})
-          .sort()
-          .join(' / '),
-        colorId: wubrgify(
-          Object.values(s.deckObj?.Commanders ?? {}).flatMap(
-            (c) => oracleCards.cardByScryfallId.get(c.id)?.color_identity ?? [],
-          ),
-        ),
-      })),
-    );
+  const lines = decklist.trim().replaceAll('\\n', '\n').split('\n');
+  let currentSection = '';
+  const commanderNames: string[] = [];
+  const maindeckLines: string[] = [];
+  let decklistUrl: string | null = null;
 
-  const insertedCommanders = await db
-    .insertInto('Commander')
-    .values(commanders)
-    .onConflict((oc) => oc.column('name').doNothing())
-    .returning(['name', 'id'])
-    .execute();
-
-  return new Map(insertedCommanders.map((c) => [c.name, c.id]));
-}
-
-async function createCards(
-  tournaments: z.infer<typeof TopDeckClient.tournament>[],
-  oracleCards: ScryfallDatabase,
-): Promise<Map<string, number>> {
-  const tournamentDetails = await topdeckClient.tournaments.loadMany(
-    tournaments.map((t) => t.TID),
-  );
-
-  const mainDeckCardIds = new Set(
-    tournamentDetails
-      .filter((t) => 'standings' in t)
-      .flatMap((t) => t.standings)
-      .flatMap((e) => [
-        ...Object.values(e.deckObj?.Commanders ?? {}),
-        ...Object.values(e.deckObj?.Mainboard ?? {}),
-      ])
-      .map((c) => c.id),
-  );
-
-  const defaultCommander = oracleCards.cardByName.get('The Prismatic Piper');
-  if (defaultCommander) mainDeckCardIds.add(defaultCommander.id);
-
-  console.log(
-    `Creating ${pc.cyan(mainDeckCardIds.size)} cards from oracle ID's`,
-  );
-
-  const insertedCards = await db
-    .insertInto('Card')
-    .values(
-      Array.from(mainDeckCardIds)
-        .map((id) => oracleCards.cardByOracleId.get(id))
-        .filter((c) => c != null)
-        .map((c) => ({
-          oracleId: c.oracle_id,
-          name: c.name,
-          data: JSON.stringify(c),
-        })),
-    )
-    .onConflict((oc) =>
-      oc.column('oracleId').doUpdateSet((eb) => ({
-        name: eb.ref('excluded.name'),
-        data: eb.ref('excluded.data'),
-      })),
-    )
-    .returning(['id', 'oracleId'])
-    .execute();
-
-  return new Map(insertedCards.map((c) => [c.oracleId, c.id]));
-}
-
-async function createEntries(
-  tournaments: z.infer<typeof TopDeckClient.tournament>[],
-  tournamentIdByTid: Map<string, number>,
-  playerIdByProfile: Map<string, number>,
-  commanderIdByName: Map<string, number>,
-  cardIdByOracleId: Map<string, number>,
-  {anonymizeNames}: {anonymizeNames: boolean},
-) {
-  // const tournamentDetails = await topdeckClient.tournaments.loadMany(
-  //   tournaments.map((t) => t.TID),
-  // );
-
-  // const entries = tournamentDetails
-  //   .filter((t) => 'standings' in t)
-  //   .flatMap((t) => t.standings.map((s) => ({tid: t.data, ...s})));
-
-  const entries = (
-    await Promise.all(
-      tournaments.map(async (t) => {
-        const details = await topdeckClient.tournaments.load(t.TID);
-        return details.standings.map((s) => ({tid: t.TID, ...s}));
-      }),
-    )
-  ).flat();
-
-  await db
-    .insertInto('Entry')
-    .values(entries.map((e) => ({})))
-    .onConflict((oc) => oc.doNothing())
-    .execute();
-}
-
-// async function createPlayers(
-//   {
-//     entries,
-//     tournamentIdByTid,
-//     commanderIdByName,
-//     cardIdByScryfallId,
-//   }: {
-//     entries: EntryWithTid[];
-//     tournamentIdByTid: Map<string, number>;
-//     commanderIdByName: Map<string, number>;
-//     cardIdByScryfallId: Map<string, number>;
-//   },
-//   {anonymizeNames}: {anonymizeNames: boolean},
-// ) {
-//   const insertPlayer = dbConnection.prepare(`
-//     INSERT INTO "Player"
-//     ("name", "topdeckProfile")
-//     VALUES (?, ?)
-//   `);
-
-//   const insertEntry = dbConnection.prepare(`
-//     INSERT INTO "Entry"
-//     ("decklist", "draws", "lossesBracket", "lossesSwiss", "standing", "winsBracket", "winsSwiss", "playerId", "commanderId", "tournamentId")
-//     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-//   `);
-
-//   const insertDecklistItem = dbConnection.prepare(`
-//     INSERT INTO "DecklistItem"
-//     ("entryId", "cardId")
-//     VALUES (?, ?)
-//   `);
-
-//   console.log(pc.yellow(`Creating players from entries...`));
-
-//   const playerIdByTopdeckId = new Map<string, number>();
-
-//   dbConnection.transaction(() => {
-//     for (const entry of entries) {
-//       const tournamentId = tournamentIdByTid.get(entry.TID);
-//       if (tournamentId == null) {
-//         console.error(`Could not find ID for tournament: ${entry.TID}`);
-//         continue;
-//       }
-
-//       if (!entry.commander) {
-//         console.error(`Entry has no commander: ${entry.TID}/${entry.name}`);
-//         continue;
-//       }
-
-//       const commanderId = commanderIdByName.get(entry.commander);
-//       if (commanderId == null) {
-//         console.error(`Could not find ID for commander: ${entry.commander}`);
-//         continue;
-//       }
-
-//       let playerId: number;
-//       if (entry.profile != null) {
-//         if (playerIdByTopdeckId.has(entry.profile)) {
-//           playerId = playerIdByTopdeckId.get(entry.profile)!;
-//         } else {
-//           const {lastInsertRowid} = insertPlayer.run(
-//             anonymizeNames
-//               ? faker.person.fullName()
-//               : entry.name || 'Unknown Player',
-//             anonymizeNames ? faker.string.nanoid() : entry.profile,
-//           );
-
-//           playerId = lastInsertRowid as number;
-//           playerIdByTopdeckId.set(entry.profile, lastInsertRowid as number);
-//         }
-//       } else {
-//         const {lastInsertRowid} = insertPlayer.run(
-//           anonymizeNames
-//             ? faker.person.fullName()
-//             : entry.name || 'Unknown Player',
-//           null,
-//         );
-
-//         playerId = lastInsertRowid as number;
-//       }
-
-//       const cardIds = new Set(
-//         (entry.mainDeck ?? [])
-//           .map((id) => cardIdByScryfallId.get(id))
-//           .filter((c) => c != null),
-//       );
-
-//       const decklistUrlMatch = entry.decklist?.match(/https?:\/\/[\w\W]*$/g);
-//       let decklistUrl = decklistUrlMatch?.[0] ?? entry.decklist;
-//       if (entry.profile != null) {
-//         decklistUrl = `https://topdeck.gg/deck/${entry.TID}/${entry.profile}`;
-//       }
-
-//       const {lastInsertRowid} = insertEntry.run(
-//         decklistUrl,
-//         entry.draws,
-//         entry.lossesBracket,
-//         entry.lossesSwiss,
-//         entry.standing,
-//         entry.winsBracket,
-//         entry.winsSwiss,
-//         playerId,
-//         commanderId,
-//         tournamentId,
-//       );
-
-//       for (const cardId of Array.from(cardIds)) {
-//         insertDecklistItem.run(lastInsertRowid, cardId);
-//       }
-//     }
-//   })();
-
-//   console.log(pc.green(`Finished creating players and entries!`));
-// }
-//
-
-/** @returns Map of player profile ID to database ID. */
-async function createPlayers(
-  tournaments: z.infer<typeof TopDeckClient.tournament>[],
-): Promise<Map<string, number>> {
-  const playerIds = tournaments.flatMap((t) => t.standings.map((s) => s.id));
-  const players = await topdeckClient.players.loadMany(playerIds);
-
-  const insertedPlayers = await db
-    .insertInto('Player')
-    .values(
-      players
-        .filter((p) => 'id' in p)
-        .map((p) => ({name: p.name, topdeckProfile: p.id})),
-    )
-    .onConflict((oc) =>
-      oc.column('topdeckProfile').doUpdateSet((eb) => ({
-        name: eb.ref('excluded.name'),
-      })),
-    )
-    .returning(['id', 'topdeckProfile'])
-    .execute();
-
-  const playerIdByTopdeckProfile = new Map<string, number>();
-  for (const {id, topdeckProfile} of insertedPlayers) {
-    if (topdeckProfile) {
-      playerIdByTopdeckProfile.set(topdeckProfile, id);
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    if (trimmedLine.startsWith('~~') && trimmedLine.endsWith('~~')) {
+      currentSection = trimmedLine.toLowerCase();
+    } else if (trimmedLine.startsWith('Imported from')) {
+      const decklistUrlMatch = trimmedLine.match(/https?:\/\/[\w\W]*$/g);
+      decklistUrl = decklistUrlMatch?.[0] ?? null;
+    } else if (currentSection === '~~commanders~~' && trimmedLine) {
+      // Extract card name from "1 Commander Name" format
+      const match = trimmedLine.match(/^\d+\s+(.+)$/);
+      if (match && match[1]) {
+        commanderNames.push(match[1].replaceAll(`’`, `'`));
+      }
+    } else if (currentSection === '~~mainboard~~' && trimmedLine) {
+      maindeckLines.push(trimmedLine);
     }
   }
 
-  return playerIdByTopdeckProfile;
+  // Process commanders
+  const commanderIds: string[] = [];
+  const colorIdentities: string[] = [];
+
+  for (const commanderName of commanderNames) {
+    const oracleCard = oracleCards.cardByName.get(commanderName);
+    if (oracleCard && oracleCard.id) {
+      const defaultCard = defaultCards.cardByScryfallId.get(oracleCard.id);
+      if (defaultCard && defaultCard.name) {
+        commanderIds.push(defaultCard.name);
+        if (defaultCard.color_identity) {
+          colorIdentities.push(...defaultCard.color_identity);
+        }
+      }
+    }
+  }
+
+  const commander = commanderIds.sort().join(' / ');
+  const uniqueColors = Array.from(new Set(colorIdentities));
+  const colorID = wubrgify(uniqueColors);
+
+  // Process maindeck
+  const maindeck: string[] = [];
+  for (const line of maindeckLines) {
+    const match = line.match(/^(\d+)\s+(.+)$/);
+    if (match && match[1] && match[2]) {
+      const count = parseInt(match[1], 10);
+      const cardName = match[2];
+      const oracleCard = oracleCards.cardByName.get(cardName);
+      if (oracleCard && oracleCard.id) {
+        for (let i = 0; i < count; i++) {
+          maindeck.push(oracleCard.id);
+        }
+      }
+    }
+  }
+
+  return {
+    commander,
+    colorID,
+    maindeck,
+    decklistUrl,
+  };
+}
+
+type EntryWithTid = Entry & {TID: string};
+async function loadEntries(
+  tids: string[],
+  defaultCards: ScryfallDatabase,
+  oracleCards: ScryfallDatabase,
+): Promise<EntryWithTid[]> {
+  const entriesByTid = new Map<string, Entry[]>();
+  await workerPool(tids, async (tid) => {
+    entriesByTid.set(tid, await getTournamentEntries(tid));
+  });
+
+  return Array.from(entriesByTid).flatMap(([TID, entries]) => {
+    return entries.flatMap((e) => {
+      const entry = {...e, TID};
+
+      // First check if we have structured deckObj data
+      if (entry.deckObj) {
+        // Extract commander data from deckObj
+        const commanderNames: string[] = [];
+        const colorIdentities: string[] = [];
+
+        for (const commanderData of Object.values(entry.deckObj.Commanders)) {
+          const oracleCard = oracleCards.cardByOracleId.get(commanderData.id);
+          if (oracleCard) {
+            commanderNames.push(oracleCard.name);
+            if (oracleCard.color_identity) {
+              colorIdentities.push(...oracleCard.color_identity);
+            }
+          }
+        }
+
+        // Extract mainboard data from deckObj
+        const maindeckIds: string[] = [];
+        for (const cardData of Object.values(entry.deckObj.Mainboard)) {
+          const oracleCard = oracleCards.cardByOracleId.get(cardData.id);
+          if (oracleCard) {
+            // Add multiple copies based on count
+            for (let i = 0; i < cardData.count; i++) {
+              maindeckIds.push(oracleCard.id);
+            }
+          }
+        }
+
+        // Set the processed data
+        entry.commander = commanderNames.sort().join(' / ');
+        entry.colorID = wubrgify(Array.from(new Set(colorIdentities)));
+        entry.mainDeck = maindeckIds;
+      } else if (entry.decklist?.startsWith(`~~`)) {
+        // Fallback to raw decklist parsing if no deckObj
+        const parsedDecklist = parseRawDecklist(
+          entry.decklist,
+          defaultCards,
+          oracleCards,
+        );
+
+        entry.decklist = parsedDecklist.decklistUrl;
+        if (parsedDecklist.decklistUrl == null) {
+          entry.commander = parsedDecklist.commander;
+          entry.colorID = parsedDecklist.colorID;
+          entry.mainDeck = parsedDecklist.maindeck;
+        }
+      }
+
+      return entry;
+    });
+  });
+}
+
+async function createCommanders(entries: EntryWithTid[]) {
+  const insertCommander = db.prepare(`
+    INSERT INTO "Commander"
+    ("name", "colorId")
+    VALUES (?, ?)
+  `);
+
+  const commanderIdByName = new Map<string, number>();
+  db.transaction(() => {
+    for (const entry of entries) {
+      if (!entry.commander || !entry.colorID) continue;
+      if (commanderIdByName.has(entry.commander)) continue;
+
+      console.log(`Creating commander: ${pc.cyan(entry.commander)}`);
+      const {lastInsertRowid} = insertCommander.run(
+        entry.commander,
+        entry.colorID,
+      );
+
+      commanderIdByName.set(entry.commander, lastInsertRowid as number);
+    }
+  })();
+
+  return commanderIdByName;
+}
+
+async function createCards(
+  entries: EntryWithTid[],
+  defaultCards: ScryfallDatabase,
+  oracleCards: ScryfallDatabase,
+) {
+  const insertCard = db.prepare(`
+    INSERT INTO "Card"
+    ("oracleId", "name", "data")
+    VALUES (?, ?, ?)
+  `);
+
+  const cardIdByOracleId = new Map<string, number>();
+  const cardIdByScryfallId = new Map<string, number>();
+
+  const mainDeckCards = entries.flatMap((e) => e.mainDeck ?? []);
+  const commanderCards = entries
+    .flatMap((e) => e.commander?.split(' / ') ?? [])
+    .map((c) => defaultCards.cardByName.get(c)?.id)
+    .filter((id) => id != null);
+
+  const defaultCommander = defaultCards.cardByName.get('The Prismatic Piper');
+
+  if (defaultCommander) commanderCards.push(defaultCommander.id);
+
+  const allScryfallIds = Array.from(
+    new Set([...mainDeckCards, ...commanderCards]),
+  );
+
+  const allOracleIds = Array.from(
+    new Set(
+      allScryfallIds
+        .map((id) => defaultCards.cardByScryfallId.get(id)?.oracle_id)
+        .filter((id) => id != null),
+    ),
+  );
+
+  console.log(
+    `Creating ${pc.cyan(allOracleIds.length)} cards from oracle ID's`,
+  );
+
+  db.transaction(() => {
+    for (const oracleId of allOracleIds) {
+      if (cardIdByOracleId.has(oracleId)) continue;
+
+      const card = oracleCards.cardByOracleId.get(oracleId);
+      if (card == null) continue;
+
+      let colorId: string = '';
+      for (const c of ['W', 'U', 'B', 'R', 'G', 'C']) {
+        if (card.color_identity.includes(c)) colorId += c;
+      }
+
+      const {lastInsertRowid} = insertCard.run(
+        card.oracle_id,
+        card.name,
+        JSON.stringify(card),
+      );
+
+      cardIdByOracleId.set(card.oracle_id, lastInsertRowid as number);
+    }
+  })();
+
+  for (const scryfallId of allScryfallIds) {
+    const card = defaultCards.cardByScryfallId.get(scryfallId);
+    if (card == null) continue;
+
+    const cardId = cardIdByOracleId.get(card.oracle_id);
+    if (cardId == null) continue;
+
+    cardIdByScryfallId.set(scryfallId, cardId);
+  }
+
+  return cardIdByScryfallId;
+}
+
+async function createPlayers(
+  {
+    entries,
+    tournamentIdByTid,
+    commanderIdByName,
+    cardIdByScryfallId,
+  }: {
+    entries: EntryWithTid[];
+    tournamentIdByTid: Map<string, number>;
+    commanderIdByName: Map<string, number>;
+    cardIdByScryfallId: Map<string, number>;
+  },
+  {anonymizeNames}: {anonymizeNames: boolean},
+) {
+  const insertPlayer = db.prepare(`
+    INSERT INTO "Player"
+    ("name", "topdeckProfile")
+    VALUES (?, ?)
+  `);
+
+  const insertEntry = db.prepare(`
+    INSERT INTO "Entry"
+    ("decklist", "draws", "lossesBracket", "lossesSwiss", "standing", "winsBracket", "winsSwiss", "playerId", "commanderId", "tournamentId")
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const insertDecklistItem = db.prepare(`
+    INSERT INTO "DecklistItem"
+    ("entryId", "cardId")
+    VALUES (?, ?)
+  `);
+
+  console.log(pc.yellow(`Creating players from entries...`));
+
+  const playerIdByTopdeckId = new Map<string, number>();
+
+  db.transaction(() => {
+    for (const entry of entries) {
+      const tournamentId = tournamentIdByTid.get(entry.TID);
+      if (tournamentId == null) {
+        console.error(`Could not find ID for tournament: ${entry.TID}`);
+        continue;
+      }
+
+      if (!entry.commander) {
+        console.error(`Entry has no commander: ${entry.TID}/${entry.name}`);
+        continue;
+      }
+
+      const commanderId = commanderIdByName.get(entry.commander);
+      if (commanderId == null) {
+        console.error(`Could not find ID for commander: ${entry.commander}`);
+        continue;
+      }
+
+      let playerId: number;
+      if (entry.profile != null) {
+        if (playerIdByTopdeckId.has(entry.profile)) {
+          playerId = playerIdByTopdeckId.get(entry.profile)!;
+        } else {
+          const {lastInsertRowid} = insertPlayer.run(
+            anonymizeNames
+              ? faker.person.fullName()
+              : entry.name || 'Unknown Player',
+            anonymizeNames ? faker.string.nanoid() : entry.profile,
+          );
+
+          playerId = lastInsertRowid as number;
+          playerIdByTopdeckId.set(entry.profile, lastInsertRowid as number);
+        }
+      } else {
+        const {lastInsertRowid} = insertPlayer.run(
+          anonymizeNames
+            ? faker.person.fullName()
+            : entry.name || 'Unknown Player',
+          null,
+        );
+
+        playerId = lastInsertRowid as number;
+      }
+
+      const cardIds = new Set(
+        (entry.mainDeck ?? [])
+          .map((id) => cardIdByScryfallId.get(id))
+          .filter((c) => c != null),
+      );
+
+      const decklistUrlMatch = entry.decklist?.match(/https?:\/\/[\w\W]*$/g);
+      let decklistUrl = decklistUrlMatch?.[0] ?? entry.decklist;
+      if (entry.profile != null) {
+        decklistUrl = `https://topdeck.gg/deck/${entry.TID}/${entry.profile}`;
+      }
+
+      const {lastInsertRowid} = insertEntry.run(
+        decklistUrl,
+        entry.draws,
+        entry.lossesBracket,
+        entry.lossesSwiss,
+        entry.standing,
+        entry.winsBracket,
+        entry.winsSwiss,
+        playerId,
+        commanderId,
+        tournamentId,
+      );
+
+      for (const cardId of Array.from(cardIds)) {
+        insertDecklistItem.run(lastInsertRowid, cardId);
+      }
+    }
+  })();
+
+  console.log(pc.green(`Finished creating players and entries!`));
+}
+
+function createSchema() {
+  db.exec(`
+CREATE TABLE "Tournament" (
+    "id" INTEGER NOT NULL PRIMARY KEY ASC,
+    "TID" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "tournamentDate" DATETIME NOT NULL,
+    "size" INTEGER NOT NULL,
+    "swissRounds" INTEGER NOT NULL,
+    "topCut" INTEGER NOT NULL,
+    "bracketUrl" TEXT
+);
+
+CREATE TABLE "Player" (
+    "id" INTEGER NOT NULL PRIMARY KEY ASC,
+    "topdeckProfile" TEXT,
+    "name" TEXT NOT NULL
+);
+
+CREATE TABLE "Commander" (
+    "id" INTEGER NOT NULL PRIMARY KEY ASC,
+    "name" TEXT NOT NULL,
+    "colorId" TEXT NOT NULL
+);
+
+CREATE TABLE "Entry" (
+    "id" INTEGER NOT NULL PRIMARY KEY ASC,
+    "tournamentId" INTEGER NOT NULL,
+    "playerId" INTEGER NOT NULL,
+    "commanderId" INTEGER NOT NULL,
+    "standing" INTEGER NOT NULL,
+    "decklist" TEXT,
+    "winsSwiss" INTEGER NOT NULL,
+    "winsBracket" INTEGER NOT NULL,
+    "draws" INTEGER NOT NULL,
+    "lossesSwiss" INTEGER NOT NULL,
+    "lossesBracket" INTEGER NOT NULL,
+    CONSTRAINT "Entry_tournamentId_fkey" FOREIGN KEY ("tournamentId") REFERENCES "Tournament" ("id"),
+    CONSTRAINT "Entry_playerId_fkey" FOREIGN KEY ("playerId") REFERENCES "Player" ("id"),
+    CONSTRAINT "Entry_commanderId_fkey" FOREIGN KEY ("commanderId") REFERENCES "Commander" ("id")
+);
+
+CREATE TABLE "Card" (
+    "id" INTEGER NOT NULL PRIMARY KEY ASC,
+    "oracleId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "data" TEXT NOT NULL
+);
+
+CREATE TABLE "DecklistItem" (
+    "entryId" INTEGER NOT NULL,
+    "cardId" INTEGER NOT NULL,
+
+    PRIMARY KEY ("entryId", "cardId"),
+    CONSTRAINT "DecklistItem_entryId_fkey" FOREIGN KEY ("entryId") REFERENCES "Entry" ("id"),
+    CONSTRAINT "DecklistItem_cardId_fkey" FOREIGN KEY ("cardId") REFERENCES "Card" ("id")
+);
+`);
+}
+
+function createIndexes() {
+  db.exec(`
+    CREATE INDEX "Commander_name_idx" on "Commander"("name");
+
+    CREATE UNIQUE INDEX "Tournament_TID_key" ON "Tournament"("TID");
+    CREATE INDEX "Tournament_TID_idx" ON "Tournament"("TID");
+    CREATE INDEX "Tournament_name_idx" ON "Tournament"("name");
+
+    CREATE UNIQUE INDEX "Player_topdeckProfile_key" ON "Player"("topdeckProfile");
+    CREATE INDEX "Player_topdeckProfile_idx" ON "Player"("topdeckProfile");
+
+    CREATE UNIQUE INDEX "Card_oracleId_key" ON "Card"("oracleId");
+    CREATE INDEX "Card_name_idx" on "Card"("name");
+
+    CREATE INDEX "Entry_tournamentId_idx" on "Entry"("tournamentId");
+    CREATE INDEX "Entry_playerId_idx" on "Entry"("playerId");
+    CREATE INDEX "Entry_commanderId_idx" on "Entry"("commanderId");
+
+    CREATE INDEX "DecklistItem_cardId_idx" on "DecklistItem"("cardId");
+    CREATE INDEX "DecklistItem_entryId_idx" on "DecklistItem"("entryId");
+  `);
 }
 
 function addCardPlayRates(cardIds: number[]) {
   console.log(pc.yellow(`Adding column "playRateLastYear" on Card`));
-  // dbConnection.exec(`ALTER TABLE "Card" ADD COLUMN "playRateLastYear" REAL;`);
+  db.exec(`ALTER TABLE "Card" ADD COLUMN "playRateLastYear" REAL;`);
 
-  const getCard = dbConnection.prepare<
+  const getCard = db.prepare<
     [number],
     {id: number; name: string; data: string}
   >(`SELECT * FROM "Card" WHERE "id" = ?`);
 
-  const setCardPlayRate = dbConnection.prepare<[number, number]>(
+  const setCardPlayRate = db.prepare<[number, number]>(
     `UPDATE "Card" set "playRateLastYear" = ? where "id" = ?`,
   );
 
-  const getEntriesForColorId = dbConnection.prepare<
-    [string, string],
-    {total: number}
-  >(`
+  const getEntriesForColorId = db.prepare<[string, string], {total: number}>(`
     SELECT COUNT(*) AS total
     FROM "Entry" AS e
     LEFT JOIN "Commander" c on c.id = e."commanderId"
@@ -644,10 +840,7 @@ function addCardPlayRates(cardIds: number[]) {
     AND t."tournamentDate" >= ?
   `);
 
-  const getEntriesForCard = dbConnection.prepare<
-    [number, string],
-    {total: number}
-  >(`
+  const getEntriesForCard = db.prepare<[number, string], {total: number}>(`
     SELECT COUNT(*) AS total
     FROM "DecklistItem" di
     LEFT JOIN "Entry" e on e.id = di."entryId"
@@ -710,31 +903,40 @@ async function main({
   anonymize?: boolean;
   tid?: string[];
 }) {
-  const oracleCards = await ScryfallDatabase.create('oracle_cards');
+  createSchema();
+  const [oracleCards, defaultCards] = await Promise.all([
+    ScryfallDatabase.create('oracle_cards'),
+    ScryfallDatabase.create('default_cards'),
+  ]);
 
-  // Last five days of tournaments, otherwise only the specified TIDs
-  const tournaments = await topdeckClient.listTournaments({
-    game: 'Magic: The Gathering',
-    format: 'EDH',
-    columns: ['id'],
-    tids: importedTids,
-    last: importedTids == null ? 5 : undefined,
-  });
+  const tournamentIdByTid = await createTournaments(importedTids);
 
-  const tournamentIdByTid = await createTournaments(tournaments);
-  const playerIdByProfile = await createPlayers(tournaments);
-  const commanderIdByName = await createCommanders(tournaments, oracleCards);
-  const cardIdByOracleId = await createCards(tournaments, oracleCards);
-  await createEntries(
-    tournaments,
-    tournamentIdByTid,
-    playerIdByProfile,
-    commanderIdByName,
-    cardIdByOracleId,
+  const entries = await loadEntries(
+    Array.from(tournamentIdByTid.keys()),
+    defaultCards,
+    oracleCards,
+  );
+
+  const commanderIdByName = await createCommanders(entries);
+
+  const cardIdByScryfallId = await createCards(
+    entries,
+    defaultCards,
+    oracleCards,
+  );
+
+  await createPlayers(
+    {
+      entries,
+      tournamentIdByTid,
+      commanderIdByName,
+      cardIdByScryfallId,
+    },
     {anonymizeNames},
   );
 
-  addCardPlayRates(Array.from(cardIdByOracleId.values()));
+  createIndexes();
+  addCardPlayRates(Array.from(cardIdByScryfallId.values()));
 }
 
 main(args.values)
@@ -744,8 +946,10 @@ main(args.values)
     process.exit(1);
   })
   .finally(async () => {
+    await mongo.close();
+
     console.log(pc.yellow('Closing database connection...'));
-    dbConnection.close();
+    db.close();
 
     console.log(pc.green('Database creation succeeded!'));
   });

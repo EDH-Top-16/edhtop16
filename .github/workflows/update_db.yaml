@@ -21,6 +21,33 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
+      - name: Setup Rust
+        run: rustup update
+
+      - name: Build Scraper
+        working-directory: scraper
+        run: cargo build --all-targets --release
+
+      - name: Run load_topdeck_tournaments
+        working-directory: scraper
+        run: cargo run --release --bin load_topdeck_tournaments
+        env:
+          ENTRIES_DB_URL: ${{ secrets.ATLAS_URI }}
+          TOPDECK_GG_API_KEY: ${{ secrets.TOPDECK_GG_API_KEY }}
+
+      - name: Run load_third_party_tournaments
+        working-directory: scraper
+        run: cargo run --release --bin load_third_party_tournaments
+        env:
+          ENTRIES_DB_URL: ${{ secrets.ATLAS_URI }}
+
+      - name: Run scrape_commanders
+        working-directory: scraper
+        run: cargo run --release --bin scrape_commanders
+        env:
+          ENTRIES_DB_URL: ${{ secrets.ATLAS_URI }}
+          MOXFIELD_API_KEY: ${{ secrets.MOXFIELD_API_KEY }}
+
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
@@ -40,19 +67,6 @@ jobs:
 
       - name: Setup Go
         uses: actions/setup-go@v5
-
-      - name: Push Application Database
-        run: go run etl.go --phases=push
-        env:
-          DO_SPACES_ENDPOINT: ${{ secrets.DO_SPACES_ENDPOINT }}
-          DO_SPACES_ACCESS_KEY_ID: ${{ secrets.DO_SPACES_ACCESS_KEY_ID }}
-          DO_SPACES_SECRET_ACCESS_KEY: ${{ secrets.DO_SPACES_SECRET_ACCESS_KEY }}
-
-      - name: Generate Application Database
-        run: npm run generate:db
-        env:
-          NODE_OPTIONS: --max-old-space-size=4096
-          ENTRIES_DB_URL: ${{ secrets.ATLAS_URI }}
 
       - name: Push Application Database
         run: go run etl.go --phases=push
