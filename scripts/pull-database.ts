@@ -6,7 +6,7 @@
 import Database from 'better-sqlite3';
 import Dataloader from 'dataloader';
 import {subYears} from 'date-fns';
-import {Kysely, SqliteDialect} from 'kysely';
+import {type InsertObject, Kysely, SqliteDialect} from 'kysely';
 import {createWriteStream} from 'node:fs';
 import fs from 'node:fs/promises';
 import {parseArgs} from 'node:util';
@@ -14,7 +14,10 @@ import pc from 'picocolors';
 import * as undici from 'undici';
 import {z} from 'zod/v4';
 import type {DB} from '../__generated__/db/types';
-import {ScryfallCard, scryfallCardSchema} from '../src/lib/server/scryfall';
+import {
+  type ScryfallCard,
+  scryfallCardSchema,
+} from '../src/lib/server/scryfall.ts';
 
 class TopDeckClient {
   static readonly player = z.object({
@@ -38,10 +41,10 @@ class TopDeckClient {
     startDate: z.number(),
     game: z.string(),
     format: z.string(),
-    averageElo: z.number(),
-    modeElo: z.number(),
-    medianElo: z.number(),
-    topElo: z.number(),
+    averageElo: z.number().optional(),
+    modeElo: z.number().optional(),
+    medianElo: z.number().optional(),
+    topElo: z.number().optional(),
     eventData: z.object({
       lat: z.number().optional(),
       lng: z.number().optional(),
@@ -51,7 +54,17 @@ class TopDeckClient {
       headerImage: z.string().optional(),
     }),
     topCut: z.number(),
-    standings: z.array(z.object({id: z.string()})),
+    standings: z.array(
+      z.object({
+        id: z.string(),
+        winsSwiss: z.number().int(),
+        winsBracket: z.number().int(),
+        draws: z.number().int(),
+        lossesSwiss: z.number().int(),
+        lossesBracket: z.number().int(),
+        byes: z.number().int(),
+      }),
+    ),
   });
 
   static readonly tournamentDetail = z.object({
@@ -79,14 +92,14 @@ class TopDeckClient {
             metadata: z.object({
               game: z.string(),
               format: z.string(),
-              importedFrom: z.string(),
+              importedFrom: z.string().optional(),
             }),
           })
           .nullable(),
         standing: z.number(),
         points: z.number(),
-        winRate: z.number(),
-        opponentWinRate: z.number(),
+        winRate: z.number().nullish(),
+        opponentWinRate: z.number().nullish(),
       }),
     ),
   });
@@ -157,18 +170,25 @@ class TopDeckClient {
     );
   });
 
-  async listTournaments(options: {
-    game: string;
-    format: string;
-    columns: string[];
-    last?: number;
-    tids?: string[];
-  }) {
+  async listTournaments(options: {last?: number; tids?: string[]}) {
     return this.request(
       'POST',
       '/tournaments',
       z.array(TopDeckClient.tournament),
-      options,
+      {
+        game: 'Magic: The Gathering',
+        format: 'EDH',
+        columns: [
+          'id',
+          'winsSwiss',
+          'winsBracket',
+          'draws',
+          'lossesSwiss',
+          'lossesBracket',
+          'byes',
+        ],
+        ...options,
+      },
     );
   }
 }
@@ -278,9 +298,6 @@ const args = parseArgs({
       type: 'string',
       multiple: true,
     },
-    anonymize: {
-      type: 'boolean',
-    },
   },
 });
 
@@ -300,6 +317,10 @@ const db = new Kysely<DB>({
 });
 
 console.log(pc.green(`Connected to local SQLite database!`));
+
+function commanderName(commanders: Record<string, unknown> = {}) {
+  return Object.keys(commanders).sort().join(' / ');
+}
 
 /** @returns Map of TID to database ID. */
 async function createTournaments(
@@ -322,6 +343,7 @@ async function createTournaments(
         bracketUrl: `https://topdeck.gg/bracket/${t.TID}`,
       })),
     )
+    .onConflict((oc) => oc.column('TID').doNothing())
     .returning(['id', 'TID'])
     .execute();
 
@@ -367,9 +389,7 @@ async function createCommanders(
     .filter((t) => 'standings' in t)
     .flatMap((t) =>
       t.standings.map((s) => ({
-        name: Object.keys(s.deckObj?.Commanders ?? {})
-          .sort()
-          .join(' / '),
+        name: commanderName(s.deckObj?.Commanders),
         colorId: wubrgify(
           Object.values(s.deckObj?.Commanders ?? {}).flatMap(
             (c) => oracleCards.cardByScryfallId.get(c.id)?.color_identity ?? [],
@@ -377,6 +397,12 @@ async function createCommanders(
         ),
       })),
     );
+
+  console.log(
+    pc.yellow(
+      `Updating profile information for ${pc.cyan(commanders.length)} commanders...`,
+    ),
+  );
 
   const insertedCommanders = await db
     .insertInto('Commander')
@@ -443,155 +469,113 @@ async function createEntries(
   tournamentIdByTid: Map<string, number>,
   playerIdByProfile: Map<string, number>,
   commanderIdByName: Map<string, number>,
-  cardIdByOracleId: Map<string, number>,
-  {anonymizeNames}: {anonymizeNames: boolean},
 ) {
-  // const tournamentDetails = await topdeckClient.tournaments.loadMany(
-  //   tournaments.map((t) => t.TID),
-  // );
+  const entries = await Promise.all(
+    tournaments.map(async (t) => {
+      const tournamentDetails = await topdeckClient.tournaments.load(t.TID);
+      const standingDetailById = new Map(
+        tournamentDetails.standings.map((s) => [s.id, s] as const),
+      );
 
-  // const entries = tournamentDetails
-  //   .filter((t) => 'standings' in t)
-  //   .flatMap((t) => t.standings.map((s) => ({tid: t.data, ...s})));
+      return t.standings.map((s): InsertObject<DB, 'Entry'> => {
+        const details = standingDetailById.get(s.id);
+        const standing = details?.standing!;
+        const playerId = playerIdByProfile.get(s.id)!;
+        const tournamentId = tournamentIdByTid.get(t.TID)!;
+        const commanderId = commanderIdByName.get(
+          commanderName(details?.deckObj?.Commanders),
+        )!;
 
-  const entries = (
-    await Promise.all(
-      tournaments.map(async (t) => {
-        const details = await topdeckClient.tournaments.load(t.TID);
-        return details.standings.map((s) => ({tid: t.TID, ...s}));
-      }),
-    )
-  ).flat();
+        return {
+          tournamentId,
+          commanderId,
+          playerId,
+          standing,
+          draws: s.draws,
+          winsBracket: s.winsBracket,
+          winsSwiss: s.winsSwiss,
+          lossesBracket: s.lossesBracket,
+          lossesSwiss: s.lossesSwiss,
+        };
+      });
+    }),
+  );
+
+  const insertedEntries = await db
+    .insertInto('Entry')
+    .values(entries.flat())
+    .onConflict((oc) => oc.doNothing())
+    .returning(['Entry.id', 'Entry.playerId', 'Entry.tournamentId'])
+    .execute();
+
+  const tidByTournamentId = new Map(
+    Array.from(tournamentIdByTid).map(([id, tid]) => [tid, id] as const),
+  );
+
+  const profileByPlayerId = new Map(
+    Array.from(playerIdByProfile).map(([id, tid]) => [tid, id] as const),
+  );
+
+  const entryIdByTidAndProfile = new Map<string, number>();
+  for (const {id, playerId, tournamentId} of insertedEntries) {
+    const tid = tidByTournamentId.get(tournamentId)!;
+    const profile = profileByPlayerId.get(playerId)!;
+    entryIdByTidAndProfile.set(`${tid}:${profile}`, id);
+  }
+
+  return (tid: string, profile: string) => {
+    return entryIdByTidAndProfile.get(`${tid}:${profile}`);
+  };
+}
+
+async function createDecklists(
+  tournaments: z.infer<typeof TopDeckClient.tournament>[],
+  cardIdByOracleId: Map<string, number>,
+  entryIdByTidAndProfile: (tid: string, profile: string) => number | undefined,
+) {
+  const decklistItems = await Promise.all(
+    tournaments.map(async (t) => {
+      const tournamentDetails = await topdeckClient.tournaments.load(t.TID);
+      const standingDetailById = new Map(
+        tournamentDetails.standings.map((s) => [s.id, s] as const),
+      );
+
+      return t.standings.flatMap((s): InsertObject<DB, 'DecklistItem'>[] => {
+        const details = standingDetailById.get(s.id);
+        const entryId = entryIdByTidAndProfile(t.TID, s.id)!;
+
+        return Object.values(details?.deckObj?.Mainboard ?? {}).map(
+          ({id: oracleId}) => {
+            const cardId = cardIdByOracleId.get(oracleId)!;
+            return {cardId, entryId};
+          },
+        );
+      });
+    }),
+  );
 
   await db
-    .insertInto('Entry')
-    .values(entries.map((e) => ({})))
+    .insertInto('DecklistItem')
+    .values(decklistItems.flat())
     .onConflict((oc) => oc.doNothing())
     .execute();
 }
-
-// async function createPlayers(
-//   {
-//     entries,
-//     tournamentIdByTid,
-//     commanderIdByName,
-//     cardIdByScryfallId,
-//   }: {
-//     entries: EntryWithTid[];
-//     tournamentIdByTid: Map<string, number>;
-//     commanderIdByName: Map<string, number>;
-//     cardIdByScryfallId: Map<string, number>;
-//   },
-//   {anonymizeNames}: {anonymizeNames: boolean},
-// ) {
-//   const insertPlayer = dbConnection.prepare(`
-//     INSERT INTO "Player"
-//     ("name", "topdeckProfile")
-//     VALUES (?, ?)
-//   `);
-
-//   const insertEntry = dbConnection.prepare(`
-//     INSERT INTO "Entry"
-//     ("decklist", "draws", "lossesBracket", "lossesSwiss", "standing", "winsBracket", "winsSwiss", "playerId", "commanderId", "tournamentId")
-//     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-//   `);
-
-//   const insertDecklistItem = dbConnection.prepare(`
-//     INSERT INTO "DecklistItem"
-//     ("entryId", "cardId")
-//     VALUES (?, ?)
-//   `);
-
-//   console.log(pc.yellow(`Creating players from entries...`));
-
-//   const playerIdByTopdeckId = new Map<string, number>();
-
-//   dbConnection.transaction(() => {
-//     for (const entry of entries) {
-//       const tournamentId = tournamentIdByTid.get(entry.TID);
-//       if (tournamentId == null) {
-//         console.error(`Could not find ID for tournament: ${entry.TID}`);
-//         continue;
-//       }
-
-//       if (!entry.commander) {
-//         console.error(`Entry has no commander: ${entry.TID}/${entry.name}`);
-//         continue;
-//       }
-
-//       const commanderId = commanderIdByName.get(entry.commander);
-//       if (commanderId == null) {
-//         console.error(`Could not find ID for commander: ${entry.commander}`);
-//         continue;
-//       }
-
-//       let playerId: number;
-//       if (entry.profile != null) {
-//         if (playerIdByTopdeckId.has(entry.profile)) {
-//           playerId = playerIdByTopdeckId.get(entry.profile)!;
-//         } else {
-//           const {lastInsertRowid} = insertPlayer.run(
-//             anonymizeNames
-//               ? faker.person.fullName()
-//               : entry.name || 'Unknown Player',
-//             anonymizeNames ? faker.string.nanoid() : entry.profile,
-//           );
-
-//           playerId = lastInsertRowid as number;
-//           playerIdByTopdeckId.set(entry.profile, lastInsertRowid as number);
-//         }
-//       } else {
-//         const {lastInsertRowid} = insertPlayer.run(
-//           anonymizeNames
-//             ? faker.person.fullName()
-//             : entry.name || 'Unknown Player',
-//           null,
-//         );
-
-//         playerId = lastInsertRowid as number;
-//       }
-
-//       const cardIds = new Set(
-//         (entry.mainDeck ?? [])
-//           .map((id) => cardIdByScryfallId.get(id))
-//           .filter((c) => c != null),
-//       );
-
-//       const decklistUrlMatch = entry.decklist?.match(/https?:\/\/[\w\W]*$/g);
-//       let decklistUrl = decklistUrlMatch?.[0] ?? entry.decklist;
-//       if (entry.profile != null) {
-//         decklistUrl = `https://topdeck.gg/deck/${entry.TID}/${entry.profile}`;
-//       }
-
-//       const {lastInsertRowid} = insertEntry.run(
-//         decklistUrl,
-//         entry.draws,
-//         entry.lossesBracket,
-//         entry.lossesSwiss,
-//         entry.standing,
-//         entry.winsBracket,
-//         entry.winsSwiss,
-//         playerId,
-//         commanderId,
-//         tournamentId,
-//       );
-
-//       for (const cardId of Array.from(cardIds)) {
-//         insertDecklistItem.run(lastInsertRowid, cardId);
-//       }
-//     }
-//   })();
-
-//   console.log(pc.green(`Finished creating players and entries!`));
-// }
-//
 
 /** @returns Map of player profile ID to database ID. */
 async function createPlayers(
   tournaments: z.infer<typeof TopDeckClient.tournament>[],
 ): Promise<Map<string, number>> {
-  const playerIds = tournaments.flatMap((t) => t.standings.map((s) => s.id));
-  const players = await topdeckClient.players.loadMany(playerIds);
+  const playerIds = new Set(
+    tournaments.flatMap((t) => t.standings.map((s) => s.id)),
+  );
+
+  console.log(
+    pc.yellow(
+      `Updating profile information for ${pc.cyan(playerIds.size)} players...`,
+    ),
+  );
+
+  const players = await topdeckClient.players.loadMany(Array.from(playerIds));
 
   const insertedPlayers = await db
     .insertInto('Player')
@@ -618,50 +602,54 @@ async function createPlayers(
   return playerIdByTopdeckProfile;
 }
 
-function addCardPlayRates(cardIds: number[]) {
-  console.log(pc.yellow(`Adding column "playRateLastYear" on Card`));
-  // dbConnection.exec(`ALTER TABLE "Card" ADD COLUMN "playRateLastYear" REAL;`);
+async function addCardPlayRates(cardIds: number[]) {
+  console.log(pc.yellow(`Calculating column "playRateLastYear" on Card`));
 
-  const getCard = dbConnection.prepare<
-    [number],
-    {id: number; name: string; data: string}
-  >(`SELECT * FROM "Card" WHERE "id" = ?`);
+  function getCard(id: number) {
+    return db
+      .selectFrom('Card')
+      .selectAll()
+      .where('id', '=', id)
+      .executeTakeFirst();
+  }
 
-  const setCardPlayRate = dbConnection.prepare<[number, number]>(
-    `UPDATE "Card" set "playRateLastYear" = ? where "id" = ?`,
-  );
+  function setCardPlayRate(id: number, playRateLastYear: number) {
+    return db
+      .updateTable('Card')
+      .set({playRateLastYear})
+      .where('id', '=', id)
+      .execute();
+  }
 
-  const getEntriesForColorId = dbConnection.prepare<
-    [string, string],
-    {total: number}
-  >(`
-    SELECT COUNT(*) AS total
-    FROM "Entry" AS e
-    LEFT JOIN "Commander" c on c.id = e."commanderId"
-    LEFT JOIN "Tournament" t on t.id = e."tournamentId"
-    WHERE c."colorId" like ?
-    AND c."colorId" != 'N/A'
-    AND t."tournamentDate" >= ?
-  `);
+  function getEntriesForColorId(colorId: string, tournamentDate: string) {
+    return db
+      .selectFrom('Entry as e')
+      .leftJoin('Commander as c', 'c.id', 'e.commanderId')
+      .leftJoin('Tournament as t', 't.id', 'e.tournamentId')
+      .where('c.colorId', 'like', colorId)
+      .where('c.colorId', '!=', 'N/A')
+      .where('t.tournamentDate', '>=', tournamentDate)
+      .select((eb) => eb.fn.countAll<number>().as('total'))
+      .executeTakeFirst();
+  }
 
-  const getEntriesForCard = dbConnection.prepare<
-    [number, string],
-    {total: number}
-  >(`
-    SELECT COUNT(*) AS total
-    FROM "DecklistItem" di
-    LEFT JOIN "Entry" e on e.id = di."entryId"
-    LEFT JOIN "Tournament" t on t.id = e."tournamentId"
-    WHERE "cardId" = ?
-    AND t."tournamentDate" >= ?
-  `);
+  function getEntriesForCard(cardId: number, tournamentDate: string) {
+    return db
+      .selectFrom('DecklistItem as di')
+      .leftJoin('Entry as e', 'e.id', 'di.entryId')
+      .leftJoin('Tournament as t', 't.id', 'e.tournamentId')
+      .where('cardId', '=', cardId)
+      .where('t.tournamentDate', '>=', tournamentDate)
+      .select((eb) => eb.fn.countAll<number>().as('total'))
+      .executeTakeFirst();
+  }
 
   const memoEntriesForColorId = new Map<string, number>();
   const oneYearAgo = subYears(new Date(), 1).toISOString();
 
   console.log(`Calculating play rate for ${pc.cyan(cardIds.length)} cards`);
   for (const cardId of cardIds) {
-    const card = getCard.get(cardId);
+    const card = await getCard(cardId);
     if (card == null) continue;
 
     const colorId = scryfallCardSchema
@@ -682,57 +670,49 @@ function addCardPlayRates(cardIds: number[]) {
         colorIdMatch = '%';
       }
 
-      const totalForColorId = getEntriesForColorId.get(
-        colorIdMatch,
-        oneYearAgo,
+      const totalForColorId = (
+        await getEntriesForColorId(colorIdMatch, oneYearAgo)
       )?.total;
 
       if (totalForColorId) memoEntriesForColorId.set(colorId, totalForColorId);
     }
 
-    const totalEntriesForCard = getEntriesForCard.get(
-      card.id,
-      oneYearAgo,
-    )?.total;
+    const totalEntriesForCard = (await getEntriesForCard(card.id, oneYearAgo))
+      ?.total;
     const totalPossibleEntries = memoEntriesForColorId.get(colorId);
     if (totalPossibleEntries == null || totalEntriesForCard == null) return;
 
-    setCardPlayRate.run(totalEntriesForCard / totalPossibleEntries, card.id);
+    setCardPlayRate(totalEntriesForCard / totalPossibleEntries, card.id);
   }
 
   console.log(`Finished calculating play rates!`);
 }
 
-async function main({
-  tid: importedTids,
-  anonymize: anonymizeNames = false,
-}: {
-  anonymize?: boolean;
-  tid?: string[];
-}) {
+async function main({tid: importedTids}: {tid?: string[]}) {
+  console.log(pc.green(`Loading Scryfall oracle cards database...`));
   const oracleCards = await ScryfallDatabase.create('oracle_cards');
 
   // Last five days of tournaments, otherwise only the specified TIDs
+  console.log(pc.green(`Pulling recent TopDeck tournaments...`));
   const tournaments = await topdeckClient.listTournaments({
-    game: 'Magic: The Gathering',
-    format: 'EDH',
-    columns: ['id'],
     tids: importedTids,
     last: importedTids == null ? 5 : undefined,
   });
+
+  console.log(pc.green(`Found ${tournaments.length} tournaments!`));
 
   const tournamentIdByTid = await createTournaments(tournaments);
   const playerIdByProfile = await createPlayers(tournaments);
   const commanderIdByName = await createCommanders(tournaments, oracleCards);
   const cardIdByOracleId = await createCards(tournaments, oracleCards);
-  await createEntries(
+  const entryIdByTidAndProfile = await createEntries(
     tournaments,
     tournamentIdByTid,
     playerIdByProfile,
     commanderIdByName,
-    cardIdByOracleId,
-    {anonymizeNames},
   );
+
+  await createDecklists(tournaments, cardIdByOracleId, entryIdByTidAndProfile);
 
   addCardPlayRates(Array.from(cardIdByOracleId.values()));
 }
