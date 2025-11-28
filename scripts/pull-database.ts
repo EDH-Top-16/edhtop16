@@ -532,9 +532,9 @@ async function createDecklists(
         if (!entryId) return [];
 
         return Object.values(details?.deckObj?.Mainboard ?? {}).map(
-          ({id: oracleId}) => {
+          ({id: oracleId, count}) => {
             const cardId = cardIdByOracleId.get(oracleId)!;
-            return {cardId, entryId};
+            return {cardId, entryId, count};
           },
         );
       });
@@ -673,9 +673,9 @@ async function addCardPlayRates(cardIds: number[]) {
     const totalEntriesForCard = (await getEntriesForCard(card.id, oneYearAgo))
       ?.total;
     const totalPossibleEntries = memoEntriesForColorId.get(colorId);
-    if (totalPossibleEntries == null || totalEntriesForCard == null) return;
+    if (totalPossibleEntries == null || totalEntriesForCard == null) continue;
 
-    setCardPlayRate(totalEntriesForCard / totalPossibleEntries, card.id);
+    await setCardPlayRate(card.id, totalEntriesForCard / totalPossibleEntries);
   }
 
   success`Finished calculating play rates!`();
@@ -711,7 +711,7 @@ async function main({tid: importedTids}: {tid?: string[]}) {
   );
 
   await createDecklists(tournaments, cardIdByOracleId, entryIdByTidAndProfile);
-  addCardPlayRates(Array.from(cardIdByOracleId.values()));
+  await addCardPlayRates(Array.from(cardIdByOracleId.values()));
 }
 
 main(args.values)

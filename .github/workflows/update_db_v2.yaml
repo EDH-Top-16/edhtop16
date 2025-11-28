@@ -53,6 +53,9 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=4096
           TOPDECK_GG_API_KEY: ${{ secrets.TOPDECK_GG_API_KEY }}
 
+      - name: Rename to V2 Database
+        run: mv edhtop16.db edhtop16_v2.db
+
       - name: Push Update DB
         run: s3cmd put edhtop16_v2.db s3://edhtop16
 
