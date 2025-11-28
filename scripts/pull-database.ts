@@ -305,7 +305,7 @@ const db = new Kysely<DB>({
   dialect: new SqliteDialect({database: new Database('edhtop16.db')}),
 });
 
-console.log(pc.green(`Connected to local SQLite database!`));
+success`Connected to local SQLite database!`();
 
 function commanderName(commanders: Record<string, unknown> = {}) {
   return Object.keys(commanders).sort().join(' / ');
@@ -471,12 +471,6 @@ async function createEntries(
         const commanderId = commanderIdByName.get(
           commanderName(details?.deckObj?.Commanders),
         )!;
-
-        // console.log(`Creating new entry for ${s.id}/${t.TID}`, {
-        //   tournamentId,
-        //   playerId,
-        //   commanderId,
-        // });
 
         return {
           tournamentId,
