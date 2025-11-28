@@ -1,7 +1,5 @@
-#!/usr/bin/env node --experimental-strip-types
-
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import {exec} from 'child_process';
+import {promisify} from 'util';
 
 const execAsync = promisify(exec);
 
@@ -16,7 +14,7 @@ async function cleanupOldBackups() {
   const cutoffTimestamp = cutoffDate.getTime();
 
   // List all backups
-  const { stdout } = await execAsync(`s3cmd ls ${BACKUP_PATH}`);
+  const {stdout} = await execAsync(`s3cmd ls ${BACKUP_PATH}`);
   const lines = stdout.trim().split('\n');
 
   for (const line of lines) {
@@ -47,10 +45,14 @@ async function cleanupOldBackups() {
     const fileTimestamp = fileDate.getTime();
 
     if (fileTimestamp < cutoffTimestamp) {
-      console.log(`Deleting old backup: ${filename} (${fileDate.toISOString()})`);
+      console.log(
+        `Deleting old backup: ${filename} (${fileDate.toISOString()})`,
+      );
       await execAsync(`s3cmd del "${filePath}"`);
     } else {
-      console.log(`Keeping recent backup: ${filename} (${fileDate.toISOString()})`);
+      console.log(
+        `Keeping recent backup: ${filename} (${fileDate.toISOString()})`,
+      );
     }
   }
 

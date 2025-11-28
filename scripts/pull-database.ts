@@ -22,16 +22,16 @@ import {
 class TopDeckClient {
   static readonly player = z.object({
     id: z.string(),
-    name: z.string(),
-    username: z.string().nullable(),
-    pronouns: z.string().nullable(),
-    profileImage: z.string().nullable(),
-    headerImage: z.string().nullable(),
-    elo: z.number().nullable(),
-    gamesPlayed: z.number().nullable(),
-    about: z.string().nullable(),
-    twitter: z.string().nullable(),
-    youtube: z.string().nullable(),
+    name: z.string().nullish(),
+    username: z.string().nullish(),
+    pronouns: z.string().nullish(),
+    profileImage: z.string().nullish(),
+    headerImage: z.string().nullish(),
+    elo: z.number().nullish(),
+    gamesPlayed: z.number().nullish(),
+    about: z.string().nullish(),
+    twitter: z.string().nullish(),
+    youtube: z.string().nullish(),
   });
 
   static readonly tournament = z.object({
@@ -218,13 +218,9 @@ class ScryfallDatabase {
 
     try {
       await fs.access(databaseFileName, fs.constants.F_OK);
-      console.log(
-        pc.green(
-          `Found cached Scryfall bulk database: ${pc.cyan(databaseFileName)}`,
-        ),
-      );
+      success`Found cached Scryfall bulk database: ${databaseFileName}`();
     } catch (e) {
-      console.log(pc.cyan('Requesting Scryfall bulk data URL...'));
+      info`Requesting Scryfall bulk data URL...`();
       const scryfallBulkDataResponse = await undici.request(
         'https://api.scryfall.com/bulk-data',
         {headers: {Accept: '*/*', 'User-Agent': 'edhtop16/2.0'}},
@@ -251,23 +247,18 @@ class ScryfallDatabase {
         );
       }
 
-      console.log(
-        `Downloading Scryfall database: ${pc.cyan(kind)} from ${pc.cyan(
-          databaseUrl,
-        )}`,
-      );
-
+      info`Downloading Scryfall database: ${kind} from ${databaseUrl}`();
       await undici.stream(databaseUrl, {method: 'GET'}, () =>
         createWriteStream(databaseFileName),
       );
     }
 
-    console.log(`Loading Scryfall database JSON: ${pc.cyan(kind)}`);
+    info`Loading Scryfall database JSON: ${kind}`();
     const scryfallDatabaseJson = (
       await fs.readFile(databaseFileName)
     ).toString();
 
-    console.log(`Parsing Scryfall database JSON: ${pc.cyan(kind)}`);
+    info`Parsing Scryfall database JSON: ${kind}`();
     return new ScryfallDatabase(JSON.parse(scryfallDatabaseJson));
   }
 
@@ -310,10 +301,8 @@ if (!process.env.TOPDECK_GG_API_KEY) {
 const topdeckClient = new TopDeckClient(process.env.TOPDECK_GG_API_KEY);
 
 /** Connection to local SQLite database seeded from data warehouse. */
-const dbConnection = new Database('edhtop16.db');
-
 const db = new Kysely<DB>({
-  dialect: new SqliteDialect({database: dbConnection}),
+  dialect: new SqliteDialect({database: new Database('edhtop16.db')}),
 });
 
 console.log(pc.green(`Connected to local SQLite database!`));
@@ -326,10 +315,6 @@ function commanderName(commanders: Record<string, unknown> = {}) {
 async function createTournaments(
   tournaments: z.infer<typeof TopDeckClient.tournament>[],
 ): Promise<Map<string, number>> {
-  console.log(
-    pc.yellow(`Importing ${pc.cyan(tournaments.length)} tournaments!`),
-  );
-
   const insertedTournaments = await db
     .insertInto('Tournament')
     .values(
@@ -343,7 +328,11 @@ async function createTournaments(
         bracketUrl: `https://topdeck.gg/bracket/${t.TID}`,
       })),
     )
-    .onConflict((oc) => oc.column('TID').doNothing())
+    .onConflict((oc) =>
+      oc.column('TID').doUpdateSet({
+        TID: (eb) => eb.ref('excluded.TID'),
+      }),
+    )
     .returning(['id', 'TID'])
     .execute();
 
@@ -398,16 +387,14 @@ async function createCommanders(
       })),
     );
 
-  console.log(
-    pc.yellow(
-      `Updating profile information for ${pc.cyan(commanders.length)} commanders...`,
-    ),
-  );
+  info`Updating profile information for ${commanders.length} commanders...`();
 
   const insertedCommanders = await db
     .insertInto('Commander')
     .values(commanders)
-    .onConflict((oc) => oc.column('name').doNothing())
+    .onConflict((oc) =>
+      oc.column('name').doUpdateSet({name: (eb) => eb.ref('excluded.name')}),
+    )
     .returning(['name', 'id'])
     .execute();
 
@@ -436,9 +423,7 @@ async function createCards(
   const defaultCommander = oracleCards.cardByName.get('The Prismatic Piper');
   if (defaultCommander) mainDeckCardIds.add(defaultCommander.id);
 
-  console.log(
-    `Creating ${pc.cyan(mainDeckCardIds.size)} cards from oracle ID's`,
-  );
+  info`Creating ${pc.cyan(mainDeckCardIds.size)} cards from oracle ID's`();
 
   const insertedCards = await db
     .insertInto('Card')
@@ -480,11 +465,18 @@ async function createEntries(
       return t.standings.map((s): InsertObject<DB, 'Entry'> => {
         const details = standingDetailById.get(s.id);
         const standing = details?.standing!;
+
         const playerId = playerIdByProfile.get(s.id)!;
         const tournamentId = tournamentIdByTid.get(t.TID)!;
         const commanderId = commanderIdByName.get(
           commanderName(details?.deckObj?.Commanders),
         )!;
+
+        // console.log(`Creating new entry for ${s.id}/${t.TID}`, {
+        //   tournamentId,
+        //   playerId,
+        //   commanderId,
+        // });
 
         return {
           tournamentId,
@@ -542,7 +534,8 @@ async function createDecklists(
 
       return t.standings.flatMap((s): InsertObject<DB, 'DecklistItem'>[] => {
         const details = standingDetailById.get(s.id);
-        const entryId = entryIdByTidAndProfile(t.TID, s.id)!;
+        const entryId = entryIdByTidAndProfile(t.TID, s.id);
+        if (!entryId) return [];
 
         return Object.values(details?.deckObj?.Mainboard ?? {}).map(
           ({id: oracleId}) => {
@@ -569,20 +562,26 @@ async function createPlayers(
     tournaments.flatMap((t) => t.standings.map((s) => s.id)),
   );
 
-  console.log(
-    pc.yellow(
-      `Updating profile information for ${pc.cyan(playerIds.size)} players...`,
-    ),
-  );
+  info`Updating profile information for ${playerIds.size} players...`();
+  const players = await topdeckClient.players
+    .loadMany(Array.from(playerIds))
+    .then((ps) => {
+      return ps.flatMap((p) => {
+        if ('id' in p) return [p];
 
-  const players = await topdeckClient.players.loadMany(Array.from(playerIds));
+        console.error(p);
+        return [];
+      });
+    });
 
+  info`Loaded ${players.length} players from TopDeck`();
   const insertedPlayers = await db
     .insertInto('Player')
     .values(
-      players
-        .filter((p) => 'id' in p)
-        .map((p) => ({name: p.name, topdeckProfile: p.id})),
+      players.map((p) => ({
+        name: p.name ?? 'Unknown Player',
+        topdeckProfile: p.id,
+      })),
     )
     .onConflict((oc) =>
       oc.column('topdeckProfile').doUpdateSet((eb) => ({
@@ -603,7 +602,7 @@ async function createPlayers(
 }
 
 async function addCardPlayRates(cardIds: number[]) {
-  console.log(pc.yellow(`Calculating column "playRateLastYear" on Card`));
+  info`Calculating column "playRateLastYear" on Card`();
 
   function getCard(id: number) {
     return db
@@ -647,7 +646,7 @@ async function addCardPlayRates(cardIds: number[]) {
   const memoEntriesForColorId = new Map<string, number>();
   const oneYearAgo = subYears(new Date(), 1).toISOString();
 
-  console.log(`Calculating play rate for ${pc.cyan(cardIds.length)} cards`);
+  info`Calculating play rate for ${cardIds.length} cards...`();
   for (const cardId of cardIds) {
     const card = await getCard(cardId);
     if (card == null) continue;
@@ -685,25 +684,30 @@ async function addCardPlayRates(cardIds: number[]) {
     setCardPlayRate(totalEntriesForCard / totalPossibleEntries, card.id);
   }
 
-  console.log(`Finished calculating play rates!`);
+  success`Finished calculating play rates!`();
 }
 
 async function main({tid: importedTids}: {tid?: string[]}) {
-  console.log(pc.green(`Loading Scryfall oracle cards database...`));
+  info`Loading Scryfall oracle cards database...`();
   const oracleCards = await ScryfallDatabase.create('oracle_cards');
 
   // Last five days of tournaments, otherwise only the specified TIDs
-  console.log(pc.green(`Pulling recent TopDeck tournaments...`));
+  info`Pulling recent TopDeck tournaments...`();
   const tournaments = await topdeckClient.listTournaments({
     tids: importedTids,
     last: importedTids == null ? 5 : undefined,
   });
 
-  console.log(pc.green(`Found ${tournaments.length} tournaments!`));
-
+  info`Importing ${tournaments.length} tournaments...`();
   const tournamentIdByTid = await createTournaments(tournaments);
+  success`Loaded ${tournamentIdByTid.size} tournaments!`();
+
   const playerIdByProfile = await createPlayers(tournaments);
+  success`Loaded ${playerIdByProfile.size} players!`();
+
   const commanderIdByName = await createCommanders(tournaments, oracleCards);
+  success`Loaded ${playerIdByProfile.size} commanders!`();
+
   const cardIdByOracleId = await createCards(tournaments, oracleCards);
   const entryIdByTidAndProfile = await createEntries(
     tournaments,
@@ -713,7 +717,6 @@ async function main({tid: importedTids}: {tid?: string[]}) {
   );
 
   await createDecklists(tournaments, cardIdByOracleId, entryIdByTidAndProfile);
-
   addCardPlayRates(Array.from(cardIdByOracleId.values()));
 }
 
@@ -723,9 +726,35 @@ main(args.values)
     console.error(e);
     process.exit(1);
   })
-  .finally(async () => {
-    console.log(pc.yellow('Closing database connection...'));
-    dbConnection.close();
-
-    console.log(pc.green('Database creation succeeded!'));
+  .finally(() => {
+    info`Closing database connection...`();
   });
+
+function formatLog(
+  color: 'green' | 'yellow',
+  strings: TemplateStringsArray,
+  values: (string | number)[],
+) {
+  const parts = strings.map(
+    (str, i) => pc[color](str) + (i < values.length ? pc.cyan(values[i]) : ''),
+  );
+
+  return parts.join('');
+}
+
+function info(strings: TemplateStringsArray, ...values: (string | number)[]) {
+  const msg = formatLog('yellow', strings, values);
+  return () => {
+    console.log(msg);
+  };
+}
+
+function success(
+  strings: TemplateStringsArray,
+  ...values: (string | number)[]
+) {
+  const msg = formatLog('green', strings, values);
+  return () => {
+    console.log(msg);
+  };
+}
