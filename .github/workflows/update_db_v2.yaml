@@ -1,0 +1,65 @@
+name: Update Database (V2)
+
+concurrency:
+  group: db2
+  cancel-in-progress: false
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 3 * * *"
+
+jobs:
+  pull_db:
+    name: 'Pull Updated Data'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v4
+
+      - name: Install s3cmd
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y s3cmd
+
+      - name: Configure s3cmd for DO Spaces
+        run: |
+          cat > ~/.s3cfg <<EOF
+          [default]
+          access_key = ${{ secrets.DO_SPACES_KEY }}
+          secret_key = ${{ secrets.DO_SPACES_SECRET }}
+          host_base = ${{ secrets.DO_SPACES_ENDPOINT }}
+          host_bucket = %(bucket)s.${{ secrets.DO_SPACES_ENDPOINT }}
+          use_https = True
+          EOF
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Setup pnpm
+        run: corepack enable && corepack prepare pnpm@latest --activate
+
+      - name: Install Node Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Pull Latest DB
+        run: s3cmd get s3://edhtop16/edhtop16.db
+
+      - name: Generate Application Database
+        run: pnpm run generate:db-pull
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+          TOPDECK_GG_API_KEY: ${{ secrets.TOPDECK_GG_API_KEY }}
+
+      - name: Rename to V2 Database
+        run: mv edhtop16.db edhtop16_v2.db
+
+      - name: Push Update DB
+        run: s3cmd put edhtop16_v2.db s3://edhtop16
+
+      - name: Create Timestamped Backup
+        run: |
+          TIMESTAMP=$(date -u +"%Y%m%d_%H%M%S")
+          s3cmd put edhtop16_v2.db s3://edhtop16/backups/edhtop16_v2_${TIMESTAMP}.db

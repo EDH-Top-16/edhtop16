@@ -1,0 +1,42 @@
+name: Cleanup Old Backups
+
+concurrency:
+  group: backup-cleanup
+  cancel-in-progress: false
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 4 * * 0"  # Run every Sunday at 4:00 AM UTC
+
+jobs:
+  cleanup_backups:
+    name: 'Clean Up Old Backups'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v4
+
+      - name: Install s3cmd
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y s3cmd
+
+      - name: Configure s3cmd for DO Spaces
+        run: |
+          cat > ~/.s3cfg <<EOF
+          [default]
+          access_key = ${{ secrets.DO_SPACES_KEY }}
+          secret_key = ${{ secrets.DO_SPACES_SECRET }}
+          host_base = ${{ secrets.DO_SPACES_ENDPOINT }}
+          host_bucket = %(bucket)s.${{ secrets.DO_SPACES_ENDPOINT }}
+          use_https = True
+          EOF
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Run Cleanup Script
+        run: node --experimental-strip-types scripts/cleanup-old-backups.ts

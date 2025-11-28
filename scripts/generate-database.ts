@@ -14,7 +14,10 @@ import {parseArgs} from 'node:util';
 import pc from 'picocolors';
 import * as undici from 'undici';
 import {z} from 'zod/v4';
-import {ScryfallCard, scryfallCardSchema} from '../src/lib/server/scryfall';
+import {
+  type ScryfallCard,
+  scryfallCardSchema,
+} from '../src/lib/server/scryfall.ts';
 
 /** Tournament IDs to exclude from ingestion */
 const EXCLUDED_TOURNAMENT_IDS = [
@@ -141,12 +144,12 @@ class ScryfallDatabase {
   readonly cardByOracleId: ReadonlyMap<string, ScryfallCard>;
   readonly cardByName: ReadonlyMap<string, ScryfallCard>;
 
-  private constructor(private readonly cards: ScryfallCard[]) {
+  private constructor(cards: ScryfallCard[]) {
     const cardByScryfallId = new Map<string, ScryfallCard>();
     const cardByOracleId = new Map<string, ScryfallCard>();
     const cardByName = new Map<string, ScryfallCard>();
 
-    for (const card of this.cards) {
+    for (const card of cards) {
       cardByScryfallId.set(card.id, card);
       cardByOracleId.set(card.oracle_id, card);
       cardByName.set(card.name, card);
@@ -786,6 +789,7 @@ CREATE TABLE "Card" (
 CREATE TABLE "DecklistItem" (
     "entryId" INTEGER NOT NULL,
     "cardId" INTEGER NOT NULL,
+    "count" INTEGER,
 
     PRIMARY KEY ("entryId", "cardId"),
     CONSTRAINT "DecklistItem_entryId_fkey" FOREIGN KEY ("entryId") REFERENCES "Entry" ("id"),
@@ -796,7 +800,7 @@ CREATE TABLE "DecklistItem" (
 
 function createIndexes() {
   db.exec(`
-    CREATE INDEX "Commander_name_idx" on "Commander"("name");
+    CREATE UNIQUE INDEX "Commander_name_idx" on "Commander"("name");
 
     CREATE UNIQUE INDEX "Tournament_TID_key" ON "Tournament"("TID");
     CREATE INDEX "Tournament_TID_idx" ON "Tournament"("TID");
