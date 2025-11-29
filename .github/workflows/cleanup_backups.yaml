@@ -36,7 +36,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: "20"
+          node-version: "24"
 
       - name: Run Cleanup Script
         run: node --experimental-strip-types scripts/cleanup-old-backups.ts
