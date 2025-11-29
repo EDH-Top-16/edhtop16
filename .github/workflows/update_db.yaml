@@ -64,7 +64,7 @@ jobs:
       - name: Create Timestamped Backup
         run: |
           TIMESTAMP=$(date -u +"%Y%m%d_%H%M%S")
-          s3cmd put edhtop16_v2.db s3://edhtop16/backups/edhtop16_v2_${TIMESTAMP}.db
+          s3cmd put edhtop16.db s3://edhtop16/backups/edhtop16_v2_${TIMESTAMP}.db
 
       - name: Deploy Application
         run: doctl apps create-deployment ${{ secrets.DIGITALOCEAN_APP_ID }} --force-rebuild --wait
