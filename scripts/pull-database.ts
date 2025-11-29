@@ -13,6 +13,7 @@ import {parseArgs} from 'node:util';
 import pc from 'picocolors';
 import * as undici from 'undici';
 import {z} from 'zod/v4';
+import {chunkedWorkerPool} from '@reverecre/promise';
 import type {DB} from '../__generated__/db/types';
 import {
   type ScryfallCard,
@@ -547,11 +548,23 @@ async function createDecklists(
     }),
   );
 
-  await db
-    .insertInto('DecklistItem')
-    .values(decklistItems.flat())
-    .onConflict((oc) => oc.doNothing())
-    .execute();
+  const allDecklistItems = decklistItems.flat();
+
+  // SQLite has a limit of 999 variables per query
+  // DecklistItem has 3 fields (cardId, entryId, count), so we can insert ~333 rows per batch
+  // Use 300 as a safe batch size
+  await chunkedWorkerPool(
+    allDecklistItems,
+    async (chunk) => {
+      await db
+        .insertInto('DecklistItem')
+        .values(chunk)
+        .onConflict((oc) => oc.doNothing())
+        .execute();
+      return chunk;
+    },
+    {chunkSize: 300, workers: 1},
+  );
 }
 
 /** @returns Map of player profile ID to database ID. */
