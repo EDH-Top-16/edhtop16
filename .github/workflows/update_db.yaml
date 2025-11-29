@@ -10,7 +10,8 @@ on:
     - cron: "30 3 * * *"
 
 jobs:
-  update_db:
+  pull_db:
+    name: 'Pull Updated Data'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout files
@@ -21,32 +22,21 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-      - name: Setup Rust
-        run: rustup update
+      - name: Install s3cmd
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y s3cmd
 
-      - name: Build Scraper
-        working-directory: scraper
-        run: cargo build --all-targets --release
-
-      - name: Run load_topdeck_tournaments
-        working-directory: scraper
-        run: cargo run --release --bin load_topdeck_tournaments
-        env:
-          ENTRIES_DB_URL: ${{ secrets.ATLAS_URI }}
-          TOPDECK_GG_API_KEY: ${{ secrets.TOPDECK_GG_API_KEY }}
-
-      - name: Run load_third_party_tournaments
-        working-directory: scraper
-        run: cargo run --release --bin load_third_party_tournaments
-        env:
-          ENTRIES_DB_URL: ${{ secrets.ATLAS_URI }}
-
-      - name: Run scrape_commanders
-        working-directory: scraper
-        run: cargo run --release --bin scrape_commanders
-        env:
-          ENTRIES_DB_URL: ${{ secrets.ATLAS_URI }}
-          MOXFIELD_API_KEY: ${{ secrets.MOXFIELD_API_KEY }}
+      - name: Configure s3cmd for DO Spaces
+        run: |
+          cat > ~/.s3cfg <<EOF
+          [default]
+          access_key = ${{ secrets.DO_SPACES_ACCESS_KEY_ID }}
+          secret_key = ${{ secrets.DO_SPACES_SECRET_ACCESS_KEY }}
+          host_base = ${{ secrets.DO_SPACES_ENDPOINT }}
+          host_bucket = %(bucket)s.${{ secrets.DO_SPACES_ENDPOINT }}
+          use_https = True
+          EOF
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -59,21 +49,22 @@ jobs:
       - name: Install Node Dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Pull Latest DB
+        run: s3cmd get s3://edhtop16/edhtop16.db
+
       - name: Generate Application Database
         run: pnpm run generate:db
         env:
           NODE_OPTIONS: --max-old-space-size=4096
-          ENTRIES_DB_URL: ${{ secrets.ATLAS_URI }}
+          TOPDECK_GG_API_KEY: ${{ secrets.TOPDECK_GG_API_KEY }}
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
+      - name: Push Updated DB
+        run: s3cmd put edhtop16.db s3://edhtop16
 
-      - name: Push Application Database
-        run: go run etl.go --phases=push
-        env:
-          DO_SPACES_ENDPOINT: ${{ secrets.DO_SPACES_ENDPOINT }}
-          DO_SPACES_ACCESS_KEY_ID: ${{ secrets.DO_SPACES_ACCESS_KEY_ID }}
-          DO_SPACES_SECRET_ACCESS_KEY: ${{ secrets.DO_SPACES_SECRET_ACCESS_KEY }}
+      - name: Create Timestamped Backup
+        run: |
+          TIMESTAMP=$(date -u +"%Y%m%d_%H%M%S")
+          s3cmd put edhtop16_v2.db s3://edhtop16/backups/edhtop16_v2_${TIMESTAMP}.db
 
       - name: Deploy Application
         run: doctl apps create-deployment ${{ secrets.DIGITALOCEAN_APP_ID }} --force-rebuild --wait

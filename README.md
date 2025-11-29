@@ -38,13 +38,13 @@ your system.
 To build:
 
 ```sh
- docker build -f Dockerfile -t edhtop16 --build-arg "ENTRIES_DB_URL=<mongo db url>" .
+ docker build -f Dockerfile -t edhtop16
 ```
 
 To run:
 
 ```sh
-docker run -p 8000:8000 --env 'ENTRIES_DB_URL=<mongo db url>' --env 'TOPDECK_GG_API_KEY=<your topdeck api key> --rm edhtop16
+docker run -p 8000:8000 --rm edhtop16
 ```
 
 To test visit http://localhost:8000
