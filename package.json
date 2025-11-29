@@ -5,8 +5,7 @@
   "scripts": {
     "format": "prettier -w .",
     "lint": "eslint .",
-    "generate:db-pull": "node --experimental-strip-types scripts/pull-database.ts",
-    "generate:db": "rm -f edhtop16.db && node --experimental-strip-types scripts/generate-database.ts",
+    "generate:db": "node --experimental-strip-types scripts/pull-database.ts",
     "generate:dbtypes": "DATABASE_URL=edhtop16.db kysely-codegen --out-file=./__generated__/db/types.d.ts",
     "make": "pastoria make",
     "build": "pastoria make -BR",
@@ -35,7 +34,6 @@
     "graphql-relay": "^0.10.2",
     "js-cookie": "^3.0.5",
     "kysely": "^0.27.6",
-    "mongodb": "^6.20.0",
     "pastoria-config": "^1.0.1",
     "pastoria-runtime": "^1.0.13",
     "pastoria-server": "^1.0.15",

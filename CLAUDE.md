@@ -37,7 +37,7 @@ code in this repository.
 - **React 19** with **Relay** for GraphQL data fetching
 - **Vite** for build tooling with SSR support
 - **Express** server with GraphQL Yoga
-- **SQLite** (Better SQLite3) for local data + **MongoDB** for external data
+- **SQLite** (Better SQLite3) for local data
 - **TailwindCSS** for styling
 - **TypeScript** with strict configuration
 
@@ -73,8 +73,7 @@ code in this repository.
 
 **Data Layer**
 
-- Local SQLite database for core app data (generated from MongoDB)
-- MongoDB connection for external tournament data warehouse
+- Local SQLite database for core app data (regenerated nightly)
 - Scryfall API integration for Magic card data
 - TopDeck.gg API for tournament data
 
@@ -130,14 +129,7 @@ which calls `createRouterServerApp()` and processes special HTML directives like
 
 ## Database System
 
-**Architecture**: Two-tier database system with local SQLite generated from
-remote MongoDB data warehouse
-
-**Data Flow**:
-
-1. **Remote MongoDB** (`ENTRIES_DB_URL`) - Data warehouse containing raw
-   tournament entries
-2. **Local SQLite** (`edhtop16.db`) - Normalized, structured database for the
+**Local SQLite** (`edhtop16.db`): Normalized, structured database for the
    application
 
 **Database Generation** (`scripts/generate-database.ts`):
@@ -150,9 +142,6 @@ remote MongoDB data warehouse
 
 **Key Data Processing**:
 
-- **Tournament Data**: Fetched from MongoDB `cedhtop16.metadata` collection
-- **Entry Data**: Per-tournament collections in MongoDB (e.g.,
-  `spicerack:123456`)
 - **Card Data**: Integrated with Scryfall API for Magic card details and Oracle
   IDs
 - **Decklist Parsing**: Handles both structured `deckObj` data and raw decklist
@@ -170,13 +159,6 @@ remote MongoDB data warehouse
 - `Entry` - Individual tournament entries with standings and records
 - `Card` - Magic card data with Oracle IDs and Scryfall integration
 - `DecklistItem` - Many-to-many relationship between entries and cards
-
-**Data Scraping** (`scraper/` - Rust):
-
-- Rust-based scraper for updating the remote MongoDB data warehouse
-- Integrates with TopDeck.gg and Moxfield APIs
-- Rate-limited requests with async processing
-- Updates raw tournament and decklist data in MongoDB
 
 ## Workspace Configuration
 
