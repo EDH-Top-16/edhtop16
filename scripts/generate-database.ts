@@ -26,6 +26,12 @@ const EXCLUDED_TOURNAMENT_IDS = [
   'spicerack:2269571',
 ];
 
+try {
+  process.loadEnvFile();
+} catch {
+  console.log('No .env file found, continuing...');
+}
+
 const args = parseArgs({
   options: {
     tid: {

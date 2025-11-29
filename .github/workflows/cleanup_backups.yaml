@@ -26,8 +26,8 @@ jobs:
         run: |
           cat > ~/.s3cfg <<EOF
           [default]
-          access_key = ${{ secrets.DO_SPACES_KEY }}
-          secret_key = ${{ secrets.DO_SPACES_SECRET }}
+          access_key = ${{ secrets.DO_SPACES_ACCESS_KEY_ID }}
+          secret_key = ${{ secrets.DO_SPACES_SECRET_ACCESS_KEY }}
           host_base = ${{ secrets.DO_SPACES_ENDPOINT }}
           host_bucket = %(bucket)s.${{ secrets.DO_SPACES_ENDPOINT }}
           use_https = True

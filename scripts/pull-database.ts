@@ -283,6 +283,12 @@ class ScryfallDatabase {
   }
 }
 
+try {
+  process.loadEnvFile();
+} catch {
+  info`No .env file found, continuing...`();
+}
+
 const args = parseArgs({
   options: {
     tid: {

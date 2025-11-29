@@ -5,8 +5,8 @@
   "scripts": {
     "format": "prettier -w .",
     "lint": "eslint .",
-    "generate:db-pull": "node --experimental-strip-types --env-file .env scripts/pull-database.ts",
-    "generate:db": "rm -f edhtop16.db && node --experimental-strip-types --env-file .env scripts/generate-database.ts",
+    "generate:db-pull": "node --experimental-strip-types scripts/pull-database.ts",
+    "generate:db": "rm -f edhtop16.db && node --experimental-strip-types scripts/generate-database.ts",
     "generate:dbtypes": "DATABASE_URL=edhtop16.db kysely-codegen --out-file=./__generated__/db/types.d.ts",
     "make": "pastoria make",
     "build": "pastoria make -BR",
