@@ -308,11 +308,17 @@ if (!process.env.TOPDECK_GG_API_KEY) {
 const topdeckClient = new TopDeckClient(process.env.TOPDECK_GG_API_KEY);
 
 /** Connection to local SQLite database seeded from data warehouse. */
+const sqliteDb = new Database('edhtop16.db');
 const db = new Kysely<DB>({
-  dialect: new SqliteDialect({database: new Database('edhtop16.db')}),
+  dialect: new SqliteDialect({database: sqliteDb}),
 });
 
 success`Connected to local SQLite database!`();
+
+// Ensure unique index exists on Entry table to prevent duplicate tournament/player entries
+sqliteDb.exec(
+  'CREATE UNIQUE INDEX IF NOT EXISTS "Entry_tournamentId_playerId_key" ON "Entry"("tournamentId", "playerId")',
+);
 
 function commanderName(commanders: Record<string, unknown> = {}) {
   return Object.keys(commanders).sort().join(' / ');
@@ -497,7 +503,7 @@ async function createEntries(
   const insertedEntries = await db
     .insertInto('Entry')
     .values(entries.flat())
-    .onConflict((oc) => oc.doNothing())
+    .onConflict((oc) => oc.columns(['tournamentId', 'playerId']).doNothing())
     .returning(['Entry.id', 'Entry.playerId', 'Entry.tournamentId'])
     .execute();
 
