@@ -614,9 +614,7 @@ async function createPlayers(
   return playerIdByTopdeckProfile;
 }
 
-async function addCardPlayRates(cardIds: number[]) {
-  info`Calculating column "playRateLastYear" on Card`();
-
+async function addCardPlayRates() {
   function getCard(id: number) {
     return db
       .selectFrom('Card')
@@ -659,8 +657,11 @@ async function addCardPlayRates(cardIds: number[]) {
   const memoEntriesForColorId = new Map<string, number>();
   const oneYearAgo = subYears(new Date(), 1).toISOString();
 
+  info`Calculating column "playRateLastYear" on Card`();
+  const cardIds = await db.selectFrom('Card').select('id').execute();
+
   info`Calculating play rate for ${cardIds.length} cards...`();
-  for (const cardId of cardIds) {
+  for (const {id: cardId} of cardIds) {
     const card = await getCard(cardId);
     if (card == null) continue;
 
@@ -730,7 +731,7 @@ async function main({tid: importedTids}: {tid?: string[]}) {
   );
 
   await createDecklists(tournaments, cardIdByOracleId, entryIdByTidAndProfile);
-  await addCardPlayRates(Array.from(cardIdByOracleId.values()));
+  await addCardPlayRates();
 }
 
 main(args.values)
