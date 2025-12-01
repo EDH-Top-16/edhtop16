@@ -52,6 +52,11 @@ jobs:
       - name: Pull Latest DB
         run: s3cmd get s3://edhtop16/edhtop16.db
 
+      - name: Run Database Migrations
+        run: pnpm run migrate
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+
       - name: Generate Application Database
         run: pnpm run generate:db
         env:

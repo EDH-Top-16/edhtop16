@@ -26,6 +26,11 @@ code in this repository.
   System below)
 - `npm run generate:schema` - Print GraphQL schema
 
+**Database Migrations**
+
+- `pnpm run migrate` - Apply all pending migrations to edhtop16.db
+- `pnpm run migrate:create <name>` - Create new migration file
+
 **Production**
 
 - `npm start` - Start production server
@@ -160,6 +165,43 @@ which calls `createRouterServerApp()` and processes special HTML directives like
 - `Card` - Magic card data with Oracle IDs and Scryfall integration
 - `DecklistItem` - Many-to-many relationship between entries and cards
 
+**Database Migrations**:
+
+This project uses Kysely's built-in migration system for schema evolution.
+
+**Migration Workflow**:
+
+1. Create migration: `pnpm run migrate:create <name>`
+2. Implement up/down functions in generated file:
+   `scripts/migrations/{timestamp}_{name}.ts`
+3. Test locally: `pnpm run migrate`
+4. Regenerate types: `pnpm run generate:dbtypes`
+5. Update application code to use new schema
+6. Commit migration file and push
+
+**Migration Files**:
+
+- Location: `scripts/migrations/`
+- Naming: `{YYYYMMDD}_{HHMMSS}_{name}.ts` (e.g.,
+  `20250130_143022_add_player_email.ts`)
+- Template: Exports `up` and `down` async functions
+- Tracking: Kysely automatically maintains `kysely_migration` table
+
+**Migration Best Practices**:
+
+- Use Kysely schema builder API (`db.schema.*`)
+- Never import `#genfiles/db/types` or application code
+- Keep migrations self-contained and reversible
+- Implement both `up()` and `down()` functions
+- Use transactions for multi-step migrations
+- Test on database copy first
+
+**CI/CD Integration**:
+
+- Migrations run automatically in GitHub Actions before data generation
+- Failed migrations stop the workflow (prevents bad schema from deploying)
+- S3 backups created after successful workflow runs
+
 ## Workspace Configuration
 
 This project uses **pnpm workspaces** for managing multiple packages:
@@ -181,6 +223,7 @@ This project uses **pnpm workspaces** for managing multiple packages:
   `src/lib/server/schema/`
 - Always run `npm run generate:router` after adding/modifying JSDoc route
   annotations
+- Always run `pnpm run generate:dbtypes` after applying database migrations
 - **Always format code with `pnpm exec prettier --write <files>` before committing**
 - Database regeneration completely rebuilds the SQLite database
 - Uses experimental Node.js TypeScript support (`--experimental-strip-types`)
