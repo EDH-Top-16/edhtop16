@@ -490,6 +490,7 @@ async function createEntries(
           commanderId,
           playerId,
           standing,
+          decklist: `https://topdeck.gg/deck/${t.TID}/${s.id}`,
           draws: s.draws,
           winsBracket: s.winsBracket,
           winsSwiss: s.winsSwiss,
