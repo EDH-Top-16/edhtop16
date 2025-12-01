@@ -10,7 +10,8 @@
     "make": "pastoria make",
     "build": "pastoria make -BR",
     "dev": "pastoria dev",
-    "start": "NODE_ENV=production pastoria-server"
+    "start": "NODE_ENV=production pastoria-server",
+    "migrate": "node --experimental-strip-types scripts/migrate.ts"
   },
   "pastoria": {
     "enableGraphiQLInProduction": true
