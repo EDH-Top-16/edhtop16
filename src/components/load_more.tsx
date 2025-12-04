@@ -1,4 +1,5 @@
 import {LoadingIcon} from './fallback';
+import {Button} from './ui/button';
 
 export function LoadMoreButton({
   hasNext,
@@ -12,13 +13,14 @@ export function LoadMoreButton({
   return isLoadingNext ? (
     <LoadingIcon padding={false} className="self-center" />
   ) : hasNext ? (
-    <button
-      className="font-title mx-auto flex cursor-pointer justify-center self-center rounded-md bg-[#312d5a] px-4 py-2 text-sm text-white shadow-md inset-shadow-xs"
+    <Button
+      variant="outline"
+      className="mx-auto flex justify-center self-center"
       onClick={() => {
         loadNext(48);
       }}
     >
       Load More
-    </button>
+    </Button>
   ) : null;
 }
