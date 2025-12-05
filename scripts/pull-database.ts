@@ -25,6 +25,12 @@ import {
   type ScryfallCard,
   scryfallCardSchema,
 } from '../src/lib/server/scryfall.ts';
+import {
+  playerDeckSchema,
+  playerFinishSchema,
+  type PlayerDeckData,
+  type PlayerFinishData,
+} from '../src/lib/server/player-stats-schema.ts';
 import type {DB as ProfileDB} from './__generated__/profile_db_types.d.ts';
 
 class TopDeckClient {
@@ -805,6 +811,140 @@ async function updateProfilesFromEDHTop16Platform() {
   }
 }
 
+async function calculatePlayerStats() {
+  info`Calculating player statistics...`();
+
+  const players = await db
+    .selectFrom('Player')
+    .select(['id', 'name'])
+    .execute();
+
+  info`Calculating stats for ${players.length} players...`();
+
+  for (const player of players) {
+    // Calculate best decks
+    const deckEntries = await db
+      .selectFrom('Entry')
+      .innerJoin('Commander', 'Commander.id', 'Entry.commanderId')
+      .innerJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+      .select([
+        'Commander.id as commanderId',
+        'Commander.name as commanderName',
+        'Commander.colorId as colorId',
+        (eb) => eb.fn.sum<number>('winsBracket').as('totalWinsBracket'),
+        (eb) => eb.fn.sum<number>('winsSwiss').as('totalWinsSwiss'),
+        (eb) => eb.fn.sum<number>('lossesBracket').as('totalLossesBracket'),
+        (eb) => eb.fn.sum<number>('lossesSwiss').as('totalLossesSwiss'),
+        (eb) => eb.fn.sum<number>('draws').as('totalDraws'),
+        (eb) => eb.fn.count<number>('Entry.id').as('entries'),
+        (eb) =>
+          eb.fn
+            .sum<number>(
+              eb
+                .case()
+                .when('Entry.standing', '<=', eb.ref('Tournament.topCut'))
+                .then(1)
+                .else(0)
+                .end(),
+            )
+            .as('topCuts'),
+      ])
+      .where('Entry.playerId', '=', player.id)
+      .where('Commander.name', '!=', 'Unknown Commander')
+      .groupBy('Commander.id')
+      .execute();
+
+    const bestDecks: PlayerDeckData[] = deckEntries
+      .map((e) => {
+        const wins = (e.totalWinsBracket ?? 0) + (e.totalWinsSwiss ?? 0);
+        const losses = (e.totalLossesBracket ?? 0) + (e.totalLossesSwiss ?? 0);
+        const draws = e.totalDraws ?? 0;
+        const totalGames = wins + losses + draws;
+        const winRate = totalGames > 0 ? wins / totalGames : 0;
+        const conversionRate = e.entries > 0 ? (e.topCuts ?? 0) / e.entries : 0;
+
+        return playerDeckSchema.parse({
+          commanderId: e.commanderId,
+          commanderName: e.commanderName,
+          colorId: e.colorId,
+          wins,
+          losses,
+          draws,
+          winRate,
+          conversionRate,
+          topCuts: e.topCuts ?? 0,
+          entries: e.entries,
+        });
+      })
+      .filter((d) => d.topCuts > 0)
+      .sort((a, b) => {
+        if (b.topCuts !== a.topCuts) return b.topCuts - a.topCuts;
+        return b.winRate - a.winRate;
+      })
+      .slice(0, 3);
+
+    // Calculate top finishes
+    const finishEntries = await db
+      .selectFrom('Entry')
+      .innerJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+      .innerJoin('Commander', 'Commander.id', 'Entry.commanderId')
+      .selectAll('Entry')
+      .select([
+        'Tournament.id as tournamentId',
+        'Tournament.name as tournamentName',
+        'Tournament.size as tournamentSize',
+        'Tournament.tournamentDate as tournamentDate',
+        'Tournament.topCut as topCut',
+        'Tournament.TID as TID',
+        'Commander.name as commanderName',
+      ])
+      .where('Entry.playerId', '=', player.id)
+      .execute();
+
+    const topFinishes: PlayerFinishData[] = finishEntries
+      .map((e) => {
+        const wins = (e.winsBracket ?? 0) + (e.winsSwiss ?? 0);
+        const losses = (e.lossesBracket ?? 0) + (e.lossesSwiss ?? 0);
+        const draws = e.draws ?? 0;
+        const totalGames = wins + losses + draws;
+        const winRate = totalGames > 0 ? wins / totalGames : 0;
+        const placementQuality = e.standing / e.tournamentSize;
+
+        return playerFinishSchema.parse({
+          entryId: e.id,
+          tournamentId: e.tournamentId,
+          tournamentName: e.tournamentName,
+          tournamentSize: e.tournamentSize,
+          tournamentDate: e.tournamentDate,
+          topCut: e.topCut,
+          TID: e.TID,
+          commanderName: e.commanderName,
+          standing: e.standing,
+          wins,
+          losses,
+          draws,
+          winRate,
+          placementQuality,
+          decklist: e.decklist,
+        });
+      })
+      .sort((a, b) => a.placementQuality - b.placementQuality)
+      .slice(0, 3);
+
+    // Update player with calculated stats
+    await db
+      .updateTable('Player')
+      .set({
+        bestDecks: JSON.stringify(bestDecks),
+        topFinishes: JSON.stringify(topFinishes),
+      })
+      .where('id', '=', player.id)
+      .execute();
+  }
+
+  success`Finished calculating player statistics!`();
+}
+
 async function main({tid: importedTids}: {tid?: string[]}) {
   info`Loading Scryfall oracle cards database...`();
   const oracleCards = await ScryfallDatabase.create('oracle_cards');
@@ -837,6 +977,7 @@ async function main({tid: importedTids}: {tid?: string[]}) {
   await createDecklists(tournaments, cardIdByOracleId, entryIdByTidAndProfile);
   await addCardPlayRates();
   await updateProfilesFromEDHTop16Platform();
+  await calculatePlayerStats();
 }
 
 main(args.values)
