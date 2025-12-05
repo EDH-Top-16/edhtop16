@@ -39,6 +39,7 @@ import {Select} from './components/select';
 import {Tab, TabList} from './components/tabs';
 import {formatOrdinals, formatPercent} from './lib/client/format';
 import {ServerSafeSuspense} from './lib/client/suspense';
+import { ArrowRight, Calendar, Trophy, Users, UsersRound } from 'lucide-react';
 
 function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
   const entry = useFragment(
@@ -53,6 +54,7 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
         player {
           name
           isKnownCheater
+          offersCoaching
         }
 
         tournament {
@@ -76,53 +78,81 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
   }
 
   const entryNameNode = (
-    <span className="relative flex items-baseline">
-      {entryName}
-      {entry.player?.isKnownCheater && (
-        <span className="absolute right-0 rounded-full bg-red-600 px-2 py-1 text-xs uppercase">
-          Cheater
-        </span>
-      )}
+    <span className="relative flex flex-col gap-1 items-baseline">
+      {entryName} 
+      <>
+        {entry.player?.isKnownCheater && (
+          <span className="mt-0.5 rounded-full bg-red-600 px-2 py-1 text-xs uppercase mb-1">
+            Cheater
+          </span>
+        )}
+        {!entry.player?.isKnownCheater && entry.player?.offersCoaching && (
+          // TODO(@rdelaney): Hook this up to the coach profile page, conver to <Link>
+          <a className="mt-0.5 flex gap-1 rounded-full bg-blue-500 px-2 py-1 text-xs uppercase cursor-pointer group mb-1">
+            Offers coaching
+            <ArrowRight className="w-4 h-4 hidden group-hover:block "/>
+          </a>
+        )}
+      </>
     </span>
   );
 
-  const bottomText = (
-    <div className="flex">
-      <span className="flex-1">
-        {formatOrdinals(entry.standing)}&nbsp;/&nbsp;
-        {entry.tournament.size} players
-      </span>
-
-      <span>
-        Wins: {entry.wins} / Losses: {entry.losses} / Draws: {entry.draws}
-      </span>
-    </div>
-  );
-
   return (
-    <Card bottomText={bottomText}>
-      <div className="flex h-32 flex-col">
-        {entry.decklist ? (
-          <a
-            href={entry.decklist}
-            target="_blank"
-            className="line-clamp-1 text-xl font-bold underline decoration-transparent transition-colors hover:decoration-inherit"
-          >
-            {entryNameNode}
-          </a>
-        ) : (
-          <span className="text-xl font-bold">{entryNameNode}</span>
-        )}
+    <Card hoverEffect={false} className="h-fit">
+      <div className="flex flex-col h-full"> 
+        <div className="flex gap-0.5 justify-between items-center">
+          <span className="text-xl font-semibold">{entryNameNode}</span>
+          {entry.decklist && (
+            <a
+              href={entry.decklist}
+              target="_blank"
+              className="font-semibold text-sm transition-colors flex flex-shrink-0 gap-1 items-center px-2 py-1 border border-white/40 rounded"
+            >
+              <img
+                src={'https://topdeck.gg/img/logo/TopDeckNoBorder.png'}
+                alt="View decklist on TopDeck.gg"
+                className="h-4 w-4"
+              />
+              Decklist
+            </a>
+          )}
+        </div>
 
-        <Link
-          href={`/tournament/${entry.tournament.TID}`}
-          className="line-clamp-2 pt-2 underline decoration-transparent transition-colors hover:decoration-inherit"
-        >
-          {entry.tournament.name}
-        </Link>
-        <span className="line-clamp-1 text-sm opacity-70">
-          {format(entry.tournament.tournamentDate, 'MMMM do yyyy')}
-        </span>
+        <div className="space-y-0.5">
+          <Link
+            href={`/tournament/${entry.tournament.TID}`}
+            className="flex gap-2 items-center line-clamp-2 text-sm pt-2 underline decoration-transparent transition-colors hover:decoration-inherit"
+          >
+            <Trophy className="w-3 h-3 text-purple-300/50" />
+            {entry.tournament.name}
+          </Link>
+          <div className="flex gap-2 items-center line-clamp-1 text-sm">
+            <UsersRound className="w-3 h-3 text-purple-300/50" />
+            #{entry.standing} of&nbsp;
+            {entry.tournament.size} players
+          </div>
+          <div className="flex gap-2 items-center line-clamp-1 text-sm">
+            <Calendar className="w-3 h-3 text-purple-300/50" />
+            <span className="text-white/60">
+              {format(entry.tournament.tournamentDate, 'MMMM do yyyy')}
+            </span>
+          </div>
+        </div>
+
+        <div className="bg-[#131224] py-4 px-8 rounded-2xl mt-3 flex gap-2 justify-between">
+          <div className="flex flex-col items-center">
+            <span className="font-medium text-lg">{entry.wins}</span>
+            <span className="text-muted-foreground text-sm uppercase tracking-wider">Wins</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="font-medium text-lg">{entry.losses}</span>
+            <span className="text-muted-foreground text-sm uppercase tracking-wider">Losses</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="font-medium text-lg">{entry.draws}</span>
+            <span className="text-muted-foreground text-sm uppercase tracking-wider">Draws</span>
+          </div>
+        </div>
       </div>
     </Card>
   );
