@@ -3,8 +3,10 @@ import DataLoader from 'dataloader';
 import {isAfter} from 'date-fns';
 import {Float, Int} from 'grats';
 import {Selectable} from 'kysely';
+import {z} from 'zod';
 import {Context} from '../context';
 import {db} from '../db';
+import {playerDeckSchema, playerFinishSchema} from '../player-stats-schema.js';
 import {GraphQLNode} from './connection';
 import {Commander} from './commander';
 import {Entry} from './entry';
@@ -314,121 +316,40 @@ export class Player implements GraphQLNode {
 
   /** @gqlField */
   async bestDecks(): Promise<PlayerDeck[]> {
-    const entries = await db
-      .selectFrom('Entry')
-      .innerJoin('Commander', 'Commander.id', 'Entry.commanderId')
-      .innerJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
-      .select([
-        'Commander.id as commanderId',
-        'Commander.name as commanderName',
-        'Commander.colorId as colorId',
-        (eb) => eb.fn.sum<number>('winsBracket').as('totalWinsBracket'),
-        (eb) => eb.fn.sum<number>('winsSwiss').as('totalWinsSwiss'),
-        (eb) => eb.fn.sum<number>('lossesBracket').as('totalLossesBracket'),
-        (eb) => eb.fn.sum<number>('lossesSwiss').as('totalLossesSwiss'),
-        (eb) => eb.fn.sum<number>('draws').as('totalDraws'),
-        (eb) => eb.fn.count<number>('Entry.id').as('entries'),
-        (eb) =>
-          eb.fn
-            .sum<number>(
-              eb
-                .case()
-                .when('Entry.standing', '<=', eb.ref('Tournament.topCut'))
-                .then(1)
-                .else(0)
-                .end(),
-            )
-            .as('topCuts'),
-      ])
-      .where('Entry.playerId', '=', this.id)
-      .where('Commander.name', '!=', 'Unknown Commander')
-      .groupBy('Commander.id')
-      .execute();
+    const player = await db
+      .selectFrom('Player')
+      .select('bestDecks')
+      .where('id', '=', this.id)
+      .executeTakeFirst();
 
-    const decks = entries.map((e) => {
-      const wins = (e.totalWinsBracket ?? 0) + (e.totalWinsSwiss ?? 0);
-      const losses = (e.totalLossesBracket ?? 0) + (e.totalLossesSwiss ?? 0);
-      const draws = e.totalDraws ?? 0;
-      const totalGames = wins + losses + draws;
-      const winRate = totalGames > 0 ? wins / totalGames : 0;
-      const conversionRate = e.entries > 0 ? (e.topCuts ?? 0) / e.entries : 0;
+    if (!player?.bestDecks) return [];
 
-      return new PlayerDeck({
-        commanderId: e.commanderId,
-        commanderName: e.commanderName,
-        colorId: e.colorId,
-        wins,
-        losses,
-        draws,
-        winRate,
-        conversionRate,
-        topCuts: e.topCuts ?? 0,
-        entries: e.entries,
-      });
-    });
-
-    // Filter to only commanders with at least one top cut
-    const decksWithTopCuts = decks.filter((d) => d.topCuts > 0);
-
-    // Sort by top cuts desc, then win rate desc
-    return decksWithTopCuts
-      .sort((a, b) => {
-        if (b.topCuts !== a.topCuts) return b.topCuts - a.topCuts;
-        return b.winRate - a.winRate;
-      })
-      .slice(0, 3);
+    try {
+      const parsed = JSON.parse(player.bestDecks);
+      const decks = z.array(playerDeckSchema).parse(parsed);
+      return decks.map((d) => new PlayerDeck(d));
+    } catch {
+      return [];
+    }
   }
 
   /** @gqlField */
   async topFinishes(): Promise<PlayerFinish[]> {
-    const entries = await db
-      .selectFrom('Entry')
-      .innerJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
-      .innerJoin('Commander', 'Commander.id', 'Entry.commanderId')
-      .selectAll('Entry')
-      .select([
-        'Tournament.id as tournamentId',
-        'Tournament.name as tournamentName',
-        'Tournament.size as tournamentSize',
-        'Tournament.tournamentDate as tournamentDate',
-        'Tournament.topCut as topCut',
-        'Tournament.TID as TID',
-        'Commander.name as commanderName',
-      ])
-      .where('Entry.playerId', '=', this.id)
-      .execute();
+    const player = await db
+      .selectFrom('Player')
+      .select('topFinishes')
+      .where('id', '=', this.id)
+      .executeTakeFirst();
 
-    const finishes = entries.map((e) => {
-      const wins = (e.winsBracket ?? 0) + (e.winsSwiss ?? 0);
-      const losses = (e.lossesBracket ?? 0) + (e.lossesSwiss ?? 0);
-      const draws = e.draws ?? 0;
-      const totalGames = wins + losses + draws;
-      const winRate = totalGames > 0 ? wins / totalGames : 0;
-      const placementQuality = e.standing / e.tournamentSize;
+    if (!player?.topFinishes) return [];
 
-      return new PlayerFinish({
-        entryId: e.id,
-        tournamentId: e.tournamentId,
-        tournamentName: e.tournamentName,
-        tournamentSize: e.tournamentSize,
-        tournamentDate: e.tournamentDate,
-        topCut: e.topCut,
-        TID: e.TID,
-        commanderName: e.commanderName,
-        standing: e.standing,
-        wins,
-        losses,
-        draws,
-        winRate,
-        placementQuality,
-        decklist: e.decklist,
-      });
-    });
-
-    // Sort by placement quality (lower is better)
-    return finishes
-      .sort((a, b) => a.placementQuality - b.placementQuality)
-      .slice(0, 3);
+    try {
+      const parsed = JSON.parse(player.topFinishes);
+      const finishes = z.array(playerFinishSchema).parse(parsed);
+      return finishes.map((f) => new PlayerFinish(f));
+    } catch {
+      return [];
+    }
   }
 }
 
