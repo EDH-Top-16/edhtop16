@@ -49,6 +49,14 @@ jobs:
       - name: Install Node Dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Get Runner IP Address
+        id: runner_ip
+        run: echo "ip=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
+
+      - name: Whitelist Runner IP in Database
+        run: |
+          doctl databases firewalls append ${{ secrets.DIGITALOCEAN_DATABASE_ID }} --rule ip_addr:${{ steps.runner_ip.outputs.ip }}
+
       - name: Pull Latest DB
         run: s3cmd get s3://edhtop16/edhtop16.db
 
@@ -64,6 +72,11 @@ jobs:
           TOPDECK_GG_API_KEY: ${{ secrets.TOPDECK_GG_API_KEY }}
           PROFILE_DATABASE_URL: ${{ secrets.PROFILE_DATABASE_URL }}
           PROFILE_DATABASE_CA_CERT: ${{ secrets.PROFILE_DATABASE_CA_CERT }}
+
+      - name: Remove Runner IP from Database Whitelist
+        if: always()
+        run: |
+          doctl databases firewalls remove ${{ secrets.DIGITALOCEAN_DATABASE_ID }} --rule ip_addr:${{ steps.runner_ip.outputs.ip }}
 
       - name: Push Updated DB
         run: s3cmd put edhtop16.db s3://edhtop16
