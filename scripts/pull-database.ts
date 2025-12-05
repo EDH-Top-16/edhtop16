@@ -482,29 +482,32 @@ async function createEntries(
         tournamentDetails.standings.map((s) => [s.id, s] as const),
       );
 
-      return t.standings.map((s): InsertObject<DB, 'Entry'> => {
-        const details = standingDetailById.get(s.id);
-        const standing = details?.standing!;
+      return t.standings
+        .map((s): InsertObject<DB, 'Entry'> | null => {
+          const details = standingDetailById.get(s.id);
+          const standing = details?.standing;
+          if (standing == null) return null;
 
-        const playerId = playerIdByProfile.get(s.id)!;
-        const tournamentId = tournamentIdByTid.get(t.TID)!;
-        const commanderId = commanderIdByName.get(
-          commanderName(details?.deckObj?.Commanders),
-        )!;
+          const playerId = playerIdByProfile.get(s.id)!;
+          const tournamentId = tournamentIdByTid.get(t.TID)!;
+          const commanderId = commanderIdByName.get(
+            commanderName(details?.deckObj?.Commanders),
+          )!;
 
-        return {
-          tournamentId,
-          commanderId,
-          playerId,
-          standing,
-          decklist: `https://topdeck.gg/deck/${t.TID}/${s.id}`,
-          draws: s.draws,
-          winsBracket: s.winsBracket,
-          winsSwiss: s.winsSwiss,
-          lossesBracket: s.lossesBracket,
-          lossesSwiss: s.lossesSwiss,
-        };
-      });
+          return {
+            tournamentId,
+            commanderId,
+            playerId,
+            standing,
+            decklist: `https://topdeck.gg/deck/${t.TID}/${s.id}`,
+            draws: s.draws,
+            winsBracket: s.winsBracket,
+            winsSwiss: s.winsSwiss,
+            lossesBracket: s.lossesBracket,
+            lossesSwiss: s.lossesSwiss,
+          };
+        })
+        .filter((s) => s != null);
     }),
   );
 
