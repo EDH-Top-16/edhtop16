@@ -726,6 +726,12 @@ async function updateProfilesFromEDHTop16Platform() {
     dialect: new PostgresDialect({
       pool: new Pool({
         connectionString: process.env.PROFILE_DATABASE_URL,
+        ssl: process.env.PROFILE_DATABASE_CA_CERT
+          ? {
+              rejectUnauthorized: true,
+              ca: process.env.PROFILE_DATABASE_CA_CERT,
+            }
+          : undefined,
       }),
     }),
   });
