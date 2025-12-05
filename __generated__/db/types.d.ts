@@ -51,6 +51,7 @@ export interface Player {
   id: Generated<number>;
   name: string;
   offersCoaching: Generated<number>;
+  profileImage: string | null;
   topdeckProfile: string | null;
 }
 

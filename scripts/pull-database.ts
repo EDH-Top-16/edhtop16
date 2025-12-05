@@ -611,11 +611,13 @@ async function createPlayers(
       players.map((p) => ({
         name: p.name ?? 'Unknown Player',
         topdeckProfile: p.id,
+        profileImage: p.profileImage ?? null,
       })),
     )
     .onConflict((oc) =>
       oc.column('topdeckProfile').doUpdateSet((eb) => ({
         name: eb.ref('excluded.name'),
+        profileImage: eb.ref('excluded.profileImage'),
       })),
     )
     .returning(['id', 'topdeckProfile'])
@@ -760,9 +762,26 @@ async function updateProfilesFromEDHTop16Platform() {
       return;
     }
 
-    // Update players with coaching information
+    // Fetch profile images from TopDeck for all coaches
+    const topdeckProfileIds = profiles
+      .map((p) => p.topdeckProfile)
+      .filter((id): id is string => id != null);
+
+    info`Fetching profile images from TopDeck for ${topdeckProfileIds.length} coaches...`();
+    const topdeckProfiles = await topdeckClient.players
+      .loadMany(topdeckProfileIds)
+      .then((ps) =>
+        ps.filter((p): p is z.infer<typeof TopDeckClient.player> => 'id' in p),
+      );
+
+    const profileImageByTopdeckId = new Map(
+      topdeckProfiles.map((p) => [p.id, p.profileImage ?? null]),
+    );
+
+    // Update players with coaching information and profile images
     let updatedCount = 0;
     for (const profile of profiles) {
+      const profileImage = profileImageByTopdeckId.get(profile.topdeckProfile!);
       const result = await db
         .updateTable('Player')
         .set({
@@ -770,6 +789,7 @@ async function updateProfilesFromEDHTop16Platform() {
           coachingBio: profile.coachingBio,
           coachingBookingUrl: profile.coachingBookingUrl,
           coachingRatePerHour: profile.coachingRatePerHour,
+          profileImage,
         })
         .where('topdeckProfile', '=', profile.topdeckProfile!)
         .executeTakeFirst();

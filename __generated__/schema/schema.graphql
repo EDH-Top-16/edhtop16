@@ -234,15 +234,53 @@ type PageInfo {
 }
 
 type Player implements Node {
+  bestDecks: [PlayerDeck!] @semanticNonNull
+  coachingBio: String
+  coachingBookingUrl: String
+  coachingRatePerHour: Int
   conversionRate: Float @semanticNonNull
   draws: Int @semanticNonNull
+  elo: Int
   entries: [Entry!] @semanticNonNull
   id: ID!
   isKnownCheater: Boolean @semanticNonNull
   losses: Int @semanticNonNull
   name: String @semanticNonNull
+  offersCoaching: Boolean @semanticNonNull
+  profileImage: String
   topCuts: Int @semanticNonNull
+  topFinishes: [PlayerFinish!] @semanticNonNull
   topdeckProfile: String
+  winRate: Float @semanticNonNull
+  wins: Int @semanticNonNull
+}
+
+type PlayerDeck {
+  colorId: String @semanticNonNull
+  commander: Commander @semanticNonNull
+  commanderName: String @semanticNonNull
+  conversionRate: Float @semanticNonNull
+  draws: Int @semanticNonNull
+  entries: Int @semanticNonNull
+  losses: Int @semanticNonNull
+  topCuts: Int @semanticNonNull
+  winRate: Float @semanticNonNull
+  wins: Int @semanticNonNull
+}
+
+type PlayerFinish {
+  TID: String @semanticNonNull
+  commanderName: String @semanticNonNull
+  decklist: String
+  draws: Int @semanticNonNull
+  entryId: Int @semanticNonNull
+  losses: Int @semanticNonNull
+  standing: Int @semanticNonNull
+  topCut: Int @semanticNonNull
+  tournamentDate: String @semanticNonNull
+  tournamentId: Int @semanticNonNull
+  tournamentName: String @semanticNonNull
+  tournamentSize: Int @semanticNonNull
   winRate: Float @semanticNonNull
   wins: Int @semanticNonNull
 }
@@ -250,6 +288,8 @@ type Player implements Node {
 type Query {
   card(name: String!): Card @semanticNonNull
   cheaters: [Player!] @semanticNonNull
+  coach(profile: String!): Player
+  coaches: [Player!] @semanticNonNull
   commander(name: String!): Commander @semanticNonNull
   commanders(after: String, colorId: String, first: Int! = 20, minEntries: Int, minTournamentSize: Int, sortBy: CommandersSortBy! = CONVERSION, timePeriod: TimePeriod! = ONE_MONTH): CommanderConnection @semanticNonNull
   homePagePromo: FirstPartyPromo
