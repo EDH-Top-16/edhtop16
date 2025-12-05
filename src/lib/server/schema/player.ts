@@ -6,7 +6,9 @@ import {Selectable} from 'kysely';
 import {Context} from '../context';
 import {db} from '../db';
 import {GraphQLNode} from './connection';
+import {Commander} from './commander';
 import {Entry} from './entry';
+import {Tournament} from './tournament';
 
 const ALL_KNOWN_CHEATERS: {
   topdeckProfile: string;
@@ -96,11 +98,29 @@ export class Player implements GraphQLNode {
   readonly name: string;
   /** @gqlField */
   readonly topdeckProfile: string | null;
+  /** @gqlField */
+  readonly profileImage: string | null;
+  /** @gqlField */
+  readonly offersCoaching: boolean;
+  /** @gqlField */
+  readonly coachingBio: string | null;
+  /** @gqlField */
+  readonly coachingBookingUrl: string | null;
+  /** @gqlField */
+  readonly coachingRatePerHour: Int | null;
+  /** @gqlField */
+  readonly elo: Int | null;
 
   constructor(row: Selectable<DB['Player']>) {
     this.id = row.id;
     this.name = row.name;
     this.topdeckProfile = row.topdeckProfile;
+    this.profileImage = row.profileImage;
+    this.offersCoaching = row.offersCoaching === 1;
+    this.coachingBio = row.coachingBio;
+    this.coachingBookingUrl = row.coachingBookingUrl;
+    this.coachingRatePerHour = row.coachingRatePerHour;
+    this.elo = row.elo;
   }
 
   /** @gqlField */
@@ -267,5 +287,272 @@ export class Player implements GraphQLNode {
       .execute();
 
     return players.map((p) => new Player(p));
+  }
+
+  /** @gqlQueryField */
+  static async coach(profile: string): Promise<Player | null> {
+    const row = await db
+      .selectFrom('Player')
+      .selectAll()
+      .where('topdeckProfile', '=', profile)
+      .where('offersCoaching', '=', 1)
+      .executeTakeFirst();
+
+    return row ? new Player(row) : null;
+  }
+
+  /** @gqlQueryField */
+  static async coaches(): Promise<Player[]> {
+    const players = await db
+      .selectFrom('Player')
+      .selectAll()
+      .where('offersCoaching', '=', 1)
+      .execute();
+
+    return players.map((p) => new Player(p));
+  }
+
+  /** @gqlField */
+  async bestDecks(): Promise<PlayerDeck[]> {
+    const entries = await db
+      .selectFrom('Entry')
+      .innerJoin('Commander', 'Commander.id', 'Entry.commanderId')
+      .innerJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+      .select([
+        'Commander.id as commanderId',
+        'Commander.name as commanderName',
+        'Commander.colorId as colorId',
+        (eb) => eb.fn.sum<number>('winsBracket').as('totalWinsBracket'),
+        (eb) => eb.fn.sum<number>('winsSwiss').as('totalWinsSwiss'),
+        (eb) => eb.fn.sum<number>('lossesBracket').as('totalLossesBracket'),
+        (eb) => eb.fn.sum<number>('lossesSwiss').as('totalLossesSwiss'),
+        (eb) => eb.fn.sum<number>('draws').as('totalDraws'),
+        (eb) => eb.fn.count<number>('Entry.id').as('entries'),
+        (eb) =>
+          eb.fn
+            .sum<number>(
+              eb
+                .case()
+                .when('Entry.standing', '<=', eb.ref('Tournament.topCut'))
+                .then(1)
+                .else(0)
+                .end(),
+            )
+            .as('topCuts'),
+      ])
+      .where('Entry.playerId', '=', this.id)
+      .where('Commander.name', '!=', 'Unknown Commander')
+      .groupBy('Commander.id')
+      .execute();
+
+    const decks = entries.map((e) => {
+      const wins = (e.totalWinsBracket ?? 0) + (e.totalWinsSwiss ?? 0);
+      const losses = (e.totalLossesBracket ?? 0) + (e.totalLossesSwiss ?? 0);
+      const draws = e.totalDraws ?? 0;
+      const totalGames = wins + losses + draws;
+      const winRate = totalGames > 0 ? wins / totalGames : 0;
+      const conversionRate = e.entries > 0 ? (e.topCuts ?? 0) / e.entries : 0;
+
+      return new PlayerDeck({
+        commanderId: e.commanderId,
+        commanderName: e.commanderName,
+        colorId: e.colorId,
+        wins,
+        losses,
+        draws,
+        winRate,
+        conversionRate,
+        topCuts: e.topCuts ?? 0,
+        entries: e.entries,
+      });
+    });
+
+    // Filter to only commanders with at least one top cut
+    const decksWithTopCuts = decks.filter((d) => d.topCuts > 0);
+
+    // Sort by top cuts desc, then win rate desc
+    return decksWithTopCuts
+      .sort((a, b) => {
+        if (b.topCuts !== a.topCuts) return b.topCuts - a.topCuts;
+        return b.winRate - a.winRate;
+      })
+      .slice(0, 3);
+  }
+
+  /** @gqlField */
+  async topFinishes(): Promise<PlayerFinish[]> {
+    const entries = await db
+      .selectFrom('Entry')
+      .innerJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+      .innerJoin('Commander', 'Commander.id', 'Entry.commanderId')
+      .selectAll('Entry')
+      .select([
+        'Tournament.id as tournamentId',
+        'Tournament.name as tournamentName',
+        'Tournament.size as tournamentSize',
+        'Tournament.tournamentDate as tournamentDate',
+        'Tournament.topCut as topCut',
+        'Tournament.TID as TID',
+        'Commander.name as commanderName',
+      ])
+      .where('Entry.playerId', '=', this.id)
+      .execute();
+
+    const finishes = entries.map((e) => {
+      const wins = (e.winsBracket ?? 0) + (e.winsSwiss ?? 0);
+      const losses = (e.lossesBracket ?? 0) + (e.lossesSwiss ?? 0);
+      const draws = e.draws ?? 0;
+      const totalGames = wins + losses + draws;
+      const winRate = totalGames > 0 ? wins / totalGames : 0;
+      const placementQuality = e.standing / e.tournamentSize;
+
+      return new PlayerFinish({
+        entryId: e.id,
+        tournamentId: e.tournamentId,
+        tournamentName: e.tournamentName,
+        tournamentSize: e.tournamentSize,
+        tournamentDate: e.tournamentDate,
+        topCut: e.topCut,
+        TID: e.TID,
+        commanderName: e.commanderName,
+        standing: e.standing,
+        wins,
+        losses,
+        draws,
+        winRate,
+        placementQuality,
+        decklist: e.decklist,
+      });
+    });
+
+    // Sort by placement quality (lower is better)
+    return finishes
+      .sort((a, b) => a.placementQuality - b.placementQuality)
+      .slice(0, 3);
+  }
+}
+
+/** @gqlType */
+export class PlayerDeck {
+  readonly commanderId: Int;
+  /** @gqlField */
+  readonly commanderName: string;
+  /** @gqlField */
+  readonly colorId: string;
+  /** @gqlField */
+  readonly wins: Int;
+  /** @gqlField */
+  readonly losses: Int;
+  /** @gqlField */
+  readonly draws: Int;
+  /** @gqlField */
+  readonly winRate: Float;
+  /** @gqlField */
+  readonly conversionRate: Float;
+  /** @gqlField */
+  readonly topCuts: Int;
+  /** @gqlField */
+  readonly entries: Int;
+
+  constructor(data: {
+    commanderId: number;
+    commanderName: string;
+    colorId: string;
+    wins: number;
+    losses: number;
+    draws: number;
+    winRate: number;
+    conversionRate: number;
+    topCuts: number;
+    entries: number;
+  }) {
+    this.commanderId = data.commanderId;
+    this.commanderName = data.commanderName;
+    this.colorId = data.colorId;
+    this.wins = data.wins;
+    this.losses = data.losses;
+    this.draws = data.draws;
+    this.winRate = data.winRate;
+    this.conversionRate = data.conversionRate;
+    this.topCuts = data.topCuts;
+    this.entries = data.entries;
+  }
+
+  /** @gqlField */
+  async commander(): Promise<Commander> {
+    const row = await db
+      .selectFrom('Commander')
+      .selectAll()
+      .where('id', '=', this.commanderId)
+      .executeTakeFirstOrThrow();
+
+    return new Commander(row);
+  }
+}
+
+/** @gqlType */
+export class PlayerFinish {
+  /** @gqlField */
+  readonly entryId: Int;
+  /** @gqlField */
+  readonly tournamentId: Int;
+  /** @gqlField */
+  readonly tournamentName: string;
+  /** @gqlField */
+  readonly tournamentSize: Int;
+  /** @gqlField */
+  readonly tournamentDate: string;
+  /** @gqlField */
+  readonly topCut: Int;
+  /** @gqlField */
+  readonly TID: string;
+  /** @gqlField */
+  readonly commanderName: string;
+  /** @gqlField */
+  readonly standing: Int;
+  /** @gqlField */
+  readonly wins: Int;
+  /** @gqlField */
+  readonly losses: Int;
+  /** @gqlField */
+  readonly draws: Int;
+  /** @gqlField */
+  readonly winRate: Float;
+  /** @gqlField */
+  readonly decklist: string | null;
+  readonly placementQuality: Float;
+
+  constructor(data: {
+    entryId: number;
+    tournamentId: number;
+    tournamentName: string;
+    tournamentSize: number;
+    tournamentDate: string;
+    topCut: number;
+    TID: string;
+    commanderName: string;
+    standing: number;
+    wins: number;
+    losses: number;
+    draws: number;
+    winRate: number;
+    placementQuality: number;
+    decklist: string | null;
+  }) {
+    this.entryId = data.entryId;
+    this.tournamentId = data.tournamentId;
+    this.tournamentName = data.tournamentName;
+    this.tournamentSize = data.tournamentSize;
+    this.tournamentDate = data.tournamentDate;
+    this.topCut = data.topCut;
+    this.TID = data.TID;
+    this.commanderName = data.commanderName;
+    this.standing = data.standing;
+    this.wins = data.wins;
+    this.losses = data.losses;
+    this.draws = data.draws;
+    this.winRate = data.winRate;
+    this.placementQuality = data.placementQuality;
+    this.decklist = data.decklist;
   }
 }
