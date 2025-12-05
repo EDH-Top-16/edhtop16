@@ -16,7 +16,7 @@ export function Card({
   return (
     <div
       className={cn(
-        'group relative overflow-hidden rounded-lg bg-white shadow-sm transition-shadow',
+        'group relative overflow-hidden rounded-3xl bg-white shadow-sm transition-shadow',
         hoverEffect && 'cursor-pointer hover:shadow-lg',
         className,
       )}

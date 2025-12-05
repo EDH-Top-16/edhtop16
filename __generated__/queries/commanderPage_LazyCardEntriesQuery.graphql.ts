@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<82a9c9685530965ebb9e6254e1f87861>>
- * @relayHash a7c0295eeb9a27e9341d7252bc294e26
+ * @generated SignedSource<<541032cab70576117935b0894ea263fb>>
+ * @relayHash fa7458c823767efe9e66746672496c4f
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID a7c0295eeb9a27e9341d7252bc294e26
+// @relayRequestID fa7458c823767efe9e66746672496c4f
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -242,6 +242,13 @@ return {
                             "name": "isKnownCheater",
                             "storageKey": null
                           },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "offersCoaching",
+                            "storageKey": null
+                          },
                           (v7/*: any*/)
                         ],
                         "storageKey": null
@@ -347,7 +354,7 @@ return {
     ]
   },
   "params": {
-    "id": "a7c0295eeb9a27e9341d7252bc294e26",
+    "id": "fa7458c823767efe9e66746672496c4f",
     "metadata": {},
     "name": "commanderPage_LazyCardEntriesQuery",
     "operationKind": "query",

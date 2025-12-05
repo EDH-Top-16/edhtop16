@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<df33b339e6ab5179c35b50a5cd347a1d>>
- * @relayHash 5b5e89ee4acb313fa93e0e0a8b4e330f
+ * @generated SignedSource<<a55d31333110d5334971aebddaf92f20>>
+ * @relayHash fb96c4f127e4971d8b8886e354f24253
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 5b5e89ee4acb313fa93e0e0a8b4e330f
+// @relayRequestID fb96c4f127e4971d8b8886e354f24253
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -252,6 +252,13 @@ return {
                                 "name": "isKnownCheater",
                                 "storageKey": null
                               },
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "offersCoaching",
+                                "storageKey": null
+                              },
                               (v7/*: any*/)
                             ],
                             "storageKey": null
@@ -354,7 +361,7 @@ return {
     ]
   },
   "params": {
-    "id": "5b5e89ee4acb313fa93e0e0a8b4e330f",
+    "id": "fb96c4f127e4971d8b8886e354f24253",
     "metadata": {},
     "name": "CommanderCardEntriesQuery",
     "operationKind": "query",
