@@ -3,22 +3,29 @@
  * well-shaped form.
  */
 
+import {chunkedWorkerPool} from '@reverecre/promise';
 import Database from 'better-sqlite3';
 import Dataloader from 'dataloader';
 import {subYears} from 'date-fns';
-import {type InsertObject, Kysely, SqliteDialect} from 'kysely';
+import {
+  type InsertObject,
+  Kysely,
+  PostgresDialect,
+  SqliteDialect,
+} from 'kysely';
 import {createWriteStream} from 'node:fs';
 import fs from 'node:fs/promises';
 import {parseArgs} from 'node:util';
+import {Pool} from 'pg';
 import pc from 'picocolors';
 import * as undici from 'undici';
 import {z} from 'zod/v4';
-import {chunkedWorkerPool} from '@reverecre/promise';
 import type {DB} from '../__generated__/db/types';
 import {
   type ScryfallCard,
   scryfallCardSchema,
 } from '../src/lib/server/scryfall.ts';
+import type {DB as ProfileDB} from './__generated__/profile_db_types.d.ts';
 
 class TopDeckClient {
   static readonly player = z.object({
@@ -708,6 +715,67 @@ async function addCardPlayRates() {
   success`Finished calculating play rates!`();
 }
 
+async function updateProfilesFromEDHTop16Platform() {
+  if (!process.env.PROFILE_DATABASE_URL) {
+    info`Skipping profile sync: PROFILE_DATABASE_URL not set`();
+    return;
+  }
+
+  info`Connecting to the EDHTop16 platform database...`();
+  const profileDb = new Kysely<ProfileDB>({
+    dialect: new PostgresDialect({
+      pool: new Pool({
+        connectionString: process.env.PROFILE_DATABASE_URL,
+      }),
+    }),
+  });
+
+  try {
+    info`Fetching coaching profiles from platform database...`();
+    const profiles = await profileDb
+      .selectFrom('profile')
+      .select([
+        'topdeckProfile',
+        'offersCoaching',
+        'coachingBio',
+        'coachingBookingUrl',
+        'coachingRatePerHour',
+      ])
+      .where('topdeckProfile', 'is not', null)
+      .execute();
+
+    info`Found ${profiles.length} profiles with TopDeck links`();
+
+    if (profiles.length === 0) {
+      success`No profiles to sync`();
+      return;
+    }
+
+    // Update players with coaching information
+    let updatedCount = 0;
+    for (const profile of profiles) {
+      const result = await db
+        .updateTable('Player')
+        .set({
+          offersCoaching: profile.offersCoaching ? 1 : 0,
+          coachingBio: profile.coachingBio,
+          coachingBookingUrl: profile.coachingBookingUrl,
+          coachingRatePerHour: profile.coachingRatePerHour,
+        })
+        .where('topdeckProfile', '=', profile.topdeckProfile!)
+        .executeTakeFirst();
+
+      if (result.numUpdatedRows > 0) {
+        updatedCount++;
+      }
+    }
+
+    success`Updated coaching information for ${updatedCount} players`();
+  } finally {
+    await profileDb.destroy();
+  }
+}
+
 async function main({tid: importedTids}: {tid?: string[]}) {
   info`Loading Scryfall oracle cards database...`();
   const oracleCards = await ScryfallDatabase.create('oracle_cards');
@@ -739,6 +807,7 @@ async function main({tid: importedTids}: {tid?: string[]}) {
 
   await createDecklists(tournaments, cardIdByOracleId, entryIdByTidAndProfile);
   await addCardPlayRates();
+  await updateProfilesFromEDHTop16Platform();
 }
 
 main(args.values)
