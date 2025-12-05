@@ -100,13 +100,13 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
   return (
     <Card hoverEffect={false} className="h-fit">
       <div className="flex flex-col h-full"> 
-        <div className="flex gap-0.5 justify-between items-center">
+        <div className="flex gap-0.5 justify-between items-flex-startr">
           <span className="text-xl font-semibold">{entryNameNode}</span>
           {entry.decklist && (
             <a
               href={entry.decklist}
               target="_blank"
-              className="font-semibold text-sm transition-colors flex flex-shrink-0 gap-1 items-center px-2 py-1 border border-white/40 rounded"
+              className="font-semibold h-fit text-sm transition-colors flex flex-shrink-0 gap-1 items-center px-2 py-1 border border-white/40 rounded"
             >
               <img
                 src={'https://topdeck.gg/img/logo/TopDeckNoBorder.png'}
@@ -139,7 +139,7 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
           </div>
         </div>
 
-        <div className="bg-[#131224] py-4 px-8 rounded-2xl mt-3 flex gap-2 justify-between">
+        <div className="bg-[#131224] py-3 px-8 rounded-2xl mt-3 flex gap-2 justify-between">
           <div className="flex flex-col items-center">
             <span className="font-medium text-lg">{entry.wins}</span>
             <span className="text-muted-foreground text-sm uppercase tracking-wider">Wins</span>
