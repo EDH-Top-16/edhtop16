@@ -25,6 +25,7 @@ export interface Commander {
 
 export interface DecklistItem {
   cardId: number;
+  count: number | null;
   entryId: number;
 }
 
@@ -43,8 +44,13 @@ export interface Entry {
 }
 
 export interface Player {
+  coachingBio: string | null;
+  coachingBookingUrl: string | null;
+  coachingRatePerHour: number | null;
+  elo: number | null;
   id: Generated<number>;
   name: string;
+  offersCoaching: Generated<number>;
   topdeckProfile: string | null;
 }
 

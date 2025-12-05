@@ -62,6 +62,8 @@ jobs:
         env:
           NODE_OPTIONS: --max-old-space-size=4096
           TOPDECK_GG_API_KEY: ${{ secrets.TOPDECK_GG_API_KEY }}
+          PROFILE_DATABASE_URL: ${{ secrets.PROFILE_DATABASE_URL }}
+          PROFILE_DATABASE_CA_CERT: ${{ secrets.PROFILE_DATABASE_CA_CERT }}
 
       - name: Push Updated DB
         run: s3cmd put edhtop16.db s3://edhtop16
