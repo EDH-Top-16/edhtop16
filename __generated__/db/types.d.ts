@@ -44,6 +44,7 @@ export interface Entry {
 }
 
 export interface Player {
+  bestDecks: string | null;
   coachingBio: string | null;
   coachingBookingUrl: string | null;
   coachingRatePerHour: number | null;
@@ -53,6 +54,7 @@ export interface Player {
   offersCoaching: Generated<number>;
   profileImage: string | null;
   topdeckProfile: string | null;
+  topFinishes: string | null;
 }
 
 export interface Tournament {
