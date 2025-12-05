@@ -45,6 +45,10 @@ const ROUTER_CONF = {
       entrypoint: entrypoint_routeabout(),
       schema: z.object({})
     } as const,
+  "/coaching": {
+      entrypoint: entrypoint_mcoaching(),
+      schema: z.object({})
+    } as const,
   "/commander/:commander": {
       entrypoint: e0,
       schema: z.object({
@@ -511,6 +515,22 @@ export function listRoutes() {
 function entrypoint_routeabout(): EntryPoint<ModuleType<'route(/about)'>, EntryPointParams<'/about'>> {
   return {
     root: JSResource.fromModuleId('route(/about)'),
+    getPreloadProps({params, schema}) {
+      const variables = schema.parse(params);
+      return {
+        queries: {
+        }
+        ,
+        entryPoints: {
+        }
+      }
+    }
+  }
+}
+
+function entrypoint_mcoaching(): EntryPoint<ModuleType<'m#coaching'>, EntryPointParams<'/coaching'>> {
+  return {
+    root: JSResource.fromModuleId('m#coaching'),
     getPreloadProps({params, schema}) {
       const variables = schema.parse(params);
       return {
