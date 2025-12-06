@@ -26,6 +26,7 @@ import {Navigation} from './components/navigation';
 import {FirstPartyPromo} from './components/promo';
 import {Tab, TabList} from './components/tabs';
 import {formatOrdinals, formatPercent} from './lib/client/format';
+import { ArrowRight, IdCardLanyard, Layers, User2 } from 'lucide-react';
 
 function EntryCard({
   highlightFirst = true,
@@ -46,6 +47,7 @@ function EntryCard({
         player {
           name
           isKnownCheater
+          offersCoaching
         }
 
         commander {
@@ -70,7 +72,7 @@ function EntryCard({
   }
 
   const entryNameNode = (
-    <span className="relative flex items-baseline">
+    <span className="relative flex items-baseline justify-between">
       {entryName}
       {entry.player?.isKnownCheater && (
         <span className="absolute right-0 rounded-full bg-red-600 px-2 py-1 text-xs uppercase">
@@ -96,6 +98,7 @@ function EntryCard({
         highlightFirst &&
           'md:first:col-span-2 lg:max-w-3xl lg:first:col-span-3 lg:first:w-full lg:first:justify-self-center',
       )}
+      hoverEffect={false}
       bottomText={bottomText}
       images={entry.commander.cards
         .flatMap((c) => c.imageUrls)
@@ -104,25 +107,40 @@ function EntryCard({
           alt: `${entry.commander.name} art`,
         }))}
     >
-      <div className="flex h-32 flex-col space-y-2 lg:group-first:h-40">
-        {entry.decklist ? (
-          <a
-            href={entry.decklist}
-            target="_blank"
-            className="line-clamp-2 text-xl font-bold underline decoration-transparent transition-colors hover:decoration-inherit"
-          >
-            {entryNameNode}
-          </a>
-        ) : (
-          <span className="text-xl font-bold">{entryNameNode}</span>
+      <div className="flex h-32 flex-col gap-1 lg:group-first:h-40">
+        <span className="text-xl font-bold">{entryNameNode}</span>
+        <div className="flex flex-col gap-0.5">
+          <div className="flex gap-2 items-start">
+            <div className="mt-[3px]">
+              <User2 className="w-4 h-4 text-white/50" />
+            </div>
+            {entry.commander.name ? ( <Link
+              href={entry.commander.breakdownUrl}
+              className="underline decoration-transparent transition-colors hover:decoration-inherit text-white/80"
+            >
+              {entry.commander.name}
+            </Link>) : <span className="text-muted-foreground">Unknown commander</span>}
+           
+          </div>
+          
+          {entry.commander.name && entry.decklist && (
+            <div className="flex gap-2 items-center">
+              <Layers className="w-4 h-4 text-white/50" />
+              <a
+                href={entry.decklist}
+                target="_blank"
+                className="underline decoration-transparent transition-colors hover:decoration-inherit text-white/80"
+              >
+                View decklist
+              </a>
+            </div>
+          )}
+        </div>
+        {entry.player?.isKnownCheater && (
+          <span className="absolute right-4 w-fit rounded-full bg-red-600 px-2 py-1 text-xs uppercase">
+            Cheater
+          </span>
         )}
-
-        <Link
-          href={entry.commander.breakdownUrl}
-          className="underline decoration-transparent transition-colors hover:decoration-inherit"
-        >
-          {entry.commander.name}
-        </Link>
       </div>
     </Card>
   );

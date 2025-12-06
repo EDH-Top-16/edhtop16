@@ -87,7 +87,7 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
           </span>
         )}
         {!entry.player?.isKnownCheater && entry.player?.offersCoaching && (
-          // TODO(@rdelaney): Hook this up to the coach profile page, conver to <Link>
+          // TODO(@ryan): Hook this up to the coach profile page, conver to <Link>
           <a className="mt-0.5 flex gap-1 rounded-full bg-blue-500 px-2 py-1 text-xs uppercase cursor-pointer group mb-1">
             Offers coaching
             <ArrowRight className="w-4 h-4 hidden group-hover:block "/>
@@ -139,7 +139,7 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
           </div>
         </div>
 
-        <div className="bg-[#131224] py-3 px-8 rounded-2xl mt-3 flex gap-2 justify-between">
+        <div className="bg-[#131224] py-3 px-8 rounded-lg mt-2 flex gap-2 justify-around lg:justify-between">
           <div className="flex flex-col items-center">
             <span className="font-medium text-lg">{entry.wins}</span>
             <span className="text-muted-foreground text-sm uppercase tracking-wider">Wins</span>
