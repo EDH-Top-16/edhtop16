@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<52e78f057283f0589d84541364589edf>>
- * @relayHash 6d338428e05ff88c90049e3e496180e8
+ * @generated SignedSource<<b5d581721e9179d6518452d9111041fa>>
+ * @relayHash f967704808954bfcd7c881ac1ac7a55e
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 6d338428e05ff88c90049e3e496180e8
+// @relayRequestID f967704808954bfcd7c881ac1ac7a55e
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -182,6 +182,13 @@ v12 = [
         "args": null,
         "kind": "ScalarField",
         "name": "isKnownCheater",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "offersCoaching",
         "storageKey": null
       },
       (v6/*: any*/)
@@ -425,7 +432,7 @@ return {
     ]
   },
   "params": {
-    "id": "6d338428e05ff88c90049e3e496180e8",
+    "id": "f967704808954bfcd7c881ac1ac7a55e",
     "metadata": {},
     "name": "tournamentView_TournamentQuery",
     "operationKind": "query",
