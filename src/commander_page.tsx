@@ -99,7 +99,7 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
 
   return (
     <Card hoverEffect={false} className="h-fit">
-      <div className="flex flex-col h-full"> 
+      <div className="flex flex-col"> 
         <div className="flex gap-0.5 justify-between items-flex-startr">
           <span className="text-xl font-semibold">{entryNameNode}</span>
           {entry.decklist && (
