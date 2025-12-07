@@ -67,7 +67,7 @@ function StapleCardRow(props: {card: staples_StaplesCard$key}) {
       href={card.scryfallUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex items-center justify-between border-b border-white/10 p-2"
+      className="group flex items-center justify-between border-b border-white/30 p-2"
     >
       <div className="flex items-center gap-2">
         <span className="text-sm text-white hover:underline">{card.name}</span>

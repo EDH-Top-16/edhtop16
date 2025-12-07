@@ -246,7 +246,7 @@ function StapleTypeSection({
 
   return (
     <div className="mb-8">
-      <div className="flex items-center justify-between border-b bg-black/30 px-2 py-1">
+      <div className="flex items-center justify-between border-b border-white/30 bg-black/30 px-2 py-1">
         <span className="font-medium">{type}</span>
         <span className="text-sm font-medium">Play rate</span>
       </div>
