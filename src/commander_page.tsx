@@ -37,7 +37,13 @@ import {Navigation} from './components/navigation';
 import {FirstPartyPromo} from './components/promo';
 import {Select} from './components/select';
 import {Tab, TabList} from './components/tabs';
-import {formatOrdinals, formatPercent} from './lib/client/format';
+import {InfoIcon, Tooltip} from './components/ui/tooltip';
+import {
+  formatOrdinals,
+  formatPercent,
+  formatPilotEquity,
+  formatTopCutFactor,
+} from './lib/client/format';
 import {ServerSafeSuspense} from './lib/client/suspense';
 
 function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
@@ -578,7 +584,8 @@ export const CommanderStats: EntryPointComponent<
       ) @preloadable @throwOnFieldError {
         commander(name: $commander) {
           stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {
-            conversionRate
+            topCutFactor
+            pilotEquity
             metaShare
             count
           }
@@ -590,11 +597,23 @@ export const CommanderStats: EntryPointComponent<
 
   return (
     <div className="absolute bottom-0 z-10 mx-auto flex w-full items-center justify-around border-t border-white/60 bg-black/50 px-3 text-center text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border">
-      {commander.stats.count} Entries
+      <span className="text-white/75">Entries&nbsp;</span>
+      {commander.stats.count}
       <div className="mr-1 ml-2 border-l border-white/60 py-2">&nbsp;</div>{' '}
-      {formatPercent(commander.stats.metaShare)} Meta%
+      <span className="text-white/75">Meta Share&nbsp;</span>
+      {formatPercent(commander.stats.metaShare)}
       <div className="mr-1 ml-2 border-l border-white/60 py-2">&nbsp;</div>{' '}
-      {formatPercent(commander.stats.conversionRate)} Conversion
+      <span className="text-white/75">Conversion Factor&nbsp;</span>
+      {formatTopCutFactor(commander.stats.topCutFactor)}
+      <Tooltip content="How often this commander top cuts vs expected. 1.0x = average, 2.0x = twice as often (Bayesian-smoothed).">
+        <InfoIcon className="ml-2 cursor-help text-white/50 hover:text-white/80" />
+      </Tooltip>
+      <div className="mr-1 ml-2 border-l border-white/60 py-2">&nbsp;</div>{' '}
+      <span className="text-white/75">Pilot Skill&nbsp;</span>
+      {formatPilotEquity(commander.stats.pilotEquity)}
+      <Tooltip content="How evenly top cuts are distributed among pilots. 'Even' means many pilots succeed, 'Concentrated' means results held by a few elite pilots.">
+        <InfoIcon className="ml-2 cursor-help text-white/50 hover:text-white/80" />
+      </Tooltip>
     </div>
   );
 };

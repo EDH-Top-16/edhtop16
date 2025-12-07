@@ -123,10 +123,55 @@ interface CommanderCalculatedStats {
   count: Int;
   /** @gqlField */
   topCuts: Int;
-  /** @gqlField */
+  /**
+   * @deprecated Use topCutFactor instead
+   * @gqlField
+   */
   conversionRate: Float;
+  /**
+   * How many times more often this commander top cuts vs expected.
+   * 1.0 = average, 2.0 = 2x more often than expected, 0.5 = half as often.
+   * @gqlField
+   */
+  topCutFactor: Float;
   /** @gqlField */
   metaShare: Float;
+  /**
+   * Gini coefficient measuring inequality of top cut distribution among pilots.
+   * 0.0 = perfectly equal (all pilots have same top cut rate)
+   * 1.0 = perfectly unequal (one pilot has all the top cuts)
+   * Higher values suggest the commander is "carried" by a few skilled pilots.
+   * @gqlField
+   */
+  pilotEquity: Float;
+}
+
+/**
+ * Calculate the Gini coefficient from an array of values.
+ * Returns a value between 0 (perfect equality) and 1 (perfect inequality).
+ *
+ * The Gini coefficient measures statistical dispersion. For pilot performance:
+ * - 0.0 = all pilots have the same number of top cuts
+ * - 1.0 = one pilot has all the top cuts
+ */
+function calculateGini(values: number[]): number {
+  if (values.length === 0) return 0;
+
+  const n = values.length;
+  const sorted = [...values].sort((a, b) => a - b);
+  const sum = sorted.reduce((acc, v) => acc + v, 0);
+
+  if (sum === 0) return 0; // No top cuts at all means equal (all zero)
+
+  // Gini formula: G = (2 * Σ(i * x_i) - (n + 1) * Σx_i) / (n * Σx_i)
+  // where x_i is the sorted values and i is 1-indexed rank
+  let numeratorSum = 0;
+  for (let i = 0; i < n; i++) {
+    numeratorSum += (i + 1) * sorted[i]!;
+  }
+
+  const gini = (2 * numeratorSum - (n + 1) * sum) / (n * sum);
+  return Math.max(0, Math.min(1, gini)); // Clamp to [0, 1]
 }
 
 export type CommanderStatsLoader = (
@@ -167,7 +212,7 @@ export function commanderStatsLoader(ctx: Context): CommanderStatsLoader {
             ? new Date(filters?.minDate ?? 0)
             : minDateFromTimePeriod(filters?.timePeriod);
 
-        const [entriesQuery, statsQuery] = await Promise.all([
+        const [entriesQuery, statsQuery, pilotStatsQuery] = await Promise.all([
           db
             .selectFrom('Entry')
             .select((eb) => eb.fn.countAll<number>().as('totalEntries'))
@@ -197,6 +242,7 @@ export function commanderStatsLoader(ctx: Context): CommanderStatsLoader {
                       .end(),
                   )
                   .as('topCuts'),
+              // Legacy conversionRate (topCuts / count)
               (eb) =>
                 eb(
                   eb.cast<number>(
@@ -217,6 +263,17 @@ export function commanderStatsLoader(ctx: Context): CommanderStatsLoader {
                   '/',
                   eb.fn.count<number>('Entry.id'),
                 ).as('conversionRate'),
+              // Expected top cuts = sum of (topCut / tournamentSize) for each entry
+              (eb) =>
+                eb.fn
+                  .sum<number>(
+                    eb(
+                      eb.cast<number>(eb.ref('Tournament.topCut'), 'real'),
+                      '/',
+                      eb.ref('Tournament.size'),
+                    ),
+                  )
+                  .as('expectedTopCuts'),
             ])
             .where('Tournament.size', '>=', minSize)
             .where('Tournament.size', '<=', maxSize)
@@ -225,13 +282,71 @@ export function commanderStatsLoader(ctx: Context): CommanderStatsLoader {
             .where('Commander.id', 'in', commanderIds)
             .groupBy('Commander.id')
             .execute(),
+          // Query per-player top cut counts for Gini calculation
+          db
+            .selectFrom('Entry')
+            .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+            .select([
+              'Entry.commanderId',
+              'Entry.playerId',
+              (eb) =>
+                eb.fn
+                  .sum<number>(
+                    eb
+                      .case()
+                      .when('Entry.standing', '<=', eb.ref('Tournament.topCut'))
+                      .then(1)
+                      .else(0)
+                      .end(),
+                  )
+                  .as('playerTopCuts'),
+            ])
+            .where('Tournament.size', '>=', minSize)
+            .where('Tournament.size', '<=', maxSize)
+            .where('Tournament.tournamentDate', '>=', minDate.toISOString())
+            .where('Tournament.tournamentDate', '<=', maxDate.toISOString())
+            .where('Entry.commanderId', 'in', commanderIds)
+            .groupBy(['Entry.commanderId', 'Entry.playerId'])
+            .execute(),
         ]);
 
         const totalEntries = entriesQuery.totalEntries ?? 1;
         const statsByCommanderId = new Map<number, CommanderCalculatedStats>();
-        for (const {id, ...stats} of statsQuery) {
+
+        // Group pilot stats by commander for Gini calculation
+        const pilotStatsByCommander = new Map<number, number[]>();
+        for (const row of pilotStatsQuery) {
+          if (!pilotStatsByCommander.has(row.commanderId)) {
+            pilotStatsByCommander.set(row.commanderId, []);
+          }
+          pilotStatsByCommander.get(row.commanderId)!.push(row.playerTopCuts);
+        }
+
+        // Bayesian smoothing parameters
+        const PRIOR_ENTRIES = 20; // pseudo-entries worth of prior belief
+        const PRIOR_FACTOR = 1.0; // assume average (1.0x) until proven otherwise
+        // Estimate average expected top cut rate across all tournaments
+        // This is used to calculate prior expected top cuts
+        const AVG_TOP_CUT_RATE = 0.15; // ~15% average (e.g., top 16 of ~100)
+        const priorExpected = PRIOR_ENTRIES * AVG_TOP_CUT_RATE;
+
+        for (const {id, expectedTopCuts, ...stats} of statsQuery) {
+          // Calculate topCutFactor with Bayesian smoothing
+          // Raw: topCuts / expectedTopCuts
+          // Smoothed: (topCuts + prior * 1.0) / (expected + prior)
+          const smoothedTopCuts = stats.topCuts + PRIOR_FACTOR * priorExpected;
+          const smoothedExpected = (expectedTopCuts ?? 0) + priorExpected;
+          const topCutFactor =
+            smoothedExpected > 0 ? smoothedTopCuts / smoothedExpected : 1.0;
+
+          // Calculate Gini coefficient from per-player top cut distribution
+          const pilotTopCuts = pilotStatsByCommander.get(id) ?? [];
+          const pilotEquity = calculateGini(pilotTopCuts);
+
           statsByCommanderId.set(id, {
             ...stats,
+            topCutFactor,
+            pilotEquity,
             metaShare: stats.count / totalEntries,
           });
         }
@@ -241,6 +356,8 @@ export function commanderStatsLoader(ctx: Context): CommanderStatsLoader {
             statsByCommanderId.get(id) ?? {
               topCuts: 0,
               conversionRate: 0,
+              topCutFactor: 1.0,
+              pilotEquity: 0,
               count: 0,
               metaShare: 0,
             },

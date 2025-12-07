@@ -171,6 +171,7 @@ export function getSchema(): GraphQLSchema {
         fields() {
             return {
                 conversionRate: {
+                    deprecationReason: "Use topCutFactor instead",
                     name: "conversionRate",
                     type: GraphQLFloat,
                     resolve(source, args, context, info) {
@@ -186,6 +187,22 @@ export function getSchema(): GraphQLSchema {
                 },
                 metaShare: {
                     name: "metaShare",
+                    type: GraphQLFloat,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                pilotEquity: {
+                    description: "Gini coefficient measuring inequality of top cut distribution among pilots.\n0.0 = perfectly equal (all pilots have same top cut rate)\n1.0 = perfectly unequal (one pilot has all the top cuts)\nHigher values suggest the commander is \"carried\" by a few skilled pilots.",
+                    name: "pilotEquity",
+                    type: GraphQLFloat,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                topCutFactor: {
+                    description: "How many times more often this commander top cuts vs expected.\n1.0 = average, 2.0 = 2x more often than expected, 0.5 = half as often.",
+                    name: "topCutFactor",
                     type: GraphQLFloat,
                     resolve(source, args, context, info) {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));

@@ -158,9 +158,21 @@ type Commander implements Node {
 }
 
 type CommanderCalculatedStats {
-  conversionRate: Float @semanticNonNull
+  conversionRate: Float @deprecated(reason: "Use topCutFactor instead") @semanticNonNull
   count: Int @semanticNonNull
   metaShare: Float @semanticNonNull
+  """
+  Gini coefficient measuring inequality of top cut distribution among pilots.
+  0.0 = perfectly equal (all pilots have same top cut rate)
+  1.0 = perfectly unequal (one pilot has all the top cuts)
+  Higher values suggest the commander is "carried" by a few skilled pilots.
+  """
+  pilotEquity: Float @semanticNonNull
+  """
+  How many times more often this commander top cuts vs expected.
+  1.0 = average, 2.0 = 2x more often than expected, 0.5 = half as often.
+  """
+  topCutFactor: Float @semanticNonNull
   topCuts: Int @semanticNonNull
 }
 

@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<22113b6259691207cdacc28cf0071dff>>
- * @relayHash 59bb12079508620fd9da10dafc465a29
+ * @generated SignedSource<<78646f727b50c26304ad3a7e75c4075a>>
+ * @relayHash 183994d9b797d4ba44df52fce5f845e9
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 59bb12079508620fd9da10dafc465a29
+// @relayRequestID 183994d9b797d4ba44df52fce5f845e9
 
 import { ConcreteRequest } from 'relay-runtime';
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
@@ -21,9 +21,10 @@ export type commanderPage_CommanderStatsQuery$variables = {
 export type commanderPage_CommanderStatsQuery$data = {
   readonly commander: {
     readonly stats: {
-      readonly conversionRate: number;
       readonly count: number;
       readonly metaShare: number;
+      readonly pilotEquity: number;
+      readonly topCutFactor: number;
     };
   };
 };
@@ -84,7 +85,14 @@ v4 = {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
-      "name": "conversionRate",
+      "name": "topCutFactor",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "pilotEquity",
       "storageKey": null
     },
     {
@@ -165,7 +173,7 @@ return {
     ]
   },
   "params": {
-    "id": "59bb12079508620fd9da10dafc465a29",
+    "id": "183994d9b797d4ba44df52fce5f845e9",
     "metadata": {},
     "name": "commanderPage_CommanderStatsQuery",
     "operationKind": "query",
@@ -174,7 +182,7 @@ return {
 };
 })();
 
-(node as any).hash = "07359718a78ca7662aaacb003c3a5706";
+(node as any).hash = "d1d7f8a7b6e92a35f504d2d02b0b7e2b";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);
