@@ -88,7 +88,17 @@ type CardData = {
   ' $fragmentSpreads': staples_StaplesCard$key[' $fragmentSpreads'];
 };
 
-const PLAY_RATE_THRESHOLD = 0.05; // 5%
+// Play rate thresholds by card type (cards below threshold are hidden by default)
+const PLAY_RATE_THRESHOLDS: Record<CardType, number> = {
+  Creature: 0.05,
+  Instant: 0.05,
+  Sorcery: 0.05,
+  Artifact: 0.07,
+  Enchantment: 0.06,
+  Planeswalker: 0.04,
+  Battle: 0.05,
+  Land: 0.09,
+};
 
 function TypeSection({
   type,
@@ -98,6 +108,7 @@ function TypeSection({
   cards: readonly CardData[];
 }) {
   const [showAll, setShowAll] = useState(false);
+  const threshold = PLAY_RATE_THRESHOLDS[type];
 
   const sortedCards = useMemo(
     () => [...cards].sort((a, b) => b.playRateLastYear - a.playRateLastYear),
@@ -108,14 +119,14 @@ function TypeSection({
     const above: CardData[] = [];
     const below: CardData[] = [];
     for (const card of sortedCards) {
-      if (card.playRateLastYear >= PLAY_RATE_THRESHOLD) {
+      if (card.playRateLastYear >= threshold) {
         above.push(card);
       } else {
         below.push(card);
       }
     }
     return {aboveThreshold: above, belowThreshold: below};
-  }, [sortedCards]);
+  }, [sortedCards, threshold]);
 
   const visibleCards = showAll ? sortedCards : aboveThreshold;
 
@@ -265,9 +276,9 @@ export const StaplesPage: EntryPointComponent<
   // Column 1: Planeswalker, Creature, Sorcery
   // Column 2: Instant, Artifact, Enchantment
   // Column 3: Battle, Land
-  const column1Types: CardType[] = ['Planeswalker', 'Creature', 'Sorcery'];
-  const column2Types: CardType[] = ['Instant', 'Artifact', 'Enchantment'];
-  const column3Types: CardType[] = ['Battle', 'Land'];
+  const column1Types: CardType[] = ['Planeswalker', 'Creature'];
+  const column2Types: CardType[] = ['Sorcery', 'Instant'];
+  const column3Types: CardType[] = [ 'Artifact', 'Enchantment', 'Battle', 'Land'];
 
   return (
     <>

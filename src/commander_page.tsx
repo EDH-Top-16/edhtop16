@@ -155,7 +155,17 @@ function getStapleCardType(typeLine: string): StapleCardType {
   return 'Artifact';
 }
 
-const STAPLE_PLAY_RATE_THRESHOLD = 0.05; // 5%
+// Play rate thresholds by card type (cards below threshold are hidden by default)
+const STAPLE_PLAY_RATE_THRESHOLDS: Record<StapleCardType, number> = {
+  Creature: 0.05,
+  Instant: 0.05,
+  Sorcery: 0.05,
+  Artifact: 0.07,
+  Enchantment: 0.05,
+  Planeswalker: 0.04,
+  Battle: 0.05,
+  Land: 0.09,
+};
 
 type StapleCardData = {
   id: string;
@@ -208,6 +218,7 @@ function StapleTypeSection({
   commanderName: string;
 }) {
   const [showAll, setShowAll] = useState(false);
+  const threshold = STAPLE_PLAY_RATE_THRESHOLDS[type];
 
   const sortedCards = useMemo(
     () => [...cards].sort((a, b) => b.playRateLastYear - a.playRateLastYear),
@@ -218,14 +229,14 @@ function StapleTypeSection({
     const above: StapleCardData[] = [];
     const below: StapleCardData[] = [];
     for (const card of sortedCards) {
-      if (card.playRateLastYear >= STAPLE_PLAY_RATE_THRESHOLD) {
+      if (card.playRateLastYear >= threshold) {
         above.push(card);
       } else {
         below.push(card);
       }
     }
     return {aboveThreshold: above, belowThreshold: below};
-  }, [sortedCards]);
+  }, [sortedCards, threshold]);
 
   const visibleCards = showAll ? sortedCards : aboveThreshold;
 
