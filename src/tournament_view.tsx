@@ -109,7 +109,7 @@ function EntryCard({
           alt: `${entry.commander.name} art`,
         }))}
     >
-      <div className="flex h-full flex-col gap-2 lg:group-first:h-48 justify-between">
+      <div className="flex h-full flex-col justify-between gap-2 lg:group-first:h-48">
         <div className="flex flex-col">
           <div className="items-flex-startr flex justify-between gap-2">
             <span className="text-xl font-semibold">{entryNameNode}</span>
@@ -117,7 +117,7 @@ function EntryCard({
               <a
                 href={entry.decklist}
                 target="_blank"
-                className="flex h-fit flex-shrink-0 items-center gap-1 rounded border border-white/40 hover:bg-white/20 px-2 py-1 text-sm font-medium transition-colors"
+                className="flex h-fit flex-shrink-0 items-center gap-1 rounded border border-white/40 px-2 py-1 text-sm font-medium transition-colors hover:bg-white/20"
               >
                 <img
                   src={'https://topdeck.gg/img/logo/TopDeckNoBorder.png'}
@@ -130,17 +130,17 @@ function EntryCard({
           </div>
           <div className="space-x-1">
             {entry.player?.isKnownCheater && (
-              <span className="w-fit rounded-sm bg-red-600 px-1 py-0.5 text-xs border border-white/30 font-semibold">
+              <span className="w-fit rounded-sm border border-white/30 bg-red-600 px-1 py-0.5 text-xs font-semibold">
                 Cheater
               </span>
             )}
             {/* TODO(@ryan): conditional here for team */}
-            <span className="w-fit rounded-sm bg-[#9593C8] px-1 py-0.5 text-xs border border-white/30 font-semibold">
+            <span className="w-fit rounded-sm border border-white/30 bg-[#9593C8] px-1 py-0.5 text-xs font-semibold">
               C4BL<span className="font-normal opacity-60">#1</span>
             </span>
             {/* TODO(@ryan): conditional here for coach */}
             {!entry.player?.isKnownCheater && (
-              <span className="w-fit rounded-sm bg-[#5E96F6] px-1 py-0.5 text-xs border border-white/30 font-semibold">
+              <span className="w-fit rounded-sm border border-white/30 bg-[#5E96F6] px-1 py-0.5 text-xs font-semibold">
                 Offers coaching
               </span>
             )}
@@ -171,18 +171,24 @@ function EntryCard({
             )}
           </div>
         </div>
-        <div className="bg-black/60 py-2 px-8 justify-self-end rounded-xl mt-2 flex gap-2 justify-around">
+        <div className="mt-2 flex justify-around gap-2 justify-self-end rounded-xl bg-black/45 px-8 py-2">
           <div className="flex flex-col items-center">
-            <span className="font-medium text-lg">{entry.wins}</span>
-            <span className="text-muted-foreground text-sm uppercase tracking-wider">Wins</span>
+            <span className="text-lg font-medium">{entry.wins}</span>
+            <span className="text-muted-foreground text-sm tracking-wider uppercase">
+              Wins
+            </span>
           </div>
           <div className="flex flex-col items-center">
-            <span className="font-medium text-lg">{entry.losses}</span>
-            <span className="text-muted-foreground text-sm uppercase tracking-wider">Losses</span>
+            <span className="text-lg font-medium">{entry.losses}</span>
+            <span className="text-muted-foreground text-sm tracking-wider uppercase">
+              Losses
+            </span>
           </div>
           <div className="flex flex-col items-center">
-            <span className="font-medium text-lg">{entry.draws}</span>
-            <span className="text-muted-foreground text-sm uppercase tracking-wider">Draws</span>
+            <span className="text-lg font-medium">{entry.draws}</span>
+            <span className="text-muted-foreground text-sm tracking-wider uppercase">
+              Draws
+            </span>
           </div>
         </div>
       </div>
@@ -471,15 +477,42 @@ export const TournamentViewPage: EntryPointComponent<
 
   const {replaceRoute} = useNavigation();
 
+  const top4Entries = tournament.entries?.slice(0, 4) ?? [];
+  const remainingEntries = tournament.entries?.slice(4) ?? [];
+
   return (
     <>
-      <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 py-6 px-2 md:grid-cols-2 lg:grid-cols-3">
-        {queries.tournamentQueryRef.variables.showStandings &&
-          tournament.entries != null &&
-          tournament.entries.map((entry) => (
-            <EntryCard key={entry.id} entry={entry} tournament={tournament} />
-          ))}
+      {queries.tournamentQueryRef.variables.showStandings &&
+        tournament.entries != null && (
+          <div className="mx-auto w-full max-w-(--breakpoint-xl) space-y-4 px-2 py-6">
+            {/* Top 4 in 2x2 grid */}
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              {top4Entries.map((entry) => (
+                <EntryCard
+                  key={entry.id}
+                  entry={entry}
+                  tournament={tournament}
+                  highlightFirst={false}
+                />
+              ))}
+            </div>
+            {/* Remaining entries in 3-column grid */}
+            {remainingEntries.length > 0 && (
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {remainingEntries.map((entry) => (
+                  <EntryCard
+                    key={entry.id}
+                    entry={entry}
+                    tournament={tournament}
+                    highlightFirst={false}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
+      <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 px-2 py-6 md:grid-cols-2 lg:grid-cols-3">
         {queries.tournamentQueryRef.variables.showBreakdown &&
           tournament.breakdown &&
           tournament.breakdown.map((group) => (
