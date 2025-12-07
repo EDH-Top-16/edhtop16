@@ -197,7 +197,7 @@ function StapleCardRow({
           card: card.name,
         });
       }}
-      className="group flex w-full cursor-pointer items-center justify-between border-b border-white/10 p-2"
+      className="group flex w-full cursor-pointer items-center justify-between border-b border-white/10 p-2 text-left"
     >
       <div className="flex items-center gap-2">
         <span className="text-sm text-white hover:underline">{card.name}</span>
