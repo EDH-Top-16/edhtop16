@@ -117,14 +117,14 @@ function EntryCard({
               <a
                 href={entry.decklist}
                 target="_blank"
-                className="flex h-fit flex-shrink-0 items-center gap-1 rounded border border-white/40 hover:bg-white/20 px-2 py-1 text-sm font-semibold transition-colors"
+                className="flex h-fit flex-shrink-0 items-center gap-1 rounded border border-white/40 hover:bg-white/20 px-2 py-1 text-sm font-medium transition-colors"
               >
                 <img
                   src={'https://topdeck.gg/img/logo/TopDeckNoBorder.png'}
                   alt="View decklist on TopDeck.gg"
                   className="h-4 w-4"
                 />
-                View decklist
+                Decklist
               </a>
             )}
           </div>
