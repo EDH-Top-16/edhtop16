@@ -302,9 +302,18 @@ function CommanderStaples(props: {
   // Column 1: Planeswalker, Creature, Sorcery
   // Column 2: Instant
   // Column 3: Artifact, Enchantment, Battle, Land
-  const column1Types: StapleCardType[] = ['Planeswalker', 'Creature', 'Sorcery'];
+  const column1Types: StapleCardType[] = [
+    'Planeswalker',
+    'Creature',
+    'Sorcery',
+  ];
   const column2Types: StapleCardType[] = ['Instant'];
-  const column3Types: StapleCardType[] = ['Artifact', 'Enchantment', 'Battle', 'Land'];
+  const column3Types: StapleCardType[] = [
+    'Artifact',
+    'Enchantment',
+    'Battle',
+    'Land',
+  ];
 
   return (
     <div className="mx-auto w-full max-w-(--breakpoint-xl) px-6 py-4">

@@ -70,9 +70,7 @@ function StapleCardRow(props: {card: staples_StaplesCard$key}) {
       className="group flex items-center justify-between border-b border-white/10 py-2"
     >
       <div className="flex items-center gap-2">
-        <span className="text-sm text-white hover:underline">
-          {card.name}
-        </span>
+        <span className="text-sm text-white hover:underline">{card.name}</span>
       </div>
       <div className="flex gap-2">
         <ManaCost cost={card.manaCost} size={14} className="space-x-0.5" />
@@ -139,9 +137,7 @@ function TypeSection({
           onClick={() => setShowAll(!showAll)}
           className="mt-2 text-sm text-white/50 hover:text-white"
         >
-          {showAll
-            ? 'Show less'
-            : `Show ${belowThreshold.length} more`}
+          {showAll ? 'Show less' : `Show ${belowThreshold.length} more`}
         </button>
       )}
     </div>
