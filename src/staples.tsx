@@ -278,7 +278,12 @@ export const StaplesPage: EntryPointComponent<
   // Column 3: Battle, Land
   const column1Types: CardType[] = ['Planeswalker', 'Creature'];
   const column2Types: CardType[] = ['Sorcery', 'Instant'];
-  const column3Types: CardType[] = [ 'Artifact', 'Enchantment', 'Battle', 'Land'];
+  const column3Types: CardType[] = [
+    'Artifact',
+    'Enchantment',
+    'Battle',
+    'Land',
+  ];
 
   return (
     <>

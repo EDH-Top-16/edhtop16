@@ -155,16 +155,18 @@ function getStapleCardType(typeLine: string): StapleCardType {
   return 'Artifact';
 }
 
-// Play rate thresholds by card type (cards below threshold are hidden by default)
+// Play rate thresholds by card type. Since this is the commander page,
+// it's probably fine by showing everything and not truncating any cards.
+// Can change this in the future if data gets noisy
 const STAPLE_PLAY_RATE_THRESHOLDS: Record<StapleCardType, number> = {
-  Creature: 0.05,
-  Instant: 0.05,
-  Sorcery: 0.05,
-  Artifact: 0.07,
-  Enchantment: 0.05,
-  Planeswalker: 0.04,
-  Battle: 0.05,
-  Land: 0.09,
+  Creature: 0,
+  Instant: 0,
+  Sorcery: 0,
+  Artifact: 0,
+  Enchantment: 0,
+  Planeswalker: 0,
+  Battle: 0,
+  Land: 0,
 };
 
 type StapleCardData = {
@@ -244,7 +246,7 @@ function StapleTypeSection({
 
   return (
     <div className="mb-6">
-      <div className="mb-2 flex items-center justify-between">
+      <div className="flex items-center justify-between border-b bg-black/30 px-2 py-1">
         <span className="font-medium">{type}</span>
         <span className="text-sm font-medium">Play rate</span>
       </div>
