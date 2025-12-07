@@ -166,7 +166,7 @@ export const StaplesPageShell: EntryPointComponent<
           <h1 className="font-title text-4xl font-extrabold text-white md:text-5xl">
             cEDH Staples
           </h1>
-          <p className="mt-2 text-gray-400">
+          <p className="mt-2 text-white/60">
             The most popular cards in competitive EDH, based on tournament data
             from the last year.
           </p>
