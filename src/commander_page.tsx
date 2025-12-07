@@ -155,7 +155,7 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
             </div>
           </div>
         </>
-        <div className="bg-[#131224] py-3 px-8 rounded-lg mt-2 flex gap-2 justify-around lg:justify-between">
+        <div className="bg-black/40 py-3 px-8 rounded-lg mt-2 flex gap-2 justify-around lg:justify-between">
           <div className="flex flex-col items-center">
             <span className="font-medium text-lg">{entry.wins}</span>
             <span className="text-muted-foreground text-sm uppercase tracking-wider">Wins</span>
