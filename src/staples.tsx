@@ -135,7 +135,7 @@ function TypeSection({
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between border-b bg-black/30 px-2 py-1">
-        <span className="text-primary font-medium">{type}</span>
+        <span className="font-medium">{type}</span>
         <span className="text-sm font-medium">Play rate</span>
       </div>
       <div className="flex flex-col">

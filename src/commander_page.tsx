@@ -197,7 +197,7 @@ function StapleCardRow({
           card: card.name,
         });
       }}
-      className="group flex w-full cursor-pointer items-center justify-between border-b border-white/10 py-2 text-left"
+      className="group flex w-full cursor-pointer items-center justify-between border-b border-white/10 p-2"
     >
       <div className="flex items-center gap-2">
         <span className="text-sm text-white hover:underline">{card.name}</span>
@@ -245,7 +245,7 @@ function StapleTypeSection({
   if (sortedCards.length === 0) return null;
 
   return (
-    <div className="mb-6">
+    <div className="mb-8">
       <div className="flex items-center justify-between border-b bg-black/30 px-2 py-1">
         <span className="font-medium">{type}</span>
         <span className="text-sm font-medium">Play rate</span>
@@ -262,7 +262,7 @@ function StapleTypeSection({
       {belowThreshold.length > 0 && (
         <button
           onClick={() => setShowAll(!showAll)}
-          className="mt-2 text-sm text-white/50 hover:text-white"
+          className="p-2 text-sm text-white/50 hover:text-white"
         >
           {showAll ? 'Show less' : `Show ${belowThreshold.length} more`}
         </button>
