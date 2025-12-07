@@ -80,7 +80,7 @@ export function Card({
         )}
       </div>
 
-      <div className="relative p-4 text-white sm:p-6 h-full">{children}</div>
+      <div className="relative p-4 text-white sm:p-5 h-full">{children}</div>
 
       {bottomText && (
         <div className="absolute bottom-0 w-full bg-black/60 px-2 py-2 text-sm text-white md:text-base">
