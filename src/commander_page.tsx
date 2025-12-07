@@ -18,7 +18,7 @@ import {Link, useNavigation} from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback.jsx';
 import cn from 'classnames';
 import {format} from 'date-fns';
-import {PropsWithChildren, Suspense} from 'react';
+import {PropsWithChildren, Suspense, useMemo, useState} from 'react';
 import {
   EntryPoint,
   EntryPointComponent,
@@ -29,7 +29,7 @@ import {
   usePreloadedQuery,
 } from 'react-relay/hooks';
 import {graphql} from 'relay-runtime';
-import {ColorIdentity} from './assets/icons/colors';
+import {ColorIdentity, ManaCost} from './assets/icons/colors';
 import {Card} from './components/card';
 import {Footer} from './components/footer';
 import {LoadMoreButton} from './components/load_more';
@@ -128,48 +128,133 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
   );
 }
 
-function StapleCard({card, commanderName}: {card: any; commanderName: string}) {
+// Card type constants for staples grouping
+const STAPLE_TYPE_ORDER = [
+  'Creature',
+  'Instant',
+  'Sorcery',
+  'Artifact',
+  'Enchantment',
+  'Planeswalker',
+  'Battle',
+  'Land',
+] as const;
+
+type StapleCardType = (typeof STAPLE_TYPE_ORDER)[number];
+
+function getStapleCardType(typeLine: string): StapleCardType {
+  const normalized = typeLine.toLowerCase();
+  if (normalized.includes('creature')) return 'Creature';
+  if (normalized.includes('instant')) return 'Instant';
+  if (normalized.includes('sorcery')) return 'Sorcery';
+  if (normalized.includes('artifact')) return 'Artifact';
+  if (normalized.includes('enchantment')) return 'Enchantment';
+  if (normalized.includes('planeswalker')) return 'Planeswalker';
+  if (normalized.includes('battle')) return 'Battle';
+  if (normalized.includes('land')) return 'Land';
+  return 'Artifact';
+}
+
+const STAPLE_PLAY_RATE_THRESHOLD = 0.05; // 5%
+
+type StapleCardData = {
+  id: string;
+  name: string;
+  type: string;
+  manaCost: string;
+  scryfallUrl: string;
+  playRateLastYear: number;
+};
+
+function StapleCardRow({
+  card,
+  commanderName,
+}: {
+  card: StapleCardData;
+  commanderName: string;
+}) {
   const playRatePercentage = (card.playRateLastYear * 100).toFixed(1);
   const {replaceRoute} = useNavigation();
 
   return (
-    <Card
-      images={card.imageUrls.map((img: string) => ({
-        src: img,
-        alt: `${card.name} card art`,
-      }))}
+    <button
+      onClick={() => {
+        replaceRoute('/commander/:commander', {
+          commander: commanderName,
+          tab: 'card',
+          card: card.name,
+        });
+      }}
+      className="group flex w-full cursor-pointer items-center justify-between border-b border-white/10 py-2 text-left"
     >
-      <div className="flex h-32 flex-col space-y-2">
-        <button
-          onClick={() => {
-            replaceRoute('/commander/:commander', {
-              commander: commanderName,
-              tab: 'card',
-              card: card.name,
-            });
-          }}
-          className="line-clamp-2 cursor-pointer text-left text-xl font-bold text-white underline decoration-transparent transition-colors hover:decoration-inherit"
-        >
-          {card.name}
-        </button>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <ColorIdentity identity={card.colorId} />
-            {card.cmc > 0 && (
-              <span className="rounded bg-gray-700 px-2 py-1 font-mono text-xs text-white">
-                {card.cmc}
-              </span>
-            )}
-          </div>
-          <div className="rounded bg-green-900/50 px-2 py-1">
-            <span className="text-xs font-medium text-green-300">
-              Play Rate: {playRatePercentage}%
-            </span>
-          </div>
-        </div>
-        <div className="mt-auto text-sm text-gray-300">{card.type}</div>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-white hover:underline">{card.name}</span>
       </div>
-    </Card>
+      <div className="flex gap-2">
+        <ManaCost cost={card.manaCost} size={14} className="space-x-0.5" />
+        <span className="text-sm text-white/60">{playRatePercentage}%</span>
+      </div>
+    </button>
+  );
+}
+
+function StapleTypeSection({
+  type,
+  cards,
+  commanderName,
+}: {
+  type: StapleCardType;
+  cards: readonly StapleCardData[];
+  commanderName: string;
+}) {
+  const [showAll, setShowAll] = useState(false);
+
+  const sortedCards = useMemo(
+    () => [...cards].sort((a, b) => b.playRateLastYear - a.playRateLastYear),
+    [cards],
+  );
+
+  const {aboveThreshold, belowThreshold} = useMemo(() => {
+    const above: StapleCardData[] = [];
+    const below: StapleCardData[] = [];
+    for (const card of sortedCards) {
+      if (card.playRateLastYear >= STAPLE_PLAY_RATE_THRESHOLD) {
+        above.push(card);
+      } else {
+        below.push(card);
+      }
+    }
+    return {aboveThreshold: above, belowThreshold: below};
+  }, [sortedCards]);
+
+  const visibleCards = showAll ? sortedCards : aboveThreshold;
+
+  if (sortedCards.length === 0) return null;
+
+  return (
+    <div className="mb-6">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="font-medium">{type}</span>
+        <span className="text-sm font-medium">Play rate</span>
+      </div>
+      <div className="flex flex-col">
+        {visibleCards.map((card) => (
+          <StapleCardRow
+            key={card.id}
+            card={card}
+            commanderName={commanderName}
+          />
+        ))}
+      </div>
+      {belowThreshold.length > 0 && (
+        <button
+          onClick={() => setShowAll(!showAll)}
+          className="mt-2 text-sm text-white/50 hover:text-white"
+        >
+          {showAll ? 'Show less' : `Show ${belowThreshold.length} more`}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -184,9 +269,7 @@ function CommanderStaples(props: {
           id
           name
           type
-          cmc
-          colorId
-          imageUrls
+          manaCost
           scryfallUrl
           playRateLastYear
         }
@@ -195,11 +278,81 @@ function CommanderStaples(props: {
     props.commander,
   );
 
+  const groupedCards = useMemo(() => {
+    const groups: Record<StapleCardType, StapleCardData[]> = {
+      Creature: [],
+      Instant: [],
+      Sorcery: [],
+      Artifact: [],
+      Enchantment: [],
+      Planeswalker: [],
+      Battle: [],
+      Land: [],
+    };
+
+    for (const card of commander.staples) {
+      const cardType = getStapleCardType(card.type);
+      groups[cardType].push(card);
+    }
+
+    return groups;
+  }, [commander.staples]);
+
+  // Column layout for md+:
+  // Column 1: Planeswalker, Creature, Sorcery
+  // Column 2: Instant
+  // Column 3: Artifact, Enchantment, Battle, Land
+  const column1Types: StapleCardType[] = ['Planeswalker', 'Creature', 'Sorcery'];
+  const column2Types: StapleCardType[] = ['Instant'];
+  const column3Types: StapleCardType[] = ['Artifact', 'Enchantment', 'Battle', 'Land'];
+
   return (
-    <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-4 p-6 md:grid-cols-2 xl:grid-cols-3">
-      {commander.staples.map((card) => (
-        <StapleCard key={card.id} card={card} commanderName={commander.name} />
-      ))}
+    <div className="mx-auto w-full max-w-(--breakpoint-xl) px-6 py-4">
+      {/* Mobile: single column with all types */}
+      <div className="md:hidden">
+        {STAPLE_TYPE_ORDER.map((type) => (
+          <StapleTypeSection
+            key={type}
+            type={type}
+            cards={groupedCards[type]}
+            commanderName={commander.name}
+          />
+        ))}
+      </div>
+
+      {/* md+: 3 column layout */}
+      <div className="hidden md:grid md:grid-cols-3 md:gap-6">
+        <div>
+          {column1Types.map((type) => (
+            <StapleTypeSection
+              key={type}
+              type={type}
+              cards={groupedCards[type]}
+              commanderName={commander.name}
+            />
+          ))}
+        </div>
+        <div>
+          {column2Types.map((type) => (
+            <StapleTypeSection
+              key={type}
+              type={type}
+              cards={groupedCards[type]}
+              commanderName={commander.name}
+            />
+          ))}
+        </div>
+        <div>
+          {column3Types.map((type) => (
+            <StapleTypeSection
+              key={type}
+              type={type}
+              cards={groupedCards[type]}
+              commanderName={commander.name}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
