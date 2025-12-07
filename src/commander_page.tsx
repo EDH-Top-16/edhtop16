@@ -106,14 +106,14 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
             <a
               href={entry.decklist}
               target="_blank"
-              className="font-semibold h-fit text-sm transition-colors flex flex-shrink-0 gap-1 items-center px-2 py-1 border border-white/40 rounded"
+              className="font-semibold h-fit text-sm transition-colors flex flex-shrink-0 gap-1 items-center px-2 py-1 border border-white/40 rounded hover:bg-white/20"
             >
               <img
                 src={'https://topdeck.gg/img/logo/TopDeckNoBorder.png'}
                 alt="View decklist on TopDeck.gg"
                 className="h-4 w-4"
               />
-              Decklist
+              View decklist
             </a>
           )}
         </div>
