@@ -62,6 +62,18 @@ export class Card implements GraphQLNode {
     return this.scryfallData.cmc;
   }
 
+  /**
+   * Mana cost string in Scryfall format, e.g. "{2}{W}{U}"
+   * @gqlField
+   */
+  manaCost(): string {
+    // For double-faced cards, get mana cost from the first face
+    if (this.scryfallData.card_faces) {
+      return this.scryfallData.card_faces[0]?.mana_cost ?? '';
+    }
+    return this.scryfallData.mana_cost ?? '';
+  }
+
   /** @gqlField */
   colorId(): string {
     const colorIdentity = new Set(this.scryfallData.color_identity);

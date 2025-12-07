@@ -859,6 +859,14 @@ export function getSchema(): GraphQLSchema {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));
                     }
                 },
+                manaCost: {
+                    description: "Mana cost string in Scryfall format, e.g. \"{2}{W}{U}\"",
+                    name: "manaCost",
+                    type: GraphQLString,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
                 name: {
                     name: "name",
                     type: GraphQLString,
