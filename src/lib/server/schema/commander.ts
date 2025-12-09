@@ -617,10 +617,13 @@ export class Commander implements GraphQLNode {
           eb('entries.playRateLastYear', '-', eb.ref('Card.playRateLastYear')),
         'desc',
       )
-      .selectAll('Card');
+      .selectAll('Card')
+      .select('entries.playRateLastYear as commanderPlayRate');
 
     const rows = await query.limit(100).execute();
-    return rows.map((r) => new Card(r));
+    return rows.map(
+      (r) => new Card(r, {playRateOverride: r.commanderPlayRate}),
+    );
   }
 
   /** @gqlField */
