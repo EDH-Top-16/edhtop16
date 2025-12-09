@@ -52,13 +52,13 @@ export class Card implements GraphQLNode {
 
   constructor(
     private readonly row: Selectable<DB['Card']>,
-    opts?: {playRateOverride?: number},
+    opts?: {playRateOverride?: number | null},
   ) {
     this.id = row.id;
     this.name = row.name;
     this.oracleId = row.oracleId;
     this.scryfallData = scryfallCardSchema.parse(JSON.parse(row.data));
-    this.playRateOverride = opts?.playRateOverride;
+    this.playRateOverride = opts?.playRateOverride ?? undefined;
   }
 
   private readonly scryfallData: ScryfallCard;

@@ -622,7 +622,8 @@ export class Commander implements GraphQLNode {
 
     const rows = await query.limit(100).execute();
     return rows.map(
-      (r) => new Card(r, {playRateOverride: r.commanderPlayRate}),
+      (r) =>
+        new Card(r, {playRateOverride: r.commanderPlayRate as number | null}),
     );
   }
 
