@@ -109,9 +109,9 @@ export class Player implements GraphQLNode {
   /** @gqlField */
   readonly coachingBookingUrl: string | null;
   /** @gqlField */
-  readonly coachingRatePerHour: Int | null;
+  readonly coachingRatePerHour: Float | null;
   /** @gqlField */
-  readonly elo: Int | null;
+  readonly elo: Float | null;
 
   constructor(row: Selectable<DB['Player']>) {
     this.id = row.id;

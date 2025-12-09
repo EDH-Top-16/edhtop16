@@ -237,10 +237,10 @@ type Player implements Node {
   bestDecks: [PlayerDeck!] @semanticNonNull
   coachingBio: String
   coachingBookingUrl: String
-  coachingRatePerHour: Int
+  coachingRatePerHour: Float
   conversionRate: Float @semanticNonNull
   draws: Int @semanticNonNull
-  elo: Int
+  elo: Float
   entries: [Entry!] @semanticNonNull
   id: ID!
   isKnownCheater: Boolean @semanticNonNull

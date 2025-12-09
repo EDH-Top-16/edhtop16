@@ -585,7 +585,7 @@ export function getSchema(): GraphQLSchema {
                 },
                 coachingRatePerHour: {
                     name: "coachingRatePerHour",
-                    type: GraphQLInt
+                    type: GraphQLFloat
                 },
                 conversionRate: {
                     name: "conversionRate",
@@ -603,7 +603,7 @@ export function getSchema(): GraphQLSchema {
                 },
                 elo: {
                     name: "elo",
-                    type: GraphQLInt
+                    type: GraphQLFloat
                 },
                 entries: {
                     name: "entries",
