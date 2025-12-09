@@ -87,6 +87,15 @@ input CardEntriesFilters {
   tournamentTID: String
 }
 
+input CommanderStaplesFilters {
+  maxDate: String
+  maxSize: Int
+  maxStanding: Int
+  minDate: String
+  minSize: Int
+  timePeriod: TimePeriod
+}
+
 input CommanderStatsFilters {
   colorId: String
   maxDate: String
@@ -157,7 +166,7 @@ type Commander implements Node {
   id: ID!
   name: String @semanticNonNull
   promo: FirstPartyPromo
-  staples: [Card!] @semanticNonNull
+  staples(filters: CommanderStaplesFilters): [Card!] @semanticNonNull
   stats(filters: CommanderStatsFilters!): CommanderCalculatedStats @semanticNonNull
 }
 

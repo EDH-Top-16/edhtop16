@@ -276,9 +276,21 @@ function CommanderStaples(props: {
 }) {
   const commander = useFragment(
     graphql`
-      fragment commanderPage_CommanderStaples on Commander @throwOnFieldError {
+      fragment commanderPage_CommanderStaples on Commander
+      @throwOnFieldError
+      @argumentDefinitions(
+        timePeriod: {type: "TimePeriod!"}
+        minEventSize: {type: "Int!"}
+        maxStanding: {type: "Int"}
+      ) {
         name
-        staples {
+        staples(
+          filters: {
+            timePeriod: $timePeriod
+            minSize: $minEventSize
+            maxStanding: $maxStanding
+          }
+        ) {
           id
           name
           type
@@ -859,6 +871,11 @@ export const CommanderPage: EntryPointComponent<
       ) @preloadable @throwOnFieldError {
         commander(name: $commander) {
           ...commanderPage_CommanderStaples
+            @arguments(
+              timePeriod: $timePeriod
+              minEventSize: $minEventSize
+              maxStanding: $maxStanding
+            )
             @include(if: $showStaples)
             @alias(as: "staples")
           ...commanderPage_entries
@@ -963,7 +980,7 @@ export const CommanderPageShell: EntryPointComponent<
 
       <TabList
         className="mx-auto max-w-(--breakpoint-md)"
-        border={tab === 'staples' || tab === 'card'}
+        border={false}
       >
         <Tab
           selected={tab === 'entries' || !tab}
@@ -1021,22 +1038,24 @@ export const CommanderPageShell: EntryPointComponent<
         )}
       </TabList>
 
-      {tab === 'entries' && (
-        <div className="mx-auto grid max-w-(--breakpoint-md) grid-cols-2 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
-          <Select
-            id="commander-sort-by"
-            label="Sort By"
-            value={sortBy}
-            onChange={(e) => {
-              replaceRoute('/commander/:commander', {
-                commander: commander.name,
-                sortBy: e,
-              });
-            }}
-          >
-            <option value="TOP">Top Performing</option>
-            <option value="NEW">Recent</option>
-          </Select>
+      {(tab === 'entries' || tab === 'staples') && (
+        <div className="mx-auto grid max-w-(--breakpoint-md) grid-cols-2 gap-4 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
+          {tab === 'entries' && (
+            <Select
+              id="commander-sort-by"
+              label="Sort By"
+              value={sortBy}
+              onChange={(e) => {
+                replaceRoute('/commander/:commander', {
+                  commander: commander.name,
+                  sortBy: e,
+                });
+              }}
+            >
+              <option value="TOP">Top Performing</option>
+              <option value="NEW">Recent</option>
+            </Select>
+          )}
 
           <Select
             id="commanders-time-period"
@@ -1075,13 +1094,13 @@ export const CommanderPageShell: EntryPointComponent<
           </Select>
 
           <Select
-            id="commander-event-size"
+            id="commander-standing"
             label="Standing"
-            value={`${maxStanding}`}
+            value={`${maxStanding ?? ''}`}
             onChange={(e) => {
               replaceRoute('/commander/:commander', {
                 commander: commander.name,
-                maxStanding: Number(e),
+                maxStanding: e ? Number(e) : undefined,
               });
             }}
           >
