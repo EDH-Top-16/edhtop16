@@ -656,15 +656,11 @@ export class Commander implements GraphQLNode {
           '%Land%',
         ),
       )
-      .orderBy(
-        (eb) =>
-          eb('entries.playRateLastYear', '-', eb.ref('Card.playRateLastYear')),
-        'desc',
-      )
+      .orderBy('entries.playRateLastYear', 'desc')
       .selectAll('Card')
       .select('entries.playRateLastYear as commanderPlayRate');
 
-    const rows = await query.limit(100).execute();
+    const rows = await query.execute();
     return rows.map(
       (r) =>
         new Card(r, {playRateOverride: r.commanderPlayRate as number | null}),

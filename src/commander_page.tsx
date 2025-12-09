@@ -156,17 +156,16 @@ function getStapleCardType(typeLine: string): StapleCardType {
 }
 
 // Play rate thresholds by card type. Since this is the commander page,
-// it's probably fine by showing everything and not truncating any cards.
-// Can change this in the future if data gets noisy
+// Hide cards with less than 1% play rate by default, with option to show more
 const STAPLE_PLAY_RATE_THRESHOLDS: Record<StapleCardType, number> = {
-  Creature: 0,
-  Instant: 0,
-  Sorcery: 0,
-  Artifact: 0,
-  Enchantment: 0,
-  Planeswalker: 0,
-  Battle: 0,
-  Land: 0,
+  Creature: 0.01,
+  Instant: 0.01,
+  Sorcery: 0.01,
+  Artifact: 0.01,
+  Enchantment: 0.01,
+  Planeswalker: 0.01,
+  Battle: 0.01,
+  Land: 0.01,
 };
 
 type StapleCardData = {
