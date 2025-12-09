@@ -623,6 +623,9 @@ export class Commander implements GraphQLNode {
     const rows = await query.limit(100).execute();
     return rows.map(
       (r) =>
+        // TODO(@ryan): probably want to check this casting to see if it's the right thing to do
+        // Assuming we need null bc it's a left join? I also have the card constructor
+        // accpet `null`, but convert that to `undefined`
         new Card(r, {playRateOverride: r.commanderPlayRate as number | null}),
     );
   }
