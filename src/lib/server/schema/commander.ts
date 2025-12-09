@@ -614,6 +614,11 @@ export class Commander implements GraphQLNode {
 
     const {totalEntries} = await entryCountQuery.executeTakeFirstOrThrow();
 
+    // No entries match the filters, return empty array
+    if (totalEntries === 0) {
+      return [];
+    }
+
     const query = db
       .with('entries', (eb) => {
         let cteQuery = eb
@@ -643,7 +648,7 @@ export class Commander implements GraphQLNode {
           ]);
       })
       .selectFrom('Card')
-      .leftJoin('entries', 'entries.cardId', 'Card.id')
+      .innerJoin('entries', 'entries.cardId', 'Card.id')
       .where((eb) =>
         eb(
           eb.fn('json_extract', ['Card.data', sql`'$.type_line'`]),

@@ -978,10 +978,7 @@ export const CommanderPageShell: EntryPointComponent<
       </CommanderBanner>
       {commander.promo && <FirstPartyPromo promo={commander.promo} />}
 
-      <TabList
-        className="mx-auto max-w-(--breakpoint-md)"
-        border={false}
-      >
+      <TabList className="mx-auto max-w-(--breakpoint-md)" border={false}>
         <Tab
           selected={tab === 'entries' || !tab}
           onClick={() => {
