@@ -48,11 +48,17 @@ export class Card implements GraphQLNode {
   /** @gqlField */
   readonly oracleId: string;
 
-  constructor(private readonly row: Selectable<DB['Card']>) {
+  private readonly playRateOverride?: number;
+
+  constructor(
+    private readonly row: Selectable<DB['Card']>,
+    opts?: {playRateOverride?: number | null},
+  ) {
     this.id = row.id;
     this.name = row.name;
     this.oracleId = row.oracleId;
     this.scryfallData = scryfallCardSchema.parse(JSON.parse(row.data));
+    this.playRateOverride = opts?.playRateOverride ?? undefined;
   }
 
   private readonly scryfallData: ScryfallCard;
@@ -126,7 +132,7 @@ export class Card implements GraphQLNode {
 
   /** @gqlField */
   playRateLastYear(): Float {
-    return this.row.playRateLastYear ?? 0;
+    return this.playRateOverride ?? this.row.playRateLastYear ?? 0;
   }
 
   /** @gqlField */
