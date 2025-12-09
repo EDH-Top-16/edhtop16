@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<15a5bce0a761d36f2898570cbbf3324c>>
+ * @generated SignedSource<<05ccfc62f6328f4081f7aabf8bb2a4b7>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -13,10 +13,8 @@ import { FragmentRefs } from "relay-runtime";
 export type commanderPage_CommanderStaples$data = {
   readonly name: string;
   readonly staples: ReadonlyArray<{
-    readonly cmc: number;
-    readonly colorId: string;
     readonly id: string;
-    readonly imageUrls: ReadonlyArray<string>;
+    readonly manaCost: string;
     readonly name: string;
     readonly playRateLastYear: number;
     readonly scryfallUrl: string;
@@ -73,21 +71,7 @@ return {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "cmc",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "colorId",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "imageUrls",
+          "name": "manaCost",
           "storageKey": null
         },
         {
@@ -113,6 +97,6 @@ return {
 };
 })();
 
-(node as any).hash = "f5dc075928763cdf8f849b6ee7637e6c";
+(node as any).hash = "dfc9e8d10e088d7f7f326092a36036fa";
 
 export default node;

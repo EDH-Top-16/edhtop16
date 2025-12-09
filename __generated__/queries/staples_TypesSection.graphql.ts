@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<eea91fca79cfe50dd72eb0059a50b6be>>
+ * @generated SignedSource<<57742273fd53d1e5cb4212b3d682b3af>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,28 +10,27 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type staples_StaplesCard$data = {
+export type staples_TypesSection$data = ReadonlyArray<{
   readonly id: string;
-  readonly imageUrls: ReadonlyArray<string>;
-  readonly manaCost: string;
   readonly name: string;
   readonly playRateLastYear: number;
-  readonly scryfallUrl: string;
   readonly type: string;
-  readonly " $fragmentType": "staples_StaplesCard";
-};
-export type staples_StaplesCard$key = {
-  readonly " $data"?: staples_StaplesCard$data;
   readonly " $fragmentSpreads": FragmentRefs<"staples_StaplesCard">;
-};
+  readonly " $fragmentType": "staples_TypesSection";
+}>;
+export type staples_TypesSection$key = ReadonlyArray<{
+  readonly " $data"?: staples_TypesSection$data;
+  readonly " $fragmentSpreads": FragmentRefs<"staples_TypesSection">;
+}>;
 
 const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": {
+    "plural": true,
     "throwOnFieldError": true
   },
-  "name": "staples_StaplesCard",
+  "name": "staples_TypesSection",
   "selections": [
     {
       "alias": null,
@@ -58,35 +57,19 @@ const node: ReaderFragment = {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
-      "name": "manaCost",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "imageUrls",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "scryfallUrl",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
       "name": "playRateLastYear",
       "storageKey": null
+    },
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "staples_StaplesCard"
     }
   ],
   "type": "Card",
   "abstractKey": null
 };
 
-(node as any).hash = "e746ba74b89976aafaf6b62e6b5d77f0";
+(node as any).hash = "e58bd7e142126d688f07fece4356968c";
 
 export default node;

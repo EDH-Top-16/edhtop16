@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<a44e1a4576ffd591c7a2c19fd0df0a82>>
- * @relayHash 6315a8e5b7a126d8949c70ed04325ea6
+ * @generated SignedSource<<7007b75f115696ce8049bc38e15ec907>>
+ * @relayHash 12cdfb75823d9707a8bed4dc49480d65
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 6315a8e5b7a126d8949c70ed04325ea6
+// @relayRequestID 12cdfb75823d9707a8bed4dc49480d65
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -122,41 +122,20 @@ v13 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "cmc",
-  "storageKey": null
-},
-v14 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "colorId",
-  "storageKey": null
-},
-v15 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "imageUrls",
-  "storageKey": null
-},
-v16 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
   "name": "scryfallUrl",
   "storageKey": null
 },
-v17 = {
+v14 = {
   "kind": "Literal",
   "name": "first",
   "value": 48
 },
-v18 = {
+v15 = {
   "kind": "Variable",
   "name": "sortBy",
   "variableName": "sortBy"
 },
-v19 = [
+v16 = [
   {
     "fields": [
       {
@@ -178,10 +157,10 @@ v19 = [
     "kind": "ObjectValue",
     "name": "filters"
   },
-  (v17/*: any*/),
-  (v18/*: any*/)
+  (v14/*: any*/),
+  (v15/*: any*/)
 ],
-v20 = [
+v17 = [
   {
     "alias": null,
     "args": null,
@@ -334,12 +313,12 @@ v20 = [
     "storageKey": null
   }
 ],
-v21 = {
+v18 = {
   "kind": "Variable",
   "name": "cardName",
   "variableName": "cardName"
 },
-v22 = [
+v19 = [
   {
     "alias": null,
     "args": null,
@@ -362,10 +341,10 @@ v22 = [
     "storageKey": null
   }
 ],
-v23 = [
-  (v21/*: any*/),
-  (v17/*: any*/),
-  (v18/*: any*/)
+v20 = [
+  (v18/*: any*/),
+  (v14/*: any*/),
+  (v15/*: any*/)
 ];
 return {
   "fragment": {
@@ -512,10 +491,14 @@ return {
                   (v10/*: any*/),
                   (v11/*: any*/),
                   (v12/*: any*/),
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "manaCost",
+                    "storageKey": null
+                  },
                   (v13/*: any*/),
-                  (v14/*: any*/),
-                  (v15/*: any*/),
-                  (v16/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -535,17 +518,17 @@ return {
             "selections": [
               {
                 "alias": null,
-                "args": (v19/*: any*/),
+                "args": (v16/*: any*/),
                 "concreteType": "EntryConnection",
                 "kind": "LinkedField",
                 "name": "entries",
                 "plural": false,
-                "selections": (v20/*: any*/),
+                "selections": (v17/*: any*/),
                 "storageKey": null
               },
               {
                 "alias": null,
-                "args": (v19/*: any*/),
+                "args": (v16/*: any*/),
                 "filters": [
                   "sortBy",
                   "filters"
@@ -566,7 +549,7 @@ return {
               {
                 "alias": null,
                 "args": [
-                  (v21/*: any*/)
+                  (v18/*: any*/)
                 ],
                 "concreteType": "Card",
                 "kind": "LinkedField",
@@ -575,10 +558,28 @@ return {
                 "selections": [
                   (v11/*: any*/),
                   (v12/*: any*/),
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "cmc",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "colorId",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "imageUrls",
+                    "storageKey": null
+                  },
                   (v13/*: any*/),
-                  (v14/*: any*/),
-                  (v15/*: any*/),
-                  (v16/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -593,7 +594,7 @@ return {
               {
                 "alias": null,
                 "args": [
-                  (v21/*: any*/),
+                  (v18/*: any*/),
                   {
                     "kind": "Literal",
                     "name": "timePeriod",
@@ -612,7 +613,7 @@ return {
                     "kind": "LinkedField",
                     "name": "withCard",
                     "plural": false,
-                    "selections": (v22/*: any*/),
+                    "selections": (v19/*: any*/),
                     "storageKey": null
                   },
                   {
@@ -622,7 +623,7 @@ return {
                     "kind": "LinkedField",
                     "name": "withoutCard",
                     "plural": false,
-                    "selections": (v22/*: any*/),
+                    "selections": (v19/*: any*/),
                     "storageKey": null
                   }
                 ],
@@ -630,17 +631,17 @@ return {
               },
               {
                 "alias": null,
-                "args": (v23/*: any*/),
+                "args": (v20/*: any*/),
                 "concreteType": "EntryConnection",
                 "kind": "LinkedField",
                 "name": "cardEntries",
                 "plural": false,
-                "selections": (v20/*: any*/),
+                "selections": (v17/*: any*/),
                 "storageKey": null
               },
               {
                 "alias": null,
-                "args": (v23/*: any*/),
+                "args": (v20/*: any*/),
                 "filters": [
                   "cardName",
                   "sortBy"
@@ -658,7 +659,7 @@ return {
     ]
   },
   "params": {
-    "id": "6315a8e5b7a126d8949c70ed04325ea6",
+    "id": "12cdfb75823d9707a8bed4dc49480d65",
     "metadata": {},
     "name": "commanderPage_CommanderQuery",
     "operationKind": "query",
