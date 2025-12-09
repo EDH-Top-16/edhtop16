@@ -1,5 +1,6 @@
 import {staples_StaplesCard$key} from '#genfiles/queries/staples_StaplesCard.graphql.js';
 import {staples_StaplesQuery} from '#genfiles/queries/staples_StaplesQuery.graphql';
+import {staples_TypesSection$key} from '#genfiles/queries/staples_TypesSection.graphql.js';
 import {ModuleType} from '#genfiles/router/js_resource.js';
 import {useNavigation, useRouteParams} from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback';
@@ -102,11 +103,26 @@ const PLAY_RATE_THRESHOLDS: Record<CardType, number> = {
 
 function TypeSection({
   type,
-  cards,
+  ...props
 }: {
   type: CardType;
-  cards: readonly CardData[];
+  cards: staples_TypesSection$key;
 }) {
+  const cards = useFragment(
+    graphql`
+      fragment staples_TypesSection on Card
+      @relay(plural: true)
+      @throwOnFieldError {
+        id
+        name
+        type
+        playRateLastYear
+        ...staples_StaplesCard
+      }
+    `,
+    props.cards,
+  );
+
   const [showAll, setShowAll] = useState(false);
   const threshold = PLAY_RATE_THRESHOLDS[type];
 
@@ -244,7 +260,7 @@ export const StaplesPage: EntryPointComponent<
           name
           type
           playRateLastYear
-          ...staples_StaplesCard
+          ...staples_TypesSection
         }
       }
     `,
@@ -252,7 +268,7 @@ export const StaplesPage: EntryPointComponent<
   );
 
   const groupedCards = useMemo(() => {
-    const groups: Record<CardType, CardData[]> = {
+    const groups: Record<CardType, (typeof data)['staples']> = {
       Creature: [],
       Instant: [],
       Sorcery: [],
@@ -266,7 +282,7 @@ export const StaplesPage: EntryPointComponent<
     for (const card of data.staples ?? []) {
       if (!card.type || !card.name) continue;
       const cardType = getCardType(card.type);
-      groups[cardType].push(card as CardData);
+      groups[cardType] = [...(groups[cardType] ?? []), card];
     }
 
     return groups;
@@ -291,7 +307,11 @@ export const StaplesPage: EntryPointComponent<
         {/* Mobile: single column with all types */}
         <div className="md:hidden">
           {TYPE_ORDER.map((type) => (
-            <TypeSection key={type} type={type} cards={groupedCards[type]} />
+            <TypeSection
+              key={type}
+              type={type}
+              cards={groupedCards[type] ?? []}
+            />
           ))}
         </div>
 
@@ -299,17 +319,29 @@ export const StaplesPage: EntryPointComponent<
         <div className="hidden md:grid md:grid-cols-3 md:gap-6">
           <div>
             {column1Types.map((type) => (
-              <TypeSection key={type} type={type} cards={groupedCards[type]} />
+              <TypeSection
+                key={type}
+                type={type}
+                cards={groupedCards[type] ?? []}
+              />
             ))}
           </div>
           <div>
             {column2Types.map((type) => (
-              <TypeSection key={type} type={type} cards={groupedCards[type]} />
+              <TypeSection
+                key={type}
+                type={type}
+                cards={groupedCards[type] ?? []}
+              />
             ))}
           </div>
           <div>
             {column3Types.map((type) => (
-              <TypeSection key={type} type={type} cards={groupedCards[type]} />
+              <TypeSection
+                key={type}
+                type={type}
+                cards={groupedCards[type] ?? []}
+              />
             ))}
           </div>
         </div>

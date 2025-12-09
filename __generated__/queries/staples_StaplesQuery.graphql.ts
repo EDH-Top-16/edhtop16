@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<99399a4fd302c26f94844a8210240088>>
- * @relayHash 58d9035c638f45efb812ed245f158584
+ * @generated SignedSource<<3a1b07285163304e5dbbcf7beada7f84>>
+ * @relayHash 35cddb21023f8bf05945c5cff41167cf
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 58d9035c638f45efb812ed245f158584
+// @relayRequestID 35cddb21023f8bf05945c5cff41167cf
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -23,7 +23,7 @@ export type staples_StaplesQuery$data = {
     readonly name: string | null | undefined;
     readonly playRateLastYear: number | null | undefined;
     readonly type: string | null | undefined;
-    readonly " $fragmentSpreads": FragmentRefs<"staples_StaplesCard">;
+    readonly " $fragmentSpreads": FragmentRefs<"staples_TypesSection">;
   }> | null | undefined;
 };
 export type staples_StaplesQuery = {
@@ -106,7 +106,7 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "staples_StaplesCard"
+            "name": "staples_TypesSection"
           }
         ],
         "storageKey": null
@@ -160,7 +160,7 @@ return {
     ]
   },
   "params": {
-    "id": "58d9035c638f45efb812ed245f158584",
+    "id": "35cddb21023f8bf05945c5cff41167cf",
     "metadata": {},
     "name": "staples_StaplesQuery",
     "operationKind": "query",
@@ -169,7 +169,7 @@ return {
 };
 })();
 
-(node as any).hash = "50aec95010e35ee685f7f101da4ce9ec";
+(node as any).hash = "67a897553edaa0109fc8c8d89b8e5808";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

@@ -1,4 +1,5 @@
 import type {ImgHTMLAttributes} from 'react';
+import {cn} from '#src/lib/utils.js';
 
 import blackIconUrl from './black.svg';
 import blueIconUrl from './blue.svg';
@@ -6,7 +7,6 @@ import colorlessIconUrl from './colorless.svg';
 import greenIconUrl from './green.svg';
 import redIconUrl from './red.svg';
 import whiteIconUrl from './white.svg';
-import {cn} from '#src/lib/utils.js';
 
 // Import all mana symbol SVGs
 import mana0 from './0.svg';
@@ -213,10 +213,7 @@ export function ColorIdentity({
   className,
 }: {
   identity: string;
-  width?: number;
-  height?: number;
-  className?: string;
-}) {
+} & Pick<ColorIconProps, 'width' | 'height' | 'className'>) {
   return (
     <span className={cn('flex space-x-1', className)}>
       {identity.split('').map((char, index) => (

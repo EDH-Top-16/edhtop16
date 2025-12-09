@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<a4f953d9f72086065f83b5d3833f3d0f>>
- * @relayHash 58d9035c638f45efb812ed245f158584
+ * @generated SignedSource<<1440e24f4be584233df19a196297e6b3>>
+ * @relayHash 35cddb21023f8bf05945c5cff41167cf
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 58d9035c638f45efb812ed245f158584
+// @relayRequestID 35cddb21023f8bf05945c5cff41167cf
 
 import { PreloadableConcreteRequest } from 'relay-runtime';
 import { staples_StaplesQuery } from './staples_StaplesQuery.graphql';
@@ -17,7 +17,7 @@ import { staples_StaplesQuery } from './staples_StaplesQuery.graphql';
 const node: PreloadableConcreteRequest<staples_StaplesQuery> = {
   "kind": "PreloadableConcreteRequest",
   "params": {
-    "id": "58d9035c638f45efb812ed245f158584",
+    "id": "35cddb21023f8bf05945c5cff41167cf",
     "metadata": {},
     "name": "staples_StaplesQuery",
     "operationKind": "query",
