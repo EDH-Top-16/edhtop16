@@ -1,5 +1,5 @@
 import {Edhtop16Fallback} from '#src/components/fallback';
-import {PropsWithChildren, Suspense} from 'react';
+import {PropsWithChildren, Suspense, useEffect} from 'react';
 
 import './globals.css';
 
@@ -12,6 +12,15 @@ declare global {
 
 /** @appRoot */
 export function App({children}: PropsWithChildren<{}>) {
+  useEffect(() => {
+    window.dataLayer = window.dataLayer || [];
+    function gtag(...args: any): void {
+      window.dataLayer.push(args);
+    }
+    gtag('js', new Date());
+    gtag('config', 'G-51DLXH804W');
+  }, []);
+
   return (
     <>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -24,18 +33,6 @@ export function App({children}: PropsWithChildren<{}>) {
       <script
         async
         src="https://www.googletagmanager.com/gtag/js?id=G-51DLXH804W"
-        onLoad={() => {
-          window.dataLayer = window.dataLayer || [];
-
-          function gtag(...args: any): void;
-          function gtag() {
-            // eslint-disable-next-line prefer-rest-params
-            window.dataLayer.push(arguments);
-          }
-
-          gtag('js', new Date());
-          gtag('config', 'G-51DLXH804W');
-        }}
       />
 
       <Suspense fallback={<Edhtop16Fallback />}>
