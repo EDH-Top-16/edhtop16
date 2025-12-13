@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<7007b75f115696ce8049bc38e15ec907>>
- * @relayHash 12cdfb75823d9707a8bed4dc49480d65
+ * @generated SignedSource<<10595f75df902624401fef9bde06dc39>>
+ * @relayHash d1458635a3f372b11bf94a28be4ecb49
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 12cdfb75823d9707a8bed4dc49480d65
+// @relayRequestID d1458635a3f372b11bf94a28be4ecb49
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -98,69 +98,72 @@ v9 = [
   }
 ],
 v10 = {
+  "kind": "Variable",
+  "name": "maxStanding",
+  "variableName": "maxStanding"
+},
+v11 = {
+  "kind": "Variable",
+  "name": "timePeriod",
+  "variableName": "timePeriod"
+},
+v12 = [
+  (v10/*: any*/),
+  {
+    "kind": "Variable",
+    "name": "minEventSize",
+    "variableName": "minEventSize"
+  },
+  (v11/*: any*/)
+],
+v13 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
 },
-v11 = {
+v14 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "name",
   "storageKey": null
 },
-v12 = {
+v15 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "type",
   "storageKey": null
 },
-v13 = {
+v16 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "scryfallUrl",
   "storageKey": null
 },
-v14 = {
+v17 = {
   "kind": "Literal",
   "name": "first",
   "value": 48
 },
-v15 = {
+v18 = {
   "kind": "Variable",
   "name": "sortBy",
   "variableName": "sortBy"
 },
-v16 = [
+v19 = [
   {
-    "fields": [
-      {
-        "kind": "Variable",
-        "name": "maxStanding",
-        "variableName": "maxStanding"
-      },
-      {
-        "kind": "Variable",
-        "name": "minEventSize",
-        "variableName": "minEventSize"
-      },
-      {
-        "kind": "Variable",
-        "name": "timePeriod",
-        "variableName": "timePeriod"
-      }
-    ],
+    "fields": (v12/*: any*/),
     "kind": "ObjectValue",
     "name": "filters"
   },
-  (v14/*: any*/),
-  (v15/*: any*/)
+  (v17/*: any*/),
+  (v18/*: any*/)
 ],
-v17 = [
+v20 = [
   {
     "alias": null,
     "args": null,
@@ -177,7 +180,7 @@ v17 = [
         "name": "node",
         "plural": false,
         "selections": [
-          (v10/*: any*/),
+          (v13/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -221,7 +224,7 @@ v17 = [
             "name": "player",
             "plural": false,
             "selections": [
-              (v11/*: any*/),
+              (v14/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -229,7 +232,7 @@ v17 = [
                 "name": "isKnownCheater",
                 "storageKey": null
               },
-              (v10/*: any*/)
+              (v13/*: any*/)
             ],
             "storageKey": null
           },
@@ -241,7 +244,7 @@ v17 = [
             "name": "tournament",
             "plural": false,
             "selections": [
-              (v11/*: any*/),
+              (v14/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -263,7 +266,7 @@ v17 = [
                 "name": "TID",
                 "storageKey": null
               },
-              (v10/*: any*/)
+              (v13/*: any*/)
             ],
             "storageKey": null
           },
@@ -313,12 +316,12 @@ v17 = [
     "storageKey": null
   }
 ],
-v18 = {
+v21 = {
   "kind": "Variable",
   "name": "cardName",
   "variableName": "cardName"
 },
-v19 = [
+v22 = [
   {
     "alias": null,
     "args": null,
@@ -341,10 +344,10 @@ v19 = [
     "storageKey": null
   }
 ],
-v20 = [
-  (v18/*: any*/),
-  (v14/*: any*/),
-  (v15/*: any*/)
+v23 = [
+  (v21/*: any*/),
+  (v17/*: any*/),
+  (v18/*: any*/)
 ];
 return {
   "fragment": {
@@ -383,7 +386,7 @@ return {
                   "kind": "InlineFragment",
                   "selections": [
                     {
-                      "args": null,
+                      "args": (v12/*: any*/),
                       "kind": "FragmentSpread",
                       "name": "commanderPage_CommanderStaples"
                     }
@@ -473,24 +476,38 @@ return {
         "name": "commander",
         "plural": false,
         "selections": [
-          (v10/*: any*/),
+          (v13/*: any*/),
           {
             "condition": "showStaples",
             "kind": "Condition",
             "passingValue": true,
             "selections": [
-              (v11/*: any*/),
+              (v14/*: any*/),
               {
                 "alias": null,
-                "args": null,
+                "args": [
+                  {
+                    "fields": [
+                      (v10/*: any*/),
+                      {
+                        "kind": "Variable",
+                        "name": "minSize",
+                        "variableName": "minEventSize"
+                      },
+                      (v11/*: any*/)
+                    ],
+                    "kind": "ObjectValue",
+                    "name": "filters"
+                  }
+                ],
                 "concreteType": "Card",
                 "kind": "LinkedField",
                 "name": "staples",
                 "plural": true,
                 "selections": [
-                  (v10/*: any*/),
-                  (v11/*: any*/),
-                  (v12/*: any*/),
+                  (v13/*: any*/),
+                  (v14/*: any*/),
+                  (v15/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -498,7 +515,7 @@ return {
                     "name": "manaCost",
                     "storageKey": null
                   },
-                  (v13/*: any*/),
+                  (v16/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -518,17 +535,17 @@ return {
             "selections": [
               {
                 "alias": null,
-                "args": (v16/*: any*/),
+                "args": (v19/*: any*/),
                 "concreteType": "EntryConnection",
                 "kind": "LinkedField",
                 "name": "entries",
                 "plural": false,
-                "selections": (v17/*: any*/),
+                "selections": (v20/*: any*/),
                 "storageKey": null
               },
               {
                 "alias": null,
-                "args": (v16/*: any*/),
+                "args": (v19/*: any*/),
                 "filters": [
                   "sortBy",
                   "filters"
@@ -545,19 +562,19 @@ return {
             "kind": "Condition",
             "passingValue": true,
             "selections": [
-              (v11/*: any*/),
+              (v14/*: any*/),
               {
                 "alias": null,
                 "args": [
-                  (v18/*: any*/)
+                  (v21/*: any*/)
                 ],
                 "concreteType": "Card",
                 "kind": "LinkedField",
                 "name": "cardDetail",
                 "plural": false,
                 "selections": [
-                  (v11/*: any*/),
-                  (v12/*: any*/),
+                  (v14/*: any*/),
+                  (v15/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -579,7 +596,7 @@ return {
                     "name": "imageUrls",
                     "storageKey": null
                   },
-                  (v13/*: any*/),
+                  (v16/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -587,14 +604,14 @@ return {
                     "name": "cardPreviewImageUrl",
                     "storageKey": null
                   },
-                  (v10/*: any*/)
+                  (v13/*: any*/)
                 ],
                 "storageKey": null
               },
               {
                 "alias": null,
                 "args": [
-                  (v18/*: any*/),
+                  (v21/*: any*/),
                   {
                     "kind": "Literal",
                     "name": "timePeriod",
@@ -613,7 +630,7 @@ return {
                     "kind": "LinkedField",
                     "name": "withCard",
                     "plural": false,
-                    "selections": (v19/*: any*/),
+                    "selections": (v22/*: any*/),
                     "storageKey": null
                   },
                   {
@@ -623,7 +640,7 @@ return {
                     "kind": "LinkedField",
                     "name": "withoutCard",
                     "plural": false,
-                    "selections": (v19/*: any*/),
+                    "selections": (v22/*: any*/),
                     "storageKey": null
                   }
                 ],
@@ -631,17 +648,17 @@ return {
               },
               {
                 "alias": null,
-                "args": (v20/*: any*/),
+                "args": (v23/*: any*/),
                 "concreteType": "EntryConnection",
                 "kind": "LinkedField",
                 "name": "cardEntries",
                 "plural": false,
-                "selections": (v17/*: any*/),
+                "selections": (v20/*: any*/),
                 "storageKey": null
               },
               {
                 "alias": null,
-                "args": (v20/*: any*/),
+                "args": (v23/*: any*/),
                 "filters": [
                   "cardName",
                   "sortBy"
@@ -659,7 +676,7 @@ return {
     ]
   },
   "params": {
-    "id": "12cdfb75823d9707a8bed4dc49480d65",
+    "id": "d1458635a3f372b11bf94a28be4ecb49",
     "metadata": {},
     "name": "commanderPage_CommanderQuery",
     "operationKind": "query",
@@ -668,7 +685,7 @@ return {
 };
 })();
 
-(node as any).hash = "b6c2dae8d6e30eea668eb9bfe82df6b3";
+(node as any).hash = "00e2db453ffe3f15def0f71e3c749184";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

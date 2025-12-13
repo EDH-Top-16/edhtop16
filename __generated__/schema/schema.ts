@@ -166,6 +166,37 @@ export function getSchema(): GraphQLSchema {
             };
         }
     });
+    const CommanderStaplesFiltersType: GraphQLInputObjectType = new GraphQLInputObjectType({
+        name: "CommanderStaplesFilters",
+        fields() {
+            return {
+                maxDate: {
+                    name: "maxDate",
+                    type: GraphQLString
+                },
+                maxSize: {
+                    name: "maxSize",
+                    type: GraphQLInt
+                },
+                maxStanding: {
+                    name: "maxStanding",
+                    type: GraphQLInt
+                },
+                minDate: {
+                    name: "minDate",
+                    type: GraphQLString
+                },
+                minSize: {
+                    name: "minSize",
+                    type: GraphQLInt
+                },
+                timePeriod: {
+                    name: "timePeriod",
+                    type: TimePeriodType
+                }
+            };
+        }
+    });
     const CommanderCalculatedStatsType: GraphQLObjectType = new GraphQLObjectType({
         name: "CommanderCalculatedStats",
         fields() {
@@ -363,8 +394,13 @@ export function getSchema(): GraphQLSchema {
                 staples: {
                     name: "staples",
                     type: new GraphQLList(new GraphQLNonNull(CardType)),
-                    resolve(source, args, context, info) {
-                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    args: {
+                        filters: {
+                            type: CommanderStaplesFiltersType
+                        }
+                    },
+                    resolve(source, args) {
+                        return assertNonNull(source.staples(args.filters));
                     }
                 },
                 stats: {
@@ -1343,6 +1379,6 @@ export function getSchema(): GraphQLSchema {
                 }
             })],
         query: QueryType,
-        types: [CommandersSortByType, EntriesSortByType, EntrySortByType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CommanderStatsFiltersType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, PageInfoType, PlayerType, QueryType, SearchResultType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType]
+        types: [CommandersSortByType, EntriesSortByType, EntrySortByType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CommanderStaplesFiltersType, CommanderStatsFiltersType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, PageInfoType, PlayerType, QueryType, SearchResultType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType]
     });
 }
