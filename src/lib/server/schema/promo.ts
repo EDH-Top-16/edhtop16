@@ -22,6 +22,20 @@ export interface FirstPartyPromo {
 
 const promos: FirstPartyPromo[] = [
   {
+    activeFrom: new Date('2025-12-16'),
+    activeUntil: new Date('2026-01-24'),
+    title: 'WELCOME TO BREACH THE BAY!',
+    description: [
+      "The Bay Area's largest cEDH tournament, sponsored by Doot Loot, Merlion Games, and EDHTop16",
+    ],
+    buttonText: 'Register Now',
+    backgroundImageUrl: '/promos/251217/breach_the_bay_background.png',
+    imageUrl: '/promos/251217/breach_the_bay_icon.png',
+    href: 'https://topdeck.gg/event/breach-the-bay-cedh-10k',
+    tid: '*',
+    commander: '*',
+  },
+  {
     activeFrom: new Date('2025-10-23'),
     activeUntil: new Date('2025-11-01'),
     title: 'The 2025 cEDH Community Survey is live!',
@@ -191,5 +205,10 @@ export function getActivePromotions(opts: {commander?: string; tid?: string}) {
 
 /** @gqlQueryField */
 export function homePagePromo(): FirstPartyPromo | null {
-  return getActivePromotions({}).at(0) ?? null;
+  return getActivePromotions({commander: '*'}).at(0) ?? null;
+}
+
+/** @gqlQueryField */
+export function tournamentPagePromo(): FirstPartyPromo | null {
+  return getActivePromotions({tid: '*'}).at(0) ?? null;
 }
