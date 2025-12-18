@@ -129,16 +129,18 @@ export const TournamentsPageShell: EntryPointComponent<
 
             <Select
               id="tournaments-players"
-              label="Players"
+              label="Tournament Size"
               value={`${minSize}`}
               onChange={(value) => {
                 replaceRoute('/tournaments', {minSize: Number(value)});
               }}
             >
               <option value="0">All Tournaments</option>
-              <option value="32">32+ Players</option>
-              <option value="60">60+ Players</option>
+              <option value="16">16+ Players</option>
+              <option value="30">30+ Players</option>
+              <option value="50">50+ Players</option>
               <option value="100">100+ Players</option>
+              <option value="250">250+ Players</option>
             </Select>
 
             <Select
