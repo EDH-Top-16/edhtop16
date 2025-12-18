@@ -15,6 +15,7 @@ export function App({children}: PropsWithChildren<{}>) {
   useEffect(() => {
     window.dataLayer = window.dataLayer || [];
     window.gtag = function (...args: any): void {
+      // eslint-disable-next-line prefer-rest-params -- Google Analytics requires the arguments object
       window.dataLayer.push(arguments);
     };
     window.gtag('js', new Date());
