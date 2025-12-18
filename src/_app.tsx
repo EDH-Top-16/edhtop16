@@ -14,11 +14,11 @@ declare global {
 export function App({children}: PropsWithChildren<{}>) {
   useEffect(() => {
     window.dataLayer = window.dataLayer || [];
-    function gtag(...args: any): void {
-      window.dataLayer.push(args);
-    }
-    gtag('js', new Date());
-    gtag('config', 'G-51DLXH804W');
+    window.gtag = function (...args: any): void {
+      window.dataLayer.push(arguments);
+    };
+    window.gtag('js', new Date());
+    window.gtag('config', 'G-51DLXH804W');
   }, []);
 
   return (
