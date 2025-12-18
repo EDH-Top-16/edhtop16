@@ -2,7 +2,17 @@ import {promo_EmbededPromo$key} from '#genfiles/queries/promo_EmbededPromo.graph
 import {graphql, useFragment} from 'react-relay/hooks';
 import cn from 'classnames';
 
-export function FirstPartyPromo(props: {promo: promo_EmbededPromo$key}) {
+export function FirstPartyPromo({
+  hasMargin = true,
+  showImage = true,
+  fullWidth = false,
+  ...props
+}: {
+  hasMargin?: boolean;
+  showImage?: boolean;
+  fullWidth?: boolean;
+  promo: promo_EmbededPromo$key;
+}) {
   const promo = useFragment(
     graphql`
       fragment promo_EmbededPromo on FirstPartyPromo @throwOnFieldError {
@@ -18,7 +28,13 @@ export function FirstPartyPromo(props: {promo: promo_EmbededPromo$key}) {
   );
 
   return (
-    <div className="relative mx-auto my-4 w-full max-w-(--breakpoint-lg) overflow-hidden rounded-none bg-cover bg-center md:w-4/5 md:rounded-md lg:w-3/4">
+    <div
+      className={cn(
+        hasMargin && 'my-4',
+        fullWidth ? 'w-full' : 'w-full md:w-4/5 md:rounded-md lg:w-3/4',
+        'relative mx-auto max-w-(--breakpoint-lg) overflow-hidden rounded-none bg-cover bg-center',
+      )}
+    >
       <div className="absolute top-0 left-0 flex h-full w-full brightness-40">
         <img
           alt="promo"
@@ -62,7 +78,7 @@ export function FirstPartyPromo(props: {promo: promo_EmbededPromo$key}) {
             </div>
           </div>
 
-          {promo.imageUrl && (
+          {promo.imageUrl && showImage && (
             <div
               className="h-min-content flex-1 -rotate-12 bg-contain bg-center bg-no-repeat transition group-hover:scale-110 group-hover:rotate-6"
               style={{

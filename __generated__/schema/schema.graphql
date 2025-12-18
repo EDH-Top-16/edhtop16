@@ -258,6 +258,7 @@ type Query {
   searchResults(types: [SearchResultType!]!): [SearchResult!] @semanticNonNull
   staples(colorId: String, type: String): [Card!] @semanticNonNull
   tournament(TID: String!): Tournament @semanticNonNull
+  tournamentPagePromo: FirstPartyPromo
   tournaments(after: String, filters: TournamentFilters, first: Int! = 20, sortBy: TournamentSortBy! = DATE): TournamentConnection @semanticNonNull
 }
 

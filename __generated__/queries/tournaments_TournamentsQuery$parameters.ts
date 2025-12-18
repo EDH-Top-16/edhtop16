@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<89d73e30ec54e18f4fe67ff82b944fbf>>
- * @relayHash ef3bdae62f01977952054607a3801b92
+ * @generated SignedSource<<df94bc994e85d26413643c165cbbebe2>>
+ * @relayHash 32aadc8136065f85d656e193812d46fb
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID ef3bdae62f01977952054607a3801b92
+// @relayRequestID 32aadc8136065f85d656e193812d46fb
 
 import { PreloadableConcreteRequest } from 'relay-runtime';
 import { tournaments_TournamentsQuery } from './tournaments_TournamentsQuery.graphql';
@@ -17,7 +17,7 @@ import { tournaments_TournamentsQuery } from './tournaments_TournamentsQuery.gra
 const node: PreloadableConcreteRequest<tournaments_TournamentsQuery> = {
   "kind": "PreloadableConcreteRequest",
   "params": {
-    "id": "ef3bdae62f01977952054607a3801b92",
+    "id": "32aadc8136065f85d656e193812d46fb",
     "metadata": {},
     "name": "tournaments_TournamentsQuery",
     "operationKind": "query",
