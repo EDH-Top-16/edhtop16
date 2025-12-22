@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b7c57c372448f1b49862e2d75bed01ea>>
+ * @generated SignedSource<<8558d396ae1b8a8348e2a591bb0085ca>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -24,6 +24,7 @@ export type tournamentView_EntryCard$data = {
   readonly player: {
     readonly isKnownCheater: boolean;
     readonly name: string;
+    readonly offersCoaching: boolean;
   };
   readonly standing: number;
   readonly wins: number;
@@ -100,6 +101,13 @@ return {
           "kind": "ScalarField",
           "name": "isKnownCheater",
           "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "offersCoaching",
+          "storageKey": null
         }
       ],
       "storageKey": null
@@ -147,6 +155,6 @@ return {
 };
 })();
 
-(node as any).hash = "3af0b4e824c08d063a626445887ad228";
+(node as any).hash = "1928a87a96ba5b84397fc7a71ff3d2e0";
 
 export default node;
