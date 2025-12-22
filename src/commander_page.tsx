@@ -14,7 +14,7 @@ import {commanderPage_EntryCard$key} from '#genfiles/queries/commanderPage_Entry
 import {commanderPage_LazyCardEntriesQuery} from '#genfiles/queries/commanderPage_LazyCardEntriesQuery.graphql';
 import {CommanderEntriesQuery} from '#genfiles/queries/CommanderEntriesQuery.graphql';
 import {ModuleType} from '#genfiles/router/js_resource.js';
-import {Link, useNavigation} from '#genfiles/router/router';
+import {Link, RouteLink, useNavigation} from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback.jsx';
 import cn from 'classnames';
 import {format} from 'date-fns';
@@ -39,7 +39,7 @@ import {Select} from './components/select';
 import {Tab, TabList} from './components/tabs';
 import {formatOrdinals, formatPercent} from './lib/client/format';
 import {ServerSafeSuspense} from './lib/client/suspense';
-import { ArrowRight, Calendar, Trophy, Users, UsersRound } from 'lucide-react';
+import {ArrowRight, Calendar, Trophy, Users, UsersRound} from 'lucide-react';
 
 function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
   const entry = useFragment(
@@ -55,6 +55,7 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
           name
           isKnownCheater
           offersCoaching
+          topdeckProfile
         }
 
         tournament {
@@ -78,36 +79,41 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
   }
 
   const entryNameNode = (
-    <span className="relative flex flex-col gap-1 items-baseline">
-      {entryName} 
-      <>
-        {entry.player?.isKnownCheater && (
-          <span className="mt-0.5 rounded-full bg-red-600 px-2 py-1 text-xs uppercase mb-1">
-            Cheater
-          </span>
-        )}
-        {!entry.player?.isKnownCheater && entry.player?.offersCoaching && (
-          // TODO(@ryan): Hook this up to the coach profile page, conver to <Link>
-          <a className="mt-0.5 flex gap-1 rounded-full bg-blue-500 px-2 py-1 text-xs uppercase cursor-pointer group mb-1">
+    <span className="relative flex flex-col items-baseline gap-1">
+      {entryName}
+
+      {entry.player?.isKnownCheater && (
+        <span className="mt-0.5 mb-1 rounded-full bg-red-600 px-2 py-1 text-xs uppercase">
+          Cheater
+        </span>
+      )}
+
+      {!entry.player?.isKnownCheater &&
+        entry.player?.offersCoaching &&
+        entry.player.topdeckProfile && (
+          <RouteLink
+            className="group mt-0.5 mb-1 flex cursor-pointer gap-1 rounded-full bg-blue-500 px-2 py-1 text-xs uppercase"
+            route="/coaching/:profile"
+            params={{profile: entry.player.topdeckProfile}}
+          >
             Offers coaching
-            <ArrowRight className="w-4 h-4 hidden group-hover:block "/>
-          </a>
+            <ArrowRight className="hidden h-4 w-4 group-hover:block" />
+          </RouteLink>
         )}
-      </>
     </span>
   );
 
   return (
-    <Card hoverEffect={false} className="">
-      <div className="flex flex-col h-full justify-between gap-1"> 
+    <Card hoverEffect={false}>
+      <div className="flex h-full flex-col justify-between gap-1">
         <>
-          <div className="flex gap-0.5 justify-between items-center">
+          <div className="flex items-center justify-between gap-0.5">
             <span className="text-xl font-semibold">{entryNameNode}</span>
             {entry.decklist && (
               <a
                 href={entry.decklist}
                 target="_blank"
-                className="font-medium h-fit text-sm transition-colors flex flex-shrink-0 gap-1 items-center px-2 py-1 border border-white/40 rounded hover:bg-white/20"
+                className="flex h-fit flex-shrink-0 items-center gap-1 rounded border border-white/40 px-2 py-1 text-sm font-medium transition-colors hover:bg-white/20"
               >
                 <img
                   src={'https://topdeck.gg/img/logo/TopDeckNoBorder.png'}
@@ -118,55 +124,63 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
               </a>
             )}
           </div>
-          
+
           <div className="space-x-1">
-            {entry.player?.isKnownCheater && (
-              <span className="w-fit rounded-sm bg-red-600 px-1 py-0.5 text-xs border border-white/30 font-semibold">
+            {/*{entry.player?.isKnownCheater && (
+              <span className="w-fit rounded-sm border border-white/30 bg-red-600 px-1 py-0.5 text-xs font-semibold">
                 Cheater
               </span>
-            )}
+            )}*/}
             {/* TODO(@ryan): conditional here for team */}
-            <span className="w-fit rounded-sm bg-[#9593C8] px-1 py-0.5 text-xs border border-white/30 font-semibold">
+            {/*<span className="w-fit rounded-sm border border-white/30 bg-[#9593C8] px-1 py-0.5 text-xs font-semibold">
               C4BL<span className="font-normal opacity-60">#1</span>
-            </span>
+            </span>*/}
             {/* TODO(@ryan): conditional here for coach */}
-            {!entry.player?.isKnownCheater && (
-              <span className="w-fit rounded-sm bg-[#5E96F6] px-1 py-0.5 text-xs border border-white/30 font-semibold">
+            {/*{!entry.player?.isKnownCheater && (
+              <span className="w-fit rounded-sm border border-white/30 bg-[#5E96F6] px-1 py-0.5 text-xs font-semibold">
                 Offers coaching
               </span>
-            )}
+            )}*/}
           </div>
 
           <div className="space-y-1.5">
             <Link
               href={`/tournament/${entry.tournament.TID}`}
-              className="flex gap-2 items-start line-clamp-2 text-sm pt-2 underline decoration-transparent transition-colors hover:decoration-inherit"
+              className="line-clamp-2 flex items-start gap-2 pt-2 text-sm underline decoration-transparent transition-colors hover:decoration-inherit"
             >
-              <Trophy className="w-3.5 h-3.5 mt-[3px] text-purple-300/50" />
-                <p>
-                  {entry.tournament.name}
-                  <span className="text-muted-foreground ml-1">({format(entry.tournament.tournamentDate, 'MMM do, yyyy')})</span>
-                </p>
+              <Trophy className="mt-[3px] h-3.5 w-3.5 text-purple-300/50" />
+              <p>
+                {entry.tournament.name}
+                <span className="text-muted-foreground ml-1">
+                  ({format(entry.tournament.tournamentDate, 'MMM do, yyyy')})
+                </span>
+              </p>
             </Link>
-            <div className="flex gap-2 items-center line-clamp-1 text-sm">
-              <UsersRound className="w-3.5 h-3.5 text-purple-300/50" />
-              #{entry.standing} of&nbsp;
+            <div className="line-clamp-1 flex items-center gap-2 text-sm">
+              <UsersRound className="h-3.5 w-3.5 text-purple-300/50" />#
+              {entry.standing} of&nbsp;
               {entry.tournament.size} players
             </div>
           </div>
         </>
-        <div className="bg-black/40 py-3 px-8 rounded-lg mt-2 flex gap-2 justify-around lg:justify-between">
+        <div className="mt-2 flex justify-around gap-2 rounded-lg bg-black/40 px-8 py-3 lg:justify-between">
           <div className="flex flex-col items-center">
-            <span className="font-medium text-lg">{entry.wins}</span>
-            <span className="text-muted-foreground text-sm uppercase tracking-wider">Wins</span>
+            <span className="text-lg font-medium">{entry.wins}</span>
+            <span className="text-muted-foreground text-sm tracking-wider uppercase">
+              Wins
+            </span>
           </div>
           <div className="flex flex-col items-center">
-            <span className="font-medium text-lg">{entry.losses}</span>
-            <span className="text-muted-foreground text-sm uppercase tracking-wider">Losses</span>
+            <span className="text-lg font-medium">{entry.losses}</span>
+            <span className="text-muted-foreground text-sm tracking-wider uppercase">
+              Losses
+            </span>
           </div>
           <div className="flex flex-col items-center">
-            <span className="font-medium text-lg">{entry.draws}</span>
-            <span className="text-muted-foreground text-sm uppercase tracking-wider">Draws</span>
+            <span className="text-lg font-medium">{entry.draws}</span>
+            <span className="text-muted-foreground text-sm tracking-wider uppercase">
+              Draws
+            </span>
           </div>
         </div>
       </div>

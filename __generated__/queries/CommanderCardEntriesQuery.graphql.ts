@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<a55d31333110d5334971aebddaf92f20>>
- * @relayHash fb96c4f127e4971d8b8886e354f24253
+ * @generated SignedSource<<f3c34e7bf6a8e46aacefc77838ce1339>>
+ * @relayHash 84c0d323796a32e01ae2abb11837045c
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID fb96c4f127e4971d8b8886e354f24253
+// @relayRequestID 84c0d323796a32e01ae2abb11837045c
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -259,6 +259,13 @@ return {
                                 "name": "offersCoaching",
                                 "storageKey": null
                               },
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "topdeckProfile",
+                                "storageKey": null
+                              },
                               (v7/*: any*/)
                             ],
                             "storageKey": null
@@ -361,7 +368,7 @@ return {
     ]
   },
   "params": {
-    "id": "fb96c4f127e4971d8b8886e354f24253",
+    "id": "84c0d323796a32e01ae2abb11837045c",
     "metadata": {},
     "name": "CommanderCardEntriesQuery",
     "operationKind": "query",
