@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<541032cab70576117935b0894ea263fb>>
- * @relayHash fa7458c823767efe9e66746672496c4f
+ * @generated SignedSource<<2f5c7b30e1c850aa40c2cb3d950b8766>>
+ * @relayHash 5f77a9fe10f0f6be6a18620d63180704
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID fa7458c823767efe9e66746672496c4f
+// @relayRequestID 5f77a9fe10f0f6be6a18620d63180704
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -249,6 +249,13 @@ return {
                             "name": "offersCoaching",
                             "storageKey": null
                           },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "topdeckProfile",
+                            "storageKey": null
+                          },
                           (v7/*: any*/)
                         ],
                         "storageKey": null
@@ -354,7 +361,7 @@ return {
     ]
   },
   "params": {
-    "id": "fa7458c823767efe9e66746672496c4f",
+    "id": "5f77a9fe10f0f6be6a18620d63180704",
     "metadata": {},
     "name": "commanderPage_LazyCardEntriesQuery",
     "operationKind": "query",

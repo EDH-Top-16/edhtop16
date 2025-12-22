@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<a1739764837b8d88fba2c9b8b22e95f2>>
- * @relayHash eb84444ab6035f94b314937647aa5833
+ * @generated SignedSource<<a36f00c0f760925b60ffb4ad7b93b524>>
+ * @relayHash f7e10a3f7c73a0b3b5d8d68af9d0c59a
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID eb84444ab6035f94b314937647aa5833
+// @relayRequestID f7e10a3f7c73a0b3b5d8d68af9d0c59a
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -234,6 +234,13 @@ v17 = [
                 "args": null,
                 "kind": "ScalarField",
                 "name": "offersCoaching",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "topdeckProfile",
                 "storageKey": null
               },
               (v10/*: any*/)
@@ -666,7 +673,7 @@ return {
     ]
   },
   "params": {
-    "id": "eb84444ab6035f94b314937647aa5833",
+    "id": "f7e10a3f7c73a0b3b5d8d68af9d0c59a",
     "metadata": {},
     "name": "commanderPage_CommanderQuery",
     "operationKind": "query",
