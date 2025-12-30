@@ -11,6 +11,10 @@ const RESOURCE_CONF = {
       src: "src/about.tsx",
       loader: () => import("../../src/about").then(m => m.AboutPage)
     },
+  "route(/coaching/:profile)": {
+      src: "src/coaching.tsx",
+      loader: () => import("../../src/coaching").then(m => m.CoachingPage)
+    },
   "m#commander_stats": {
       src: "src/commander_page.tsx",
       loader: () => import("../../src/commander_page").then(m => m.CommanderStats)

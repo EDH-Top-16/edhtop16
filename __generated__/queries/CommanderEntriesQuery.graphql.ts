@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<b907fbf73173391d8fa19962eeebaeb5>>
- * @relayHash 75083aef1eeea9f04161f0aeba8b83b2
+ * @generated SignedSource<<71eb03d49ccc0ed42a66b8cac25568c8>>
+ * @relayHash c0506a319b1fc221bf41e91e7f9a3bec
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 75083aef1eeea9f04161f0aeba8b83b2
+// @relayRequestID c0506a319b1fc221bf41e91e7f9a3bec
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -285,6 +285,20 @@ return {
                                 "name": "isKnownCheater",
                                 "storageKey": null
                               },
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "offersCoaching",
+                                "storageKey": null
+                              },
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "topdeckProfile",
+                                "storageKey": null
+                              },
                               (v9/*: any*/)
                             ],
                             "storageKey": null
@@ -387,7 +401,7 @@ return {
     ]
   },
   "params": {
-    "id": "75083aef1eeea9f04161f0aeba8b83b2",
+    "id": "c0506a319b1fc221bf41e91e7f9a3bec",
     "metadata": {},
     "name": "CommanderEntriesQuery",
     "operationKind": "query",
