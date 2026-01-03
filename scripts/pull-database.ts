@@ -53,14 +53,16 @@ class TopDeckClient {
     modeElo: z.number().optional(),
     medianElo: z.number().optional(),
     topElo: z.number().optional(),
-    eventData: z.object({
-      lat: z.number().optional(),
-      lng: z.number().optional(),
-      city: z.string().optional(),
-      state: z.string().optional(),
-      location: z.string().optional(),
-      headerImage: z.string().optional(),
-    }),
+    eventData: z
+      .object({
+        lat: z.number().optional(),
+        lng: z.number().optional(),
+        city: z.string().optional(),
+        state: z.string().optional(),
+        location: z.string().optional(),
+        headerImage: z.string().optional(),
+      })
+      .optional(),
     topCut: z.number(),
     standings: z.array(
       z.object({
@@ -178,7 +180,7 @@ class TopDeckClient {
     );
   });
 
-  async listTournaments(options: {last?: number; tids?: string[]}) {
+  async listTournaments(options: {last?: number; TID?: string[]}) {
     return this.request(
       'POST',
       '/tournaments',
@@ -792,7 +794,7 @@ async function main({tid: importedTids}: {tid?: string[]}) {
   // Last five days of tournaments, otherwise only the specified TIDs
   info`Pulling recent TopDeck tournaments...`();
   const tournaments = await topdeckClient.listTournaments({
-    tids: importedTids,
+    TID: importedTids,
     last: importedTids == null ? 5 : undefined,
   });
 
