@@ -31,6 +31,12 @@ export function App({children}: PropsWithChildren<{}>) {
         href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
       />
 
+      <meta
+        name="impact-site-verification"
+        // @ts-expect-error "value" is not a real property on <meta> but the vendor wants it.
+        value="22b35f9f-86c1-4c02-b751-cfdff5a1c83b"
+      />
+
       <script
         async
         src="https://www.googletagmanager.com/gtag/js?id=G-51DLXH804W"
