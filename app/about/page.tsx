@@ -1,11 +1,15 @@
 import {Navigation} from '@/components/navigation';
 import {searchResults, SearchResultType} from '@/lib/schema/search';
+import {Metadata} from 'next';
+
+export const metadata: Metadata = {
+  title: 'About',
+  description: 'About Us',
+};
 
 export default function AboutPage() {
   return (
     <>
-      <title>About</title>
-      <meta name="description" content="About Us" />
       <Navigation searchResults={searchResults([SearchResultType.COMMANDER])} />
 
       <div className="mx-auto my-8 flex w-full max-w-(--breakpoint-md) flex-col items-center gap-6 px-8 text-white">

@@ -21,9 +21,15 @@ import {
   ViewerContext,
 } from '@/lib/schema/ViewerContext';
 import {cn} from '@/lib/utils';
+import {Metadata} from 'next';
 import Link from 'next/link';
 import {PropsWithChildren, ReactNode} from 'react';
 import {z} from 'zod/v4';
+
+export const metadata: Metadata = {
+  title: 'cEDH Commanders',
+  description: 'Discover top performing commanders in cEDH!',
+};
 
 async function TopCommandersCard({
   commander,
@@ -171,12 +177,6 @@ function CommandersPageShell({
 
   return (
     <>
-      <title>cEDH Commanders</title>
-      <meta
-        name="description"
-        content="Discover top performing commanders in cEDH!"
-      />
-
       <Navigation searchResults={searchResults([SearchResultType.COMMANDER])} />
 
       <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">

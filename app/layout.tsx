@@ -1,12 +1,21 @@
 import React from 'react';
 import {GoogleAnalytics} from '@next/third-parties/google';
 import {Montserrat} from 'next/font/google';
+import {Metadata} from 'next';
 
 import './globals.css';
 
 const montserrat = Montserrat({
   variable: '--font-montserrat',
 });
+
+export const metadata: Metadata = {
+  title: {
+    default: 'EDH Top 16',
+    template: '%s | EDH Top 16',
+  },
+  description: 'Competitive EDH tournament data and metagame analysis',
+};
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (

@@ -7,7 +7,21 @@ import {Commander} from '@/lib/schema/commander';
 import {searchResults, SearchResultType} from '@/lib/schema/search';
 import {ViewerContext} from '@/lib/schema/ViewerContext';
 import {cn} from '@/lib/utils';
+import {Metadata} from 'next';
 import {PropsWithChildren, Suspense} from 'react';
+
+export async function generateMetadata(
+  props: LayoutProps<'/commander/[commander]'>,
+): Promise<Metadata> {
+  const commanderName = decodeURIComponent((await props.params).commander);
+  const vc = await ViewerContext.forRequest();
+  const commander = await Commander.commander(vc, commanderName);
+
+  return {
+    title: commander.name,
+    description: `Top Performing and Recent Decklists for ${commander.name} in cEDH`,
+  };
+}
 
 async function CommanderBanner({
   commander,
@@ -61,12 +75,6 @@ export default async function CommanderPageLayout(
 
   return (
     <>
-      <title>{commander.name}</title>
-      <meta
-        name="description"
-        content={`Top Performing and Recent Decklists for ${commander.name} in cEDH`}
-      />
-
       <Navigation searchResults={searchResults([SearchResultType.COMMANDER])} />
 
       <CommanderBanner commander={commander}>
