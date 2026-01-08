@@ -186,12 +186,12 @@ function StapleCardRow({
   commanderName: string;
 }) {
   const playRatePercentage = (card.playRateLastYear * 100).toFixed(1);
-  const {replaceRoute} = useNavigation();
+  const {pushRoute} = useNavigation();
 
   return (
     <button
       onClick={() => {
-        replaceRoute('/commander/:commander', {
+        pushRoute('/commander/:commander', {
           commander: commanderName,
           tab: 'card',
           card: card.name,
@@ -941,7 +941,7 @@ export const CommanderPageShell: EntryPointComponent<
   );
 
   const commanderMeta = useCommanderMeta(commander);
-  const {replaceRoute} = useNavigation();
+  const {pushRoute, replaceRoute} = useNavigation();
 
   return (
     <>
@@ -968,7 +968,7 @@ export const CommanderPageShell: EntryPointComponent<
         <Tab
           selected={tab === 'entries' || !tab}
           onClick={() => {
-            replaceRoute('/commander/:commander', {
+            pushRoute('/commander/:commander', {
               commander: commander.name,
               tab: 'entries',
               sortBy,
@@ -986,7 +986,7 @@ export const CommanderPageShell: EntryPointComponent<
         <Tab
           selected={tab === 'staples'}
           onClick={() => {
-            replaceRoute('/commander/:commander', {
+            pushRoute('/commander/:commander', {
               commander: commander.name,
               tab: 'staples',
               sortBy,
@@ -1005,7 +1005,7 @@ export const CommanderPageShell: EntryPointComponent<
           <Tab
             selected={tab === 'card'}
             onClick={() => {
-              replaceRoute('/commander/:commander', {
+              pushRoute('/commander/:commander', {
                 commander: commander.name,
                 tab: 'card',
                 card: cardName,
