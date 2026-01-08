@@ -5,11 +5,13 @@ import {
   CommanderPageFilters,
   DisplayStyleToggle,
 } from '@/components/CommanderPageFilterMenu';
+import {ListContainer, ListContainerState} from '@/components/ListContainer';
 import {Footer} from '@/components/footer';
 import {Navigation} from '@/components/navigation';
 import {FirstPartyPromo} from '@/components/promo';
 import {formatPercent} from '@/lib/client/format';
 import {Commander, CommandersSortBy} from '@/lib/schema/commander';
+import {Connection} from '@/lib/schema/connection';
 import {homePagePromo} from '@/lib/schema/promo';
 import {searchResults, SearchResultType} from '@/lib/schema/search';
 import {TimePeriod} from '@/lib/schema/types';
@@ -20,7 +22,7 @@ import {
 } from '@/lib/schema/ViewerContext';
 import {cn} from '@/lib/utils';
 import Link from 'next/link';
-import {PropsWithChildren} from 'react';
+import {PropsWithChildren, ReactNode} from 'react';
 import {z} from 'zod/v4';
 
 async function TopCommandersCard({
@@ -109,6 +111,50 @@ async function TopCommandersCard({
   );
 }
 
+async function renderCommanderCards(
+  commanders: Connection<Commander>,
+  filters: CommanderStatsFilters,
+  display: ListStyle,
+  sortBy: string,
+): Promise<ReactNode> {
+  return (
+    <>
+      {commanders.edges.map(({node}) => (
+        <TopCommandersCard
+          key={node.id}
+          commander={node}
+          filters={filters}
+          display={display}
+          secondaryStatistic={
+            sortBy === 'CONVERSION' || sortBy === 'TOP_CUTS'
+              ? 'topCuts'
+              : 'count'
+          }
+        />
+      ))}
+    </>
+  );
+}
+
+async function buildCommandersListState(
+  commanders: Connection<Commander>,
+  filters: CommanderStatsFilters,
+  display: ListStyle,
+  sortBy: string,
+): Promise<ListContainerState> {
+  const items = await renderCommanderCards(
+    commanders,
+    filters,
+    display,
+    sortBy,
+  );
+  return {
+    items,
+    hasNextPage: commanders.pageInfo.hasNextPage,
+    endCursor: commanders.pageInfo.endCursor,
+  };
+}
+
 function CommandersPageShell({
   display,
   filters,
@@ -150,6 +196,8 @@ function CommandersPageShell({
   );
 }
 
+const PAGE_SIZE = 48;
+
 export default async function Page(props: PageProps<'/'>) {
   const vc = await ViewerContext.forRequest();
 
@@ -170,59 +218,62 @@ export default async function Page(props: PageProps<'/'>) {
     .parse(await props.searchParams);
 
   const listStyle = vc.listStyle;
-  const commanders = await Commander.commanders(
-    vc,
-    40,
-    undefined,
-    minEntries,
-    minSize,
-    timePeriod,
-    sortBy,
-    colorId,
-  );
+  const statsFilters: CommanderStatsFilters = {minSize, timePeriod, colorId};
+  const filters = {minEntries, minSize, timePeriod, sortBy, colorId};
+
+  // Server action to load more commanders
+  async function loadCommanders(cursor?: string): Promise<ListContainerState> {
+    'use server';
+
+    const vc = await ViewerContext.forRequest();
+    const commanders = await Commander.commanders(
+      vc,
+      PAGE_SIZE,
+      cursor,
+      minEntries,
+      minSize,
+      timePeriod,
+      sortBy,
+      colorId,
+    );
+
+    return buildCommandersListState(
+      commanders,
+      statsFilters,
+      listStyle,
+      sortBy,
+    );
+  }
+
+  const initialState = await loadCommanders();
 
   return (
     <>
-      <CommandersPageShell
-        display={listStyle}
-        filters={{minEntries, minSize, timePeriod, sortBy, colorId}}
-      >
-        <div
-          className={cn(
+      <CommandersPageShell display={listStyle} filters={filters}>
+        <ListContainer
+          key={listStyle + JSON.stringify(filters)}
+          initialState={initialState}
+          loadMoreAction={loadCommanders}
+          gridClassName={cn(
             'mx-auto grid w-full pb-4',
             listStyle === 'table'
-              ? 'w-full grid-cols-1 gap-2'
-              : 'w-fit gap-4 md:grid-cols-2 xl:grid-cols-3',
+              ? 'grid-cols-1 gap-2'
+              : 'gap-4 md:grid-cols-2 xl:grid-cols-3',
           )}
-        >
-          {listStyle === 'table' && (
-            <div className="sticky top-[68px] hidden w-full grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px] items-center gap-x-2 overflow-x-hidden bg-[#514f86] p-4 text-sm text-white lg:grid">
-              <div>Color</div>
-              <div>Commander</div>
-              <div>Entries</div>
-              <div>Meta %</div>
-              <div>Top Cuts</div>
-              <div>Cnvr. %</div>
-            </div>
-          )}
-
-          {commanders.edges.map(({node}) => (
-            <TopCommandersCard
-              key={node.id}
-              commander={node}
-              filters={{minSize, timePeriod, colorId}}
-              display={listStyle}
-              secondaryStatistic={
-                sortBy === 'CONVERSION' || sortBy === 'TOP_CUTS'
-                  ? 'topCuts'
-                  : 'count'
-              }
-            />
-          ))}
-        </div>
+          header={
+            listStyle === 'table' ? (
+              <div className="sticky top-[68px] hidden w-full grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px] items-center gap-x-2 overflow-x-hidden bg-[#514f86] p-4 text-sm text-white lg:grid">
+                <div>Color</div>
+                <div>Commander</div>
+                <div>Entries</div>
+                <div>Meta %</div>
+                <div>Top Cuts</div>
+                <div>Cnvr. %</div>
+              </div>
+            ) : undefined
+          }
+        />
       </CommandersPageShell>
-
-      {/* TODO(ryan): Add load more button here. */}
 
       <Footer />
     </>

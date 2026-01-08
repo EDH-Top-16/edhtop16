@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {Select} from './select';
 
@@ -22,11 +23,7 @@ export function CommanderEntriesFilterMenu({
   function replaceRoute(filters: Partial<CommanderEntriesFilters>) {
     const nextSearchParams = new URLSearchParams(searchParams);
     for (const [key, value] of Object.entries(filters)) {
-      if (value) {
-        nextSearchParams.set(key, `${value}`);
-      } else {
-        nextSearchParams.delete(key);
-      }
+      nextSearchParams.set(key, `${value}`);
     }
 
     router.replace(`${pathname}?${nextSearchParams}`);

@@ -1,8 +1,10 @@
 import {Card} from '@/components/card';
 import {Footer} from '@/components/footer';
+import {ListContainer, ListContainerState} from '@/components/ListContainer';
 import {Navigation} from '@/components/navigation';
 import {FirstPartyPromo} from '@/components/promo';
 import {TournamentsPageFilterMenu} from '@/components/TournamentsPageFilterMenu';
+import {Connection} from '@/lib/schema/connection';
 import {tournamentPagePromo} from '@/lib/schema/promo';
 import {searchResults, SearchResultType} from '@/lib/schema/search';
 import {Tournament, TournamentSortBy} from '@/lib/schema/tournament';
@@ -10,6 +12,7 @@ import {TimePeriod} from '@/lib/schema/types';
 import {ViewerContext} from '@/lib/schema/ViewerContext';
 import {format} from 'date-fns';
 import Link from 'next/link';
+import {ReactNode} from 'react';
 import {z} from 'zod/v4';
 
 async function TournamentCard({tournament}: {tournament: Tournament}) {
@@ -49,6 +52,31 @@ async function TournamentCard({tournament}: {tournament: Tournament}) {
   );
 }
 
+async function renderTournamentCards(
+  tournaments: Connection<Tournament>,
+): Promise<ReactNode> {
+  return (
+    <>
+      {tournaments.edges.map((edge) => (
+        <TournamentCard key={edge.node.id} tournament={edge.node} />
+      ))}
+    </>
+  );
+}
+
+async function buildTournamentsListState(
+  tournaments: Connection<Tournament>,
+): Promise<ListContainerState> {
+  const items = await renderTournamentCards(tournaments);
+  return {
+    items,
+    hasNextPage: tournaments.pageInfo.hasNextPage,
+    endCursor: tournaments.pageInfo.endCursor,
+  };
+}
+
+const PAGE_SIZE = 48;
+
 export default async function TournamentsPage(
   props: PageProps<'/tournaments'>,
 ) {
@@ -61,15 +89,24 @@ export default async function TournamentsPage(
     .parse(await props.searchParams);
 
   const promo = tournamentPagePromo();
+  const filters = {timePeriod, minSize};
 
-  const vc = await ViewerContext.forRequest();
-  const tournaments = await Tournament.tournaments(
-    vc,
-    100,
-    undefined,
-    {timePeriod, minSize},
-    sortBy,
-  );
+  async function loadTournaments(cursor?: string): Promise<ListContainerState> {
+    'use server';
+
+    const vc = await ViewerContext.forRequest();
+    const tournaments = await Tournament.tournaments(
+      vc,
+      PAGE_SIZE,
+      cursor,
+      filters,
+      sortBy,
+    );
+
+    return buildTournamentsListState(tournaments);
+  }
+
+  const initialState = await loadTournaments();
 
   return (
     <>
@@ -92,22 +129,21 @@ export default async function TournamentsPage(
           <TournamentsPageFilterMenu filters={{timePeriod, sortBy, minSize}} />
         </div>
 
-        <div className="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
-          {promo && (
-            <FirstPartyPromo
-              promo={promo}
-              hasMargin={false}
-              showImage={false}
-              fullWidth={true}
-            />
-          )}
-
-          {tournaments.edges.map((edge) => (
-            <TournamentCard key={edge.node.id} tournament={edge.node} />
-          ))}
-        </div>
-
-        {/* TODO(ryan): Add load more button here. */}
+        <ListContainer
+          initialState={initialState}
+          loadMoreAction={loadTournaments}
+          gridClassName="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3"
+          header={
+            promo ? (
+              <FirstPartyPromo
+                promo={promo}
+                hasMargin={false}
+                showImage={false}
+                fullWidth={true}
+              />
+            ) : undefined
+          }
+        />
 
         <Footer />
       </div>

@@ -1,33 +1,10 @@
 import {ColorIdentity} from '@/components/colors';
 import {CommanderCardEntriesSortMenu} from '@/components/CommanderCardEntriesSortMenu';
 import {EntryCard} from '@/components/EntryCard';
-import {LoadingIcon} from '@/components/fallback';
 import {formatPercent} from '@/lib/client/format';
-import {Card} from '@/lib/schema/card';
 import {Commander, EntriesSortBy} from '@/lib/schema/commander';
 import {ViewerContext} from '@/lib/schema/ViewerContext';
-import {Suspense} from 'react';
 import {z} from 'zod/v4';
-
-async function CommanderCardEntries({
-  commander,
-  card,
-  sortBy,
-}: {
-  commander: Commander;
-  card: Card;
-  sortBy: EntriesSortBy;
-}) {
-  const entries = await commander.cardEntries(card.name, 48, null, sortBy);
-
-  return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {entries.edges.map(({node}) => (
-        <EntryCard key={node.id} entry={node} />
-      ))}
-    </div>
-  );
-}
 
 export default async function CommanderStapleCardDetail(
   props: PageProps<'/commander/[commander]/card/[card]'>,
@@ -44,9 +21,10 @@ export default async function CommanderStapleCardDetail(
 
   const vc = await ViewerContext.forRequest();
   const commander = await Commander.commander(vc, commanderName);
-  const [card, stats] = await Promise.all([
+  const [card, stats, entries] = await Promise.all([
     commander.cardDetail(cardName),
     commander.cardWinrateStats(cardName),
+    commander.cardEntries(cardName, 48, null, sortBy),
   ]);
 
   return (
@@ -185,13 +163,12 @@ export default async function CommanderStapleCardDetail(
             <CommanderCardEntriesSortMenu />
           </div>
         </div>
-        <Suspense fallback={<LoadingIcon />}>
-          <CommanderCardEntries
-            commander={commander}
-            card={card}
-            sortBy={sortBy}
-          />
-        </Suspense>
+        {/* TODO: Add pagination - see ListContainer component */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {entries.edges.map(({node}) => (
+            <EntryCard key={node.id} entry={node} />
+          ))}
+        </div>
       </div>
     </div>
   );
