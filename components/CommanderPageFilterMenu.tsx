@@ -49,7 +49,7 @@ export function CommanderPageFilterMenu({
   function replaceRoute(filters: Partial<CommanderPageFilters>) {
     const nextSearchParams = new URLSearchParams(searchParams);
     for (const [key, value] of Object.entries(filters)) {
-      if (value) {
+      if (value != null) {
         nextSearchParams.set(key, `${value}`);
       } else {
         nextSearchParams.delete(key);
