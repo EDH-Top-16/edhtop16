@@ -11,9 +11,15 @@ import {Tournament, TournamentSortBy} from '@/lib/schema/tournament';
 import {TimePeriod} from '@/lib/schema/types';
 import {ViewerContext} from '@/lib/schema/ViewerContext';
 import {format} from 'date-fns';
+import {Metadata} from 'next';
 import Link from 'next/link';
 import {ReactNode} from 'react';
 import {z} from 'zod/v4';
+
+export const metadata: Metadata = {
+  title: 'cEDH Tournaments',
+  description: 'Discover top and recent cEDH tournaments!',
+};
 
 async function TournamentCard({tournament}: {tournament: Tournament}) {
   const tournamentWinner = (await tournament.entries(undefined, 1))?.[0];
@@ -110,12 +116,6 @@ export default async function TournamentsPage(
 
   return (
     <>
-      <title>cEDH Tournaments</title>
-      <meta
-        name="description"
-        content="Discover top and recent cEDH tournaments!"
-      />
-
       <Navigation
         searchResults={searchResults([SearchResultType.TOURNAMENT])}
       />

@@ -12,8 +12,14 @@ import {
 } from '@/lib/schema/card';
 import {searchResults, SearchResultType} from '@/lib/schema/search';
 import {ViewerContext} from '@/lib/schema/ViewerContext';
+import {Metadata} from 'next';
 import {PropsWithChildren} from 'react';
 import z from 'zod/v4';
+
+export const metadata: Metadata = {
+  title: 'cEDH Staples',
+  description: 'Discover the most played cards in competitive EDH!',
+};
 
 function StaplesPageShell({
   filters,
@@ -21,12 +27,6 @@ function StaplesPageShell({
 }: PropsWithChildren<{filters: StaplesPageFilters}>) {
   return (
     <>
-      <title>cEDH Staples</title>
-      <meta
-        name="description"
-        content="Discover the most played cards in competitive EDH!"
-      />
-
       <Navigation searchResults={searchResults([SearchResultType.COMMANDER])} />
 
       <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-6">

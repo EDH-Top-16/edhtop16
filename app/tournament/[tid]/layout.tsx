@@ -8,6 +8,20 @@ import {ViewerContext} from '@/lib/schema/ViewerContext';
 import {cn} from '@/lib/utils';
 import ArrowRightIcon from '@heroicons/react/24/solid/ArrowRightIcon';
 import {format} from 'date-fns';
+import {Metadata} from 'next';
+
+export async function generateMetadata(
+  props: LayoutProps<'/tournament/[tid]'>,
+): Promise<Metadata> {
+  const {tid} = await props.params;
+  const vc = await ViewerContext.forRequest();
+  const tournament = await Tournament.tournament(vc, tid);
+
+  return {
+    title: tournament.name,
+    description: `Top Performing cEDH decks at ${tournament.name}`,
+  };
+}
 
 async function TournamentBanner({tournament}: {tournament: Tournament}) {
   const winnerEntries = await tournament.entries(undefined, 1);
@@ -71,12 +85,6 @@ export default async function TournamentPageLayout(
 
   return (
     <>
-      <title>{tournament.name}</title>
-      <meta
-        name="description"
-        content={`Top Performing cEDH decks at ${tournament.name}`}
-      />
-
       <Navigation
         searchResults={searchResults([SearchResultType.TOURNAMENT])}
       />

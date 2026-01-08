@@ -10,7 +10,7 @@ We're currently rewriting the code to use Next.js. Here's what's left to do:
 - [x] Implement next-page fetching for Commanders
 - [x] Implement next-page fetching for Tournament
 - [ ] Implement next-page fetching for Commander entries
-- [ ] Use Next.js's metadata instead of manual <title> tags
+- [x] Use Next.js's metadata instead of manual <title> tags
 
 Bugs we **must** fix before shipping:
 
