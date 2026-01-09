@@ -37,6 +37,7 @@ async function CommanderBanner({
             .flatMap((c) => c.imageUrls())
             .map((src, _i, {length}) => {
               return (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   className={cn(
                     'flex-1 object-cover object-top',

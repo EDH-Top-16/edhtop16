@@ -9,12 +9,13 @@ We're currently rewriting the code to use Next.js. Here's what's left to do:
 
 - [x] Implement next-page fetching for Commanders
 - [x] Implement next-page fetching for Tournament
-- [ ] Implement next-page fetching for Commander entries
+- [x] Implement next-page fetching for Commander entries
 - [x] Use Next.js's metadata instead of manual <title> tags
 
 Bugs we **must** fix before shipping:
 
 - [x] Commander cards don't take up the full width of the grid
+- [ ] Commander page scroll to top when loading more entries
 
 ## Development Commands
 
