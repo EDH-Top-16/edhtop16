@@ -5,7 +5,7 @@
 import { defaultFieldResolver, GraphQLSchema, GraphQLDirective, DirectiveLocation, GraphQLList, GraphQLInt, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLEnumType, GraphQLFloat, GraphQLInputObjectType, GraphQLID, GraphQLInterfaceType, GraphQLBoolean } from "graphql";
 import { createCommanderCardsLoader as createCommanderCardsLoader, commanderStatsLoader as commanderStatsLoader, createCommanderLoader as createCommanderLoader, Commander as queryCommanderResolver, Commander as queryCommandersResolver } from "./../../src/lib/server/schema/commander";
 import { id as commanderIdResolver, id as entryIdResolver, id as playerIdResolver, id as tournamentIdResolver, id as cardIdResolver, node as queryNodeResolver } from "./../../src/lib/server/schema/connection";
-import { createPlayerLoader as createPlayerLoader, Player as queryCheatersResolver, Player as queryPlayerResolver } from "./../../src/lib/server/schema/player";
+import { createPlayerLoader as createPlayerLoader, Player as queryCheatersResolver, Player as queryCoachResolver, Player as queryCoachesResolver, Player as queryPlayerResolver } from "./../../src/lib/server/schema/player";
 import { createTournamentLoader as createTournamentLoader, Tournament as queryTournamentResolver, Tournament as queryTournamentsResolver } from "./../../src/lib/server/schema/tournament";
 import { Card as queryCardResolver, createCardLoader as createCardLoader, Card as queryStaplesResolver } from "./../../src/lib/server/schema/card";
 import { homePagePromo as queryHomePagePromoResolver, tournamentPagePromo as queryTournamentPagePromoResolver } from "./../../src/lib/server/schema/promo";
@@ -385,10 +385,31 @@ export function getSchema(): GraphQLSchema {
             return [NodeType];
         }
     });
-    const PlayerType: GraphQLObjectType = new GraphQLObjectType({
-        name: "Player",
+    const PlayerDeckType: GraphQLObjectType = new GraphQLObjectType({
+        name: "PlayerDeck",
         fields() {
             return {
+                colorId: {
+                    name: "colorId",
+                    type: GraphQLString,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                commander: {
+                    name: "commander",
+                    type: CommanderType,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                commanderName: {
+                    name: "commanderName",
+                    type: GraphQLString,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
                 conversionRate: {
                     name: "conversionRate",
                     type: GraphQLFloat,
@@ -402,6 +423,187 @@ export function getSchema(): GraphQLSchema {
                     resolve(source, args, context, info) {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));
                     }
+                },
+                entries: {
+                    name: "entries",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                losses: {
+                    name: "losses",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                topCuts: {
+                    name: "topCuts",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                winRate: {
+                    name: "winRate",
+                    type: GraphQLFloat,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                wins: {
+                    name: "wins",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                }
+            };
+        }
+    });
+    const PlayerFinishType: GraphQLObjectType = new GraphQLObjectType({
+        name: "PlayerFinish",
+        fields() {
+            return {
+                TID: {
+                    name: "TID",
+                    type: GraphQLString,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                commanderName: {
+                    name: "commanderName",
+                    type: GraphQLString,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                decklist: {
+                    name: "decklist",
+                    type: GraphQLString
+                },
+                draws: {
+                    name: "draws",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                entryId: {
+                    name: "entryId",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                losses: {
+                    name: "losses",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                standing: {
+                    name: "standing",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                topCut: {
+                    name: "topCut",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                tournamentDate: {
+                    name: "tournamentDate",
+                    type: GraphQLString,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                tournamentId: {
+                    name: "tournamentId",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                tournamentName: {
+                    name: "tournamentName",
+                    type: GraphQLString,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                tournamentSize: {
+                    name: "tournamentSize",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                winRate: {
+                    name: "winRate",
+                    type: GraphQLFloat,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                wins: {
+                    name: "wins",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                }
+            };
+        }
+    });
+    const PlayerType: GraphQLObjectType = new GraphQLObjectType({
+        name: "Player",
+        fields() {
+            return {
+                bestDecks: {
+                    name: "bestDecks",
+                    type: new GraphQLList(new GraphQLNonNull(PlayerDeckType)),
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                coachingBio: {
+                    name: "coachingBio",
+                    type: GraphQLString
+                },
+                coachingBookingUrl: {
+                    name: "coachingBookingUrl",
+                    type: GraphQLString
+                },
+                coachingRatePerHour: {
+                    name: "coachingRatePerHour",
+                    type: GraphQLFloat
+                },
+                conversionRate: {
+                    name: "conversionRate",
+                    type: GraphQLFloat,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                draws: {
+                    name: "draws",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                elo: {
+                    name: "elo",
+                    type: GraphQLFloat
                 },
                 entries: {
                     name: "entries",
@@ -438,9 +640,27 @@ export function getSchema(): GraphQLSchema {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));
                     }
                 },
+                offersCoaching: {
+                    name: "offersCoaching",
+                    type: GraphQLBoolean,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                profileImage: {
+                    name: "profileImage",
+                    type: GraphQLString
+                },
                 topCuts: {
                     name: "topCuts",
                     type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                topFinishes: {
+                    name: "topFinishes",
+                    type: new GraphQLList(new GraphQLNonNull(PlayerFinishType)),
                     resolve(source, args, context, info) {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));
                     }
@@ -1100,6 +1320,25 @@ export function getSchema(): GraphQLSchema {
                         return assertNonNull(queryCheatersResolver.cheaters());
                     }
                 },
+                coach: {
+                    name: "coach",
+                    type: PlayerType,
+                    args: {
+                        profile: {
+                            type: new GraphQLNonNull(GraphQLString)
+                        }
+                    },
+                    resolve(_source, args) {
+                        return queryCoachResolver.coach(args.profile);
+                    }
+                },
+                coaches: {
+                    name: "coaches",
+                    type: new GraphQLList(new GraphQLNonNull(PlayerType)),
+                    resolve() {
+                        return assertNonNull(queryCoachesResolver.coaches());
+                    }
+                },
                 commander: {
                     name: "commander",
                     type: CommanderType,
@@ -1350,6 +1589,6 @@ export function getSchema(): GraphQLSchema {
                 }
             })],
         query: QueryType,
-        types: [CommandersSortByType, EntriesSortByType, EntrySortByType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CommanderStatsFiltersType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, PageInfoType, PlayerType, QueryType, SearchResultType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType]
+        types: [CommandersSortByType, EntriesSortByType, EntrySortByType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CommanderStatsFiltersType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, PageInfoType, PlayerType, PlayerDeckType, PlayerFinishType, QueryType, SearchResultType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType]
     });
 }
