@@ -1,14 +1,12 @@
-import {Card} from '@/components/card';
 import {CommanderEntriesFilterMenu} from '@/components/CommanderEntriesFilterMenu';
 import {EntryCard} from '@/components/EntryCard';
-import {formatOrdinals} from '@/lib/client/format';
+import {ListContainer, ListContainerState} from '@/components/ListContainer';
 import {Commander, EntriesSortBy} from '@/lib/schema/commander';
-import {Entry} from '@/lib/schema/entry';
 import {TimePeriod} from '@/lib/schema/types';
 import {ViewerContext} from '@/lib/schema/ViewerContext';
-import {format} from 'date-fns';
-import Link from 'next/link';
 import {z} from 'zod/v4';
+
+const PAGE_SIZE = 48;
 
 export default async function CommanderPage(
   props: PageProps<'/commander/[commander]'>,
@@ -24,14 +22,29 @@ export default async function CommanderPage(
     })
     .parse(await props.searchParams);
 
-  const vc = await ViewerContext.forRequest();
-  const commander = await Commander.commander(vc, commanderName);
-  const entries = await commander.entries(
-    48,
-    undefined,
-    {minEventSize, timePeriod, maxStanding},
-    sortBy,
-  );
+  const filters = {minEventSize, timePeriod, maxStanding};
+
+  async function loadEntries(cursor?: string): Promise<ListContainerState> {
+    'use server';
+
+    const vc = await ViewerContext.forRequest();
+    const commander = await Commander.commander(vc, commanderName);
+    const entries = await commander.entries(PAGE_SIZE, cursor, filters, sortBy);
+
+    return {
+      items: (
+        <>
+          {entries.edges.map(({node}) => (
+            <EntryCard key={node.id} entry={node} />
+          ))}
+        </>
+      ),
+      hasNextPage: entries.pageInfo.hasNextPage,
+      endCursor: entries.pageInfo.endCursor,
+    };
+  }
+
+  const initialState = await loadEntries();
 
   return (
     <>
@@ -39,11 +52,12 @@ export default async function CommanderPage(
         filters={{minEventSize, sortBy, timePeriod, maxStanding}}
       />
 
-      <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
-        {entries.edges.map(({node}) => (
-          <EntryCard key={node.id} entry={node} />
-        ))}
-      </div>
+      <ListContainer
+        key={JSON.stringify(filters) + sortBy}
+        initialState={initialState}
+        loadMoreAction={loadEntries}
+        gridClassName="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3"
+      />
     </>
   );
 }
