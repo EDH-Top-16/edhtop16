@@ -1,0 +1,11 @@
+{
+  "src": "./src",
+  "schema": "./__generated__/schema/schema.graphql",
+  "language": "typescript",
+  "excludes": ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"],
+  "artifactDirectory": "./__generated__/queries",
+  "eagerEsModules": true,
+  "persistConfig": {
+    "file": "./__generated__/router/persisted_queries.json"
+  }
+}

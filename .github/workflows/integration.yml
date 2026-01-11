@@ -19,11 +19,9 @@ jobs:
         run: corepack enable && corepack prepare pnpm@latest --activate
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
-      - name: Generate Types
-        run: pnpm exec next typegen
       - name: Check Formatting
-        run: pnpm format:check
+        run: pnpm exec prettier --check .
       - name: Check Lint
-        run: pnpm lint
+        run: pnpm exec eslint .
       - name: Check Types
         run: pnpm exec tsc
