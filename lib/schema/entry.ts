@@ -1,6 +1,5 @@
 import {DB} from '@/genfiles/db/types';
 import DataLoader from 'dataloader';
-import {Float, Int} from 'grats';
 import {Selectable} from 'kysely';
 import {Card} from './card';
 import {Commander} from './commander';
@@ -13,18 +12,18 @@ export type EntryLoader = DataLoader<number, Entry>;
 
 /** @gqlInput */
 export interface EntryFilters {
-  minSize?: Int;
-  maxSize?: Int;
+  minSize?: number;
+  maxSize?: number;
   minDate?: string;
   maxDate?: string;
-  minStanding?: Int;
-  maxStanding?: Int;
-  minWins?: Int;
-  maxWins?: Int;
-  minLosses?: Int;
-  maxLosses?: Int;
-  minDraws?: Int;
-  maxDraws?: Int;
+  minStanding?: number;
+  maxStanding?: number;
+  minWins?: number;
+  maxWins?: number;
+  minLosses?: number;
+  maxLosses?: number;
+  minDraws?: number;
+  maxDraws?: number;
 }
 
 /** @gqlEnum */
@@ -83,15 +82,15 @@ export class Entry implements Selectable<DB['Entry']> {
     return new Tournament(this.vc, t);
   }
 
-  wins(): Int {
+  wins(): number {
     return this.winsBracket + this.winsSwiss;
   }
 
-  losses(): Int {
+  losses(): number {
     return this.lossesBracket + this.lossesSwiss;
   }
 
-  winRate(): Float | null {
+  winRate(): number | null {
     const wins = this.winsBracket + this.winsSwiss;
     const games = wins + this.lossesBracket + this.lossesSwiss + this.draws;
 

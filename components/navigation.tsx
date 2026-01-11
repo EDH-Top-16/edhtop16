@@ -4,7 +4,7 @@ import MagnifyingGlassIcon from '@heroicons/react/24/solid/MagnifyingGlassIcon';
 import XMarkIcon from '@heroicons/react/24/solid/XMarkIcon';
 import cn from 'classnames';
 import Link from 'next/link';
-import {Suspense, use, useCallback, useRef, useState} from 'react';
+import {Suspense, useCallback, useEffect, useRef, useState} from 'react';
 import {useSearch} from '../lib/client/search';
 
 type SearchResult = {
@@ -12,7 +12,20 @@ type SearchResult = {
   url: string;
 };
 
-function Searchbar({searchResults}: {searchResults: Promise<SearchResult[]>}) {
+function Searchbar({
+  searchResultType,
+}: {
+  searchResultType: 'COMMANDER' | 'TOURNAMENT';
+}) {
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  useEffect(() => {
+    fetch(`/api/search?type=${searchResultType}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setSearchResults(data.searchResults);
+      });
+  }, [searchResultType]);
+
   const [searchTerm, setSearchTerm] = useState('');
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -60,12 +73,11 @@ function Searchbar({searchResults}: {searchResults: Promise<SearchResult[]>}) {
 
 function Suggestions({
   searchTerm,
-  searchResults: searchResultsPromise,
+  searchResults,
 }: {
   searchTerm: string;
-  searchResults: Promise<SearchResult[]>;
+  searchResults: SearchResult[];
 }) {
-  const searchResults = use(searchResultsPromise);
   const suggestions = useSearch(searchResults, searchTerm);
 
   if (suggestions.length === 0) {
@@ -93,9 +105,9 @@ function Suggestions({
 }
 
 export function Navigation({
-  searchResults,
+  searchResultType,
 }: {
-  searchResults: Promise<SearchResult[]>;
+  searchResultType: 'COMMANDER' | 'TOURNAMENT';
 }) {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const toggleSearch = useCallback(() => {
@@ -146,7 +158,7 @@ export function Navigation({
           mobileSearchOpen ? 'flex' : 'hidden',
         )}
       >
-        <Searchbar searchResults={searchResults} />
+        <Searchbar searchResultType={searchResultType} />
       </div>
     </nav>
   );

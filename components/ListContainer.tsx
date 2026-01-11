@@ -1,6 +1,6 @@
 'use client';
 
-import {ReactNode, useState, useTransition} from 'react';
+import {ReactNode, use, useState} from 'react';
 import {LoadMoreButton} from './load_more';
 
 export type ListContainerState = {
@@ -10,31 +10,33 @@ export type ListContainerState = {
 };
 
 export function ListContainer({
-  initialState,
+  initialState: initialStatePromise,
   loadMoreAction,
   header,
   gridClassName,
 }: {
-  initialState: ListContainerState;
+  initialState: Promise<ListContainerState>;
   loadMoreAction: (cursor: string) => Promise<ListContainerState>;
   header?: ReactNode;
   gridClassName: string;
 }) {
-  const [isPending, startTransition] = useTransition();
+  const initialState = use(initialStatePromise);
+
   const [additionalPages, setAdditionalPages] = useState<ReactNode[]>([]);
   const [pageInfo, setPageInfo] = useState({
+    isLoadingNext: false,
     hasNextPage: initialState.hasNextPage,
     endCursor: initialState.endCursor,
   });
 
-  async function loadMore() {
+  function loadMore() {
     if (!pageInfo.endCursor) return;
 
-    startTransition(async () => {
-      const nextState = await loadMoreAction(pageInfo.endCursor!);
-
+    setPageInfo((prev) => ({...prev, isLoadingNext: true}));
+    loadMoreAction(pageInfo.endCursor!).then((nextState) => {
       setAdditionalPages((prev) => [...prev, nextState.items]);
       setPageInfo({
+        isLoadingNext: false,
         hasNextPage: nextState.hasNextPage,
         endCursor: nextState.endCursor,
       });
@@ -51,7 +53,7 @@ export function ListContainer({
       <div className="flex justify-center py-4">
         <LoadMoreButton
           hasNext={pageInfo.hasNextPage}
-          isLoadingNext={isPending}
+          isLoadingNext={pageInfo.isLoadingNext}
           loadNext={loadMore}
         />
       </div>

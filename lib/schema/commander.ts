@@ -1,7 +1,6 @@
 import {DB} from '@/genfiles/db/types';
 import {subYears} from 'date-fns';
 import {fromGlobalId, toGlobalId} from 'graphql-relay';
-import {Float, Int} from 'grats';
 import {Selectable, sql} from 'kysely';
 import {Card} from './card';
 import {Connection} from './connection';
@@ -28,14 +27,14 @@ export enum EntriesSortBy {
 
 export interface EntriesFilter {
   timePeriod: TimePeriod;
-  minEventSize: Int;
-  maxStanding?: Int;
+  minEventSize: number;
+  maxStanding?: number;
 }
 
 interface CommanderCardStats {
-  totalEntries: Int;
-  topCuts: Int;
-  conversionRate: Float;
+  totalEntries: number;
+  topCuts: number;
+  conversionRate: number;
 }
 
 interface CommanderCardWinrateStats {
@@ -64,7 +63,7 @@ export class Commander implements Selectable<DB['Commander']> {
   }
 
   async entries(
-    first: Int = 20,
+    first: number = 20,
     after?: string | null,
     filters?: EntriesFilter | null,
     sortBy: EntriesSortBy = EntriesSortBy.TOP,
@@ -242,7 +241,7 @@ export class Commander implements Selectable<DB['Commander']> {
 
   async cardEntries(
     cardName?: string | null,
-    first: Int = 20,
+    first: number = 20,
     after?: string | null,
     sortBy: EntriesSortBy = EntriesSortBy.TOP,
   ): Promise<Connection<Entry>> {
@@ -421,10 +420,10 @@ export class Commander implements Selectable<DB['Commander']> {
 
   static async commanders(
     vc: ViewerContext,
-    first: Int = 20,
+    first: number = 20,
     after?: string | null,
-    minEntries?: Int | null,
-    minTournamentSize?: Int | null,
+    minEntries?: number | null,
+    minTournamentSize?: number | null,
     timePeriod: TimePeriod = TimePeriod.ONE_MONTH,
     sortBy: CommandersSortBy = CommandersSortBy.CONVERSION,
     colorId?: string | null,
