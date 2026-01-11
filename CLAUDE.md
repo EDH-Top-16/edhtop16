@@ -15,7 +15,7 @@ We're currently rewriting the code to use Next.js. Here's what's left to do:
 Bugs we **must** fix before shipping:
 
 - [x] Commander cards don't take up the full width of the grid
-- [ ] Commander page scroll to top when loading more entries
+- [x] Commander page scroll to top when loading more entries
 
 ## Development Commands
 

@@ -35,12 +35,6 @@
       "module": "CommonJS",
     },
   },
-  "grats": {
-    "graphqlSchema": "./__generated__/schema/schema.graphql",
-    "tsSchema": "./__generated__/schema/schema.ts",
-    "nullableByDefault": true,
-    "strictSemanticNullability": true,
-  },
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
