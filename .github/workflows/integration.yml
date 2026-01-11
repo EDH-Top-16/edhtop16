@@ -20,8 +20,8 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
       - name: Check Formatting
-        run: pnpm exec prettier --check .
+        run: pnpm format:check
       - name: Check Lint
-        run: pnpm exec eslint .
+        run: pnpm lint
       - name: Check Types
         run: pnpm exec tsc

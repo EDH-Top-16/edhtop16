@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "format": "prettier -w .",
+    "format:check": "prettier -c .",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
