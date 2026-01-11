@@ -1,9 +1,11 @@
 import {CommanderEntriesFilterMenu} from '@/components/CommanderEntriesFilterMenu';
 import {EntryCard} from '@/components/EntryCard';
+import {LoadingIcon} from '@/components/fallback';
 import {ListContainer, ListContainerState} from '@/components/ListContainer';
 import {Commander, EntriesSortBy} from '@/lib/schema/commander';
 import {TimePeriod} from '@/lib/schema/types';
 import {ViewerContext} from '@/lib/schema/ViewerContext';
+import {Suspense} from 'react';
 import {z} from 'zod/v4';
 
 const PAGE_SIZE = 48;
@@ -44,20 +46,22 @@ export default async function CommanderPage(
     };
   }
 
-  const initialState = await loadEntries();
-
   return (
     <>
       <CommanderEntriesFilterMenu
         filters={{minEventSize, sortBy, timePeriod, maxStanding}}
       />
 
-      <ListContainer
+      <Suspense
         key={JSON.stringify(filters) + sortBy}
-        initialState={initialState}
-        loadMoreAction={loadEntries}
-        gridClassName="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3"
-      />
+        fallback={<LoadingIcon />}
+      >
+        <ListContainer
+          initialState={loadEntries()}
+          loadMoreAction={loadEntries}
+          gridClassName="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3"
+        />
+      </Suspense>
     </>
   );
 }

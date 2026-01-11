@@ -23,8 +23,9 @@ import {
 import {cn} from '@/lib/utils';
 import {Metadata} from 'next';
 import Link from 'next/link';
-import {PropsWithChildren, ReactNode} from 'react';
+import {PropsWithChildren, ReactNode, Suspense} from 'react';
 import {z} from 'zod/v4';
+import {LoadingIcon} from '@/components/fallback';
 
 export const metadata: Metadata = {
   title: 'cEDH Commanders',
@@ -117,50 +118,6 @@ async function TopCommandersCard({
   );
 }
 
-async function renderCommanderCards(
-  commanders: Connection<Commander>,
-  filters: CommanderStatsFilters,
-  display: ListStyle,
-  sortBy: string,
-): Promise<ReactNode> {
-  return (
-    <>
-      {commanders.edges.map(({node}) => (
-        <TopCommandersCard
-          key={node.id}
-          commander={node}
-          filters={filters}
-          display={display}
-          secondaryStatistic={
-            sortBy === 'CONVERSION' || sortBy === 'TOP_CUTS'
-              ? 'topCuts'
-              : 'count'
-          }
-        />
-      ))}
-    </>
-  );
-}
-
-async function buildCommandersListState(
-  commanders: Connection<Commander>,
-  filters: CommanderStatsFilters,
-  display: ListStyle,
-  sortBy: string,
-): Promise<ListContainerState> {
-  const items = await renderCommanderCards(
-    commanders,
-    filters,
-    display,
-    sortBy,
-  );
-  return {
-    items,
-    hasNextPage: commanders.pageInfo.hasNextPage,
-    endCursor: commanders.pageInfo.endCursor,
-  };
-}
-
 function CommandersPageShell({
   display,
   filters,
@@ -177,7 +134,7 @@ function CommandersPageShell({
 
   return (
     <>
-      <Navigation searchResults={searchResults([SearchResultType.COMMANDER])} />
+      <Navigation searchResultType={SearchResultType.COMMANDER} />
 
       <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">
         <div className="flex w-full items-baseline gap-4">
@@ -217,8 +174,6 @@ export default async function Page(props: PageProps<'/'>) {
     })
     .parse(await props.searchParams);
 
-  const listStyle = vc.listStyle;
-  const statsFilters: CommanderStatsFilters = {minSize, timePeriod, colorId};
   const filters = {minEntries, minSize, timePeriod, sortBy, colorId};
 
   // Server action to load more commanders
@@ -237,42 +192,59 @@ export default async function Page(props: PageProps<'/'>) {
       colorId,
     );
 
-    return buildCommandersListState(
-      commanders,
-      statsFilters,
-      listStyle,
-      sortBy,
-    );
+    return {
+      hasNextPage: commanders.pageInfo.hasNextPage,
+      endCursor: commanders.pageInfo.endCursor,
+      items: (
+        <>
+          {commanders.edges.map(({node}) => (
+            <TopCommandersCard
+              key={node.id}
+              commander={node}
+              filters={filters}
+              display={vc.listStyle}
+              secondaryStatistic={
+                sortBy === 'CONVERSION' || sortBy === 'TOP_CUTS'
+                  ? 'topCuts'
+                  : 'count'
+              }
+            />
+          ))}
+        </>
+      ),
+    };
   }
-
-  const initialState = await loadCommanders();
 
   return (
     <>
-      <CommandersPageShell display={listStyle} filters={filters}>
-        <ListContainer
-          key={listStyle + JSON.stringify(filters)}
-          initialState={initialState}
-          loadMoreAction={loadCommanders}
-          gridClassName={cn(
-            'mx-auto grid w-full pb-4',
-            listStyle === 'table'
-              ? 'grid-cols-1 gap-2'
-              : 'gap-4 md:grid-cols-2 xl:grid-cols-3',
-          )}
-          header={
-            listStyle === 'table' ? (
-              <div className="sticky top-[68px] hidden w-full grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px] items-center gap-x-2 overflow-x-hidden bg-[#514f86] p-4 text-sm text-white lg:grid">
-                <div>Color</div>
-                <div>Commander</div>
-                <div>Entries</div>
-                <div>Meta %</div>
-                <div>Top Cuts</div>
-                <div>Cnvr. %</div>
-              </div>
-            ) : undefined
-          }
-        />
+      <CommandersPageShell display={vc.listStyle} filters={filters}>
+        <Suspense
+          key={vc.listStyle + JSON.stringify(filters)}
+          fallback={<LoadingIcon />}
+        >
+          <ListContainer
+            initialState={loadCommanders()}
+            loadMoreAction={loadCommanders}
+            gridClassName={cn(
+              'mx-auto grid w-full pb-4',
+              vc.listStyle === 'table'
+                ? 'grid-cols-1 gap-2'
+                : 'gap-4 md:grid-cols-2 xl:grid-cols-3',
+            )}
+            header={
+              vc.listStyle === 'table' ? (
+                <div className="sticky top-[68px] hidden w-full grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px] items-center gap-x-2 overflow-x-hidden bg-[#514f86] p-4 text-sm text-white lg:grid">
+                  <div>Color</div>
+                  <div>Commander</div>
+                  <div>Entries</div>
+                  <div>Meta %</div>
+                  <div>Top Cuts</div>
+                  <div>Cnvr. %</div>
+                </div>
+              ) : undefined
+            }
+          />
+        </Suspense>
       </CommandersPageShell>
 
       <Footer />

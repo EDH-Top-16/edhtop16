@@ -33,6 +33,7 @@ export default async function CommanderStapleCardDetail(
         {/* Card Info */}
         <div className="flex flex-col items-center space-y-4">
           {card.cardPreviewImageUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={card.cardPreviewImageUrl()}
               alt={card.name}
