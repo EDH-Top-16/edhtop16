@@ -37,7 +37,6 @@ async function TournamentBanner({tournament}: {tournament: Tournament}) {
               .flatMap((c) => c.imageUrls())
               .map((src, _i, {length}) => {
                 return (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     className={cn(
                       'flex-1 object-cover object-top',
@@ -86,7 +85,9 @@ export default async function TournamentPageLayout(
 
   return (
     <>
-      <Navigation searchResultType={SearchResultType.TOURNAMENT} />
+      <Navigation
+        searchResults={searchResults([SearchResultType.TOURNAMENT])}
+      />
 
       <TournamentBanner tournament={tournament} />
       {promo && <FirstPartyPromo promo={promo} />}

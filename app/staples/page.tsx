@@ -27,7 +27,7 @@ function StaplesPageShell({
 }: PropsWithChildren<{filters: StaplesPageFilters}>) {
   return (
     <>
-      <Navigation searchResultType={SearchResultType.COMMANDER} />
+      <Navigation searchResults={searchResults([SearchResultType.COMMANDER])} />
 
       <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-6">
         <div className="mb-8">

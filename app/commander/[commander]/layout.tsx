@@ -76,7 +76,7 @@ export default async function CommanderPageLayout(
 
   return (
     <>
-      <Navigation searchResultType={SearchResultType.COMMANDER} />
+      <Navigation searchResults={searchResults([SearchResultType.COMMANDER])} />
 
       <CommanderBanner commander={commander}>
         {props.bannerStats}

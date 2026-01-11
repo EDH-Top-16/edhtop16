@@ -4,7 +4,7 @@ import MagnifyingGlassIcon from '@heroicons/react/24/solid/MagnifyingGlassIcon';
 import XMarkIcon from '@heroicons/react/24/solid/XMarkIcon';
 import cn from 'classnames';
 import Link from 'next/link';
-import {Suspense, useCallback, useEffect, useRef, useState} from 'react';
+import {Suspense, use, useCallback, useRef, useState} from 'react';
 import {useSearch} from '../lib/client/search';
 
 type SearchResult = {
@@ -12,20 +12,7 @@ type SearchResult = {
   url: string;
 };
 
-function Searchbar({
-  searchResultType,
-}: {
-  searchResultType: 'COMMANDER' | 'TOURNAMENT';
-}) {
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  useEffect(() => {
-    fetch(`/api/search?type=${searchResultType}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setSearchResults(data.searchResults);
-      });
-  }, [searchResultType]);
-
+function Searchbar({searchResults}: {searchResults: Promise<SearchResult[]>}) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -73,11 +60,12 @@ function Searchbar({
 
 function Suggestions({
   searchTerm,
-  searchResults,
+  searchResults: searchResultsPromise,
 }: {
   searchTerm: string;
-  searchResults: SearchResult[];
+  searchResults: Promise<SearchResult[]>;
 }) {
+  const searchResults = use(searchResultsPromise);
   const suggestions = useSearch(searchResults, searchTerm);
 
   if (suggestions.length === 0) {
@@ -105,9 +93,9 @@ function Suggestions({
 }
 
 export function Navigation({
-  searchResultType,
+  searchResults,
 }: {
-  searchResultType: 'COMMANDER' | 'TOURNAMENT';
+  searchResults: Promise<SearchResult[]>;
 }) {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const toggleSearch = useCallback(() => {
@@ -158,7 +146,7 @@ export function Navigation({
           mobileSearchOpen ? 'flex' : 'hidden',
         )}
       >
-        <Searchbar searchResultType={searchResultType} />
+        <Searchbar searchResults={searchResults} />
       </div>
     </nav>
   );

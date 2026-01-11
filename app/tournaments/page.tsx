@@ -1,5 +1,4 @@
 import {Card} from '@/components/card';
-import {LoadingIcon} from '@/components/fallback';
 import {Footer} from '@/components/footer';
 import {ListContainer, ListContainerState} from '@/components/ListContainer';
 import {Navigation} from '@/components/navigation';
@@ -14,7 +13,7 @@ import {ViewerContext} from '@/lib/schema/ViewerContext';
 import {format} from 'date-fns';
 import {Metadata} from 'next';
 import Link from 'next/link';
-import {ReactNode, Suspense} from 'react';
+import {ReactNode} from 'react';
 import {z} from 'zod/v4';
 
 export const metadata: Metadata = {
@@ -113,9 +112,13 @@ export default async function TournamentsPage(
     return buildTournamentsListState(tournaments);
   }
 
+  const initialState = await loadTournaments();
+
   return (
     <>
-      <Navigation searchResultType={SearchResultType.TOURNAMENT} />
+      <Navigation
+        searchResults={searchResults([SearchResultType.TOURNAMENT])}
+      />
 
       <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-8">
         <div className="mb-8 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0">
@@ -126,26 +129,21 @@ export default async function TournamentsPage(
           <TournamentsPageFilterMenu filters={{timePeriod, sortBy, minSize}} />
         </div>
 
-        <Suspense
-          key={JSON.stringify({timePeriod, sortBy, minSize})}
-          fallback={<LoadingIcon />}
-        >
-          <ListContainer
-            initialState={loadTournaments()}
-            loadMoreAction={loadTournaments}
-            gridClassName="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3"
-            header={
-              promo ? (
-                <FirstPartyPromo
-                  promo={promo}
-                  hasMargin={false}
-                  showImage={false}
-                  fullWidth={true}
-                />
-              ) : undefined
-            }
-          />
-        </Suspense>
+        <ListContainer
+          initialState={initialState}
+          loadMoreAction={loadTournaments}
+          gridClassName="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3"
+          header={
+            promo ? (
+              <FirstPartyPromo
+                promo={promo}
+                hasMargin={false}
+                showImage={false}
+                fullWidth={true}
+              />
+            ) : undefined
+          }
+        />
 
         <Footer />
       </div>

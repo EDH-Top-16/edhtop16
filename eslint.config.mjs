@@ -1,8 +1,9 @@
 import js from '@eslint/js';
-import nextVitals from 'eslint-config-next/core-web-vitals';
+import reactHooks from 'eslint-plugin-react-hooks';
 import {defineConfig, globalIgnores} from 'eslint/config';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import nextVitals from 'eslint-config-next/core-web-vitals';
 
 export default defineConfig([
   ...nextVitals,

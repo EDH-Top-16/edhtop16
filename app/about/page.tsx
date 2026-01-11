@@ -1,5 +1,5 @@
 import {Navigation} from '@/components/navigation';
-import {SearchResultType} from '@/lib/schema/search';
+import {searchResults, SearchResultType} from '@/lib/schema/search';
 import {Metadata} from 'next';
 
 export const metadata: Metadata = {
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <Navigation searchResultType={SearchResultType.COMMANDER} />
+      <Navigation searchResults={searchResults([SearchResultType.COMMANDER])} />
 
       <div className="mx-auto my-8 flex w-full max-w-(--breakpoint-md) flex-col items-center gap-6 px-8 text-white">
         <h1 className="font-title flex-1 text-5xl font-extrabold text-white">

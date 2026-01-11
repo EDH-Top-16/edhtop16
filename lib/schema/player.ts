@@ -1,5 +1,6 @@
 import {DB} from '@/genfiles/db/types.js';
 import {isAfter} from 'date-fns';
+import {Float, Int} from 'grats';
 import {Selectable} from 'kysely';
 import {db} from './db';
 import {Entry} from './entry';
@@ -98,7 +99,8 @@ export class Player implements Selectable<DB['Player']> {
     return entries.map((e) => new Entry(this.vc, e));
   }
 
-  async wins(): Promise<number> {
+  /** @gqlField */
+  async wins(): Promise<Int> {
     const {wins} = await db
       .selectFrom('Entry')
       .select((eb) =>
@@ -114,7 +116,8 @@ export class Player implements Selectable<DB['Player']> {
     return wins;
   }
 
-  async losses(): Promise<number> {
+  /** @gqlField */
+  async losses(): Promise<Int> {
     const {losses} = await db
       .selectFrom('Entry')
       .select((eb) =>
@@ -130,7 +133,8 @@ export class Player implements Selectable<DB['Player']> {
     return losses;
   }
 
-  async draws(): Promise<number> {
+  /** @gqlField */
+  async draws(): Promise<Int> {
     const {draws} = await db
       .selectFrom('Entry')
       .select((eb) => eb.fn.sum<number>('draws').as('draws'))
@@ -140,7 +144,8 @@ export class Player implements Selectable<DB['Player']> {
     return draws;
   }
 
-  async topCuts(): Promise<number> {
+  /** @gqlField */
+  async topCuts(): Promise<Int> {
     const {topCuts} = await db
       .selectFrom('Entry')
       .select((eb) => eb.fn.count<number>('Entry.id').as('topCuts'))
@@ -152,7 +157,8 @@ export class Player implements Selectable<DB['Player']> {
     return topCuts;
   }
 
-  async winRate(): Promise<number> {
+  /** @gqlField */
+  async winRate(): Promise<Float> {
     const {winRate} = await db
       .selectFrom('Entry')
       .select((eb) =>
@@ -188,7 +194,8 @@ export class Player implements Selectable<DB['Player']> {
     return winRate;
   }
 
-  async conversionRate(): Promise<number> {
+  /** @gqlField */
+  async conversionRate(): Promise<Float> {
     const {conversionRate} = await db
       .selectFrom('Entry')
       .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
