@@ -23,5 +23,5 @@ jobs:
         run: pnpm format:check
       - name: Check Lint
         run: pnpm lint
-      - name: Check Types
-        run: pnpm exec tsc
+      - name: Check Build
+        run: pnpm build
