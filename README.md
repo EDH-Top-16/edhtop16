@@ -19,13 +19,13 @@ development:
 First install local dependencies with:
 
 ```sh
-npm install
+pnpm install
 ```
 
 then run the following to start the application:
 
 ```sh
-npm run dev
+pnpm dev
 ```
 
 ### Running using Docker
@@ -44,10 +44,10 @@ To build:
 To run:
 
 ```sh
-docker run -p 8000:8000 --rm edhtop16
+docker run -p 3000:3000 --rm edhtop16
 ```
 
-To test visit http://localhost:8000
+To test visit http://localhost:3000
 
 ## Special Thanks
 

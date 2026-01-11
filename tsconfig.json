@@ -6,39 +6,42 @@
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
+    "allowImportingTsExtensions": true,
     "noEmit": true,
     "esModuleInterop": true,
     "strictNullChecks": true,
     "noUncheckedIndexedAccess": true,
     "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "paths": {
-      "#src/*": ["./src/*"],
-      "#genfiles/*": ["./__generated__/*"]
-    }
+      "@/schema/*": ["./schema/*"],
+      "@/components/*": ["./components/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/genfiles/*": ["./__generated__/*"]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": [
-    "__generated__/**/*.ts",
-    "__generated__/**/*.tsx",
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "types/*.ts"
-  ],
-  "exclude": ["node_modules"],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"
     }
   },
-  "grats": {
-    "graphqlSchema": "./__generated__/schema/schema.graphql",
-    "tsSchema": "./__generated__/schema/schema.ts",
-    "nullableByDefault": true,
-    "strictSemanticNullability": true
-  }
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": ["node_modules"]
 }

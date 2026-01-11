@@ -34,12 +34,12 @@ async function cleanupOldBackups() {
     const [, datePart, timePart] = match;
 
     // Parse timestamp
-    const year = parseInt(datePart.substring(0, 4));
-    const month = parseInt(datePart.substring(4, 6)) - 1; // JS months are 0-indexed
-    const day = parseInt(datePart.substring(6, 8));
-    const hour = parseInt(timePart.substring(0, 2));
-    const minute = parseInt(timePart.substring(2, 4));
-    const second = parseInt(timePart.substring(4, 6));
+    const year = parseInt(datePart!.substring(0, 4));
+    const month = parseInt(datePart!.substring(4, 6)) - 1; // JS months are 0-indexed
+    const day = parseInt(datePart!.substring(6, 8));
+    const hour = parseInt(timePart!.substring(0, 2));
+    const minute = parseInt(timePart!.substring(2, 4));
+    const second = parseInt(timePart!.substring(4, 6));
 
     const fileDate = new Date(Date.UTC(year, month, day, hour, minute, second));
     const fileTimestamp = fileDate.getTime();
