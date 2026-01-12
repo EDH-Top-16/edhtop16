@@ -1,5 +1,6 @@
 import {tournamentView_BreakdownGroupCard$key} from '#genfiles/queries/tournamentView_BreakdownGroupCard.graphql';
 import {tournamentView_EntryCard$key} from '#genfiles/queries/tournamentView_EntryCard.graphql';
+import {tournamentView_EntryCard_tournament$key} from '#genfiles/queries/tournamentView_EntryCard_tournament.graphql';
 import {tournamentView_TournamentBanner$key} from '#genfiles/queries/tournamentView_TournamentBanner.graphql';
 import {tournamentView_TournamentMeta$key} from '#genfiles/queries/tournamentView_TournamentMeta.graphql';
 import {tournamentView_TournamentPageShellQuery} from '#genfiles/queries/tournamentView_TournamentPageShellQuery.graphql.js';
@@ -26,6 +27,7 @@ import {Navigation} from './components/navigation';
 import {FirstPartyPromo} from './components/promo';
 import {Tab, TabList} from './components/tabs';
 import {formatOrdinals, formatPercent} from './lib/client/format';
+import {Layers, Users2} from 'lucide-react';
 
 function EntryCard({
   highlightFirst = true,
@@ -33,6 +35,7 @@ function EntryCard({
 }: {
   highlightFirst?: boolean;
   entry: tournamentView_EntryCard$key;
+  tournament: tournamentView_EntryCard_tournament$key;
 }) {
   const entry = useFragment(
     graphql`
@@ -46,6 +49,7 @@ function EntryCard({
         player {
           name
           isKnownCheater
+          offersCoaching
         }
 
         commander {
@@ -60,6 +64,16 @@ function EntryCard({
     props.entry,
   );
 
+  const tournament = useFragment(
+    graphql`
+      fragment tournamentView_EntryCard_tournament on Tournament
+      @throwOnFieldError {
+        size
+      }
+    `,
+    props.tournament,
+  );
+
   let entryName = `${entry.player?.name ?? 'Unknown Player'}`;
   if (entry.standing === 1) {
     entryName = `🥇 ${entryName}`;
@@ -70,7 +84,7 @@ function EntryCard({
   }
 
   const entryNameNode = (
-    <span className="relative flex items-baseline">
+    <span className="relative flex items-baseline justify-between">
       {entryName}
       {entry.player?.isKnownCheater && (
         <span className="absolute right-0 rounded-full bg-red-600 px-2 py-1 text-xs uppercase">
@@ -80,15 +94,6 @@ function EntryCard({
     </span>
   );
 
-  const bottomText = (
-    <div className="flex">
-      <span className="flex-1">{formatOrdinals(entry.standing)} place</span>
-      <span>
-        Wins: {entry.wins} / Losses: {entry.losses} / Draws: {entry.draws}
-      </span>
-    </div>
-  );
-
   return (
     <Card
       className={cn(
@@ -96,7 +101,7 @@ function EntryCard({
         highlightFirst &&
           'md:first:col-span-2 lg:max-w-3xl lg:first:col-span-3 lg:first:w-full lg:first:justify-self-center',
       )}
-      bottomText={bottomText}
+      hoverEffect={false}
       images={entry.commander.cards
         .flatMap((c) => c.imageUrls)
         .map((img) => ({
@@ -104,25 +109,88 @@ function EntryCard({
           alt: `${entry.commander.name} art`,
         }))}
     >
-      <div className="flex h-32 flex-col space-y-2 lg:group-first:h-40">
-        {entry.decklist ? (
-          <a
-            href={entry.decklist}
-            target="_blank"
-            className="line-clamp-2 text-xl font-bold underline decoration-transparent transition-colors hover:decoration-inherit"
-          >
-            {entryNameNode}
-          </a>
-        ) : (
-          <span className="text-xl font-bold">{entryNameNode}</span>
-        )}
-
-        <Link
-          href={entry.commander.breakdownUrl}
-          className="underline decoration-transparent transition-colors hover:decoration-inherit"
-        >
-          {entry.commander.name}
-        </Link>
+      <div className="flex h-full flex-col justify-between gap-2 lg:group-first:h-48">
+        <div className="flex flex-col">
+          <div className="items-flex-startr flex justify-between gap-2">
+            <span className="text-xl font-semibold">{entryNameNode}</span>
+            {entry.decklist && entry.commander.name && (
+              <a
+                href={entry.decklist}
+                target="_blank"
+                className="flex h-fit flex-shrink-0 items-center gap-1 rounded border border-white/40 px-2 py-1 text-sm font-medium transition-colors hover:bg-white/20"
+              >
+                <img
+                  src={'https://topdeck.gg/img/logo/TopDeckNoBorder.png'}
+                  alt="View decklist on TopDeck.gg"
+                  className="h-4 w-4"
+                />
+                Decklist
+              </a>
+            )}
+          </div>
+          <div className="space-x-1">
+            {entry.player?.isKnownCheater && (
+              <span className="w-fit rounded-sm border border-white/30 bg-red-600 px-1 py-0.5 text-xs font-semibold">
+                Cheater
+              </span>
+            )}
+            {/* TODO(@ryan): conditional here for team */}
+            <span className="w-fit rounded-sm border border-white/30 bg-[#9593C8] px-1 py-0.5 text-xs font-semibold">
+              C4BL<span className="font-normal opacity-60">#1</span>
+            </span>
+            {/* TODO(@ryan): conditional here for coach */}
+            {!entry.player?.isKnownCheater && (
+              <span className="w-fit rounded-sm border border-white/30 bg-[#5E96F6] px-1 py-0.5 text-xs font-semibold">
+                Offers coaching
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-start gap-2 text-base md:text-sm">
+            <div className="mt-[3px]">
+              <Users2 className="h-4 w-4 text-white/50" />
+            </div>
+            <span className="text-white/80">
+              #{entry.standing} of {tournament.size} players
+            </span>
+          </div>
+          <div className="flex items-start gap-2 text-base md:text-sm">
+            <div className="mt-[3px]">
+              <Layers className="h-4 w-4 text-white/50" />
+            </div>
+            {entry.commander.name ? (
+              <Link
+                href={entry.commander.breakdownUrl}
+                className="text-white/80 underline decoration-transparent transition-colors hover:decoration-inherit"
+              >
+                {entry.commander.name}
+              </Link>
+            ) : (
+              <span className="text-muted-foreground">Unknown commander</span>
+            )}
+          </div>
+        </div>
+        <div className="mt-2 flex justify-around gap-2 justify-self-end rounded-xl bg-black/45 px-8 py-2">
+          <div className="flex flex-col items-center">
+            <span className="text-lg font-medium">{entry.wins}</span>
+            <span className="text-muted-foreground text-sm tracking-wider uppercase">
+              Wins
+            </span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-lg font-medium">{entry.losses}</span>
+            <span className="text-muted-foreground text-sm tracking-wider uppercase">
+              Losses
+            </span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-lg font-medium">{entry.draws}</span>
+            <span className="text-muted-foreground text-sm tracking-wider uppercase">
+              Draws
+            </span>
+          </div>
+        </div>
       </div>
     </Card>
   );
@@ -381,6 +449,8 @@ export const TournamentViewPage: EntryPointComponent<
         $showBreakdownCommander: Boolean!
       ) @preloadable @throwOnFieldError {
         tournament(TID: $TID) {
+          ...tournamentView_EntryCard_tournament
+
           entries @include(if: $showStandings) {
             id
             ...tournamentView_EntryCard
@@ -407,15 +477,42 @@ export const TournamentViewPage: EntryPointComponent<
 
   const {replaceRoute} = useNavigation();
 
+  const top4Entries = tournament.entries?.slice(0, 4) ?? [];
+  const remainingEntries = tournament.entries?.slice(4) ?? [];
+
   return (
     <>
-      <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
-        {queries.tournamentQueryRef.variables.showStandings &&
-          tournament.entries != null &&
-          tournament.entries.map((entry) => (
-            <EntryCard key={entry.id} entry={entry} />
-          ))}
+      {queries.tournamentQueryRef.variables.showStandings &&
+        tournament.entries != null && (
+          <div className="mx-auto w-full max-w-(--breakpoint-xl) space-y-4 px-2 py-6">
+            {/* Top 4 in 2x2 grid */}
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              {top4Entries.map((entry) => (
+                <EntryCard
+                  key={entry.id}
+                  entry={entry}
+                  tournament={tournament}
+                  highlightFirst={false}
+                />
+              ))}
+            </div>
+            {/* Remaining entries in 3-column grid */}
+            {remainingEntries.length > 0 && (
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {remainingEntries.map((entry) => (
+                  <EntryCard
+                    key={entry.id}
+                    entry={entry}
+                    tournament={tournament}
+                    highlightFirst={false}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
+      <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 px-2 py-6 md:grid-cols-2 lg:grid-cols-3">
         {queries.tournamentQueryRef.variables.showBreakdown &&
           tournament.breakdown &&
           tournament.breakdown.map((group) => (
@@ -435,7 +532,12 @@ export const TournamentViewPage: EntryPointComponent<
         {queries.tournamentQueryRef.variables.showBreakdownCommander &&
           tournament.breakdownEntries &&
           tournament.breakdownEntries.map((entry) => (
-            <EntryCard key={entry.id} entry={entry} highlightFirst={false} />
+            <EntryCard
+              key={entry.id}
+              entry={entry}
+              tournament={tournament}
+              highlightFirst={false}
+            />
           ))}
       </div>
 

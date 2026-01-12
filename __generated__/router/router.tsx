@@ -32,6 +32,7 @@ import {
 } from 'react-relay/hooks';
 import * as z from 'zod/v4-mini';
 import { JSResource, ModuleType } from "./js_resource";
+import coachingPage_CoachQueryParameters from "#genfiles/queries/coachingPage_CoachQuery$parameters";
 import { entrypoint as e0 } from "../../src/commander_page.entrypoint";
 import commanders_HomePagePromoQueryParameters from "#genfiles/queries/commanders_HomePagePromoQuery$parameters";
 import commanders_CommandersQueryParameters from "#genfiles/queries/commanders_CommandersQuery$parameters";
@@ -44,6 +45,12 @@ const ROUTER_CONF = {
   "/about": {
       entrypoint: entrypoint_routeabout(),
       schema: z.object({})
+    } as const,
+  "/coaching/:profile": {
+      entrypoint: entrypoint_routecoachingprofile(),
+      schema: z.object({
+        profile: z.pipe(z.string(), z.transform(decodeURIComponent)),
+      })
     } as const,
   "/commander/:commander": {
       entrypoint: e0,
@@ -515,6 +522,27 @@ function entrypoint_routeabout(): EntryPoint<ModuleType<'route(/about)'>, EntryP
       const variables = schema.parse(params);
       return {
         queries: {
+        }
+        ,
+        entryPoints: {
+        }
+      }
+    }
+  }
+}
+
+function entrypoint_routecoachingprofile(): EntryPoint<ModuleType<'route(/coaching/:profile)'>, EntryPointParams<'/coaching/:profile'>> {
+  return {
+    root: JSResource.fromModuleId('route(/coaching/:profile)'),
+    getPreloadProps({params, schema}) {
+      const variables = schema.parse(params);
+      return {
+        queries: {
+          coachRef: {
+            parameters: coachingPage_CoachQueryParameters,
+            variables: {profile: variables.profile}
+          }
+          ,
         }
         ,
         entryPoints: {

@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<52e78f057283f0589d84541364589edf>>
- * @relayHash 6d338428e05ff88c90049e3e496180e8
+ * @generated SignedSource<<fc600a516fc4d7b926bcd6f9c52bcd4a>>
+ * @relayHash 1660ea99de80d5fd4959f8b616730104
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 6d338428e05ff88c90049e3e496180e8
+// @relayRequestID 1660ea99de80d5fd4959f8b616730104
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -36,6 +36,7 @@ export type tournamentView_TournamentQuery$data = {
       readonly id: string;
       readonly " $fragmentSpreads": FragmentRefs<"tournamentView_EntryCard">;
     }>;
+    readonly " $fragmentSpreads": FragmentRefs<"tournamentView_EntryCard_tournament">;
   };
 };
 export type tournamentView_TournamentQuery = {
@@ -184,6 +185,13 @@ v12 = [
         "name": "isKnownCheater",
         "storageKey": null
       },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "offersCoaching",
+        "storageKey": null
+      },
       (v6/*: any*/)
     ],
     "storageKey": null
@@ -227,6 +235,11 @@ return {
         "name": "tournament",
         "plural": false,
         "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "tournamentView_EntryCard_tournament"
+          },
           {
             "condition": "showStandings",
             "kind": "Condition",
@@ -323,6 +336,13 @@ return {
         "name": "tournament",
         "plural": false,
         "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "size",
+            "storageKey": null
+          },
           {
             "condition": "showStandings",
             "kind": "Condition",
@@ -425,7 +445,7 @@ return {
     ]
   },
   "params": {
-    "id": "6d338428e05ff88c90049e3e496180e8",
+    "id": "1660ea99de80d5fd4959f8b616730104",
     "metadata": {},
     "name": "tournamentView_TournamentQuery",
     "operationKind": "query",
@@ -434,7 +454,7 @@ return {
 };
 })();
 
-(node as any).hash = "88b1d4694612a57397dec6f17de85752";
+(node as any).hash = "3c349dd668099c1fd2818a19f6bb0e39";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

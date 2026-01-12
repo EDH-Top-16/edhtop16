@@ -14,7 +14,7 @@ import {commanderPage_EntryCard$key} from '#genfiles/queries/commanderPage_Entry
 import {commanderPage_LazyCardEntriesQuery} from '#genfiles/queries/commanderPage_LazyCardEntriesQuery.graphql';
 import {CommanderEntriesQuery} from '#genfiles/queries/CommanderEntriesQuery.graphql';
 import {ModuleType} from '#genfiles/router/js_resource.js';
-import {Link, useNavigation} from '#genfiles/router/router';
+import {Link, RouteLink, useNavigation} from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback.jsx';
 import cn from 'classnames';
 import {format} from 'date-fns';
@@ -39,6 +39,7 @@ import {Select} from './components/select';
 import {Tab, TabList} from './components/tabs';
 import {formatOrdinals, formatPercent} from './lib/client/format';
 import {ServerSafeSuspense} from './lib/client/suspense';
+import {ArrowRight, Calendar, Trophy, Users, UsersRound} from 'lucide-react';
 
 function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
   const entry = useFragment(
@@ -53,6 +54,8 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
         player {
           name
           isKnownCheater
+          offersCoaching
+          topdeckProfile
         }
 
         tournament {
@@ -76,53 +79,110 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
   }
 
   const entryNameNode = (
-    <span className="relative flex items-baseline">
+    <span className="relative flex flex-col items-baseline gap-1">
       {entryName}
+
       {entry.player?.isKnownCheater && (
-        <span className="absolute right-0 rounded-full bg-red-600 px-2 py-1 text-xs uppercase">
+        <span className="mt-0.5 mb-1 rounded-full bg-red-600 px-2 py-1 text-xs uppercase">
           Cheater
         </span>
       )}
+
+      {!entry.player?.isKnownCheater &&
+        entry.player?.offersCoaching &&
+        entry.player.topdeckProfile && (
+          <RouteLink
+            className="group mt-0.5 mb-1 flex cursor-pointer gap-1 rounded-full bg-blue-500 px-2 py-1 text-xs uppercase"
+            route="/coaching/:profile"
+            params={{profile: entry.player.topdeckProfile}}
+          >
+            Offers coaching
+            <ArrowRight className="hidden h-4 w-4 group-hover:block" />
+          </RouteLink>
+        )}
     </span>
   );
 
-  const bottomText = (
-    <div className="flex">
-      <span className="flex-1">
-        {formatOrdinals(entry.standing)}&nbsp;/&nbsp;
-        {entry.tournament.size} players
-      </span>
-
-      <span>
-        Wins: {entry.wins} / Losses: {entry.losses} / Draws: {entry.draws}
-      </span>
-    </div>
-  );
-
   return (
-    <Card bottomText={bottomText}>
-      <div className="flex h-32 flex-col">
-        {entry.decklist ? (
-          <a
-            href={entry.decklist}
-            target="_blank"
-            className="line-clamp-1 text-xl font-bold underline decoration-transparent transition-colors hover:decoration-inherit"
-          >
-            {entryNameNode}
-          </a>
-        ) : (
-          <span className="text-xl font-bold">{entryNameNode}</span>
-        )}
+    <Card hoverEffect={false}>
+      <div className="flex h-full flex-col justify-between gap-1">
+        <>
+          <div className="flex items-center justify-between gap-0.5">
+            <span className="text-xl font-semibold">{entryNameNode}</span>
+            {entry.decklist && (
+              <a
+                href={entry.decklist}
+                target="_blank"
+                className="flex h-fit flex-shrink-0 items-center gap-1 rounded border border-white/40 px-2 py-1 text-sm font-medium transition-colors hover:bg-white/20"
+              >
+                <img
+                  src={'https://topdeck.gg/img/logo/TopDeckNoBorder.png'}
+                  alt="View decklist on TopDeck.gg"
+                  className="h-4 w-4"
+                />
+                Decklist
+              </a>
+            )}
+          </div>
 
-        <Link
-          href={`/tournament/${entry.tournament.TID}`}
-          className="line-clamp-2 pt-2 underline decoration-transparent transition-colors hover:decoration-inherit"
-        >
-          {entry.tournament.name}
-        </Link>
-        <span className="line-clamp-1 text-sm opacity-70">
-          {format(entry.tournament.tournamentDate, 'MMMM do yyyy')}
-        </span>
+          <div className="space-x-1">
+            {/*{entry.player?.isKnownCheater && (
+              <span className="w-fit rounded-sm border border-white/30 bg-red-600 px-1 py-0.5 text-xs font-semibold">
+                Cheater
+              </span>
+            )}*/}
+            {/* TODO(@ryan): conditional here for team */}
+            {/*<span className="w-fit rounded-sm border border-white/30 bg-[#9593C8] px-1 py-0.5 text-xs font-semibold">
+              C4BL<span className="font-normal opacity-60">#1</span>
+            </span>*/}
+            {/* TODO(@ryan): conditional here for coach */}
+            {/*{!entry.player?.isKnownCheater && (
+              <span className="w-fit rounded-sm border border-white/30 bg-[#5E96F6] px-1 py-0.5 text-xs font-semibold">
+                Offers coaching
+              </span>
+            )}*/}
+          </div>
+
+          <div className="space-y-1.5">
+            <Link
+              href={`/tournament/${entry.tournament.TID}`}
+              className="line-clamp-2 flex items-start gap-2 pt-2 text-sm underline decoration-transparent transition-colors hover:decoration-inherit"
+            >
+              <Trophy className="mt-[3px] h-3.5 w-3.5 text-purple-300/50" />
+              <p>
+                {entry.tournament.name}
+                <span className="text-muted-foreground ml-1">
+                  ({format(entry.tournament.tournamentDate, 'MMM do, yyyy')})
+                </span>
+              </p>
+            </Link>
+            <div className="line-clamp-1 flex items-center gap-2 text-sm">
+              <UsersRound className="h-3.5 w-3.5 text-purple-300/50" />#
+              {entry.standing} of&nbsp;
+              {entry.tournament.size} players
+            </div>
+          </div>
+        </>
+        <div className="mt-2 flex justify-around gap-2 rounded-lg bg-black/40 px-8 py-3 lg:justify-between">
+          <div className="flex flex-col items-center">
+            <span className="text-lg font-medium">{entry.wins}</span>
+            <span className="text-muted-foreground text-sm tracking-wider uppercase">
+              Wins
+            </span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-lg font-medium">{entry.losses}</span>
+            <span className="text-muted-foreground text-sm tracking-wider uppercase">
+              Losses
+            </span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-lg font-medium">{entry.draws}</span>
+            <span className="text-muted-foreground text-sm tracking-wider uppercase">
+              Draws
+            </span>
+          </div>
+        </div>
       </div>
     </Card>
   );
