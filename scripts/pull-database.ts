@@ -107,7 +107,7 @@ class TopDeckClient {
           })
           .nullable(),
         standing: z.number(),
-        points: z.number(),
+        points: z.number().nullable(),
         winRate: z.number().nullish(),
         opponentWinRate: z.number().nullish(),
       }),
@@ -409,7 +409,7 @@ async function createCommanders(
       })),
     );
 
-  info`Updating profile information for ${commanders.length} commanders...`();
+  info`Updating information for ${commanders.length} commanders...`();
 
   const insertedCommanders = await db
     .insertInto('Commander')
