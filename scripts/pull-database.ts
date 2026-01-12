@@ -21,7 +21,10 @@ import pc from 'picocolors';
 import * as undici from 'undici';
 import {z} from 'zod/v4';
 import type {DB} from '../__generated__/db/types';
-import {type ScryfallCard, scryfallCardSchema} from '../lib/schema/scryfall.ts';
+import {
+  type ScryfallCard,
+  scryfallCardSchema,
+} from '../src/lib/server/scryfall.ts';
 import type {DB as ProfileDB} from './__generated__/profile_db_types.d.ts';
 
 class TopDeckClient {

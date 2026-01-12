@@ -53,12 +53,12 @@ jobs:
         run: s3cmd get s3://edhtop16/edhtop16.db
 
       - name: Run Database Migrations
-        run: pnpm run db:migrate
+        run: pnpm run migrate
         env:
           NODE_OPTIONS: --max-old-space-size=4096
 
       - name: Generate Application Database
-        run: pnpm run db:generate
+        run: pnpm run generate:db
         env:
           NODE_OPTIONS: --max-old-space-size=4096
           TOPDECK_GG_API_KEY: ${{ secrets.TOPDECK_GG_API_KEY }}
