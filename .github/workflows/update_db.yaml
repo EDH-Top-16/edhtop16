@@ -75,3 +75,15 @@ jobs:
 
       - name: Deploy Application
         run: doctl apps create-deployment ${{ secrets.DIGITALOCEAN_APP_ID }} --force-rebuild --wait
+
+  notify_failure:
+    name: 'Notify Discord on Failure'
+    runs-on: ubuntu-latest
+    needs: pull_db
+    if: failure()
+    steps:
+      - name: Send Discord Notification
+        run: |
+          curl -H "Content-Type: application/json" \
+            -d '{"content": "⚠️ **Database Update Failed**\n\nThe nightly database update workflow has failed.\n\n🔗 [View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"}' \
+            ${{ secrets.DISCORD_WEBHOOK_URL }}
