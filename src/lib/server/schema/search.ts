@@ -1,4 +1,4 @@
-import {Int} from 'grats';
+import {Float, Int} from 'grats';
 import {db} from '../db';
 
 /** @gqlType */
@@ -7,6 +7,7 @@ interface SearchResult {
   name: string;
   /** @gqlField */
   url: string;
+  // Tournament-specific fields
   /** @gqlField */
   tournamentDate: string | null;
   /** @gqlField */
@@ -15,6 +16,13 @@ interface SearchResult {
   topdeckUrl: string | null;
   /** @gqlField */
   winnerName: string | null;
+  // Commander-specific fields
+  /** @gqlField */
+  entries: Int | null;
+  /** @gqlField */
+  topCuts: Int | null;
+  /** @gqlField */
+  metaShare: Float | null;
 }
 
 /** @gqlEnum */
@@ -30,9 +38,34 @@ export async function searchResults(
   const results: SearchResult[] = [];
 
   if (types == null || types.includes(SearchResultType.COMMANDER)) {
+    // Get total entries for meta share calculation
+    const {totalEntries} = await db
+      .selectFrom('Entry')
+      .select((eb) => eb.fn.countAll<number>().as('totalEntries'))
+      .executeTakeFirstOrThrow();
+
     const commanders = await db
       .selectFrom('Commander')
-      .select(['Commander.name'])
+      .leftJoin('Entry', 'Entry.commanderId', 'Commander.id')
+      .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+      .select([
+        'Commander.name',
+        (eb) => eb.fn.count<number>('Entry.id').as('entries'),
+        (eb) =>
+          eb.fn
+            .sum<number>(
+              eb
+                .case()
+                .when('Entry.standing', '<=', eb.ref('Tournament.topCut'))
+                .then(1)
+                .else(0)
+                .end(),
+            )
+            .as('topCuts'),
+      ])
+      .where('Commander.name', '!=', 'Unknown Commander')
+      .groupBy('Commander.id')
+      .orderBy('entries', 'desc')
       .execute();
 
     for (const c of commanders) {
@@ -43,6 +76,9 @@ export async function searchResults(
         size: null,
         topdeckUrl: null,
         winnerName: null,
+        entries: c.entries,
+        topCuts: c.topCuts ?? 0,
+        metaShare: totalEntries > 0 ? c.entries / totalEntries : 0,
       });
     }
   }
@@ -75,6 +111,9 @@ export async function searchResults(
         size: t.size,
         topdeckUrl: `https://topdeck.gg/event/${t.TID}`,
         winnerName: t.winnerName,
+        entries: null,
+        topCuts: null,
+        metaShare: null,
       });
     }
   }

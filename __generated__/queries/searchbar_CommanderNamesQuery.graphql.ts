@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<05571a123a53b272ff89a7764b0f0fad>>
- * @relayHash 622231bdaf45e2422524236dcc3a95dc
+ * @generated SignedSource<<e90986e9122b7b6f3cd997e9c28cf078>>
+ * @relayHash 4aa21fe7b4c328091aaeaadbc1a88c24
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 622231bdaf45e2422524236dcc3a95dc
+// @relayRequestID 4aa21fe7b4c328091aaeaadbc1a88c24
 
 import { ConcreteRequest } from 'relay-runtime';
 export type SearchResultType = "COMMANDER" | "TOURNAMENT" | "%future added value";
@@ -18,8 +18,11 @@ export type searchbar_CommanderNamesQuery$variables = {
 };
 export type searchbar_CommanderNamesQuery$data = {
   readonly searchResults: ReadonlyArray<{
+    readonly entries: number | null | undefined;
+    readonly metaShare: number | null | undefined;
     readonly name: string;
     readonly size: number | null | undefined;
+    readonly topCuts: number | null | undefined;
     readonly topdeckUrl: string | null | undefined;
     readonly tournamentDate: string | null | undefined;
     readonly url: string;
@@ -95,6 +98,27 @@ v1 = [
         "kind": "ScalarField",
         "name": "winnerName",
         "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "entries",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "topCuts",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "metaShare",
+        "storageKey": null
       }
     ],
     "storageKey": null
@@ -120,7 +144,7 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "id": "622231bdaf45e2422524236dcc3a95dc",
+    "id": "4aa21fe7b4c328091aaeaadbc1a88c24",
     "metadata": {},
     "name": "searchbar_CommanderNamesQuery",
     "operationKind": "query",
@@ -129,6 +153,6 @@ return {
 };
 })();
 
-(node as any).hash = "ac2f72c7951e9829ff21cfc8f6f0a105";
+(node as any).hash = "d46cd7fa823ee9c587a226cf563c60bd";
 
 export default node;

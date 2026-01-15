@@ -969,6 +969,14 @@ export function getSchema(): GraphQLSchema {
         name: "SearchResult",
         fields() {
             return {
+                entries: {
+                    name: "entries",
+                    type: GraphQLInt
+                },
+                metaShare: {
+                    name: "metaShare",
+                    type: GraphQLFloat
+                },
                 name: {
                     name: "name",
                     type: GraphQLString,
@@ -978,6 +986,10 @@ export function getSchema(): GraphQLSchema {
                 },
                 size: {
                     name: "size",
+                    type: GraphQLInt
+                },
+                topCuts: {
+                    name: "topCuts",
                     type: GraphQLInt
                 },
                 topdeckUrl: {

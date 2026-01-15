@@ -5,22 +5,35 @@ const FuseLib = import('fuse.js').then((mod) => mod.default);
 interface SearchItem {
   name: string;
   url: string;
+  // Tournament fields
   tournamentDate?: string | null;
   size?: number | null;
   topdeckUrl?: string | null;
   winnerName?: string | null;
+  // Commander fields
+  entries?: number | null;
+  topCuts?: number | null;
+  metaShare?: number | null;
 }
 
 type SearchOp = (term: string) => SearchItem[];
 
-function sortByDate(items: SearchItem[]): SearchItem[] {
+function sortResults(items: SearchItem[]): SearchItem[] {
   return items.sort((a, b) => {
-    // Items with dates come before items without
+    // Commander results: sort by metaShare descending
+    if (a.metaShare != null && b.metaShare != null) {
+      return b.metaShare - a.metaShare;
+    }
+    // Tournament results: sort by date descending
+    if (a.tournamentDate && b.tournamentDate) {
+      return b.tournamentDate.localeCompare(a.tournamentDate);
+    }
+    // Items with dates/metaShare come before items without
     if (a.tournamentDate && !b.tournamentDate) return -1;
     if (!a.tournamentDate && b.tournamentDate) return 1;
-    if (!a.tournamentDate && !b.tournamentDate) return 0;
-    // Sort by date descending (most recent first)
-    return b.tournamentDate!.localeCompare(a.tournamentDate!);
+    if (a.metaShare != null && b.metaShare == null) return -1;
+    if (a.metaShare == null && b.metaShare != null) return 1;
+    return 0;
   });
 }
 
@@ -32,7 +45,7 @@ function defaultSearchOperator(list: readonly SearchItem[]): SearchOp {
         c.name.toLowerCase().includes(lowerTerm) ||
         c.winnerName?.toLowerCase().includes(lowerTerm),
     );
-    return sortByDate([...filtered]);
+    return sortResults([...filtered]);
   };
 }
 
@@ -65,8 +78,8 @@ export function useSearch(list: readonly SearchItem[], term: string) {
 
         // Sort each group by date, then combine (name matches first)
         return [
-          ...sortByDate([...fuzzyMatches]),
-          ...sortByDate([...winnerMatches]),
+          ...sortResults([...fuzzyMatches]),
+          ...sortResults([...winnerMatches]),
         ];
       });
     });

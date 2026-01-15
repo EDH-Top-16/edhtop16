@@ -263,8 +263,11 @@ type Query {
 }
 
 type SearchResult {
+  entries: Int
+  metaShare: Float
   name: String @semanticNonNull
   size: Int
+  topCuts: Int
   topdeckUrl: String
   tournamentDate: String
   url: String @semanticNonNull

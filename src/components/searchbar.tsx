@@ -138,6 +138,9 @@ function SearchInput({
           size
           topdeckUrl
           winnerName
+          entries
+          topCuts
+          metaShare
         }
       }
     `,
@@ -292,6 +295,14 @@ function Suggestions({
               {format(suggestion.tournamentDate, 'MMM d, yyyy')}
               {suggestion.size != null && ` · ${suggestion.size} players`}
               {suggestion.winnerName && ` · ${suggestion.winnerName}`}
+            </div>
+          )}
+          {suggestion.metaShare != null && (
+            <div className="text-sm text-gray-500">
+              {(suggestion.metaShare * 100).toFixed(1)}% meta
+              {suggestion.topCuts != null &&
+                ` · ${suggestion.topCuts} top cuts`}
+              {suggestion.entries != null && ` · ${suggestion.entries} entries`}
             </div>
           )}
         </li>
