@@ -264,7 +264,11 @@ type Query {
 
 type SearchResult {
   name: String @semanticNonNull
+  size: Int
+  topdeckUrl: String
+  tournamentDate: String
   url: String @semanticNonNull
+  winnerName: String
 }
 
 type Tournament implements Node {

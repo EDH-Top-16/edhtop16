@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<0acce30c641e451cfc74896705e0bc0d>>
- * @relayHash f5a13fa4bfbf171fe18cd4cb0af93921
+ * @generated SignedSource<<05571a123a53b272ff89a7764b0f0fad>>
+ * @relayHash 622231bdaf45e2422524236dcc3a95dc
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID f5a13fa4bfbf171fe18cd4cb0af93921
+// @relayRequestID 622231bdaf45e2422524236dcc3a95dc
 
 import { ConcreteRequest } from 'relay-runtime';
 export type SearchResultType = "COMMANDER" | "TOURNAMENT" | "%future added value";
@@ -19,7 +19,11 @@ export type searchbar_CommanderNamesQuery$variables = {
 export type searchbar_CommanderNamesQuery$data = {
   readonly searchResults: ReadonlyArray<{
     readonly name: string;
+    readonly size: number | null | undefined;
+    readonly topdeckUrl: string | null | undefined;
+    readonly tournamentDate: string | null | undefined;
     readonly url: string;
+    readonly winnerName: string | null | undefined;
   }>;
 };
 export type searchbar_CommanderNamesQuery = {
@@ -63,6 +67,34 @@ v1 = [
         "kind": "ScalarField",
         "name": "url",
         "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "tournamentDate",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "size",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "topdeckUrl",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "winnerName",
+        "storageKey": null
       }
     ],
     "storageKey": null
@@ -88,7 +120,7 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "id": "f5a13fa4bfbf171fe18cd4cb0af93921",
+    "id": "622231bdaf45e2422524236dcc3a95dc",
     "metadata": {},
     "name": "searchbar_CommanderNamesQuery",
     "operationKind": "query",
@@ -97,6 +129,6 @@ return {
 };
 })();
 
-(node as any).hash = "fa43c0b8fc93d57407c66c3336a869ab";
+(node as any).hash = "ac2f72c7951e9829ff21cfc8f6f0a105";
 
 export default node;

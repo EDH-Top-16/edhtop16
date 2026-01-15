@@ -2,21 +2,38 @@ import {useEffect, useMemo, useState} from 'react';
 
 const FuseLib = import('fuse.js').then((mod) => mod.default);
 
-type SearchOp = (term: string) => {name: string; url: string}[];
-function defaultSearchOperator(
-  list: readonly {name: string; url: string}[],
-): SearchOp {
+interface SearchItem {
+  name: string;
+  url: string;
+  tournamentDate?: string | null;
+  size?: number | null;
+  topdeckUrl?: string | null;
+  winnerName?: string | null;
+}
+
+type SearchOp = (term: string) => SearchItem[];
+
+function sortByDate(items: SearchItem[]): SearchItem[] {
+  return items.sort((a, b) => {
+    // Items with dates come before items without
+    if (a.tournamentDate && !b.tournamentDate) return -1;
+    if (!a.tournamentDate && b.tournamentDate) return 1;
+    if (!a.tournamentDate && !b.tournamentDate) return 0;
+    // Sort by date descending (most recent first)
+    return b.tournamentDate!.localeCompare(a.tournamentDate!);
+  });
+}
+
+function defaultSearchOperator(list: readonly SearchItem[]): SearchOp {
   return (term: string) => {
-    return list.filter((c) =>
+    const filtered = list.filter((c) =>
       c.name.toLowerCase().includes(term.toLowerCase()),
     );
+    return sortByDate([...filtered]);
   };
 }
 
-export function useSearch(
-  list: readonly {name: string; url: string}[],
-  term: string,
-) {
+export function useSearch(list: readonly SearchItem[], term: string) {
   const [searchOp, setSearchOp] = useState<SearchOp>(() =>
     defaultSearchOperator(list),
   );
@@ -29,7 +46,8 @@ export function useSearch(
       });
 
       setSearchOp(() => (term: string) => {
-        return fuse.search(term).map((res) => res.item);
+        const results = fuse.search(term).map((res) => res.item);
+        return sortByDate([...results]);
       });
     });
   }, [list]);
