@@ -26,8 +26,11 @@ function sortByDate(items: SearchItem[]): SearchItem[] {
 
 function defaultSearchOperator(list: readonly SearchItem[]): SearchOp {
   return (term: string) => {
-    const filtered = list.filter((c) =>
-      c.name.toLowerCase().includes(term.toLowerCase()),
+    const lowerTerm = term.toLowerCase();
+    const filtered = list.filter(
+      (c) =>
+        c.name.toLowerCase().includes(lowerTerm) ||
+        c.winnerName?.toLowerCase().includes(lowerTerm),
     );
     return sortByDate([...filtered]);
   };
@@ -40,14 +43,31 @@ export function useSearch(list: readonly SearchItem[], term: string) {
 
   useEffect(() => {
     FuseLib.then((Fuse) => {
+      // Fuzzy search on tournament name only
       const fuse = new Fuse(list, {
         threshold: 0.3,
         keys: ['name'],
       });
 
       setSearchOp(() => (term: string) => {
-        const results = fuse.search(term).map((res) => res.item);
-        return sortByDate([...results]);
+        const lowerTerm = term.toLowerCase();
+
+        // Get fuzzy matches on tournament name
+        const fuzzyMatches = fuse.search(term).map((res) => res.item);
+        const fuzzySet = new Set(fuzzyMatches);
+
+        // Get exact substring matches on winner name (excluding already matched)
+        const winnerMatches = list.filter(
+          (item) =>
+            item.winnerName?.toLowerCase().includes(lowerTerm) &&
+            !fuzzySet.has(item),
+        );
+
+        // Sort each group by date, then combine (name matches first)
+        return [
+          ...sortByDate([...fuzzyMatches]),
+          ...sortByDate([...winnerMatches]),
+        ];
       });
     });
   }, [list]);
