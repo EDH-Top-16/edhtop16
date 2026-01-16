@@ -134,6 +134,10 @@ type Card implements Node {
   id: ID!
   """URL's of art crops for each card face."""
   imageUrls: [String!] @semanticNonNull
+  """
+  Mana cost string in Scryfall format, e.g. "{2}{W}{U}"
+  """
+  manaCost: String @semanticNonNull
   name: String @semanticNonNull
   oracleId: String @semanticNonNull
   playRateLastYear: Float @semanticNonNull
@@ -266,6 +270,7 @@ type Query {
   searchResults(types: [SearchResultType!]!): [SearchResult!] @semanticNonNull
   staples(colorId: String, type: String): [Card!] @semanticNonNull
   tournament(TID: String!): Tournament @semanticNonNull
+  tournamentPagePromo: FirstPartyPromo
   tournaments(after: String, filters: TournamentFilters, first: Int! = 20, sortBy: TournamentSortBy! = DATE): TournamentConnection @semanticNonNull
 }
 

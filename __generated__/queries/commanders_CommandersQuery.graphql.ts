@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<3c8096891b89fbc1e50bab81360d9fef>>
- * @relayHash 63a5c44abef6edfa0982eb25dcffd204
+ * @generated SignedSource<<f9b82e942daba667debbfde308397563>>
+ * @relayHash 4cc5e84f1011586695c5e019fa680b9b
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 63a5c44abef6edfa0982eb25dcffd204
+// @relayRequestID 4cc5e84f1011586695c5e019fa680b9b
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -42,7 +42,7 @@ v1 = {
   "name": "minEntries"
 },
 v2 = {
-  "defaultValue": 60,
+  "defaultValue": 50,
   "kind": "LocalArgument",
   "name": "minSize"
 },
@@ -315,7 +315,7 @@ return {
     ]
   },
   "params": {
-    "id": "63a5c44abef6edfa0982eb25dcffd204",
+    "id": "4cc5e84f1011586695c5e019fa680b9b",
     "metadata": {},
     "name": "commanders_CommandersQuery",
     "operationKind": "query",
@@ -324,7 +324,7 @@ return {
 };
 })();
 
-(node as any).hash = "4a66b0af4655ceb2ed434f7c8abfc88f";
+(node as any).hash = "bd461e2f25a94292a186166c29d52084";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

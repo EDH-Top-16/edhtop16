@@ -734,10 +734,17 @@ export class Commander implements GraphQLNode {
           eb('entries.playRateLastYear', '-', eb.ref('Card.playRateLastYear')),
         'desc',
       )
-      .selectAll('Card');
+      .selectAll('Card')
+      .select('entries.playRateLastYear as commanderPlayRate');
 
     const rows = await query.limit(100).execute();
-    return rows.map((r) => new Card(r));
+    return rows.map(
+      (r) =>
+        // TODO(@ryan): probably want to check this casting to see if it's the right thing to do
+        // Assuming we need null bc it's a left join? I also have the card constructor
+        // accpet `null`, but convert that to `undefined`
+        new Card(r, {playRateOverride: r.commanderPlayRate as number | null}),
+    );
   }
 
   /** @gqlField */

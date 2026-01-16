@@ -25,6 +25,7 @@ import {Footer} from './components/footer';
 import {LoadMoreButton} from './components/load_more';
 import {Navigation} from './components/navigation';
 import {Select} from './components/select';
+import {FirstPartyPromo} from './components/promo';
 
 function TournamentCard(props: {commander: tournaments_TournamentCard$key}) {
   const tournament = useFragment(
@@ -128,16 +129,18 @@ export const TournamentsPageShell: EntryPointComponent<
 
             <Select
               id="tournaments-players"
-              label="Players"
+              label="Tournament Size"
               value={`${minSize}`}
               onChange={(value) => {
                 replaceRoute('/tournaments', {minSize: Number(value)});
               }}
             >
               <option value="0">All Tournaments</option>
-              <option value="32">32+ Players</option>
-              <option value="60">60+ Players</option>
+              <option value="16">16+ Players</option>
+              <option value="30">30+ Players</option>
+              <option value="50">50+ Players</option>
               <option value="100">100+ Players</option>
+              <option value="250">250+ Players</option>
             </Select>
 
             <Select
@@ -182,6 +185,10 @@ export const TournamentsPage: EntryPointComponent<
         $minSize: Int = 0
       ) @preloadable @throwOnFieldError {
         ...tournaments_Tournaments
+
+        tournamentPagePromo {
+          ...promo_EmbededPromo
+        }
       }
     `,
     queries.tournamentQueryRef,
@@ -220,6 +227,15 @@ export const TournamentsPage: EntryPointComponent<
   return (
     <>
       <div className="grid w-fit grid-cols-1 gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
+        {query.tournamentPagePromo && (
+          <FirstPartyPromo
+            promo={query.tournamentPagePromo}
+            hasMargin={false}
+            showImage={false}
+            fullWidth={true}
+          />
+        )}
+
         {data.tournaments.edges.map((edge) => (
           <TournamentCard key={edge.node.id} commander={edge.node} />
         ))}

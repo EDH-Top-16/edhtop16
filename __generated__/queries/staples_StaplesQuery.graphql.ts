@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<0092a14fd5e3a35871b820738795c8cc>>
- * @relayHash 007bc969df126551752b76e97de065a3
+ * @generated SignedSource<<3a1b07285163304e5dbbcf7beada7f84>>
+ * @relayHash 35cddb21023f8bf05945c5cff41167cf
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 007bc969df126551752b76e97de065a3
+// @relayRequestID 35cddb21023f8bf05945c5cff41167cf
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -20,7 +20,10 @@ export type staples_StaplesQuery$variables = {
 export type staples_StaplesQuery$data = {
   readonly staples: ReadonlyArray<{
     readonly id: string;
-    readonly " $fragmentSpreads": FragmentRefs<"staples_StaplesCard">;
+    readonly name: string | null | undefined;
+    readonly playRateLastYear: number | null | undefined;
+    readonly type: string | null | undefined;
+    readonly " $fragmentSpreads": FragmentRefs<"staples_TypesSection">;
   }> | null | undefined;
 };
 export type staples_StaplesQuery = {
@@ -59,6 +62,27 @@ v2 = {
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
+},
+v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
+  "storageKey": null
+},
+v4 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "type",
+  "storageKey": null
+},
+v5 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "playRateLastYear",
+  "storageKey": null
 };
 return {
   "fragment": {
@@ -76,10 +100,13 @@ return {
         "plural": true,
         "selections": [
           (v2/*: any*/),
+          (v3/*: any*/),
+          (v4/*: any*/),
+          (v5/*: any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "staples_StaplesCard"
+            "name": "staples_TypesSection"
           }
         ],
         "storageKey": null
@@ -103,32 +130,14 @@ return {
         "plural": true,
         "selections": [
           (v2/*: any*/),
+          (v3/*: any*/),
+          (v4/*: any*/),
+          (v5/*: any*/),
           {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "type",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "cmc",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "colorId",
+            "name": "manaCost",
             "storageKey": null
           },
           {
@@ -144,13 +153,6 @@ return {
             "kind": "ScalarField",
             "name": "scryfallUrl",
             "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "playRateLastYear",
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -158,7 +160,7 @@ return {
     ]
   },
   "params": {
-    "id": "007bc969df126551752b76e97de065a3",
+    "id": "35cddb21023f8bf05945c5cff41167cf",
     "metadata": {},
     "name": "staples_StaplesQuery",
     "operationKind": "query",
@@ -167,7 +169,7 @@ return {
 };
 })();
 
-(node as any).hash = "9c48641feb3571ca3b2f64c22c23f78a";
+(node as any).hash = "67a897553edaa0109fc8c8d89b8e5808";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

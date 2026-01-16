@@ -155,7 +155,7 @@ export const CommandersPageShell: EntryPointComponent<
     sortBy = 'POPULARITY',
     timePeriod = 'SIX_MONTHS',
     minEntries = 20,
-    minSize: minTournamentSize = 60,
+    minSize: minTournamentSize = 50,
     colorId = '',
   } = useRouteParams('/');
   const {replaceRoute} = useNavigation();
@@ -248,9 +248,11 @@ export const CommandersPageShell: EntryPointComponent<
               }}
             >
               <option value="0">All Tournaments</option>
-              <option value="32">32+ Players</option>
-              <option value="60">60+ Players</option>
+              <option value="16">16+ Players</option>
+              <option value="30">30+ Players</option>
+              <option value="50">50+ Players</option>
               <option value="100">100+ Players</option>
+              <option value="250">250+ Players</option>
             </Select>
           </div>
         </div>
@@ -306,7 +308,7 @@ export const CommandersPage: EntryPointComponent<
         $timePeriod: TimePeriod = SIX_MONTHS
         $sortBy: CommandersSortBy = POPULARITY
         $minEntries: Int = 20
-        $minSize: Int = 60
+        $minSize: Int = 50
         $colorId: String
       ) @preloadable @throwOnFieldError {
         ...commanders_topCommanders

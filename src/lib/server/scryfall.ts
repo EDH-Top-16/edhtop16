@@ -1,6 +1,7 @@
 import {z} from 'zod/v4';
 
 const scryfallCardFaceSchema = z.object({
+  mana_cost: z.string().optional(),
   image_uris: z
     .object({
       small: z.string(),

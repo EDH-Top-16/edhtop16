@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b2dae274052656a44823c558784024f5>>
+ * @generated SignedSource<<eea91fca79cfe50dd72eb0059a50b6be>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,10 +11,9 @@
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type staples_StaplesCard$data = {
-  readonly cmc: number;
-  readonly colorId: string;
   readonly id: string;
   readonly imageUrls: ReadonlyArray<string>;
+  readonly manaCost: string;
   readonly name: string;
   readonly playRateLastYear: number;
   readonly scryfallUrl: string;
@@ -59,14 +58,7 @@ const node: ReaderFragment = {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
-      "name": "cmc",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "colorId",
+      "name": "manaCost",
       "storageKey": null
     },
     {
@@ -95,6 +87,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "9336bf8f75151f4bcffd929409014dfa";
+(node as any).hash = "e746ba74b89976aafaf6b62e6b5d77f0";
 
 export default node;
