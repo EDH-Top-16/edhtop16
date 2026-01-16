@@ -2,7 +2,7 @@ import {useEffect, useMemo, useState} from 'react';
 
 const FuseLib = import('fuse.js').then((mod) => mod.default);
 
-interface SearchItem {
+export interface SearchItem {
   name: string;
   url: string;
   // Tournament fields
@@ -18,8 +18,9 @@ interface SearchItem {
 
 type SearchOp = (term: string) => SearchItem[];
 
-function sortResults(items: SearchItem[]): SearchItem[] {
-  return items.sort((a, b) => {
+function sortResults(items: readonly SearchItem[]): SearchItem[] {
+  // Create a copy to avoid mutating the input array
+  return [...items].sort((a, b) => {
     // Commander results: sort by metaShare descending
     if (a.metaShare != null && b.metaShare != null) {
       return b.metaShare - a.metaShare;
@@ -45,7 +46,7 @@ function defaultSearchOperator(list: readonly SearchItem[]): SearchOp {
         c.name.toLowerCase().includes(lowerTerm) ||
         c.winnerName?.toLowerCase().includes(lowerTerm),
     );
-    return sortResults([...filtered]);
+    return sortResults(filtered);
   };
 }
 
@@ -55,8 +56,13 @@ export function useSearch(list: readonly SearchItem[], term: string) {
   );
 
   useEffect(() => {
+    let cancelled = false;
+
     FuseLib.then((Fuse) => {
-      // Fuzzy search on tournament name only
+      // Prevent state update if component unmounted or list changed
+      if (cancelled) return;
+
+      // Fuzzy search on name only
       const fuse = new Fuse(list, {
         threshold: 0.3,
         keys: ['name'],
@@ -65,7 +71,7 @@ export function useSearch(list: readonly SearchItem[], term: string) {
       setSearchOp(() => (term: string) => {
         const lowerTerm = term.toLowerCase();
 
-        // Get fuzzy matches on tournament name
+        // Get fuzzy matches on name
         const fuzzyMatches = fuse.search(term).map((res) => res.item);
         const fuzzySet = new Set(fuzzyMatches);
 
@@ -76,13 +82,15 @@ export function useSearch(list: readonly SearchItem[], term: string) {
             !fuzzySet.has(item),
         );
 
-        // Sort each group by date, then combine (name matches first)
-        return [
-          ...sortResults([...fuzzyMatches]),
-          ...sortResults([...winnerMatches]),
-        ];
+        // Name matches appear first (more relevant), then winner name matches.
+        // Each group is sorted by date (tournaments) or meta share (commanders).
+        return [...sortResults(fuzzyMatches), ...sortResults(winnerMatches)];
       });
     });
+
+    return () => {
+      cancelled = true;
+    };
   }, [list]);
 
   return useMemo(() => {

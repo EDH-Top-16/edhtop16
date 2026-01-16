@@ -1,11 +1,13 @@
 import {searchbar_CommanderNamesQuery} from '#genfiles/queries/searchbar_CommanderNamesQuery.graphql';
 import {useNavigation} from '#genfiles/router/router';
 import cn from 'classnames';
-import {format} from 'date-fns';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {format, parseISO} from 'date-fns';
+import {useCallback, useEffect, useId, useMemo, useRef, useState} from 'react';
 import {graphql, useLazyLoadQuery} from 'react-relay/hooks';
-import {useSearch} from '../lib/client/search';
+import {SearchItem, useSearch} from '../lib/client/search';
 import {ServerSafeSuspense} from '../lib/client/suspense';
+
+const MAX_DISPLAYED_RESULTS = 20;
 
 export function Searchbar({
   searchType = 'commander',
@@ -56,9 +58,8 @@ export function Searchbar({
   }, []);
 
   const handleArrowDown = useCallback((resultCount: number) => {
-    setSelectedIndex((prev) =>
-      prev < Math.min(resultCount - 1, 19) ? prev + 1 : prev,
-    );
+    const maxIndex = Math.min(resultCount, MAX_DISPLAYED_RESULTS) - 1;
+    setSelectedIndex((prev) => (prev < maxIndex ? prev + 1 : prev));
   }, []);
 
   const handleArrowUp = useCallback(() => {
@@ -147,8 +148,9 @@ function SearchInput({
     {searchTypes},
   );
 
+  const listboxId = useId();
   const suggestions = useSearch(searchResults, searchTerm);
-  const displayedSuggestions = suggestions.slice(0, 20);
+  const displayedSuggestions = suggestions.slice(0, MAX_DISPLAYED_RESULTS);
 
   const navigateTo = useCallback(
     (url: string) => {
@@ -192,6 +194,9 @@ function SearchInput({
     ],
   );
 
+  const activeDescendantId =
+    selectedIndex >= 0 ? `${listboxId}-option-${selectedIndex}` : undefined;
+
   return (
     <>
       <input
@@ -206,11 +211,23 @@ function SearchInput({
         onChange={(e) => onSearchTermChange(e.target.value)}
         onFocus={onFocus}
         onKeyDown={handleKeyDown}
+        role="combobox"
+        aria-expanded={isActive}
+        aria-haspopup="listbox"
+        aria-controls={isActive ? listboxId : undefined}
+        aria-activedescendant={activeDescendantId}
+        aria-autocomplete="list"
       />
 
       {isActive && (
-        <ul className="absolute max-h-[90vh] min-h-80 w-full overflow-y-auto rounded-b-xl bg-white">
+        <ul
+          id={listboxId}
+          role="listbox"
+          aria-label="Search results"
+          className="absolute max-h-[90vh] min-h-80 w-full overflow-y-auto rounded-b-xl bg-white"
+        >
           <Suggestions
+            listboxId={listboxId}
             suggestions={displayedSuggestions}
             selectedIndex={selectedIndex}
             onNavigate={navigateTo}
@@ -222,11 +239,13 @@ function SearchInput({
 }
 
 function Suggestions({
+  listboxId,
   suggestions,
   selectedIndex,
   onNavigate,
 }: {
-  suggestions: ReturnType<typeof useSearch>;
+  listboxId: string;
+  suggestions: SearchItem[];
   selectedIndex: number;
   onNavigate: (url: string) => void;
 }) {
@@ -243,7 +262,9 @@ function Suggestions({
 
   if (suggestions.length === 0) {
     return (
-      <li className="rounded-b-xl px-4 py-1 text-black">No results found.</li>
+      <li role="option" className="rounded-b-xl px-4 py-1 text-black">
+        No results found.
+      </li>
     );
   }
 
@@ -252,6 +273,9 @@ function Suggestions({
       {suggestions.map((suggestion, i, {length}) => (
         <li
           key={suggestion.url}
+          id={`${listboxId}-option-${i}`}
+          role="option"
+          aria-selected={selectedIndex === i}
           ref={(el) => {
             itemRefs.current[i] = el;
           }}
@@ -292,7 +316,7 @@ function Suggestions({
           </div>
           {suggestion.tournamentDate && (
             <div className="text-sm text-gray-500">
-              {format(suggestion.tournamentDate, 'MMM d, yyyy')}
+              {format(parseISO(suggestion.tournamentDate), 'MMM d, yyyy')}
               {suggestion.size != null && ` · ${suggestion.size} players`}
               {suggestion.winnerName && ` · ${suggestion.winnerName}`}
             </div>
