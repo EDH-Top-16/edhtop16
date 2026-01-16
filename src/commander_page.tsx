@@ -31,6 +31,7 @@ import {
 import {graphql} from 'relay-runtime';
 import {ColorIdentity, ManaCost} from './assets/icons/colors';
 import {Card} from './components/card';
+import {CedhPromo} from './components/cedh_promo';
 import {Footer} from './components/footer';
 import {LoadMoreButton} from './components/load_more';
 import {Navigation} from './components/navigation';
@@ -555,6 +556,8 @@ function CommanderCardDetail(props: {
                 </div>
               </div>
             )}
+
+          <CedhPromo />
         </div>
       </div>
 

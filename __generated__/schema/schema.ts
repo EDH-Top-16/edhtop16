@@ -986,6 +986,14 @@ export function getSchema(): GraphQLSchema {
         name: "SearchResult",
         fields() {
             return {
+                entries: {
+                    name: "entries",
+                    type: GraphQLInt
+                },
+                metaShare: {
+                    name: "metaShare",
+                    type: GraphQLFloat
+                },
                 name: {
                     name: "name",
                     type: GraphQLString,
@@ -993,12 +1001,32 @@ export function getSchema(): GraphQLSchema {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));
                     }
                 },
+                size: {
+                    name: "size",
+                    type: GraphQLInt
+                },
+                topCuts: {
+                    name: "topCuts",
+                    type: GraphQLInt
+                },
+                topdeckUrl: {
+                    name: "topdeckUrl",
+                    type: GraphQLString
+                },
+                tournamentDate: {
+                    name: "tournamentDate",
+                    type: GraphQLString
+                },
                 url: {
                     name: "url",
                     type: GraphQLString,
                     resolve(source, args, context, info) {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));
                     }
+                },
+                winnerName: {
+                    name: "winnerName",
+                    type: GraphQLString
                 }
             };
         }
