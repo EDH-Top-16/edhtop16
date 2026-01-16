@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<0acce30c641e451cfc74896705e0bc0d>>
- * @relayHash f5a13fa4bfbf171fe18cd4cb0af93921
+ * @generated SignedSource<<e90986e9122b7b6f3cd997e9c28cf078>>
+ * @relayHash 4aa21fe7b4c328091aaeaadbc1a88c24
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID f5a13fa4bfbf171fe18cd4cb0af93921
+// @relayRequestID 4aa21fe7b4c328091aaeaadbc1a88c24
 
 import { ConcreteRequest } from 'relay-runtime';
 export type SearchResultType = "COMMANDER" | "TOURNAMENT" | "%future added value";
@@ -18,8 +18,15 @@ export type searchbar_CommanderNamesQuery$variables = {
 };
 export type searchbar_CommanderNamesQuery$data = {
   readonly searchResults: ReadonlyArray<{
+    readonly entries: number | null | undefined;
+    readonly metaShare: number | null | undefined;
     readonly name: string;
+    readonly size: number | null | undefined;
+    readonly topCuts: number | null | undefined;
+    readonly topdeckUrl: string | null | undefined;
+    readonly tournamentDate: string | null | undefined;
     readonly url: string;
+    readonly winnerName: string | null | undefined;
   }>;
 };
 export type searchbar_CommanderNamesQuery = {
@@ -63,6 +70,55 @@ v1 = [
         "kind": "ScalarField",
         "name": "url",
         "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "tournamentDate",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "size",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "topdeckUrl",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "winnerName",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "entries",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "topCuts",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "metaShare",
+        "storageKey": null
       }
     ],
     "storageKey": null
@@ -88,7 +144,7 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "id": "f5a13fa4bfbf171fe18cd4cb0af93921",
+    "id": "4aa21fe7b4c328091aaeaadbc1a88c24",
     "metadata": {},
     "name": "searchbar_CommanderNamesQuery",
     "operationKind": "query",
@@ -97,6 +153,6 @@ return {
 };
 })();
 
-(node as any).hash = "fa43c0b8fc93d57407c66c3336a869ab";
+(node as any).hash = "d46cd7fa823ee9c587a226cf563c60bd";
 
 export default node;
