@@ -170,6 +170,11 @@ export function getSchema(): GraphQLSchema {
         name: "CommanderCalculatedStats",
         fields() {
             return {
+                accessibilityCV: {
+                    description: "Coefficient of Variation (CV) measuring variance in pilot conversion factors.\nLower values (< 1.25) = \"Easy\" - results spread evenly among pilots\nMiddle values (1.25-1.75) = \"Medium\" - typical variance\nHigher values (> 1.75) = \"Difficult\" - results concentrated among specialists\nReturns null if insufficient data (< 3 pilots with 2+ entries).",
+                    name: "accessibilityCV",
+                    type: GraphQLFloat
+                },
                 conversionRate: {
                     deprecationReason: "Use topCutFactor instead",
                     name: "conversionRate",
@@ -187,14 +192,6 @@ export function getSchema(): GraphQLSchema {
                 },
                 metaShare: {
                     name: "metaShare",
-                    type: GraphQLFloat,
-                    resolve(source, args, context, info) {
-                        return assertNonNull(defaultFieldResolver(source, args, context, info));
-                    }
-                },
-                pilotEquity: {
-                    description: "Gini coefficient measuring inequality of top cut distribution among pilots.\n0.0 = perfectly equal (all pilots have same top cut rate)\n1.0 = perfectly unequal (one pilot has all the top cuts)\nHigher values suggest the commander is \"carried\" by a few skilled pilots.",
-                    name: "pilotEquity",
                     type: GraphQLFloat,
                     resolve(source, args, context, info) {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));

@@ -29,20 +29,35 @@ export function formatTopCutFactor(factor: number): string {
 }
 
 /**
- * Formats a Gini coefficient (pilot equity) as a human-readable string.
- * The Gini coefficient measures how concentrated top cuts are among pilots.
- *
- * Thresholds based on observed data distribution (mean ~0.78, std ~0.08):
- *   < 0.70 (mean - 1 std)  -> "Even" (success spread more evenly)
- *   0.70 - 0.86            -> "Typical" (normal distribution)
- *   > 0.86 (mean + 1 std)  -> "Concentrated" (carried by few elite pilots)
+ * Accessibility rating for a commander based on CV (Coefficient of Variation).
+ * Indicates how easy/hard a deck is to pick up based on pilot performance variance.
  */
-export function formatPilotEquity(gini: number): string {
-  if (gini < 0.7) {
-    return 'More even';
-  } else if (gini < 0.86) {
-    return 'Mixed';
+export interface AccessibilityRating {
+  icon: string; // Unicode character: ●, ■, or ◆
+  label: string; // Easy, Medium, Difficult
+  colorClass: string; // Tailwind color class
+}
+
+// CV thresholds for accessibility ratings (based on observed distribution, median ~1.4)
+const CV_EASY_THRESHOLD = 1.25; // Below this = Easy (results spread evenly)
+const CV_DIFFICULT_THRESHOLD = 1.75; // Above this = Difficult (specialist-dominated)
+
+/**
+ * Formats a CV (Coefficient of Variation) as an accessibility rating.
+ * CV measures variance in per-pilot conversion factors.
+ *
+ * Returns null if CV is null (insufficient data: < 3 pilots with 2+ entries).
+ */
+export function formatAccessibility(
+  cv: number | null,
+): AccessibilityRating | null {
+  if (cv === null) {
+    return null;
+  } else if (cv < CV_EASY_THRESHOLD) {
+    return {icon: '●', label: 'Easy', colorClass: 'text-green-500'};
+  } else if (cv <= CV_DIFFICULT_THRESHOLD) {
+    return {icon: '■', label: 'Medium', colorClass: 'text-blue-500'};
   } else {
-    return 'More concentrated';
+    return {icon: '◆', label: 'Difficult', colorClass: 'text-gray-300'};
   }
 }

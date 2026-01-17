@@ -40,9 +40,9 @@ import {Select} from './components/select';
 import {Tab, TabList} from './components/tabs';
 import {InfoIcon, Tooltip} from './components/ui/tooltip';
 import {
+  formatAccessibility,
   formatOrdinals,
   formatPercent,
-  formatPilotEquity,
   formatTopCutFactor,
 } from './lib/client/format';
 import {ServerSafeSuspense} from './lib/client/suspense';
@@ -748,6 +748,52 @@ function CommanderEntries(props: {commander: commanderPage_entries$key}) {
   );
 }
 
+// Stat item for the commander stats bar
+function StatItem({
+  label,
+  value,
+  tooltip,
+  mobileLabel,
+}: {
+  label: string;
+  value: string | number;
+  tooltip?: string;
+  mobileLabel?: string;
+}) {
+  return (
+    <>
+      {/* Mobile: vertical stacking */}
+      <div className="flex flex-col items-center px-2 sm:hidden">
+        <span className="font-medium">{value}</span>
+        <span className="text-xs text-white/75">{mobileLabel ?? label}</span>
+      </div>
+
+      {/* Desktop: horizontal layout */}
+      <span className="hidden text-white/75 sm:inline">{label}&nbsp;</span>
+      <span className="hidden sm:inline">{value}</span>
+      {tooltip && (
+        <span className="hidden sm:inline-flex sm:items-center">
+          <Tooltip content={tooltip}>
+            <InfoIcon className="ml-2 cursor-help text-white/50 hover:text-white/80" />
+          </Tooltip>
+        </span>
+      )}
+    </>
+  );
+}
+
+// Divider between stats
+function StatDivider() {
+  return (
+    <>
+      <div className="h-8 border-l border-white/60 sm:hidden" />
+      <div className="mr-1 ml-2 hidden border-l border-white/60 py-2 sm:block">
+        &nbsp;
+      </div>
+    </>
+  );
+}
+
 /** @resource m#commander_stats */
 export const CommanderStats: EntryPointComponent<
   {statsRef: commanderPage_CommanderStatsQuery},
@@ -763,7 +809,7 @@ export const CommanderStats: EntryPointComponent<
         commander(name: $commander) {
           stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {
             topCutFactor
-            pilotEquity
+            accessibilityCV
             metaShare
             count
           }
@@ -773,25 +819,34 @@ export const CommanderStats: EntryPointComponent<
     queries.statsRef,
   );
 
+  const accessibilityCV = commander.stats.accessibilityCV ?? null;
+  const accessibilityLabel = formatAccessibility(accessibilityCV)?.label ?? '—';
+  const accessibilityTooltip =
+    accessibilityCV == null
+      ? 'Not enough data'
+      : "How accessible this deck is to pick up and succeed with. 'Easy' decks convert consistently for most pilots. 'Difficult' decks are dominated by a small handful of specialists.";
+
   return (
-    <div className="absolute bottom-0 z-10 mx-auto flex w-full items-center justify-around border-t border-white/60 bg-black/50 px-3 text-center text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border">
-      <span className="text-white/75">Entries&nbsp;</span>
-      {commander.stats.count}
-      <div className="mr-1 ml-2 border-l border-white/60 py-2">&nbsp;</div>{' '}
-      <span className="text-white/75">Meta Share&nbsp;</span>
-      {formatPercent(commander.stats.metaShare)}
-      <div className="mr-1 ml-2 border-l border-white/60 py-2">&nbsp;</div>{' '}
-      <span className="text-white/75">Conversion Factor&nbsp;</span>
-      {formatTopCutFactor(commander.stats.topCutFactor)}
-      <Tooltip content="How often this commander top cuts vs expected. 1.0x = average, 2.0x = twice as often (Bayesian-smoothed).">
-        <InfoIcon className="ml-2 cursor-help text-white/50 hover:text-white/80" />
-      </Tooltip>
-      <div className="mr-1 ml-2 border-l border-white/60 py-2">&nbsp;</div>{' '}
-      <span className="text-white/75">Pilot Skill&nbsp;</span>
-      {formatPilotEquity(commander.stats.pilotEquity)}
-      <Tooltip content="How evenly top cuts are distributed among pilots. 'Even' means many pilots succeed, 'Concentrated' means results held by a few elite pilots.">
-        <InfoIcon className="ml-2 cursor-help text-white/50 hover:text-white/80" />
-      </Tooltip>
+    <div className="absolute bottom-0 z-10 mx-auto flex w-full items-center justify-around border-t border-white/60 bg-black/50 px-3 py-2 text-center text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border sm:py-0">
+      <StatItem label="Entries" value={commander.stats.count} />
+      <StatDivider />
+      <StatItem
+        label="Meta Share"
+        value={formatPercent(commander.stats.metaShare)}
+      />
+      <StatDivider />
+      <StatItem
+        label="Conversion Factor"
+        mobileLabel="Conversion"
+        value={formatTopCutFactor(commander.stats.topCutFactor)}
+        tooltip="How often this commander top cuts vs expected. 1.0x = average, 2.0x = twice as often (Bayesian-smoothed)."
+      />
+      <StatDivider />
+      <StatItem
+        label="Accessibility"
+        value={accessibilityLabel}
+        tooltip={accessibilityTooltip}
+      />
     </div>
   );
 };
