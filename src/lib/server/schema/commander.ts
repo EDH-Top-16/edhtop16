@@ -12,6 +12,23 @@ import {Entry} from './entry';
 import {FirstPartyPromo, getActivePromotions} from './promo';
 import {minDateFromTimePeriod, TimePeriod} from './types';
 
+/**
+ * Bayesian smoothing parameters for topCutFactor calculation.
+ * Used to prevent small sample sizes from producing extreme values.
+ */
+const BAYESIAN_SMOOTHING = {
+  /** Number of pseudo-entries to add as prior belief */
+  PRIOR_ENTRIES: 20,
+  /** Assumed conversion factor for prior (1.0 = average) */
+  PRIOR_FACTOR: 1.0,
+  /** Estimated average top cut rate across tournaments (~15%) */
+  AVG_TOP_CUT_RATE: 0.15,
+  /** Pre-computed prior expected top cuts (PRIOR_ENTRIES * AVG_TOP_CUT_RATE) */
+  get PRIOR_EXPECTED() {
+    return this.PRIOR_ENTRIES * this.AVG_TOP_CUT_RATE;
+  },
+} as const;
+
 export type CommanderLoader = DataLoader<number, Commander>;
 
 /** @gqlContext */
@@ -352,20 +369,15 @@ export function commanderStatsLoader(ctx: Context): CommanderStatsLoader {
           });
         }
 
-        // Bayesian smoothing parameters
-        const PRIOR_ENTRIES = 20; // pseudo-entries worth of prior belief
-        const PRIOR_FACTOR = 1.0; // assume average (1.0x) until proven otherwise
-        // Estimate average expected top cut rate across all tournaments
-        // This is used to calculate prior expected top cuts
-        const AVG_TOP_CUT_RATE = 0.15; // ~15% average (e.g., top 16 of ~100)
-        const priorExpected = PRIOR_ENTRIES * AVG_TOP_CUT_RATE;
-
         for (const {id, expectedTopCuts, ...stats} of statsQuery) {
           // Calculate topCutFactor with Bayesian smoothing
           // Raw: topCuts / expectedTopCuts
           // Smoothed: (topCuts + prior * 1.0) / (expected + prior)
-          const smoothedTopCuts = stats.topCuts + PRIOR_FACTOR * priorExpected;
-          const smoothedExpected = (expectedTopCuts ?? 0) + priorExpected;
+          const smoothedTopCuts =
+            stats.topCuts +
+            BAYESIAN_SMOOTHING.PRIOR_FACTOR * BAYESIAN_SMOOTHING.PRIOR_EXPECTED;
+          const smoothedExpected =
+            (expectedTopCuts ?? 0) + BAYESIAN_SMOOTHING.PRIOR_EXPECTED;
           const topCutFactor =
             smoothedExpected > 0 ? smoothedTopCuts / smoothedExpected : 1.0;
 
@@ -821,12 +833,6 @@ export class Commander implements GraphQLNode {
           ? 'stats.topCuts'
           : 'stats.topCutFactor';
 
-    // Bayesian smoothing constants (must match values in commanderStatsLoader)
-    const PRIOR_ENTRIES = 20;
-    const PRIOR_FACTOR = 1.0;
-    const AVG_TOP_CUT_RATE = 0.15;
-    const priorExpected = PRIOR_ENTRIES * AVG_TOP_CUT_RATE; // 3.0
-
     let query = db
       .with('stats', (eb) =>
         eb
@@ -895,7 +901,10 @@ export class Commander implements GraphQLNode {
                     'real',
                   ),
                   '+',
-                  eb.val(PRIOR_FACTOR * priorExpected),
+                  eb.val(
+                    BAYESIAN_SMOOTHING.PRIOR_FACTOR *
+                      BAYESIAN_SMOOTHING.PRIOR_EXPECTED,
+                  ),
                 ),
               ),
               '/',
@@ -909,7 +918,7 @@ export class Commander implements GraphQLNode {
                     ),
                   ),
                   '+',
-                  eb.val(priorExpected),
+                  eb.val(BAYESIAN_SMOOTHING.PRIOR_EXPECTED),
                 ),
               ),
             ).as('topCutFactor'),

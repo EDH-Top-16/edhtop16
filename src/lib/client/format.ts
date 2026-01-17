@@ -33,9 +33,7 @@ export function formatTopCutFactor(factor: number): string {
  * Indicates how easy/hard a deck is to pick up based on pilot performance variance.
  */
 export interface AccessibilityRating {
-  icon: string; // Unicode character: ●, ■, or ◆
   label: string; // Easy, Medium, Difficult
-  colorClass: string; // Tailwind color class
 }
 
 // CV thresholds for accessibility ratings (based on observed distribution, median ~1.4)
@@ -54,10 +52,10 @@ export function formatAccessibility(
   if (cv === null) {
     return null;
   } else if (cv < CV_EASY_THRESHOLD) {
-    return {icon: '●', label: 'Easy', colorClass: 'text-green-500'};
+    return {label: 'Easy'};
   } else if (cv <= CV_DIFFICULT_THRESHOLD) {
-    return {icon: '■', label: 'Medium', colorClass: 'text-blue-500'};
+    return {label: 'Medium'};
   } else {
-    return {icon: '◆', label: 'Difficult', colorClass: 'text-gray-300'};
+    return {label: 'Difficult'};
   }
 }
