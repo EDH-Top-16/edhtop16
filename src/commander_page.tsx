@@ -764,8 +764,8 @@ function StatItem({
     <>
       {/* Mobile: vertical stacking */}
       <div className="flex flex-col items-center px-2 sm:hidden">
-        <span className="font-medium">{value}</span>
         <span className="text-xs text-white/75">{mobileLabel ?? label}</span>
+        <span className="font-medium">{value}</span>
       </div>
 
       {/* Desktop: horizontal layout */}
@@ -786,7 +786,7 @@ function StatItem({
 function StatDivider() {
   return (
     <>
-      <div className="h-8 border-l border-white/60 sm:hidden" />
+      <div className="h-12 border-l border-white/60 sm:hidden" />
       <div className="mr-1 ml-2 hidden border-l border-white/60 py-2 sm:block">
         &nbsp;
       </div>
@@ -827,7 +827,7 @@ export const CommanderStats: EntryPointComponent<
       : "How accessible this deck is to pick up and succeed with. 'Easy' decks convert consistently for most pilots. 'Difficult' decks are dominated by a small handful of specialists.";
 
   return (
-    <div className="absolute bottom-0 z-10 mx-auto flex w-full items-center justify-around border-t border-white/60 bg-black/50 px-3 py-2 text-center text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border sm:py-0">
+    <div className="absolute bottom-0 z-10 mx-auto flex w-full items-center justify-around border-t border-white/60 bg-black/50 px-3 text-center text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border sm:py-0">
       <StatItem label="Entries" value={commander.stats.count} />
       <StatDivider />
       <StatItem
@@ -837,7 +837,7 @@ export const CommanderStats: EntryPointComponent<
       <StatDivider />
       <StatItem
         label="Conversion Factor"
-        mobileLabel="Conversion"
+        mobileLabel="Conv. Factor"
         value={formatTopCutFactor(commander.stats.topCutFactor)}
         tooltip="How often this commander top cuts vs expected. 1.0x = average, 2.0x = twice as often (Bayesian-smoothed)."
       />
