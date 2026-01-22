@@ -48,6 +48,10 @@ const ROUTER_CONF = {
   "/": {
       entrypoint: entrypoint_fs_page___(),
       schema: z.object({ colorId: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)), minEntries: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)), minSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)), sortBy: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/commanders_CommandersQuery.graphql').CommandersSortBy)), z.transform(s => s == null ? undefined : s)), timePeriod: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/commanders_CommandersQuery.graphql').TimePeriod)), z.transform(s => s == null ? undefined : s)) })
+    } as const,
+  "/about": {
+      entrypoint: entrypoint_fs_page__about_(),
+      schema: z.object({})
     } as const
 } as const;
 
@@ -628,6 +632,33 @@ function entrypoint_fs_page___() {
   }
   return {
     root: JSResource.fromModuleId('fs:page(/)'),
+    getPreloadProps: (p: {params: Record<string, unknown>}) => getPreloadProps({
+      params: p.params as z.infer<typeof schema>,
+      queries: queryHelpers,
+      entryPoints: entryPointHelpers,
+    }),
+  }
+}
+
+function entrypoint_fs_page__about_() {
+  const schema = z.object({});
+  const queryHelpers = {
+  }
+  ;
+  const entryPointHelpers = {
+  }
+  ;
+  function getPreloadProps({params, queries, entryPoints}: EntryPointParams<'/about'>) {
+    const variables = params;
+    return {
+      queries: {
+      }
+      ,
+      entryPoints: undefined
+    }
+  }
+  return {
+    root: JSResource.fromModuleId('fs:page(/about)'),
     getPreloadProps: (p: {params: Record<string, unknown>}) => getPreloadProps({
       params: p.params as z.infer<typeof schema>,
       queries: queryHelpers,

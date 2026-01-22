@@ -1,10 +1,6 @@
-import {Navigation} from './components/navigation';
+import {Navigation} from '#components/navigation.js';
 
-/**
- * @route /about
- * @resource route(/about)
- */
-export function AboutPage() {
+export default function AboutPage() {
   return (
     <>
       <title>About</title>

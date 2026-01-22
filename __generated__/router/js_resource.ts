@@ -16,6 +16,10 @@ const RESOURCE_CONF = {
   "fs:page(/)#commanders": {
       src: "pastoria/commanders.page.tsx",
       loader: (): Promise<ComponentType<PageProps<'/#commanders'>>> => import("../../pastoria/commanders.page").then(m => m.default)
+    },
+  "fs:page(/about)": {
+      src: "pastoria/about/page.tsx",
+      loader: (): Promise<ComponentType<PageProps<'/about'>>> => import("../../pastoria/about/page").then(m => m.default)
     }
 } as const;
 

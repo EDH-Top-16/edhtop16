@@ -18,6 +18,7 @@ type RouteRoot_commanders = { queries: { commandersQueryRef: commanders_Commande
 
 // Route type aliases - main pages
 type RouteRoot = { queries: { promoQueryRef: page_HomePagePromoQuery }; entryPoints: { commanders: EntryPoint<EntryPointComponent<RouteRoot_commanders['queries'], RouteRoot_commanders['entryPoints'], {}, {}>, {}> } };
+type RouteAbout = { queries: {}; entryPoints: {} };
 
 /**
  * Map of route paths to their query types.
@@ -26,13 +27,16 @@ type RouteRoot = { queries: { promoQueryRef: page_HomePagePromoQuery }; entryPoi
 export interface PageQueryMap {
   '/': RouteRoot;
   '/#commanders': RouteRoot_commanders;
+  '/about': RouteAbout;
 }
 
 // Query helper type aliases for each route
 type QueryHelpers_RouteRoot = { promoQueryRef: (variables: page_HomePagePromoQuery$variables) => { parameters: unknown; variables: page_HomePagePromoQuery$variables } };
+type QueryHelpers_RouteAbout = {};
 
 // Entry point helper type aliases for each route
 type EntryPointHelpers_RouteRoot = { commanders: (variables: commanders_CommandersQuery$variables) => { entryPointParams: Record<string, never>; entryPoint: EntryPoint<EntryPointComponent<RouteRoot_commanders['queries'], RouteRoot_commanders['entryPoints'], {}, {}>, {}> } };
+type EntryPointHelpers_RouteAbout = {};
 
 /**
  * Query helper functions for a route.
@@ -40,6 +44,7 @@ type EntryPointHelpers_RouteRoot = { commanders: (variables: commanders_Commande
  */
 export interface QueryHelpersMap {
   '/': QueryHelpers_RouteRoot;
+  '/about': QueryHelpers_RouteAbout;
 }
 
 export type QueryHelpersForRoute<R extends string> = R extends keyof QueryHelpersMap
@@ -52,6 +57,7 @@ export type QueryHelpersForRoute<R extends string> = R extends keyof QueryHelper
  */
 export interface EntryPointHelpersMap {
   '/': EntryPointHelpers_RouteRoot;
+  '/about': EntryPointHelpers_RouteAbout;
 }
 
 export type EntryPointHelpersForRoute<R extends string> = R extends keyof EntryPointHelpersMap
