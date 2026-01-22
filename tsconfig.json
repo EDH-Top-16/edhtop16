@@ -17,28 +17,30 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "allowImportingTsExtensions": false,
     "paths": {
       "#src/*": ["./src/*"],
-      "#genfiles/*": ["./__generated__/*"]
-    }
+      "#genfiles/*": ["./__generated__/*"],
+      "#components/*": ["./components/*"],
+    },
   },
   "include": [
     "__generated__/**/*.ts",
     "__generated__/**/*.tsx",
     "src/**/*.ts",
     "src/**/*.tsx",
-    "types/*.ts"
+    "types/*.ts",
   ],
   "exclude": ["node_modules"],
   "ts-node": {
     "compilerOptions": {
-      "module": "CommonJS"
-    }
+      "module": "CommonJS",
+    },
   },
   "grats": {
     "graphqlSchema": "./__generated__/schema/schema.graphql",
     "tsSchema": "./__generated__/schema/schema.ts",
     "nullableByDefault": true,
-    "strictSemanticNullability": true
-  }
+    "strictSemanticNullability": true,
+  },
 }

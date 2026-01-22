@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<117835f737307add6424d5e97a6f9307>>
- * @relayHash 83b81295e9213739e28ffc542a328534
+ * @generated SignedSource<<d115987977fdd6b477a93b6e499bf367>>
+ * @relayHash 2accab97f1e628518929d5b5d9cd55d9
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,19 +9,19 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 83b81295e9213739e28ffc542a328534
+// @relayRequestID 2accab97f1e628518929d5b5d9cd55d9
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type commanders_HomePagePromoQuery$variables = Record<PropertyKey, never>;
-export type commanders_HomePagePromoQuery$data = {
+export type page_HomePagePromoQuery$variables = Record<PropertyKey, never>;
+export type page_HomePagePromoQuery$data = {
   readonly homePagePromo: {
     readonly " $fragmentSpreads": FragmentRefs<"promo_EmbededPromo">;
   } | null | undefined;
 };
-export type commanders_HomePagePromoQuery = {
-  response: commanders_HomePagePromoQuery$data;
-  variables: commanders_HomePagePromoQuery$variables;
+export type page_HomePagePromoQuery = {
+  response: page_HomePagePromoQuery$data;
+  variables: page_HomePagePromoQuery$variables;
 };
 
 const node: ConcreteRequest = {
@@ -29,7 +29,7 @@ const node: ConcreteRequest = {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "commanders_HomePagePromoQuery",
+    "name": "page_HomePagePromoQuery",
     "selections": [
       {
         "alias": null,
@@ -55,7 +55,7 @@ const node: ConcreteRequest = {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "commanders_HomePagePromoQuery",
+    "name": "page_HomePagePromoQuery",
     "selections": [
       {
         "alias": null,
@@ -113,15 +113,15 @@ const node: ConcreteRequest = {
     ]
   },
   "params": {
-    "id": "83b81295e9213739e28ffc542a328534",
+    "id": "2accab97f1e628518929d5b5d9cd55d9",
     "metadata": {},
-    "name": "commanders_HomePagePromoQuery",
+    "name": "page_HomePagePromoQuery",
     "operationKind": "query",
     "text": null
   }
 };
 
-(node as any).hash = "ef6b6d4c8070fb4f2d7b01a01ce89e66";
+(node as any).hash = "25271fce19092342b952e05782d02717";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

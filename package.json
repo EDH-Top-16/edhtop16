@@ -8,17 +8,15 @@
     "generate:db": "node --experimental-strip-types scripts/pull-database.ts",
     "generate:dbtypes": "DATABASE_URL=edhtop16.db kysely-codegen --out-file=./__generated__/db/types.d.ts",
     "generate:profiledbtypes": "kysely-codegen --url 'env(PROFILE_DATABASE_URL)' --out-file=./scripts/__generated__/profile_db_types.d.ts",
-    "build": "just pastoria::release",
-    "dev": "just pastoria::dev",
+    "build": "pastoria build",
+    "dev": "pastoria dev",
     "start": "NODE_ENV=production pastoria-server",
     "migrate": "node --experimental-strip-types scripts/migrate.ts"
   },
-  "pastoria": {
-    "enableGraphiQLInProduction": true
-  },
   "imports": {
     "#src/*": "./src/*",
-    "#genfiles/*": "./__generated__/*"
+    "#genfiles/*": "./__generated__/*",
+    "#components/*": "./components/*"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -39,7 +37,6 @@
     "js-cookie": "^3.0.5",
     "kysely": "^0.27.6",
     "lucide-react": "^0.555.0",
-    "pastoria-config": "^1.0.1",
     "pastoria-runtime": "^1.0.13",
     "pastoria-server": "^1.0.15",
     "picocolors": "^1.1.1",
@@ -68,7 +65,6 @@
     "@types/react-relay": "^18.2.1",
     "@types/relay-runtime": "^19.0.3",
     "@types/serialize-javascript": "^5.0.4",
-    "@vitejs/plugin-react": "^4.7.0",
     "babel-plugin-react-compiler": "^1.0.0",
     "babel-plugin-relay": "^16.2.0",
     "eslint": "^9.37.0",

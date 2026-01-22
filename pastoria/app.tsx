@@ -1,7 +1,7 @@
-import {Edhtop16Fallback} from '#src/components/fallback';
+import {Edhtop16Fallback} from '#components/fallback.js';
 import {PropsWithChildren, Suspense, useEffect} from 'react';
 
-import './globals.css';
+import '../globals.css';
 
 declare global {
   interface Window {
@@ -10,8 +10,7 @@ declare global {
   }
 }
 
-/** @appRoot */
-export function App({children}: PropsWithChildren<{}>) {
+export default function App({children}: PropsWithChildren<{}>) {
   useEffect(() => {
     window.dataLayer = window.dataLayer || [];
     window.gtag = function (...args: any): void {

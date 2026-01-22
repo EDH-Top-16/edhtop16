@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<1f01822f1db03c933757e065915e42d0>>
+ * @generated SignedSource<<7d93bdc5f32fbdc047e53fc58d14340d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -21,15 +21,15 @@ import { displayPreferences as queryDisplayPreferencesResolverType } from "../..
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryDisplayPreferencesResolverType satisfies () => LiveState<DisplayPreferences | null | undefined>);
 import { DisplayPreferences } from "../../src/lib/client/display_preferences";
-export type commanders_DisplayPreferencesQuery$variables = Record<PropertyKey, never>;
-export type commanders_DisplayPreferencesQuery$data = {
+export type commanderDisplayPreferences_DisplayPreferencesQuery$variables = Record<PropertyKey, never>;
+export type commanderDisplayPreferences_DisplayPreferencesQuery$data = {
   readonly displayPreferences: {
     readonly listStyle: string | null | undefined;
   } | null | undefined;
 };
-export type commanders_DisplayPreferencesQuery = {
-  response: commanders_DisplayPreferencesQuery$data;
-  variables: commanders_DisplayPreferencesQuery$variables;
+export type commanderDisplayPreferences_DisplayPreferencesQuery = {
+  response: commanderDisplayPreferences_DisplayPreferencesQuery$data;
+  variables: commanderDisplayPreferences_DisplayPreferencesQuery$variables;
 };
 
 import {displayPreferences as queryDisplayPreferencesResolver} from '../../src/lib/client/display_preferences';
@@ -44,7 +44,7 @@ const node: ConcreteRequest = {
     "metadata": {
       "hasClientEdges": true
     },
-    "name": "commanders_DisplayPreferencesQuery",
+    "name": "commanderDisplayPreferences_DisplayPreferencesQuery",
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
@@ -97,7 +97,7 @@ const node: ConcreteRequest = {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "commanders_DisplayPreferencesQuery",
+    "name": "commanderDisplayPreferences_DisplayPreferencesQuery",
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
@@ -145,15 +145,15 @@ const node: ConcreteRequest = {
     ]
   },
   "params": {
-    "cacheID": "eb2d498232a8a5119b931f4da98eeeb5",
+    "cacheID": "6fdfc1625fd773a3a31a50e4f252ee97",
     "id": null,
     "metadata": {},
-    "name": "commanders_DisplayPreferencesQuery",
+    "name": "commanderDisplayPreferences_DisplayPreferencesQuery",
     "operationKind": "query",
     "text": null
   }
 };
 
-(node as any).hash = "b67b64afaa8f57c2319eab538ac6d7d0";
+(node as any).hash = "cb4f48bced97379a4e1943bf9336f0a5";
 
 export default node;

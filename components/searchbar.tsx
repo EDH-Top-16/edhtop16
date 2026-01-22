@@ -4,8 +4,8 @@ import cn from 'classnames';
 import {format, parseISO} from 'date-fns';
 import {useCallback, useEffect, useId, useMemo, useRef, useState} from 'react';
 import {graphql, useLazyLoadQuery} from 'react-relay/hooks';
-import {SearchItem, useSearch} from '../lib/client/search';
-import {ServerSafeSuspense} from '../lib/client/suspense';
+import {SearchItem, useSearch} from '#src/lib/client/search';
+import {ServerSafeSuspense} from '#src/lib/client/suspense';
 
 const MAX_DISPLAYED_RESULTS = 20;
 
@@ -71,24 +71,22 @@ export function Searchbar({
       ref={containerRef}
       className="relative z-10 w-full grow text-lg text-black md:max-w-[400px]"
     >
-      <ServerSafeSuspense fallback={null}>
-        <SearchInput
-          inputRef={inputRef}
-          searchTerm={searchTerm}
-          isActive={isActive}
-          searchType={searchType}
-          selectedIndex={selectedIndex}
-          onSearchTermChange={(term) => {
-            setSearchTerm(term);
-            setIsOpen(true);
-          }}
-          onFocus={() => setIsOpen(true)}
-          onArrowDown={handleArrowDown}
-          onArrowUp={handleArrowUp}
-          onEscape={handleEscape}
-          onNavigate={handleClose}
-        />
-      </ServerSafeSuspense>
+      <SearchInput
+        inputRef={inputRef}
+        searchTerm={searchTerm}
+        isActive={isActive}
+        searchType={searchType}
+        selectedIndex={selectedIndex}
+        onSearchTermChange={(term) => {
+          setSearchTerm(term);
+          setIsOpen(true);
+        }}
+        onFocus={() => setIsOpen(true)}
+        onArrowDown={handleArrowDown}
+        onArrowUp={handleArrowUp}
+        onEscape={handleEscape}
+        onNavigate={handleClose}
+      />
     </div>
   );
 }
