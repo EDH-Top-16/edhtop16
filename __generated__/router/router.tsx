@@ -40,6 +40,8 @@ import commanders_CommandersQueryParameters from "#genfiles/queries/commanders_C
 import type { commanders_CommandersQuery$variables } from "#genfiles/queries/commanders_CommandersQuery.graphql";
 import staples_StaplesQueryParameters from "#genfiles/queries/staples_StaplesQuery$parameters";
 import type { staples_StaplesQuery$variables } from "#genfiles/queries/staples_StaplesQuery.graphql";
+import tournaments_TournamentsQueryParameters from "#genfiles/queries/tournaments_TournamentsQuery$parameters";
+import type { tournaments_TournamentsQuery$variables } from "#genfiles/queries/tournaments_TournamentsQuery.graphql";
 
 type RouterConf = typeof ROUTER_CONF;
 type AnyRouteParams = z.infer<RouterConf[keyof RouterConf]['schema']>;
@@ -58,6 +60,10 @@ const ROUTER_CONF = {
   "/staples": {
       entrypoint: entrypoint_fs_page__staples_(),
       schema: z.object({ colorId: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)), type: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)) })
+    } as const,
+  "/tournaments": {
+      entrypoint: entrypoint_fs_page__tournaments_(),
+      schema: z.object({ minSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)), sortBy: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/tournaments_TournamentsQuery.graphql').TournamentSortBy)), z.transform(s => s == null ? undefined : s)), timePeriod: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/tournaments_TournamentsQuery.graphql').TimePeriod)), z.transform(s => s == null ? undefined : s)) })
     } as const
 } as const;
 
@@ -710,6 +716,51 @@ function entrypoint_fs_page__staples_() {
   }
   return {
     root: JSResource.fromModuleId('fs:page(/staples)'),
+    getPreloadProps: (p: {params: Record<string, unknown>}) => getPreloadProps({
+      params: p.params as z.infer<typeof schema>,
+      queries: queryHelpers,
+      entryPoints: entryPointHelpers,
+    }),
+  }
+}
+
+function entrypoint_fs_page__tournaments_() {
+  const schema = z.object({ minSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)), sortBy: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/tournaments_TournamentsQuery.graphql').TournamentSortBy)), z.transform(s => s == null ? undefined : s)), timePeriod: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/tournaments_TournamentsQuery.graphql').TimePeriod)), z.transform(s => s == null ? undefined : s)) });
+  const queryHelpers = {
+  }
+  ;
+  const entryPointHelpers = {
+    tournaments: (variables: tournaments_TournamentsQuery$variables) => ( {
+      entryPointParams: {},
+      entryPoint: {
+        root: JSResource.fromModuleId('fs:page(/tournaments)#tournaments'),
+        getPreloadProps() {
+          return {
+            queries: {
+              tournamentQueryRef: { parameters: tournaments_TournamentsQueryParameters, variables },
+            }
+            ,
+            entryPoints: undefined
+          }
+        }
+      }
+    }
+    ),
+  }
+  ;
+  function getPreloadProps({params, queries, entryPoints}: EntryPointParams<'/tournaments'>) {
+    const variables = params;
+    return {
+      queries: {
+      }
+      ,
+      entryPoints: {
+        tournaments: entryPoints.tournaments({minSize: variables.minSize, sortBy: variables.sortBy, timePeriod: variables.timePeriod}),
+      }
+    }
+  }
+  return {
+    root: JSResource.fromModuleId('fs:page(/tournaments)'),
     getPreloadProps: (p: {params: Record<string, unknown>}) => getPreloadProps({
       params: p.params as z.infer<typeof schema>,
       queries: queryHelpers,

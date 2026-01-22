@@ -9,20 +9,24 @@ import type {EntryPoint, EntryPointComponent, EntryPointProps} from 'react-relay
 
 import type {commanders_CommandersQuery} from '#genfiles/queries/commanders_CommandersQuery.graphql';
 import type {staples_StaplesQuery} from '#genfiles/queries/staples_StaplesQuery.graphql';
+import type {tournaments_TournamentsQuery} from '#genfiles/queries/tournaments_TournamentsQuery.graphql';
 import type {page_HomePagePromoQuery} from '#genfiles/queries/page_HomePagePromoQuery.graphql';
 
 import type {page_HomePagePromoQuery$variables} from '#genfiles/queries/page_HomePagePromoQuery.graphql';
 import type {commanders_CommandersQuery$variables} from '#genfiles/queries/commanders_CommandersQuery.graphql';
 import type {staples_StaplesQuery$variables} from '#genfiles/queries/staples_StaplesQuery.graphql';
+import type {tournaments_TournamentsQuery$variables} from '#genfiles/queries/tournaments_TournamentsQuery.graphql';
 
 // Route type aliases - nested entry points (leaf nodes)
 type RouteRoot_commanders = { queries: { commandersQueryRef: commanders_CommandersQuery }; entryPoints: {} };
 type RouteStaples_content = { queries: { staplesQueryRef: staples_StaplesQuery }; entryPoints: {} };
+type RouteTournaments_tournaments = { queries: { tournamentQueryRef: tournaments_TournamentsQuery }; entryPoints: {} };
 
 // Route type aliases - main pages
 type RouteRoot = { queries: { promoQueryRef: page_HomePagePromoQuery }; entryPoints: { commanders: EntryPoint<EntryPointComponent<RouteRoot_commanders['queries'], RouteRoot_commanders['entryPoints'], {}, {}>, {}> } };
 type RouteAbout = { queries: {}; entryPoints: {} };
 type RouteStaples = { queries: {}; entryPoints: { content: EntryPoint<EntryPointComponent<RouteStaples_content['queries'], RouteStaples_content['entryPoints'], {}, {}>, {}> } };
+type RouteTournaments = { queries: {}; entryPoints: { tournaments: EntryPoint<EntryPointComponent<RouteTournaments_tournaments['queries'], RouteTournaments_tournaments['entryPoints'], {}, {}>, {}> } };
 
 /**
  * Map of route paths to their query types.
@@ -34,17 +38,21 @@ export interface PageQueryMap {
   '/about': RouteAbout;
   '/staples': RouteStaples;
   '/staples#content': RouteStaples_content;
+  '/tournaments': RouteTournaments;
+  '/tournaments#tournaments': RouteTournaments_tournaments;
 }
 
 // Query helper type aliases for each route
 type QueryHelpers_RouteRoot = { promoQueryRef: (variables: page_HomePagePromoQuery$variables) => { parameters: unknown; variables: page_HomePagePromoQuery$variables } };
 type QueryHelpers_RouteAbout = {};
 type QueryHelpers_RouteStaples = {};
+type QueryHelpers_RouteTournaments = {};
 
 // Entry point helper type aliases for each route
 type EntryPointHelpers_RouteRoot = { commanders: (variables: commanders_CommandersQuery$variables) => { entryPointParams: Record<string, never>; entryPoint: EntryPoint<EntryPointComponent<RouteRoot_commanders['queries'], RouteRoot_commanders['entryPoints'], {}, {}>, {}> } };
 type EntryPointHelpers_RouteAbout = {};
 type EntryPointHelpers_RouteStaples = { content: (variables: staples_StaplesQuery$variables) => { entryPointParams: Record<string, never>; entryPoint: EntryPoint<EntryPointComponent<RouteStaples_content['queries'], RouteStaples_content['entryPoints'], {}, {}>, {}> } };
+type EntryPointHelpers_RouteTournaments = { tournaments: (variables: tournaments_TournamentsQuery$variables) => { entryPointParams: Record<string, never>; entryPoint: EntryPoint<EntryPointComponent<RouteTournaments_tournaments['queries'], RouteTournaments_tournaments['entryPoints'], {}, {}>, {}> } };
 
 /**
  * Query helper functions for a route.
@@ -54,6 +62,7 @@ export interface QueryHelpersMap {
   '/': QueryHelpers_RouteRoot;
   '/about': QueryHelpers_RouteAbout;
   '/staples': QueryHelpers_RouteStaples;
+  '/tournaments': QueryHelpers_RouteTournaments;
 }
 
 export type QueryHelpersForRoute<R extends string> = R extends keyof QueryHelpersMap
@@ -68,6 +77,7 @@ export interface EntryPointHelpersMap {
   '/': EntryPointHelpers_RouteRoot;
   '/about': EntryPointHelpers_RouteAbout;
   '/staples': EntryPointHelpers_RouteStaples;
+  '/tournaments': EntryPointHelpers_RouteTournaments;
 }
 
 export type EntryPointHelpersForRoute<R extends string> = R extends keyof EntryPointHelpersMap

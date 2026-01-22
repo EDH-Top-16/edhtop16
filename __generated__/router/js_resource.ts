@@ -28,6 +28,14 @@ const RESOURCE_CONF = {
   "fs:page(/staples)#content": {
       src: "pastoria/staples/content.page.tsx",
       loader: (): Promise<ComponentType<PageProps<'/staples#content'>>> => import("../../pastoria/staples/content.page").then(m => m.default)
+    },
+  "fs:page(/tournaments)": {
+      src: "pastoria/tournaments/page.tsx",
+      loader: (): Promise<ComponentType<PageProps<'/tournaments'>>> => import("../../pastoria/tournaments/page").then(m => m.default)
+    },
+  "fs:page(/tournaments)#tournaments": {
+      src: "pastoria/tournaments/tournaments.page.tsx",
+      loader: (): Promise<ComponentType<PageProps<'/tournaments#tournaments'>>> => import("../../pastoria/tournaments/tournaments.page").then(m => m.default)
     }
 } as const;
 
