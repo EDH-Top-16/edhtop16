@@ -63,7 +63,7 @@ function TournamentCard(props: {commander: tournaments_TournamentCard$key}) {
     >
       <div className="flex h-32 flex-col space-y-2">
         <RouteLink
-          route="/tournament/:tid"
+          route="/tournament/[tid]"
           params={{tid: tournament.TID}}
           className="line-clamp-2 text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
         >

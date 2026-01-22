@@ -276,8 +276,8 @@ function useTournamentMeta(tournamentFromProps: page_TournamentMeta$key) {
 
 export default function TournamentPage({
   queries,
-}: PageProps<'/tournament/:tid'>) {
-  const {tab = 'entries', commander} = useRouteParams('/tournament/:tid');
+}: PageProps<'/tournament/[tid]'>) {
+  const {tab = 'entries', commander} = useRouteParams('/tournament/[tid]');
 
   const {tournament} = usePreloadedQuery(
     graphql`
@@ -321,7 +321,7 @@ export default function TournamentPage({
   const setSelectedTab = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       const nextKey = (e.target as HTMLButtonElement).id;
-      replaceRoute('/tournament/:tid', {
+      replaceRoute('/tournament/[tid]', {
         tid: tournament.TID,
         tab: nextKey,
         commander: null,
@@ -379,7 +379,7 @@ export default function TournamentPage({
               key={group.commander.id}
               group={group}
               onClickGroup={(commanderName) => {
-                replaceRoute('/tournament/:tid', {
+                replaceRoute('/tournament/[tid]', {
                   tid: tournament.TID,
                   tab: 'commander',
                   commander: commanderName,

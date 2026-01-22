@@ -191,7 +191,7 @@ function StapleCardRow({
   return (
     <button
       onClick={() => {
-        pushRoute('/commander/:commander', {
+        pushRoute('/commander/[commander]', {
           commander: commanderName,
           tab: 'card',
           card: card.name,
@@ -595,7 +595,7 @@ function CardEntriesSort({
       label="Sort By"
       value={currentSort}
       onChange={(sortBy) => {
-        replaceRoute('/commander/:commander', {
+        replaceRoute('/commander/[commander]', {
           commander: commanderName,
           tab: 'card',
           card: cardName,
@@ -827,7 +827,7 @@ function useCommanderMeta(commanderFromProps: page_CommanderCommanderMeta$key) {
 
 export default function CommanderPage({
   queries,
-}: PageProps<'/commander/:commander'>) {
+}: PageProps<'/commander/[commander]'>) {
   const {
     commander: commanderName,
     tab = 'entries',
@@ -836,7 +836,7 @@ export default function CommanderPage({
     timePeriod = 'ONE_YEAR',
     maxStanding,
     minEventSize = 60,
-  } = useRouteParams('/commander/:commander');
+  } = useRouteParams('/commander/[commander]');
 
   const {commander} = usePreloadedQuery(
     graphql`
@@ -900,7 +900,7 @@ export default function CommanderPage({
         <Tab
           selected={showEntries}
           onClick={() => {
-            pushRoute('/commander/:commander', {
+            pushRoute('/commander/[commander]', {
               commander: commander.name,
               tab: 'entries',
               sortBy,
@@ -918,7 +918,7 @@ export default function CommanderPage({
         <Tab
           selected={showStaples}
           onClick={() => {
-            pushRoute('/commander/:commander', {
+            pushRoute('/commander/[commander]', {
               commander: commander.name,
               tab: 'staples',
               sortBy,
@@ -937,7 +937,7 @@ export default function CommanderPage({
           <Tab
             selected={showCardDetail}
             onClick={() => {
-              pushRoute('/commander/:commander', {
+              pushRoute('/commander/[commander]', {
                 commander: commander.name,
                 tab: 'card',
                 card: card,
@@ -960,7 +960,7 @@ export default function CommanderPage({
             label="Sort By"
             value={sortBy}
             onChange={(e) => {
-              replaceRoute('/commander/:commander', {
+              replaceRoute('/commander/[commander]', {
                 commander: commander.name,
                 sortBy: e,
               });
@@ -975,7 +975,7 @@ export default function CommanderPage({
             label="Time Period"
             value={timePeriod}
             onChange={(e) => {
-              replaceRoute('/commander/:commander', {
+              replaceRoute('/commander/[commander]', {
                 commander: commander.name,
                 timePeriod: e,
               });
@@ -994,7 +994,7 @@ export default function CommanderPage({
             label="Event Size"
             value={`${minEventSize}`}
             onChange={(e) => {
-              replaceRoute('/commander/:commander', {
+              replaceRoute('/commander/[commander]', {
                 commander: commander.name,
                 minEventSize: Number(e),
               });
@@ -1013,7 +1013,7 @@ export default function CommanderPage({
             label="Standing"
             value={`${maxStanding ?? ''}`}
             onChange={(e) => {
-              replaceRoute('/commander/:commander', {
+              replaceRoute('/commander/[commander]', {
                 commander: commander.name,
                 maxStanding: e ? Number(e) : undefined,
               });
