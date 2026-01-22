@@ -1,23 +1,15 @@
+import {ManaCost} from '#src/assets/icons/colors.js';
+import {Footer} from '#components/footer.js';
 import {staples_StaplesCard$key} from '#genfiles/queries/staples_StaplesCard.graphql.js';
-import {staples_StaplesQuery} from '#genfiles/queries/staples_StaplesQuery.graphql';
 import {staples_TypesSection$key} from '#genfiles/queries/staples_TypesSection.graphql.js';
-import {ModuleType} from '#genfiles/router/js_resource.js';
-import {useNavigation, useRouteParams} from '#genfiles/router/router';
-import {LoadingIcon} from '#src/components/fallback';
-import {Suspense, useMemo, useState} from 'react';
-import {
-  EntryPoint,
-  EntryPointComponent,
-  EntryPointContainer,
-  graphql,
-  useFragment,
-  usePreloadedQuery,
-} from 'react-relay/hooks';
-import {ManaCost} from './assets/icons/colors';
-import {ColorSelection} from './components/color_selection';
-import {Footer} from './components/footer';
-import {Navigation} from './components/navigation';
-import {Select} from './components/select';
+import staples_StaplesQuery from '#genfiles/queries/staples_StaplesQuery.graphql.js';
+import {PageProps} from '#genfiles/router/types.js';
+import {useMemo, useState} from 'react';
+import {graphql, useFragment, usePreloadedQuery} from 'react-relay/hooks';
+
+export const queries = {
+  staplesQueryRef: staples_StaplesQuery,
+};
 
 const TYPE_ORDER = [
   'Creature',
@@ -171,87 +163,9 @@ function TypeSection({
   );
 }
 
-/** @route /staples */
-export const StaplesPageShell: EntryPointComponent<
-  {},
-  {staplesRef: EntryPoint<ModuleType<'route(/staples)#staples_page'>>}
-> = ({entryPoints}) => {
-  const {colorId = '', type = ''} = useRouteParams('/staples');
-  const {replaceRoute} = useNavigation();
-
-  return (
-    <>
-      <title>cEDH Staples</title>
-      <meta
-        name="description"
-        content="Discover the most played cards in competitive EDH!"
-      />
-      <Navigation searchType="tournament" />
-
-      <div className="mx-auto mt-8 w-full max-w-(--breakpoint-xl) px-6">
-        <div className="mb-8">
-          <h1 className="font-title text-4xl font-extrabold text-white md:text-5xl">
-            cEDH Staples
-          </h1>
-          <p className="mt-2 text-white/60">
-            The most popular cards in competitive EDH, based on tournament data
-            from the last year.
-          </p>
-        </div>
-
-        <div className="mb-8 flex flex-col items-start space-y-4 md:flex-row md:items-end md:space-y-0">
-          <div className="flex-1">
-            <ColorSelection
-              selected={colorId}
-              onChange={(value) => {
-                replaceRoute('/staples', {
-                  colorId: value || null,
-                  type: type || null,
-                });
-              }}
-            />
-          </div>
-
-          <div className="w-full md:w-auto">
-            <Select
-              id="staples-type-filter"
-              label="Type Filter"
-              value={type || 'all'}
-              onChange={(value) => {
-                replaceRoute('/staples', {
-                  colorId: colorId || null,
-                  type: value === 'all' ? null : value,
-                });
-              }}
-            >
-              <option value="all">All Types</option>
-              <option value="creature">Creature</option>
-              <option value="instant">Instant</option>
-              <option value="sorcery">Sorcery</option>
-              <option value="artifact">Artifact</option>
-              <option value="enchantment">Enchantment</option>
-              <option value="planeswalker">Planeswalker</option>
-              <option value="land">Land</option>
-            </Select>
-          </div>
-        </div>
-
-        <Suspense fallback={<LoadingIcon />}>
-          <EntryPointContainer
-            entryPointReference={entryPoints.staplesRef}
-            props={{}}
-          />
-        </Suspense>
-      </div>
-    </>
-  );
-};
-
-/** @resource route(/staples)#staples_page */
-export const StaplesPage: EntryPointComponent<
-  {staplesQueryRef: staples_StaplesQuery},
-  {}
-> = ({queries}) => {
+export default function StaplesContent({
+  queries,
+}: PageProps<'/staples#content'>) {
   const data = usePreloadedQuery(
     graphql`
       query staples_StaplesQuery($colorId: String, $type: String) @preloadable {
@@ -289,9 +203,9 @@ export const StaplesPage: EntryPointComponent<
   }, [data.staples]);
 
   // Column layout for md+:
-  // Column 1: Planeswalker, Creature, Sorcery
-  // Column 2: Instant, Artifact, Enchantment
-  // Column 3: Battle, Land
+  // Column 1: Planeswalker, Creature
+  // Column 2: Sorcery, Instant
+  // Column 3: Artifact, Enchantment, Battle, Land
   const column1Types: CardType[] = ['Planeswalker', 'Creature'];
   const column2Types: CardType[] = ['Sorcery', 'Instant'];
   const column3Types: CardType[] = [
@@ -350,4 +264,4 @@ export const StaplesPage: EntryPointComponent<
       <Footer />
     </>
   );
-};
+}

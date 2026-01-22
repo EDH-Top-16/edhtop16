@@ -8,17 +8,21 @@
 import type {EntryPoint, EntryPointComponent, EntryPointProps} from 'react-relay/hooks';
 
 import type {commanders_CommandersQuery} from '#genfiles/queries/commanders_CommandersQuery.graphql';
+import type {staples_StaplesQuery} from '#genfiles/queries/staples_StaplesQuery.graphql';
 import type {page_HomePagePromoQuery} from '#genfiles/queries/page_HomePagePromoQuery.graphql';
 
 import type {page_HomePagePromoQuery$variables} from '#genfiles/queries/page_HomePagePromoQuery.graphql';
 import type {commanders_CommandersQuery$variables} from '#genfiles/queries/commanders_CommandersQuery.graphql';
+import type {staples_StaplesQuery$variables} from '#genfiles/queries/staples_StaplesQuery.graphql';
 
 // Route type aliases - nested entry points (leaf nodes)
 type RouteRoot_commanders = { queries: { commandersQueryRef: commanders_CommandersQuery }; entryPoints: {} };
+type RouteStaples_content = { queries: { staplesQueryRef: staples_StaplesQuery }; entryPoints: {} };
 
 // Route type aliases - main pages
 type RouteRoot = { queries: { promoQueryRef: page_HomePagePromoQuery }; entryPoints: { commanders: EntryPoint<EntryPointComponent<RouteRoot_commanders['queries'], RouteRoot_commanders['entryPoints'], {}, {}>, {}> } };
 type RouteAbout = { queries: {}; entryPoints: {} };
+type RouteStaples = { queries: {}; entryPoints: { content: EntryPoint<EntryPointComponent<RouteStaples_content['queries'], RouteStaples_content['entryPoints'], {}, {}>, {}> } };
 
 /**
  * Map of route paths to their query types.
@@ -28,15 +32,19 @@ export interface PageQueryMap {
   '/': RouteRoot;
   '/#commanders': RouteRoot_commanders;
   '/about': RouteAbout;
+  '/staples': RouteStaples;
+  '/staples#content': RouteStaples_content;
 }
 
 // Query helper type aliases for each route
 type QueryHelpers_RouteRoot = { promoQueryRef: (variables: page_HomePagePromoQuery$variables) => { parameters: unknown; variables: page_HomePagePromoQuery$variables } };
 type QueryHelpers_RouteAbout = {};
+type QueryHelpers_RouteStaples = {};
 
 // Entry point helper type aliases for each route
 type EntryPointHelpers_RouteRoot = { commanders: (variables: commanders_CommandersQuery$variables) => { entryPointParams: Record<string, never>; entryPoint: EntryPoint<EntryPointComponent<RouteRoot_commanders['queries'], RouteRoot_commanders['entryPoints'], {}, {}>, {}> } };
 type EntryPointHelpers_RouteAbout = {};
+type EntryPointHelpers_RouteStaples = { content: (variables: staples_StaplesQuery$variables) => { entryPointParams: Record<string, never>; entryPoint: EntryPoint<EntryPointComponent<RouteStaples_content['queries'], RouteStaples_content['entryPoints'], {}, {}>, {}> } };
 
 /**
  * Query helper functions for a route.
@@ -45,6 +53,7 @@ type EntryPointHelpers_RouteAbout = {};
 export interface QueryHelpersMap {
   '/': QueryHelpers_RouteRoot;
   '/about': QueryHelpers_RouteAbout;
+  '/staples': QueryHelpers_RouteStaples;
 }
 
 export type QueryHelpersForRoute<R extends string> = R extends keyof QueryHelpersMap
@@ -58,6 +67,7 @@ export type QueryHelpersForRoute<R extends string> = R extends keyof QueryHelper
 export interface EntryPointHelpersMap {
   '/': EntryPointHelpers_RouteRoot;
   '/about': EntryPointHelpers_RouteAbout;
+  '/staples': EntryPointHelpers_RouteStaples;
 }
 
 export type EntryPointHelpersForRoute<R extends string> = R extends keyof EntryPointHelpersMap

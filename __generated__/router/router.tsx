@@ -38,6 +38,8 @@ import page_HomePagePromoQueryParameters from "#genfiles/queries/page_HomePagePr
 import type { page_HomePagePromoQuery$variables } from "#genfiles/queries/page_HomePagePromoQuery.graphql";
 import commanders_CommandersQueryParameters from "#genfiles/queries/commanders_CommandersQuery$parameters";
 import type { commanders_CommandersQuery$variables } from "#genfiles/queries/commanders_CommandersQuery.graphql";
+import staples_StaplesQueryParameters from "#genfiles/queries/staples_StaplesQuery$parameters";
+import type { staples_StaplesQuery$variables } from "#genfiles/queries/staples_StaplesQuery.graphql";
 
 type RouterConf = typeof ROUTER_CONF;
 type AnyRouteParams = z.infer<RouterConf[keyof RouterConf]['schema']>;
@@ -52,6 +54,10 @@ const ROUTER_CONF = {
   "/about": {
       entrypoint: entrypoint_fs_page__about_(),
       schema: z.object({})
+    } as const,
+  "/staples": {
+      entrypoint: entrypoint_fs_page__staples_(),
+      schema: z.object({ colorId: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)), type: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)) })
     } as const
 } as const;
 
@@ -659,6 +665,51 @@ function entrypoint_fs_page__about_() {
   }
   return {
     root: JSResource.fromModuleId('fs:page(/about)'),
+    getPreloadProps: (p: {params: Record<string, unknown>}) => getPreloadProps({
+      params: p.params as z.infer<typeof schema>,
+      queries: queryHelpers,
+      entryPoints: entryPointHelpers,
+    }),
+  }
+}
+
+function entrypoint_fs_page__staples_() {
+  const schema = z.object({ colorId: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)), type: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)) });
+  const queryHelpers = {
+  }
+  ;
+  const entryPointHelpers = {
+    content: (variables: staples_StaplesQuery$variables) => ( {
+      entryPointParams: {},
+      entryPoint: {
+        root: JSResource.fromModuleId('fs:page(/staples)#content'),
+        getPreloadProps() {
+          return {
+            queries: {
+              staplesQueryRef: { parameters: staples_StaplesQueryParameters, variables },
+            }
+            ,
+            entryPoints: undefined
+          }
+        }
+      }
+    }
+    ),
+  }
+  ;
+  function getPreloadProps({params, queries, entryPoints}: EntryPointParams<'/staples'>) {
+    const variables = params;
+    return {
+      queries: {
+      }
+      ,
+      entryPoints: {
+        content: entryPoints.content({colorId: variables.colorId, type: variables.type}),
+      }
+    }
+  }
+  return {
+    root: JSResource.fromModuleId('fs:page(/staples)'),
     getPreloadProps: (p: {params: Record<string, unknown>}) => getPreloadProps({
       params: p.params as z.infer<typeof schema>,
       queries: queryHelpers,

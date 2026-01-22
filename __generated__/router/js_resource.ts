@@ -20,6 +20,14 @@ const RESOURCE_CONF = {
   "fs:page(/about)": {
       src: "pastoria/about/page.tsx",
       loader: (): Promise<ComponentType<PageProps<'/about'>>> => import("../../pastoria/about/page").then(m => m.default)
+    },
+  "fs:page(/staples)": {
+      src: "pastoria/staples/page.tsx",
+      loader: (): Promise<ComponentType<PageProps<'/staples'>>> => import("../../pastoria/staples/page").then(m => m.default)
+    },
+  "fs:page(/staples)#content": {
+      src: "pastoria/staples/content.page.tsx",
+      loader: (): Promise<ComponentType<PageProps<'/staples#content'>>> => import("../../pastoria/staples/content.page").then(m => m.default)
     }
 } as const;
 
