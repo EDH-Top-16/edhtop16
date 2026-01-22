@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<eea91fca79cfe50dd72eb0059a50b6be>>
+ * @generated SignedSource<<84c9dd4ae8e7b764e1191c50cd71794a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type staples_StaplesCard$data = {
+export type content_StaplesCard$data = {
   readonly id: string;
   readonly imageUrls: ReadonlyArray<string>;
   readonly manaCost: string;
@@ -18,11 +18,11 @@ export type staples_StaplesCard$data = {
   readonly playRateLastYear: number;
   readonly scryfallUrl: string;
   readonly type: string;
-  readonly " $fragmentType": "staples_StaplesCard";
+  readonly " $fragmentType": "content_StaplesCard";
 };
-export type staples_StaplesCard$key = {
-  readonly " $data"?: staples_StaplesCard$data;
-  readonly " $fragmentSpreads": FragmentRefs<"staples_StaplesCard">;
+export type content_StaplesCard$key = {
+  readonly " $data"?: content_StaplesCard$data;
+  readonly " $fragmentSpreads": FragmentRefs<"content_StaplesCard">;
 };
 
 const node: ReaderFragment = {
@@ -31,7 +31,7 @@ const node: ReaderFragment = {
   "metadata": {
     "throwOnFieldError": true
   },
-  "name": "staples_StaplesCard",
+  "name": "content_StaplesCard",
   "selections": [
     {
       "alias": null,
@@ -87,6 +87,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "e746ba74b89976aafaf6b62e6b5d77f0";
+(node as any).hash = "75a0499ed7a8a82fd7a053749a6ec44b";
 
 export default node;

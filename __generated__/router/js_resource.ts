@@ -36,6 +36,10 @@ const RESOURCE_CONF = {
   "fs:page(/tournaments)#tournaments": {
       src: "pastoria/tournaments/tournaments.page.tsx",
       loader: (): Promise<ComponentType<PageProps<'/tournaments#tournaments'>>> => import("../../pastoria/tournaments/tournaments.page").then(m => m.default)
+    },
+  "fs:page(/tournament/[tid])": {
+      src: "pastoria/tournament/[tid]/page.tsx",
+      loader: (): Promise<ComponentType<PageProps<'/tournament/[tid]'>>> => import("../../pastoria/tournament/[tid]/page").then(m => m.default)
     }
 } as const;
 

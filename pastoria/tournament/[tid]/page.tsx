@@ -1,42 +1,37 @@
-import {tournamentView_BreakdownGroupCard$key} from '#genfiles/queries/tournamentView_BreakdownGroupCard.graphql';
-import {tournamentView_EntryCard$key} from '#genfiles/queries/tournamentView_EntryCard.graphql';
-import {tournamentView_TournamentBanner$key} from '#genfiles/queries/tournamentView_TournamentBanner.graphql';
-import {tournamentView_TournamentMeta$key} from '#genfiles/queries/tournamentView_TournamentMeta.graphql';
-import {tournamentView_TournamentPageShellQuery} from '#genfiles/queries/tournamentView_TournamentPageShellQuery.graphql.js';
-import {tournamentView_TournamentQuery} from '#genfiles/queries/tournamentView_TournamentQuery.graphql';
-import {ModuleType} from '#genfiles/router/js_resource.js';
-import {Link, useNavigation} from '#genfiles/router/router';
-import {LoadingIcon} from '#src/components/fallback.jsx';
+import {ColorIdentity} from '#src/assets/icons/colors.js';
+import {Card} from '#components/card.js';
+import {Footer} from '#components/footer.js';
+import {Navigation} from '#components/navigation.js';
+import {FirstPartyPromo} from '#components/promo.js';
+import {Tab, TabList} from '#components/tabs.js';
+import {formatOrdinals, formatPercent} from '#src/lib/client/format.js';
+import {page_BreakdownGroupCard$key} from '#genfiles/queries/page_BreakdownGroupCard.graphql.js';
+import {page_EntryCard$key} from '#genfiles/queries/page_EntryCard.graphql.js';
+import {page_TournamentBanner$key} from '#genfiles/queries/page_TournamentBanner.graphql.js';
+import {page_TournamentMeta$key} from '#genfiles/queries/page_TournamentMeta.graphql.js';
+import page_TournamentPageQuery from '#genfiles/queries/page_TournamentPageQuery.graphql.js';
+import {Link, useNavigation, useRouteParams} from '#genfiles/router/router.js';
+import {PageProps} from '#genfiles/router/types.js';
 import ArrowRightIcon from '@heroicons/react/24/solid/ArrowRightIcon';
 import cn from 'classnames';
 import {format} from 'date-fns';
-import {MouseEvent, Suspense, useCallback, useMemo} from 'react';
-import {
-  EntryPoint,
-  EntryPointComponent,
-  EntryPointContainer,
-  useFragment,
-  usePreloadedQuery,
-} from 'react-relay/hooks';
-import {graphql} from 'relay-runtime';
-import {ColorIdentity} from './assets/icons/colors';
-import {Card} from './components/card';
-import {Footer} from './components/footer';
-import {Navigation} from './components/navigation';
-import {FirstPartyPromo} from './components/promo';
-import {Tab, TabList} from './components/tabs';
-import {formatOrdinals, formatPercent} from './lib/client/format';
+import {MouseEvent, useCallback, useMemo} from 'react';
+import {graphql, useFragment, usePreloadedQuery} from 'react-relay/hooks';
+
+export const queries = {
+  tournamentQueryRef: page_TournamentPageQuery,
+};
 
 function EntryCard({
   highlightFirst = true,
   ...props
 }: {
   highlightFirst?: boolean;
-  entry: tournamentView_EntryCard$key;
+  entry: page_EntryCard$key;
 }) {
   const entry = useFragment(
     graphql`
-      fragment tournamentView_EntryCard on Entry @throwOnFieldError {
+      fragment page_EntryCard on Entry @throwOnFieldError {
         standing
         wins
         losses
@@ -133,11 +128,11 @@ function BreakdownGroupCard({
   ...props
 }: {
   onClickGroup?: (groupName: string) => void;
-  group: tournamentView_BreakdownGroupCard$key;
+  group: page_BreakdownGroupCard$key;
 }) {
   const {commander, conversionRate, entries, topCuts} = useFragment(
     graphql`
-      fragment tournamentView_BreakdownGroupCard on TournamentBreakdownGroup
+      fragment page_BreakdownGroupCard on TournamentBreakdownGroup
       @throwOnFieldError {
         commander {
           name
@@ -188,13 +183,10 @@ function BreakdownGroupCard({
   );
 }
 
-function TournamentBanner(props: {
-  tournament: tournamentView_TournamentBanner$key;
-}) {
+function TournamentBanner(props: {tournament: page_TournamentBanner$key}) {
   const tournament = useFragment(
     graphql`
-      fragment tournamentView_TournamentBanner on Tournament
-      @throwOnFieldError {
+      fragment page_TournamentBanner on Tournament @throwOnFieldError {
         name
         size
         tournamentDate
@@ -269,12 +261,10 @@ function TournamentBanner(props: {
   );
 }
 
-function useTournamentMeta(
-  tournamentFromProps: tournamentView_TournamentMeta$key,
-) {
+function useTournamentMeta(tournamentFromProps: page_TournamentMeta$key) {
   const tournament = useFragment(
     graphql`
-      fragment tournamentView_TournamentMeta on Tournament @throwOnFieldError {
+      fragment page_TournamentMeta on Tournament @throwOnFieldError {
         name
       }
     `,
@@ -284,30 +274,45 @@ function useTournamentMeta(
   return tournament;
 }
 
-/** @resource m#tournament_page_shell */
-export const TournamentPageShell: EntryPointComponent<
-  {tournamentRef: tournamentView_TournamentPageShellQuery},
-  {tournamentContent: EntryPoint<ModuleType<'m#tournament_view'>>},
-  {},
-  {tab: string; commanderName?: string | null}
-> = ({queries, entryPoints, extraProps: {tab, commanderName}}) => {
+export default function TournamentPage({
+  queries,
+}: PageProps<'/tournament/:tid'>) {
+  const {tab = 'entries', commander} = useRouteParams('/tournament/:tid');
+
   const {tournament} = usePreloadedQuery(
     graphql`
-      query tournamentView_TournamentPageShellQuery($tid: String!)
+      query page_TournamentPageQuery($tid: String!, $commander: String)
       @preloadable
       @throwOnFieldError {
         tournament(TID: $tid) {
           TID
-          ...tournamentView_TournamentBanner
-          ...tournamentView_TournamentMeta
+          ...page_TournamentBanner
+          ...page_TournamentMeta
 
           promo {
             ...promo_EmbededPromo
           }
+
+          entries {
+            id
+            ...page_EntryCard
+          }
+
+          breakdown {
+            commander {
+              id
+            }
+            ...page_BreakdownGroupCard
+          }
+
+          breakdownEntries: entries(commander: $commander) {
+            id
+            ...page_EntryCard
+          }
         }
       }
     `,
-    queries.tournamentRef,
+    queries.tournamentQueryRef,
   );
 
   const tournamentMeta = useTournamentMeta(tournament);
@@ -324,6 +329,10 @@ export const TournamentPageShell: EntryPointComponent<
     },
     [replaceRoute, tournament.TID],
   );
+
+  const showStandings = tab !== 'breakdown' && tab !== 'commander';
+  const showBreakdown = tab === 'breakdown';
+  const showBreakdownCommander = tab === 'commander' && commander != null;
 
   return (
     <>
@@ -349,74 +358,21 @@ export const TournamentPageShell: EntryPointComponent<
           Metagame Breakdown
         </Tab>
 
-        {commanderName != null && (
+        {commander != null && (
           <Tab id="commander" selected={tab === 'commander'}>
-            {commanderName}
+            {commander}
           </Tab>
         )}
       </TabList>
 
-      <Suspense fallback={<LoadingIcon />}>
-        <EntryPointContainer
-          entryPointReference={entryPoints.tournamentContent}
-          props={{}}
-        />
-      </Suspense>
-    </>
-  );
-};
-
-/** @resource m#tournament_view */
-export const TournamentViewPage: EntryPointComponent<
-  {tournamentQueryRef: tournamentView_TournamentQuery},
-  {}
-> = ({queries}) => {
-  const {tournament} = usePreloadedQuery(
-    graphql`
-      query tournamentView_TournamentQuery(
-        $TID: String!
-        $commander: String
-        $showStandings: Boolean!
-        $showBreakdown: Boolean!
-        $showBreakdownCommander: Boolean!
-      ) @preloadable @throwOnFieldError {
-        tournament(TID: $TID) {
-          entries @include(if: $showStandings) {
-            id
-            ...tournamentView_EntryCard
-          }
-
-          breakdown @include(if: $showBreakdown) {
-            commander {
-              id
-            }
-
-            ...tournamentView_BreakdownGroupCard
-          }
-
-          breakdownEntries: entries(commander: $commander)
-            @include(if: $showBreakdownCommander) {
-            id
-            ...tournamentView_EntryCard
-          }
-        }
-      }
-    `,
-    queries.tournamentQueryRef,
-  );
-
-  const {replaceRoute} = useNavigation();
-
-  return (
-    <>
       <div className="mx-auto grid w-full max-w-(--breakpoint-xl) grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
-        {queries.tournamentQueryRef.variables.showStandings &&
+        {showStandings &&
           tournament.entries != null &&
           tournament.entries.map((entry) => (
             <EntryCard key={entry.id} entry={entry} />
           ))}
 
-        {queries.tournamentQueryRef.variables.showBreakdown &&
+        {showBreakdown &&
           tournament.breakdown &&
           tournament.breakdown.map((group) => (
             <BreakdownGroupCard
@@ -424,7 +380,7 @@ export const TournamentViewPage: EntryPointComponent<
               group={group}
               onClickGroup={(commanderName) => {
                 replaceRoute('/tournament/:tid', {
-                  tid: queries.tournamentQueryRef.variables.TID,
+                  tid: tournament.TID,
                   tab: 'commander',
                   commander: commanderName,
                 });
@@ -432,7 +388,7 @@ export const TournamentViewPage: EntryPointComponent<
             />
           ))}
 
-        {queries.tournamentQueryRef.variables.showBreakdownCommander &&
+        {showBreakdownCommander &&
           tournament.breakdownEntries &&
           tournament.breakdownEntries.map((entry) => (
             <EntryCard key={entry.id} entry={entry} highlightFirst={false} />
@@ -442,4 +398,4 @@ export const TournamentViewPage: EntryPointComponent<
       <Footer />
     </>
   );
-};
+}

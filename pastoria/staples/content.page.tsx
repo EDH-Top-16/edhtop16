@@ -1,14 +1,14 @@
 import {ManaCost} from '#src/assets/icons/colors.js';
 import {Footer} from '#components/footer.js';
-import {staples_StaplesCard$key} from '#genfiles/queries/staples_StaplesCard.graphql.js';
-import {staples_TypesSection$key} from '#genfiles/queries/staples_TypesSection.graphql.js';
-import staples_StaplesQuery from '#genfiles/queries/staples_StaplesQuery.graphql.js';
+import {content_StaplesCard$key} from '#genfiles/queries/content_StaplesCard.graphql.js';
+import {content_TypesSection$key} from '#genfiles/queries/content_TypesSection.graphql.js';
+import content_StaplesQuery from '#genfiles/queries/content_StaplesQuery.graphql.js';
 import {PageProps} from '#genfiles/router/types.js';
 import {useMemo, useState} from 'react';
 import {graphql, useFragment, usePreloadedQuery} from 'react-relay/hooks';
 
 export const queries = {
-  staplesQueryRef: staples_StaplesQuery,
+  staplesQueryRef: content_StaplesQuery,
 };
 
 const TYPE_ORDER = [
@@ -37,10 +37,10 @@ function getCardType(typeLine: string): CardType {
   return 'Artifact';
 }
 
-function StapleCardRow(props: {card: staples_StaplesCard$key}) {
+function StapleCardRow(props: {card: content_StaplesCard$key}) {
   const card = useFragment(
     graphql`
-      fragment staples_StaplesCard on Card @throwOnFieldError {
+      fragment content_StaplesCard on Card @throwOnFieldError {
         id
         name
         type
@@ -78,7 +78,7 @@ type CardData = {
   name: string;
   type: string;
   playRateLastYear: number;
-  ' $fragmentSpreads': staples_StaplesCard$key[' $fragmentSpreads'];
+  ' $fragmentSpreads': content_StaplesCard$key[' $fragmentSpreads'];
 };
 
 // Play rate thresholds by card type (cards below threshold are hidden by default)
@@ -98,18 +98,18 @@ function TypeSection({
   ...props
 }: {
   type: CardType;
-  cards: staples_TypesSection$key;
+  cards: content_TypesSection$key;
 }) {
   const cards = useFragment(
     graphql`
-      fragment staples_TypesSection on Card
+      fragment content_TypesSection on Card
       @relay(plural: true)
       @throwOnFieldError {
         id
         name
         type
         playRateLastYear
-        ...staples_StaplesCard
+        ...content_StaplesCard
       }
     `,
     props.cards,
@@ -168,13 +168,13 @@ export default function StaplesContent({
 }: PageProps<'/staples#content'>) {
   const data = usePreloadedQuery(
     graphql`
-      query staples_StaplesQuery($colorId: String, $type: String) @preloadable {
+      query content_StaplesQuery($colorId: String, $type: String) @preloadable {
         staples(colorId: $colorId, type: $type) {
           id
           name
           type
           playRateLastYear
-          ...staples_TypesSection
+          ...content_TypesSection
         }
       }
     `,

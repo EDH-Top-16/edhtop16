@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<3d0e5de02d9b6ce1ad4d9a497aa71208>>
+ * @generated SignedSource<<9c4728aa9fdda11b852f98e22534ec9a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type tournamentView_TournamentBanner$data = {
+export type page_TournamentBanner$data = {
   readonly bracketUrl: string;
   readonly name: string;
   readonly size: number;
@@ -22,11 +22,11 @@ export type tournamentView_TournamentBanner$data = {
       }>;
     };
   }>;
-  readonly " $fragmentType": "tournamentView_TournamentBanner";
+  readonly " $fragmentType": "page_TournamentBanner";
 };
-export type tournamentView_TournamentBanner$key = {
-  readonly " $data"?: tournamentView_TournamentBanner$data;
-  readonly " $fragmentSpreads": FragmentRefs<"tournamentView_TournamentBanner">;
+export type page_TournamentBanner$key = {
+  readonly " $data"?: page_TournamentBanner$data;
+  readonly " $fragmentSpreads": FragmentRefs<"page_TournamentBanner">;
 };
 
 const node: ReaderFragment = {
@@ -35,7 +35,7 @@ const node: ReaderFragment = {
   "metadata": {
     "throwOnFieldError": true
   },
-  "name": "tournamentView_TournamentBanner",
+  "name": "page_TournamentBanner",
   "selections": [
     {
       "alias": null,
@@ -116,6 +116,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "8e5f4096222f64b36a35e03b61a25d60";
+(node as any).hash = "82edb9c0f1761bacdd7e6e7bf31b7d38";
 
 export default node;

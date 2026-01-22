@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<57742273fd53d1e5cb4212b3d682b3af>>
+ * @generated SignedSource<<bab444d1b8ead304b58b68dbfb894b0e>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,17 +10,17 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type staples_TypesSection$data = ReadonlyArray<{
+export type content_TypesSection$data = ReadonlyArray<{
   readonly id: string;
   readonly name: string;
   readonly playRateLastYear: number;
   readonly type: string;
-  readonly " $fragmentSpreads": FragmentRefs<"staples_StaplesCard">;
-  readonly " $fragmentType": "staples_TypesSection";
+  readonly " $fragmentSpreads": FragmentRefs<"content_StaplesCard">;
+  readonly " $fragmentType": "content_TypesSection";
 }>;
-export type staples_TypesSection$key = ReadonlyArray<{
-  readonly " $data"?: staples_TypesSection$data;
-  readonly " $fragmentSpreads": FragmentRefs<"staples_TypesSection">;
+export type content_TypesSection$key = ReadonlyArray<{
+  readonly " $data"?: content_TypesSection$data;
+  readonly " $fragmentSpreads": FragmentRefs<"content_TypesSection">;
 }>;
 
 const node: ReaderFragment = {
@@ -30,7 +30,7 @@ const node: ReaderFragment = {
     "plural": true,
     "throwOnFieldError": true
   },
-  "name": "staples_TypesSection",
+  "name": "content_TypesSection",
   "selections": [
     {
       "alias": null,
@@ -63,13 +63,13 @@ const node: ReaderFragment = {
     {
       "args": null,
       "kind": "FragmentSpread",
-      "name": "staples_StaplesCard"
+      "name": "content_StaplesCard"
     }
   ],
   "type": "Card",
   "abstractKey": null
 };
 
-(node as any).hash = "e58bd7e142126d688f07fece4356968c";
+(node as any).hash = "341f6c1de09e6b3b1b74f1eaee4eb167";
 
 export default node;

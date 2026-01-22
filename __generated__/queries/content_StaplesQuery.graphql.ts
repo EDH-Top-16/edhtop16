@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<3a1b07285163304e5dbbcf7beada7f84>>
- * @relayHash 35cddb21023f8bf05945c5cff41167cf
+ * @generated SignedSource<<3ca0e38b3030e8af5b6f6c9288e46ee9>>
+ * @relayHash 0c89244ea09e14820e58b1aa36cef67a
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,26 +9,26 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 35cddb21023f8bf05945c5cff41167cf
+// @relayRequestID 0c89244ea09e14820e58b1aa36cef67a
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type staples_StaplesQuery$variables = {
+export type content_StaplesQuery$variables = {
   colorId?: string | null | undefined;
   type?: string | null | undefined;
 };
-export type staples_StaplesQuery$data = {
+export type content_StaplesQuery$data = {
   readonly staples: ReadonlyArray<{
     readonly id: string;
     readonly name: string | null | undefined;
     readonly playRateLastYear: number | null | undefined;
     readonly type: string | null | undefined;
-    readonly " $fragmentSpreads": FragmentRefs<"staples_TypesSection">;
+    readonly " $fragmentSpreads": FragmentRefs<"content_TypesSection">;
   }> | null | undefined;
 };
-export type staples_StaplesQuery = {
-  response: staples_StaplesQuery$data;
-  variables: staples_StaplesQuery$variables;
+export type content_StaplesQuery = {
+  response: content_StaplesQuery$data;
+  variables: content_StaplesQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -89,7 +89,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "staples_StaplesQuery",
+    "name": "content_StaplesQuery",
     "selections": [
       {
         "alias": null,
@@ -106,7 +106,7 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "staples_TypesSection"
+            "name": "content_TypesSection"
           }
         ],
         "storageKey": null
@@ -119,7 +119,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "staples_StaplesQuery",
+    "name": "content_StaplesQuery",
     "selections": [
       {
         "alias": null,
@@ -160,16 +160,16 @@ return {
     ]
   },
   "params": {
-    "id": "35cddb21023f8bf05945c5cff41167cf",
+    "id": "0c89244ea09e14820e58b1aa36cef67a",
     "metadata": {},
-    "name": "staples_StaplesQuery",
+    "name": "content_StaplesQuery",
     "operationKind": "query",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "67a897553edaa0109fc8c8d89b8e5808";
+(node as any).hash = "a299fe82b3747706a6c280c852783ed4";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);
