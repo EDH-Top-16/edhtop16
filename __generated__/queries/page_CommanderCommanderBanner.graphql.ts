@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<9f751d38b4bfde76ef9e52d401955d09>>
+ * @generated SignedSource<<e88f5cce2d4fcb999460d80dcce27162>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,17 +10,17 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type commanderPage_CommanderBanner$data = {
+export type page_CommanderCommanderBanner$data = {
   readonly cards: ReadonlyArray<{
     readonly imageUrls: ReadonlyArray<string>;
   }>;
   readonly colorId: string;
   readonly name: string;
-  readonly " $fragmentType": "commanderPage_CommanderBanner";
+  readonly " $fragmentType": "page_CommanderCommanderBanner";
 };
-export type commanderPage_CommanderBanner$key = {
-  readonly " $data"?: commanderPage_CommanderBanner$data;
-  readonly " $fragmentSpreads": FragmentRefs<"commanderPage_CommanderBanner">;
+export type page_CommanderCommanderBanner$key = {
+  readonly " $data"?: page_CommanderCommanderBanner$data;
+  readonly " $fragmentSpreads": FragmentRefs<"page_CommanderCommanderBanner">;
 };
 
 const node: ReaderFragment = {
@@ -29,7 +29,7 @@ const node: ReaderFragment = {
   "metadata": {
     "throwOnFieldError": true
   },
-  "name": "commanderPage_CommanderBanner",
+  "name": "page_CommanderCommanderBanner",
   "selections": [
     {
       "alias": null,
@@ -68,6 +68,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "6613ff46e93e3cba98540bba4de789d8";
+(node as any).hash = "be937018fb4f049016f3fba607782ec9";
 
 export default node;

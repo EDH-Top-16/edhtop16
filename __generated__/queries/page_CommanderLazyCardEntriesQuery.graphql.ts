@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<82a9c9685530965ebb9e6254e1f87861>>
- * @relayHash a7c0295eeb9a27e9341d7252bc294e26
+ * @generated SignedSource<<aba5c7974f0195257c5e9a340f36e561>>
+ * @relayHash 1016cefb31718b88dc40b311353b8fa3
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,33 +9,33 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID a7c0295eeb9a27e9341d7252bc294e26
+// @relayRequestID 1016cefb31718b88dc40b311353b8fa3
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type EntriesSortBy = "NEW" | "TOP" | "%future added value";
-export type commanderPage_LazyCardEntriesQuery$variables = {
-  cardName?: string | null | undefined;
+export type page_CommanderLazyCardEntriesQuery$variables = {
+  card?: string | null | undefined;
   commanderName: string;
   count?: number | null | undefined;
   cursor?: string | null | undefined;
   sortBy: EntriesSortBy;
 };
-export type commanderPage_LazyCardEntriesQuery$data = {
+export type page_CommanderLazyCardEntriesQuery$data = {
   readonly commander: {
-    readonly " $fragmentSpreads": FragmentRefs<"commanderPage_CardEntries">;
+    readonly " $fragmentSpreads": FragmentRefs<"page_CommanderCardEntries">;
   };
 };
-export type commanderPage_LazyCardEntriesQuery = {
-  response: commanderPage_LazyCardEntriesQuery$data;
-  variables: commanderPage_LazyCardEntriesQuery$variables;
+export type page_CommanderLazyCardEntriesQuery = {
+  response: page_CommanderLazyCardEntriesQuery$data;
+  variables: page_CommanderLazyCardEntriesQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
 var v0 = {
   "defaultValue": null,
   "kind": "LocalArgument",
-  "name": "cardName"
+  "name": "card"
 },
 v1 = {
   "defaultValue": null,
@@ -73,7 +73,7 @@ v6 = [
   {
     "kind": "Variable",
     "name": "cardName",
-    "variableName": "cardName"
+    "variableName": "card"
   },
   {
     "kind": "Variable",
@@ -113,7 +113,7 @@ return {
     "metadata": {
       "throwOnFieldError": true
     },
-    "name": "commanderPage_LazyCardEntriesQuery",
+    "name": "page_CommanderLazyCardEntriesQuery",
     "selections": [
       {
         "alias": null,
@@ -137,7 +137,7 @@ return {
               }
             ],
             "kind": "FragmentSpread",
-            "name": "commanderPage_CardEntries"
+            "name": "page_CommanderCardEntries"
           }
         ],
         "storageKey": null
@@ -156,7 +156,7 @@ return {
       (v1/*: any*/)
     ],
     "kind": "Operation",
-    "name": "commanderPage_LazyCardEntriesQuery",
+    "name": "page_CommanderLazyCardEntriesQuery",
     "selections": [
       {
         "alias": null,
@@ -336,7 +336,7 @@ return {
               "sortBy"
             ],
             "handle": "connection",
-            "key": "commanderPage_cardEntries",
+            "key": "page_Commander__cardEntries",
             "kind": "LinkedHandle",
             "name": "cardEntries"
           },
@@ -347,15 +347,15 @@ return {
     ]
   },
   "params": {
-    "id": "a7c0295eeb9a27e9341d7252bc294e26",
+    "id": "1016cefb31718b88dc40b311353b8fa3",
     "metadata": {},
-    "name": "commanderPage_LazyCardEntriesQuery",
+    "name": "page_CommanderLazyCardEntriesQuery",
     "operationKind": "query",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "f8ae52caa58621e23c2e63d7eb30f1e4";
+(node as any).hash = "c423895a4925231cf017e31aff8ded5b";
 
 export default node;

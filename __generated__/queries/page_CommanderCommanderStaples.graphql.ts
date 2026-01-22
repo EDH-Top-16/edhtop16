@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<05ccfc62f6328f4081f7aabf8bb2a4b7>>
+ * @generated SignedSource<<4ba8ba6836b3d47038694446d466438f>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type commanderPage_CommanderStaples$data = {
+export type page_CommanderCommanderStaples$data = {
   readonly name: string;
   readonly staples: ReadonlyArray<{
     readonly id: string;
@@ -20,11 +20,11 @@ export type commanderPage_CommanderStaples$data = {
     readonly scryfallUrl: string;
     readonly type: string;
   }>;
-  readonly " $fragmentType": "commanderPage_CommanderStaples";
+  readonly " $fragmentType": "page_CommanderCommanderStaples";
 };
-export type commanderPage_CommanderStaples$key = {
-  readonly " $data"?: commanderPage_CommanderStaples$data;
-  readonly " $fragmentSpreads": FragmentRefs<"commanderPage_CommanderStaples">;
+export type page_CommanderCommanderStaples$key = {
+  readonly " $data"?: page_CommanderCommanderStaples$data;
+  readonly " $fragmentSpreads": FragmentRefs<"page_CommanderCommanderStaples">;
 };
 
 const node: ReaderFragment = (function(){
@@ -41,7 +41,7 @@ return {
   "metadata": {
     "throwOnFieldError": true
   },
-  "name": "commanderPage_CommanderStaples",
+  "name": "page_CommanderCommanderStaples",
   "selections": [
     (v0/*: any*/),
     {
@@ -97,6 +97,6 @@ return {
 };
 })();
 
-(node as any).hash = "dfc9e8d10e088d7f7f326092a36036fa";
+(node as any).hash = "d1ec59f247cc3fe6b182e3fc320941b5";
 
 export default node;

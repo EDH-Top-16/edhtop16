@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<df33b339e6ab5179c35b50a5cd347a1d>>
- * @relayHash 5b5e89ee4acb313fa93e0e0a8b4e330f
+ * @generated SignedSource<<73bef91a58ae9e1f292559fd968d994d>>
+ * @relayHash 78b78cd7929b64f6cf1b6c8009b83163
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,13 +9,13 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 5b5e89ee4acb313fa93e0e0a8b4e330f
+// @relayRequestID 78b78cd7929b64f6cf1b6c8009b83163
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type EntriesSortBy = "NEW" | "TOP" | "%future added value";
 export type CommanderCardEntriesQuery$variables = {
-  cardName?: string | null | undefined;
+  card?: string | null | undefined;
   count?: number | null | undefined;
   cursor?: string | null | undefined;
   id: string;
@@ -23,7 +23,7 @@ export type CommanderCardEntriesQuery$variables = {
 };
 export type CommanderCardEntriesQuery$data = {
   readonly node: {
-    readonly " $fragmentSpreads": FragmentRefs<"commanderPage_CardEntries">;
+    readonly " $fragmentSpreads": FragmentRefs<"page_CommanderCardEntries">;
   } | null | undefined;
 };
 export type CommanderCardEntriesQuery = {
@@ -35,7 +35,7 @@ const node: ConcreteRequest = (function(){
 var v0 = {
   "defaultValue": null,
   "kind": "LocalArgument",
-  "name": "cardName"
+  "name": "card"
 },
 v1 = {
   "defaultValue": 48,
@@ -87,7 +87,7 @@ v8 = [
   {
     "kind": "Variable",
     "name": "cardName",
-    "variableName": "cardName"
+    "variableName": "card"
   },
   {
     "kind": "Variable",
@@ -142,7 +142,7 @@ return {
               }
             ],
             "kind": "FragmentSpread",
-            "name": "commanderPage_CardEntries"
+            "name": "page_CommanderCardEntries"
           }
         ],
         "storageKey": null
@@ -340,7 +340,7 @@ return {
                   "sortBy"
                 ],
                 "handle": "connection",
-                "key": "commanderPage_cardEntries",
+                "key": "page_Commander__cardEntries",
                 "kind": "LinkedHandle",
                 "name": "cardEntries"
               }
@@ -354,7 +354,7 @@ return {
     ]
   },
   "params": {
-    "id": "5b5e89ee4acb313fa93e0e0a8b4e330f",
+    "id": "78b78cd7929b64f6cf1b6c8009b83163",
     "metadata": {},
     "name": "CommanderCardEntriesQuery",
     "operationKind": "query",
@@ -363,6 +363,6 @@ return {
 };
 })();
 
-(node as any).hash = "d736cf072ffad978ae94b284134828e0";
+(node as any).hash = "8ed0c71987c9f9ec36010a124cfe84b4";
 
 export default node;

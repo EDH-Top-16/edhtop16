@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d70643412ef61cf559e61cabcd1b215c>>
+ * @generated SignedSource<<09abc353da6fc0897508e1ccf66fcb4f>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,13 +10,13 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type commanderPage_CommanderMeta$data = {
+export type page_CommanderCommanderMeta$data = {
   readonly name: string;
-  readonly " $fragmentType": "commanderPage_CommanderMeta";
+  readonly " $fragmentType": "page_CommanderCommanderMeta";
 };
-export type commanderPage_CommanderMeta$key = {
-  readonly " $data"?: commanderPage_CommanderMeta$data;
-  readonly " $fragmentSpreads": FragmentRefs<"commanderPage_CommanderMeta">;
+export type page_CommanderCommanderMeta$key = {
+  readonly " $data"?: page_CommanderCommanderMeta$data;
+  readonly " $fragmentSpreads": FragmentRefs<"page_CommanderCommanderMeta">;
 };
 
 const node: ReaderFragment = {
@@ -25,7 +25,7 @@ const node: ReaderFragment = {
   "metadata": {
     "throwOnFieldError": true
   },
-  "name": "commanderPage_CommanderMeta",
+  "name": "page_CommanderCommanderMeta",
   "selections": [
     {
       "alias": null,
@@ -39,6 +39,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "700cce180ff48f0b49d80e6c86c84580";
+(node as any).hash = "d2d17023ab741107deb98eb8888415bb";
 
 export default node;

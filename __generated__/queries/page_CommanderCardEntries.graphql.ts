@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<33c1be04aed97529660298e3ae84dd7c>>
+ * @generated SignedSource<<e7edb5600f6032932a1b08415f3272d5>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,28 +10,28 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type commanderPage_entries$data = {
-  readonly entries: {
+export type page_CommanderCardEntries$data = {
+  readonly cardEntries: {
     readonly edges: ReadonlyArray<{
       readonly node: {
         readonly id: string;
-        readonly " $fragmentSpreads": FragmentRefs<"commanderPage_EntryCard">;
+        readonly " $fragmentSpreads": FragmentRefs<"page_CommanderEntryCard">;
       };
     }>;
   };
   readonly id: string;
-  readonly " $fragmentType": "commanderPage_entries";
+  readonly " $fragmentType": "page_CommanderCardEntries";
 };
-export type commanderPage_entries$key = {
-  readonly " $data"?: commanderPage_entries$data;
-  readonly " $fragmentSpreads": FragmentRefs<"commanderPage_entries">;
+export type page_CommanderCardEntries$key = {
+  readonly " $data"?: page_CommanderCardEntries$data;
+  readonly " $fragmentSpreads": FragmentRefs<"page_CommanderCardEntries">;
 };
 
-import CommanderEntriesQuery_graphql from './CommanderEntriesQuery.graphql';
+import CommanderCardEntriesQuery_graphql from './CommanderCardEntriesQuery.graphql';
 
 const node: ReaderFragment = (function(){
 var v0 = [
-  "entries"
+  "cardEntries"
 ],
 v1 = {
   "alias": null,
@@ -42,6 +42,10 @@ v1 = {
 };
 return {
   "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "card"
+    },
     {
       "defaultValue": 48,
       "kind": "LocalArgument",
@@ -54,19 +58,7 @@ return {
     },
     {
       "kind": "RootArgument",
-      "name": "maxStanding"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "minEventSize"
-    },
-    {
-      "kind": "RootArgument",
       "name": "sortBy"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "timePeriod"
     }
   ],
   "kind": "Fragment",
@@ -92,38 +84,22 @@ return {
       "fragmentPathInResult": [
         "node"
       ],
-      "operation": CommanderEntriesQuery_graphql,
+      "operation": CommanderCardEntriesQuery_graphql,
       "identifierInfo": {
         "identifierField": "id",
         "identifierQueryVariableName": "id"
       }
     }
   },
-  "name": "commanderPage_entries",
+  "name": "page_CommanderCardEntries",
   "selections": [
     {
-      "alias": "entries",
+      "alias": "cardEntries",
       "args": [
         {
-          "fields": [
-            {
-              "kind": "Variable",
-              "name": "maxStanding",
-              "variableName": "maxStanding"
-            },
-            {
-              "kind": "Variable",
-              "name": "minEventSize",
-              "variableName": "minEventSize"
-            },
-            {
-              "kind": "Variable",
-              "name": "timePeriod",
-              "variableName": "timePeriod"
-            }
-          ],
-          "kind": "ObjectValue",
-          "name": "filters"
+          "kind": "Variable",
+          "name": "cardName",
+          "variableName": "card"
         },
         {
           "kind": "Variable",
@@ -133,7 +109,7 @@ return {
       ],
       "concreteType": "EntryConnection",
       "kind": "LinkedField",
-      "name": "__commanderPage_entries_connection",
+      "name": "__page_Commander__cardEntries_connection",
       "plural": false,
       "selections": [
         {
@@ -156,7 +132,7 @@ return {
                 {
                   "args": null,
                   "kind": "FragmentSpread",
-                  "name": "commanderPage_EntryCard"
+                  "name": "page_CommanderEntryCard"
                 },
                 {
                   "alias": null,
@@ -213,6 +189,6 @@ return {
 };
 })();
 
-(node as any).hash = "bf3ba6fb918d4cf26ff0bc79a81d9290";
+(node as any).hash = "8ed0c71987c9f9ec36010a124cfe84b4";
 
 export default node;

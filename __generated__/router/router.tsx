@@ -42,6 +42,8 @@ import content_StaplesQueryParameters from "#genfiles/queries/content_StaplesQue
 import type { content_StaplesQuery$variables } from "#genfiles/queries/content_StaplesQuery.graphql";
 import tournaments_TournamentsQueryParameters from "#genfiles/queries/tournaments_TournamentsQuery$parameters";
 import type { tournaments_TournamentsQuery$variables } from "#genfiles/queries/tournaments_TournamentsQuery.graphql";
+import page_CommanderCommanderPageQueryParameters from "#genfiles/queries/page_CommanderCommanderPageQuery$parameters";
+import type { page_CommanderCommanderPageQuery$variables } from "#genfiles/queries/page_CommanderCommanderPageQuery.graphql";
 import page_TournamentPageQueryParameters from "#genfiles/queries/page_TournamentPageQuery$parameters";
 import type { page_TournamentPageQuery$variables } from "#genfiles/queries/page_TournamentPageQuery.graphql";
 
@@ -66,6 +68,10 @@ const ROUTER_CONF = {
   "/tournaments": {
       entrypoint: entrypoint_fs_page__tournaments_(),
       schema: z.object({ minSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)), sortBy: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/tournaments_TournamentsQuery.graphql').TournamentSortBy)), z.transform(s => s == null ? undefined : s)), timePeriod: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/tournaments_TournamentsQuery.graphql').TimePeriod)), z.transform(s => s == null ? undefined : s)) })
+    } as const,
+  "/commander/[commander]": {
+      entrypoint: entrypoint_fs_page__commander__commander__(),
+      schema: z.object({ commander: z.pipe(z.string(), z.transform(decodeURIComponent)), card: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)), maxStanding: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)), minEventSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)), sortBy: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/page_CommanderCommanderPageQuery.graphql').EntriesSortBy)), z.transform(s => s == null ? undefined : s)), timePeriod: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/page_CommanderCommanderPageQuery.graphql').TimePeriod)), z.transform(s => s == null ? undefined : s)) })
     } as const,
   "/tournament/[tid]": {
       entrypoint: entrypoint_fs_page__tournament__tid__(),
@@ -767,6 +773,35 @@ function entrypoint_fs_page__tournaments_() {
   }
   return {
     root: JSResource.fromModuleId('fs:page(/tournaments)'),
+    getPreloadProps: (p: {params: Record<string, unknown>}) => getPreloadProps({
+      params: p.params as z.infer<typeof schema>,
+      queries: queryHelpers,
+      entryPoints: entryPointHelpers,
+    }),
+  }
+}
+
+function entrypoint_fs_page__commander__commander__() {
+  const schema = z.object({ commander: z.pipe(z.string(), z.transform(decodeURIComponent)), card: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)), maxStanding: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)), minEventSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)), sortBy: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/page_CommanderCommanderPageQuery.graphql').EntriesSortBy)), z.transform(s => s == null ? undefined : s)), timePeriod: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/page_CommanderCommanderPageQuery.graphql').TimePeriod)), z.transform(s => s == null ? undefined : s)) });
+  const queryHelpers = {
+    commanderQueryRef: (variables: page_CommanderCommanderPageQuery$variables) => ({ parameters: page_CommanderCommanderPageQueryParameters, variables }),
+  }
+  ;
+  const entryPointHelpers = {
+  }
+  ;
+  function getPreloadProps({params, queries, entryPoints}: EntryPointParams<'/commander/[commander]'>) {
+    const variables = params;
+    return {
+      queries: {
+        commanderQueryRef: queries.commanderQueryRef({card: variables.card, commander: variables.commander, maxStanding: variables.maxStanding, minEventSize: variables.minEventSize, sortBy: variables.sortBy, timePeriod: variables.timePeriod}),
+      }
+      ,
+      entryPoints: undefined
+    }
+  }
+  return {
+    root: JSResource.fromModuleId('fs:page(/commander/[commander])'),
     getPreloadProps: (p: {params: Record<string, unknown>}) => getPreloadProps({
       params: p.params as z.infer<typeof schema>,
       queries: queryHelpers,

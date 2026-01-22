@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<df4e91afcedf9f792bdd91cc7c65a696>>
+ * @generated SignedSource<<51a1343ebe882cea23e21bfbba186256>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type commanderPage_CardDetail$data = {
+export type page_CommanderCardDetail$data = {
   readonly cardDetail: {
     readonly cardPreviewImageUrl: string | null | undefined;
     readonly cmc: number;
@@ -33,12 +33,12 @@ export type commanderPage_CardDetail$data = {
     };
   };
   readonly name: string;
-  readonly " $fragmentSpreads": FragmentRefs<"commanderPage_CardEntries">;
-  readonly " $fragmentType": "commanderPage_CardDetail";
+  readonly " $fragmentSpreads": FragmentRefs<"page_CommanderCardEntries">;
+  readonly " $fragmentType": "page_CommanderCardDetail";
 };
-export type commanderPage_CardDetail$key = {
-  readonly " $data"?: commanderPage_CardDetail$data;
-  readonly " $fragmentSpreads": FragmentRefs<"commanderPage_CardDetail">;
+export type page_CommanderCardDetail$key = {
+  readonly " $data"?: page_CommanderCardDetail$data;
+  readonly " $fragmentSpreads": FragmentRefs<"page_CommanderCardDetail">;
 };
 
 const node: ReaderFragment = (function(){
@@ -52,7 +52,7 @@ var v0 = {
 v1 = {
   "kind": "Variable",
   "name": "cardName",
-  "variableName": "cardName"
+  "variableName": "card"
 },
 v2 = [
   {
@@ -81,14 +81,14 @@ return {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "cardName"
+      "name": "card"
     }
   ],
   "kind": "Fragment",
   "metadata": {
     "throwOnFieldError": true
   },
-  "name": "commanderPage_CardDetail",
+  "name": "page_CommanderCardDetail",
   "selections": [
     (v0/*: any*/),
     {
@@ -188,7 +188,7 @@ return {
     {
       "args": null,
       "kind": "FragmentSpread",
-      "name": "commanderPage_CardEntries"
+      "name": "page_CommanderCardEntries"
     }
   ],
   "type": "Commander",
@@ -196,6 +196,6 @@ return {
 };
 })();
 
-(node as any).hash = "0be140a8661cfbdc48364d1d19b4b199";
+(node as any).hash = "0e9c8c8d96920cb6d4b202342f80572b";
 
 export default node;

@@ -1,50 +1,49 @@
-import {commanderPage_CardEntries$key} from '#genfiles/queries/commanderPage_CardEntries.graphql';
-import {commanderPage_CommanderBanner$key} from '#genfiles/queries/commanderPage_CommanderBanner.graphql';
-import {commanderPage_CommanderMeta$key} from '#genfiles/queries/commanderPage_CommanderMeta.graphql';
+import {page_CommanderCardEntries$key} from '#genfiles/queries/page_CommanderCardEntries.graphql.js';
+import {page_CommanderCommanderBanner$key} from '#genfiles/queries/page_CommanderCommanderBanner.graphql.js';
+import {page_CommanderCommanderMeta$key} from '#genfiles/queries/page_CommanderCommanderMeta.graphql.js';
+import page_CommanderCommanderPageQuery from '#genfiles/queries/page_CommanderCommanderPageQuery.graphql.js';
+import {page_CommanderCommanderStaples$key} from '#genfiles/queries/page_CommanderCommanderStaples.graphql.js';
+import {page_Commanderentries$key} from '#genfiles/queries/page_Commanderentries.graphql.js';
+import {page_CommanderEntryCard$key} from '#genfiles/queries/page_CommanderEntryCard.graphql.js';
 import {
-  commanderPage_CommanderQuery,
   EntriesSortBy,
   TimePeriod,
-} from '#genfiles/queries/commanderPage_CommanderQuery.graphql';
-import {commanderPage_CommanderShellQuery} from '#genfiles/queries/commanderPage_CommanderShellQuery.graphql.js';
-import {commanderPage_CommanderStaples$key} from '#genfiles/queries/commanderPage_CommanderStaples.graphql.js';
-import {commanderPage_CommanderStatsQuery} from '#genfiles/queries/commanderPage_CommanderStatsQuery.graphql.js';
-import {commanderPage_entries$key} from '#genfiles/queries/commanderPage_entries.graphql';
-import {commanderPage_EntryCard$key} from '#genfiles/queries/commanderPage_EntryCard.graphql';
-import {commanderPage_LazyCardEntriesQuery} from '#genfiles/queries/commanderPage_LazyCardEntriesQuery.graphql';
-import {CommanderEntriesQuery} from '#genfiles/queries/CommanderEntriesQuery.graphql';
-import {ModuleType} from '#genfiles/router/js_resource.js';
-import {Link, useNavigation} from '#genfiles/router/router';
-import {LoadingIcon} from '#src/components/fallback.jsx';
+} from '#genfiles/queries/page_CommanderCommanderPageQuery.graphql.js';
+import {CommanderEntriesQuery} from '#genfiles/queries/CommanderEntriesQuery.graphql.js';
+import {page_CommanderLazyCardEntriesQuery} from '#genfiles/queries/page_CommanderLazyCardEntriesQuery.graphql.js';
+import {Link, useNavigation, useRouteParams} from '#genfiles/router/router.js';
+import {PageProps} from '#genfiles/router/types.js';
+import {ColorIdentity, ManaCost} from '#src/assets/icons/colors.js';
+import {Card} from '#components/card.js';
+import {CedhPromo} from '#components/cedh_promo.js';
+import {Footer} from '#components/footer.js';
+import {LoadingIcon} from '#components/fallback.js';
+import {LoadMoreButton} from '#components/load_more.js';
+import {Navigation} from '#components/navigation.js';
+import {FirstPartyPromo} from '#components/promo.js';
+import {Select} from '#components/select.js';
+import {Tab, TabList} from '#components/tabs.js';
+import {formatOrdinals, formatPercent} from '#src/lib/client/format.js';
+import {ServerSafeSuspense} from '#src/lib/client/suspense.js';
 import cn from 'classnames';
 import {format} from 'date-fns';
 import {PropsWithChildren, Suspense, useMemo, useState} from 'react';
 import {
-  EntryPoint,
-  EntryPointComponent,
-  EntryPointContainer,
+  graphql,
   useFragment,
   useLazyLoadQuery,
   usePaginationFragment,
   usePreloadedQuery,
 } from 'react-relay/hooks';
-import {graphql} from 'relay-runtime';
-import {ColorIdentity, ManaCost} from './assets/icons/colors';
-import {Card} from './components/card';
-import {CedhPromo} from './components/cedh_promo';
-import {Footer} from './components/footer';
-import {LoadMoreButton} from './components/load_more';
-import {Navigation} from './components/navigation';
-import {FirstPartyPromo} from './components/promo';
-import {Select} from './components/select';
-import {Tab, TabList} from './components/tabs';
-import {formatOrdinals, formatPercent} from './lib/client/format';
-import {ServerSafeSuspense} from './lib/client/suspense';
 
-function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
+export const queries = {
+  commanderQueryRef: page_CommanderCommanderPageQuery,
+};
+
+function EntryCard(props: {entry: page_CommanderEntryCard$key}) {
   const entry = useFragment(
     graphql`
-      fragment commanderPage_EntryCard on Entry @throwOnFieldError {
+      fragment page_CommanderEntryCard on Entry @throwOnFieldError {
         standing
         wins
         losses
@@ -272,12 +271,10 @@ function StapleTypeSection({
   );
 }
 
-function CommanderStaples(props: {
-  commander: commanderPage_CommanderStaples$key;
-}) {
+function CommanderStaples(props: {commander: page_CommanderCommanderStaples$key}) {
   const commander = useFragment(
     graphql`
-      fragment commanderPage_CommanderStaples on Commander @throwOnFieldError {
+      fragment page_CommanderCommanderStaples on Commander @throwOnFieldError {
         name
         staples {
           id
@@ -387,9 +384,9 @@ function CommanderCardDetail(props: {
 }) {
   const commander = useFragment(
     graphql`
-      fragment commanderPage_CardDetail on Commander @throwOnFieldError {
+      fragment page_CommanderCardDetail on Commander @throwOnFieldError {
         name
-        cardDetail(cardName: $cardName) {
+        cardDetail(cardName: $card) {
           name
           type
           cmc
@@ -398,7 +395,7 @@ function CommanderCardDetail(props: {
           scryfallUrl
           cardPreviewImageUrl
         }
-        cardWinrateStats(cardName: $cardName, timePeriod: THREE_MONTHS) {
+        cardWinrateStats(cardName: $card, timePeriod: THREE_MONTHS) {
           withCard {
             totalEntries
             topCuts
@@ -410,7 +407,7 @@ function CommanderCardDetail(props: {
             conversionRate
           }
         }
-        ...commanderPage_CardEntries
+        ...page_CommanderCardEntries
       }
     `,
     props.commander,
@@ -613,12 +610,12 @@ function CardEntriesSort({
 }
 
 function CommanderCardEntries(props: {
-  commander: commanderPage_CardEntries$key;
+  commander: page_CommanderCardEntries$key;
   sortBy: EntriesSortBy;
 }) {
   const {data, loadNext, isLoadingNext, hasNext} = usePaginationFragment(
     graphql`
-      fragment commanderPage_CardEntries on Commander
+      fragment page_CommanderCardEntries on Commander
       @throwOnFieldError
       @argumentDefinitions(
         cursor: {type: "String"}
@@ -626,15 +623,15 @@ function CommanderCardEntries(props: {
       )
       @refetchable(queryName: "CommanderCardEntriesQuery") {
         cardEntries(
-          cardName: $cardName
+          cardName: $card
           first: $count
           after: $cursor
           sortBy: $sortBy
-        ) @connection(key: "commanderPage_cardEntries") {
+        ) @connection(key: "page_Commander__cardEntries") {
           edges {
             node {
               id
-              ...commanderPage_EntryCard
+              ...page_CommanderEntryCard
             }
           }
         }
@@ -665,24 +662,23 @@ function LazyCommanderCardEntries(props: {
   cardName: string;
   sortBy: EntriesSortBy;
 }) {
-  const {commander} = useLazyLoadQuery<commanderPage_LazyCardEntriesQuery>(
+  const {commander} = useLazyLoadQuery<page_CommanderLazyCardEntriesQuery>(
     graphql`
-      query commanderPage_LazyCardEntriesQuery(
-        $cardName: String
+      query page_CommanderLazyCardEntriesQuery(
+        $card: String
         $count: Int = 48
         $cursor: String
         $sortBy: EntriesSortBy!
         $commanderName: String!
       ) @throwOnFieldError {
         commander(name: $commanderName) {
-          ...commanderPage_CardEntries
-            @arguments(count: $count, cursor: $cursor)
+          ...page_CommanderCardEntries @arguments(count: $count, cursor: $cursor)
         }
       }
     `,
     {
       commanderName: props.commanderName,
-      cardName: props.cardName,
+      card: props.cardName,
       sortBy: props.sortBy,
     },
   );
@@ -690,13 +686,13 @@ function LazyCommanderCardEntries(props: {
   return <CommanderCardEntries commander={commander} sortBy={props.sortBy} />;
 }
 
-function CommanderEntries(props: {commander: commanderPage_entries$key}) {
+function CommanderEntries(props: {commander: page_Commanderentries$key}) {
   const {data, loadNext, isLoadingNext, hasNext} = usePaginationFragment<
     CommanderEntriesQuery,
-    commanderPage_entries$key
+    page_Commanderentries$key
   >(
     graphql`
-      fragment commanderPage_entries on Commander
+      fragment page_Commanderentries on Commander
       @throwOnFieldError
       @argumentDefinitions(
         cursor: {type: "String"}
@@ -712,11 +708,11 @@ function CommanderEntries(props: {commander: commanderPage_entries$key}) {
             maxStanding: $maxStanding
             timePeriod: $timePeriod
           }
-        ) @connection(key: "commanderPage_entries") {
+        ) @connection(key: "page_Commander__entries") {
           edges {
             node {
               id
-              ...commanderPage_EntryCard
+              ...page_CommanderEntryCard
             }
           }
         }
@@ -742,48 +738,35 @@ function CommanderEntries(props: {commander: commanderPage_entries$key}) {
   );
 }
 
-/** @resource m#commander_stats */
-export const CommanderStats: EntryPointComponent<
-  {statsRef: commanderPage_CommanderStatsQuery},
-  {}
-> = ({queries}) => {
-  const {commander} = usePreloadedQuery(
-    graphql`
-      query commanderPage_CommanderStatsQuery(
-        $commander: String!
-        $timePeriod: TimePeriod!
-        $minEventSize: Int!
-      ) @preloadable @throwOnFieldError {
-        commander(name: $commander) {
-          stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {
-            conversionRate
-            metaShare
-            count
-          }
-        }
-      }
-    `,
-    queries.statsRef,
-  );
+function CommanderStats(props: {
+  commander: {
+    stats: {
+      conversionRate: number;
+      metaShare: number;
+      count: number;
+    };
+  };
+}) {
+  const {stats} = props.commander;
 
   return (
     <div className="absolute bottom-0 z-10 mx-auto flex w-full items-center justify-around border-t border-white/60 bg-black/50 px-3 text-center text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border">
-      {commander.stats.count} Entries
+      {stats.count} Entries
       <div className="mr-1 ml-2 border-l border-white/60 py-2">&nbsp;</div>{' '}
-      {formatPercent(commander.stats.metaShare)} Meta%
+      {formatPercent(stats.metaShare)} Meta%
       <div className="mr-1 ml-2 border-l border-white/60 py-2">&nbsp;</div>{' '}
-      {formatPercent(commander.stats.conversionRate)} Conversion
+      {formatPercent(stats.conversionRate)} Conversion
     </div>
   );
-};
+}
 
 function CommanderBanner({
   children,
   ...props
-}: PropsWithChildren<{commander: commanderPage_CommanderBanner$key}>) {
+}: PropsWithChildren<{commander: page_CommanderCommanderBanner$key}>) {
   const commander = useFragment(
     graphql`
-      fragment commanderPage_CommanderBanner on Commander @throwOnFieldError {
+      fragment page_CommanderCommanderBanner on Commander @throwOnFieldError {
         name
         colorId
         cards {
@@ -829,10 +812,10 @@ function CommanderBanner({
   );
 }
 
-function useCommanderMeta(commanderFromProps: commanderPage_CommanderMeta$key) {
+function useCommanderMeta(commanderFromProps: page_CommanderCommanderMeta$key) {
   const commander = useFragment(
     graphql`
-      fragment commanderPage_CommanderMeta on Commander @throwOnFieldError {
+      fragment page_CommanderCommanderMeta on Commander @throwOnFieldError {
         name
       }
     `,
@@ -842,109 +825,60 @@ function useCommanderMeta(commanderFromProps: commanderPage_CommanderMeta$key) {
   return commander;
 }
 
-/** @resource m#commander_page */
-export const CommanderPage: EntryPointComponent<
-  {commanderQueryRef: commanderPage_CommanderQuery},
-  {}
-> = ({queries}) => {
+export default function CommanderPage({
+  queries,
+}: PageProps<'/commander/:commander'>) {
+  const {
+    commander: commanderName,
+    tab = 'entries',
+    card,
+    sortBy = 'TOP',
+    timePeriod = 'ONE_YEAR',
+    maxStanding,
+    minEventSize = 60,
+  } = useRouteParams('/commander/:commander');
+
   const {commander} = usePreloadedQuery(
     graphql`
-      query commanderPage_CommanderQuery(
+      query page_CommanderCommanderPageQuery(
         $commander: String!
-        $showStaples: Boolean!
-        $showEntries: Boolean!
-        $showCardDetail: Boolean!
-        $cardName: String
-        $sortBy: EntriesSortBy!
-        $minEventSize: Int!
+        $card: String
+        $sortBy: EntriesSortBy = TOP
+        $minEventSize: Int = 60
         $maxStanding: Int
-        $timePeriod: TimePeriod!
+        $timePeriod: TimePeriod = ONE_YEAR
       ) @preloadable @throwOnFieldError {
         commander(name: $commander) {
-          ...commanderPage_CommanderStaples
-            @include(if: $showStaples)
-            @alias(as: "staples")
-          ...commanderPage_entries
-            @include(if: $showEntries)
-            @alias(as: "entries")
-          ...commanderPage_CardDetail
-            @include(if: $showCardDetail)
-            @alias(as: "cardDetail")
+          name
+          breakdownUrl
+          ...page_CommanderCommanderBanner
+          ...page_CommanderCommanderMeta
+
+          promo {
+            ...promo_EmbededPromo
+          }
+
+          stats(filters: {timePeriod: $timePeriod, minSize: $minEventSize}) {
+            conversionRate
+            metaShare
+            count
+          }
+
+          ...page_CommanderCommanderStaples
+          ...page_Commanderentries
+          ...page_CommanderCardDetail
         }
       }
     `,
     queries.commanderQueryRef,
   );
 
-  return (
-    <>
-      {queries.commanderQueryRef.variables.showStaples &&
-        commander.staples != null && (
-          <CommanderStaples commander={commander.staples} />
-        )}
-
-      {queries.commanderQueryRef.variables.showEntries &&
-        commander.entries != null && (
-          <CommanderEntries commander={commander.entries} />
-        )}
-
-      {queries.commanderQueryRef.variables.showCardDetail &&
-        commander.cardDetail != null &&
-        queries.commanderQueryRef.variables.cardName && (
-          <CommanderCardDetail
-            commander={commander.cardDetail}
-            cardName={queries.commanderQueryRef.variables.cardName ?? undefined}
-            sortBy={queries.commanderQueryRef.variables.sortBy}
-          />
-        )}
-      <Footer />
-    </>
-  );
-};
-
-/** @resource m#commander_page_shell */
-export const CommanderPageShell: EntryPointComponent<
-  {commanderRef: commanderPage_CommanderShellQuery},
-  {
-    commanderStats: EntryPoint<ModuleType<'m#commander_stats'>>;
-    commanderContent: EntryPoint<ModuleType<'m#commander_page'>>;
-  },
-  {},
-  {
-    maxStanding?: number | null;
-    minEventSize: number;
-    sortBy: EntriesSortBy;
-    timePeriod: TimePeriod;
-    tab: 'entries' | 'staples' | 'card';
-    cardName?: string;
-  }
-> = ({
-  entryPoints,
-  queries,
-  extraProps: {maxStanding, minEventSize, sortBy, timePeriod, tab, cardName},
-}) => {
-  const {commander} = usePreloadedQuery(
-    graphql`
-      query commanderPage_CommanderShellQuery($commander: String!)
-      @preloadable
-      @throwOnFieldError {
-        commander(name: $commander) {
-          name
-          breakdownUrl
-          ...commanderPage_CommanderBanner
-          ...commanderPage_CommanderMeta
-
-          promo {
-            ...promo_EmbededPromo
-          }
-        }
-      }
-    `,
-    queries.commanderRef,
-  );
-
   const commanderMeta = useCommanderMeta(commander);
   const {pushRoute, replaceRoute} = useNavigation();
+
+  const showEntries = tab === 'entries' || (!tab && !card);
+  const showStaples = tab === 'staples';
+  const showCardDetail = tab === 'card' && card != null;
 
   return (
     <>
@@ -955,21 +889,16 @@ export const CommanderPageShell: EntryPointComponent<
       />
       <Navigation />
       <CommanderBanner commander={commander}>
-        <Suspense fallback={null}>
-          <EntryPointContainer
-            entryPointReference={entryPoints.commanderStats}
-            props={{}}
-          />
-        </Suspense>
+        <CommanderStats commander={commander} />
       </CommanderBanner>
       {commander.promo && <FirstPartyPromo promo={commander.promo} />}
 
       <TabList
         className="mx-auto max-w-(--breakpoint-md)"
-        border={tab === 'staples' || tab === 'card'}
+        border={showStaples || showCardDetail}
       >
         <Tab
-          selected={tab === 'entries' || !tab}
+          selected={showEntries}
           onClick={() => {
             pushRoute('/commander/:commander', {
               commander: commander.name,
@@ -987,7 +916,7 @@ export const CommanderPageShell: EntryPointComponent<
         </Tab>
 
         <Tab
-          selected={tab === 'staples'}
+          selected={showStaples}
           onClick={() => {
             pushRoute('/commander/:commander', {
               commander: commander.name,
@@ -1004,14 +933,14 @@ export const CommanderPageShell: EntryPointComponent<
           Staples
         </Tab>
 
-        {cardName && tab === 'card' && (
+        {card && showCardDetail && (
           <Tab
-            selected={tab === 'card'}
+            selected={showCardDetail}
             onClick={() => {
               pushRoute('/commander/:commander', {
                 commander: commander.name,
                 tab: 'card',
-                card: cardName,
+                card: card,
                 sortBy,
                 timePeriod,
                 maxStanding,
@@ -1019,12 +948,12 @@ export const CommanderPageShell: EntryPointComponent<
               });
             }}
           >
-            {cardName}
+            {card}
           </Tab>
         )}
       </TabList>
 
-      {tab === 'entries' && (
+      {showEntries && (
         <div className="mx-auto grid max-w-(--breakpoint-md) grid-cols-2 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
           <Select
             id="commander-sort-by"
@@ -1080,13 +1009,13 @@ export const CommanderPageShell: EntryPointComponent<
           </Select>
 
           <Select
-            id="commander-event-size"
+            id="commander-max-standing"
             label="Standing"
-            value={`${maxStanding}`}
+            value={`${maxStanding ?? ''}`}
             onChange={(e) => {
               replaceRoute('/commander/:commander', {
                 commander: commander.name,
-                maxStanding: Number(e),
+                maxStanding: e ? Number(e) : undefined,
               });
             }}
           >
@@ -1098,12 +1027,19 @@ export const CommanderPageShell: EntryPointComponent<
         </div>
       )}
 
-      <Suspense fallback={<LoadingIcon />}>
-        <EntryPointContainer
-          entryPointReference={entryPoints.commanderContent}
-          props={{}}
+      {showStaples && <CommanderStaples commander={commander} />}
+
+      {showEntries && <CommanderEntries commander={commander} />}
+
+      {showCardDetail && card && (
+        <CommanderCardDetail
+          commander={commander}
+          cardName={card}
+          sortBy={sortBy as EntriesSortBy}
         />
-      </Suspense>
+      )}
+
+      <Footer />
     </>
   );
-};
+}
