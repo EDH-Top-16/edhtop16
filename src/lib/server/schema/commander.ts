@@ -718,6 +718,7 @@ export class Commander implements GraphQLNode {
       .leftJoin('stats', 'stats.commanderId', 'Commander.id')
       .where('Commander.name', '!=', 'Unknown Commander')
       .where('Commander.name', '!=', 'Nadu, Winged Wisdom')
+      .where('Commander.name', '!=', '')
       .where('stats.count', '>=', minEntriesValue);
 
     if (colorId) {
