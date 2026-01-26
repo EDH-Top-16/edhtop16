@@ -38,6 +38,8 @@ export function Card({
                 'flex-1 object-cover object-top',
                 length === 2 ? 'w-1/2' : 'w-full',
               )}
+              loading="lazy"
+              decoding="async"
               key={src}
               src={src}
               alt={alt}
