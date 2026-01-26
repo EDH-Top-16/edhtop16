@@ -8,4 +8,3 @@ onlyBuiltDependencies:
 #   pastoria: link:../pastoria/packages/pastoria
 #   pastoria-runtime: file:../pastoria/packages/pastoria-runtime
 #   pastoria-server: link:../pastoria/packages/pastoria-server
-#   pastoria-config: link:../pastoria/packages/pastoria-config
