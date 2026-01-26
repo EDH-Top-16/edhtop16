@@ -10,7 +10,12 @@ import {RouteLink} from '#genfiles/router/router.js';
 import {PageProps} from '#genfiles/router/types.js';
 import {format} from 'date-fns';
 import {useMemo} from 'react';
-import {graphql, useFragment, usePaginationFragment, usePreloadedQuery} from 'react-relay/hooks';
+import {
+  graphql,
+  useFragment,
+  usePaginationFragment,
+  usePreloadedQuery,
+} from 'react-relay/hooks';
 
 export const queries = {
   tournamentQueryRef: tournaments_TournamentsQuery,

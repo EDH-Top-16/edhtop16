@@ -338,7 +338,9 @@ export default function CommanderCardDetail({
                       entries
                     </div>
                     <div className="text-white">
-                      <span className="font-bold">{stats.withCard.topCuts}</span>{' '}
+                      <span className="font-bold">
+                        {stats.withCard.topCuts}
+                      </span>{' '}
                       top cuts
                     </div>
                     <div className="text-green-300">
@@ -362,7 +364,9 @@ export default function CommanderCardDetail({
                       entries
                     </div>
                     <div className="text-white">
-                      <span className="font-bold">{stats.withoutCard.topCuts}</span>{' '}
+                      <span className="font-bold">
+                        {stats.withoutCard.topCuts}
+                      </span>{' '}
                       top cuts
                     </div>
                     <div className="text-red-300">
@@ -378,7 +382,9 @@ export default function CommanderCardDetail({
               {stats.withCard.totalEntries > 0 &&
                 stats.withoutCard.totalEntries > 0 && (
                   <div className="rounded-lg bg-blue-900/30 p-4">
-                    <h4 className="text-lg font-semibold text-blue-300">Impact</h4>
+                    <h4 className="text-lg font-semibold text-blue-300">
+                      Impact
+                    </h4>
                     <div className="mt-2">
                       <div className="text-white">
                         {stats.withCard.conversionRate >
