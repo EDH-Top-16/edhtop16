@@ -75,7 +75,7 @@
     "globals": "^16.4.0",
     "grats": "^0.0.33",
     "kysely-codegen": "^0.17.0",
-    "pastoria": "^2.0.0",
+    "pastoria": "^2.0.1",
     "pg": "^8.16.3",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",

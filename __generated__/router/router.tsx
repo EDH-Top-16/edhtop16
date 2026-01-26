@@ -381,6 +381,9 @@ export function router__createAppFromEntryPoint(
     );
 
     useMemo(() => {
+      // Skip during SSR - entry point is already loaded before rendering
+      if (typeof window === 'undefined') return;
+
       const route = location.route();
       if (route) {
         // Cast needed for same reason as loadRouteEntryPoint - see that function's docs
@@ -526,64 +529,52 @@ function router__evaluateNavigationDirection(nav: NavigationDirection) {
 
 export function useNavigation() {
   const {setLocation} = useContext(RouterContext);
-  const [isPending, startTransition] = useTransition();
 
   return useMemo(() => {
     function push(nav: NavigationDirection) {
-      startTransition(() => {
-        setLocation(
-          RouterLocation.parse(
-            router__evaluateNavigationDirection(nav),
-            'push',
-          ),
-        );
-      });
+      setLocation(
+        RouterLocation.parse(router__evaluateNavigationDirection(nav), 'push'),
+      );
     }
 
     function replace(nav: NavigationDirection) {
-      startTransition(() => {
-        setLocation(
-          RouterLocation.parse(
-            router__evaluateNavigationDirection(nav),
-            'replace',
-          ),
-        );
-      });
+      setLocation(
+        RouterLocation.parse(
+          router__evaluateNavigationDirection(nav),
+          'replace',
+        ),
+      );
     }
 
     function pushRoute<R extends RouteId>(
       routeId: R,
       params: z.input<RouterConf[R]['schema']>,
     ) {
-      startTransition(() => {
-        setLocation(
-          RouterLocation.parse(
-            router__createPathForRoute(routeId, params),
-            'push',
-          ),
-        );
-      });
+      setLocation(
+        RouterLocation.parse(
+          router__createPathForRoute(routeId, params),
+          'push',
+        ),
+      );
     }
 
     function replaceRoute<R extends RouteId>(
       routeId: R,
       params: z.input<RouterConf[R]['schema']>,
     ) {
-      startTransition(() => {
-        setLocation((prevLoc) =>
-          RouterLocation.parse(
-            router__createPathForRoute(routeId, {
-              ...prevLoc.params(),
-              ...params,
-            }),
-            'replace',
-          ),
-        );
-      });
+      setLocation((prevLoc) =>
+        RouterLocation.parse(
+          router__createPathForRoute(routeId, {
+            ...prevLoc.params(),
+            ...params,
+          }),
+          'replace',
+        ),
+      );
     }
 
-    return {push, replace, pushRoute, replaceRoute, isPending} as const;
-  }, [setLocation, isPending]);
+    return {push, replace, pushRoute, replaceRoute} as const;
+  }, [setLocation]);
 }
 
 export function Link({
