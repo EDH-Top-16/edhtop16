@@ -174,10 +174,6 @@ export default function CommanderStaples({
     queries.staplesQueryRef,
   );
 
-  if (!commander) {
-    return null;
-  }
-
   const groupedCards = useMemo(() => {
     const groups: Record<StapleCardType, StapleCardData[]> = {
       Creature: [],
@@ -214,6 +210,10 @@ export default function CommanderStaples({
     'Battle',
     'Land',
   ];
+
+  if (!commander) {
+    return null;
+  }
 
   return (
     <div className="mx-auto w-full max-w-(--breakpoint-xl) px-6 py-4">

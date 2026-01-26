@@ -163,8 +163,8 @@ importers:
         specifier: ^0.17.0
         version: 0.17.0(better-sqlite3@11.10.0)(kysely@0.27.6)(pg@8.16.3)
       pastoria:
-        specifier: ^1.2.0
-        version: 1.2.0(@types/node@22.18.8)(babel-plugin-react-compiler@1.0.0)(express@5.1.0)(grats@0.0.33)(jiti@2.6.1)(lightningcss@1.30.2)(relay-compiler@20.1.1)(tailwindcss@4.1.14)
+        specifier: ^1.2.1
+        version: 1.2.1(@types/node@22.18.8)(babel-plugin-react-compiler@1.0.0)(express@5.1.0)(grats@0.0.33)(jiti@2.6.1)(lightningcss@1.30.2)(relay-compiler@20.1.1)(tailwindcss@4.1.14)
       pg:
         specifier: ^8.16.3
         version: 8.16.3
@@ -2309,8 +2309,8 @@ packages:
       express: ^5.1.0
       pastoria-runtime: 1.1.0
 
-  pastoria@1.2.0:
-    resolution: {integrity: sha512-KgB6i98mYl4Y2/xEScP2perkdb7kBRn64ussn3K18kiwglU0h+2y5Czf8br1WrS5Fvm73hWc89UMdBjIzfvNGg==}
+  pastoria@1.2.1:
+    resolution: {integrity: sha512-3PUN/e70r3m6uHMWlaO1BsGr6SGs0E10TtYQWwnR2cGF6iI+zfFsXK/wH1MnpkJQ2N2GSwXItZ5NuOuW87SNWw==}
     hasBin: true
     peerDependencies:
       babel-plugin-react-compiler: ^1.0.0
@@ -3626,23 +3626,23 @@ snapshots:
   '@types/babel__core@7.20.5':
     dependencies:
       '@babel/parser': 7.28.6
-      '@babel/types': 7.28.4
+      '@babel/types': 7.28.6
       '@types/babel__generator': 7.27.0
       '@types/babel__template': 7.4.4
       '@types/babel__traverse': 7.28.0
 
   '@types/babel__generator@7.27.0':
     dependencies:
-      '@babel/types': 7.28.4
+      '@babel/types': 7.28.6
 
   '@types/babel__template@7.4.4':
     dependencies:
       '@babel/parser': 7.28.6
-      '@babel/types': 7.28.4
+      '@babel/types': 7.28.6
 
   '@types/babel__traverse@7.28.0':
     dependencies:
-      '@babel/types': 7.28.4
+      '@babel/types': 7.28.6
 
   '@types/better-sqlite3@7.6.13':
     dependencies:
@@ -4868,7 +4868,7 @@ snapshots:
       pastoria-runtime: 1.1.0(express@5.1.0)(graphql@17.0.0-alpha.9)(radix3@1.1.2)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76)
       picocolors: 1.1.1
 
-  pastoria@1.2.0(@types/node@22.18.8)(babel-plugin-react-compiler@1.0.0)(express@5.1.0)(grats@0.0.33)(jiti@2.6.1)(lightningcss@1.30.2)(relay-compiler@20.1.1)(tailwindcss@4.1.14):
+  pastoria@1.2.1(@types/node@22.18.8)(babel-plugin-react-compiler@1.0.0)(express@5.1.0)(grats@0.0.33)(jiti@2.6.1)(lightningcss@1.30.2)(relay-compiler@20.1.1)(tailwindcss@4.1.14):
     dependencies:
       '@parcel/watcher': 2.5.6
       '@tailwindcss/vite': 4.1.18(vite@7.1.12(@types/node@22.18.8)(jiti@2.6.1)(lightningcss@1.30.2))
