@@ -275,11 +275,6 @@ export async function router__loadEntryPoint(
     params: initialLocation.params(),
   });
 
-  // Recursively load all nested entry point modules.
-  // This ensures their queries get registered in PreloadableQueryRegistry
-  // before the server tries to serialize them.
-  await loadNestedEntryPointModules(ep);
-
   return ep;
 }
 
@@ -287,17 +282,6 @@ export async function router__loadEntryPoint(
  * Recursively load all nested entry point modules so their queries
  * get registered in PreloadableQueryRegistry.
  */
-async function loadNestedEntryPointModules(
-  entryPoint: AnyPreloadedEntryPoint | null,
-): Promise<void> {
-  if (!entryPoint) return;
-  for (const nestedEntry of Object.values(entryPoint.entryPoints ?? {})) {
-    if (nestedEntry.rootModuleID) {
-      await JSResource.fromModuleId(nestedEntry.rootModuleID as any).load();
-    }
-    await loadNestedEntryPointModules(nestedEntry);
-  }
-}
 
 interface RouterContextValue {
   location: RouterLocation;
