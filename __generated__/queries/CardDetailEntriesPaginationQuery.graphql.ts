@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<73bef91a58ae9e1f292559fd968d994d>>
- * @relayHash 78b78cd7929b64f6cf1b6c8009b83163
+ * @generated SignedSource<<3111446fd97ef9c379956775b20d7f47>>
+ * @relayHash c9845ccea40067e7fbedca9c09415b66
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,26 +9,26 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 78b78cd7929b64f6cf1b6c8009b83163
+// @relayRequestID c9845ccea40067e7fbedca9c09415b66
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type EntriesSortBy = "NEW" | "TOP" | "%future added value";
-export type CommanderCardEntriesQuery$variables = {
+export type CardDetailEntriesPaginationQuery$variables = {
   card?: string | null | undefined;
   count?: number | null | undefined;
   cursor?: string | null | undefined;
   id: string;
   sortBy: EntriesSortBy;
 };
-export type CommanderCardEntriesQuery$data = {
+export type CardDetailEntriesPaginationQuery$data = {
   readonly node: {
-    readonly " $fragmentSpreads": FragmentRefs<"page_CommanderCardEntries">;
+    readonly " $fragmentSpreads": FragmentRefs<"CardDetail_entries">;
   } | null | undefined;
 };
-export type CommanderCardEntriesQuery = {
-  response: CommanderCardEntriesQuery$data;
-  variables: CommanderCardEntriesQuery$variables;
+export type CardDetailEntriesPaginationQuery = {
+  response: CardDetailEntriesPaginationQuery$data;
+  variables: CardDetailEntriesPaginationQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -118,7 +118,7 @@ return {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "CommanderCardEntriesQuery",
+    "name": "CardDetailEntriesPaginationQuery",
     "selections": [
       {
         "alias": null,
@@ -142,7 +142,7 @@ return {
               }
             ],
             "kind": "FragmentSpread",
-            "name": "page_CommanderCardEntries"
+            "name": "CardDetail_entries"
           }
         ],
         "storageKey": null
@@ -161,7 +161,7 @@ return {
       (v3/*: any*/)
     ],
     "kind": "Operation",
-    "name": "CommanderCardEntriesQuery",
+    "name": "CardDetailEntriesPaginationQuery",
     "selections": [
       {
         "alias": null,
@@ -340,7 +340,7 @@ return {
                   "sortBy"
                 ],
                 "handle": "connection",
-                "key": "page_Commander__cardEntries",
+                "key": "CardDetail__cardEntries",
                 "kind": "LinkedHandle",
                 "name": "cardEntries"
               }
@@ -354,15 +354,15 @@ return {
     ]
   },
   "params": {
-    "id": "78b78cd7929b64f6cf1b6c8009b83163",
+    "id": "c9845ccea40067e7fbedca9c09415b66",
     "metadata": {},
-    "name": "CommanderCardEntriesQuery",
+    "name": "CardDetailEntriesPaginationQuery",
     "operationKind": "query",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "8ed0c71987c9f9ec36010a124cfe84b4";
+(node as any).hash = "8909c6c1f6b9e3a6c3e4c16d1462289a";
 
 export default node;

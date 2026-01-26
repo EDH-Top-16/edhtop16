@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<e7edb5600f6032932a1b08415f3272d5>>
+ * @generated SignedSource<<890fac2d3c3d63d4604171f64cce6e97>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,24 +10,24 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type page_CommanderCardEntries$data = {
+export type CardDetail_entries$data = {
   readonly cardEntries: {
     readonly edges: ReadonlyArray<{
       readonly node: {
         readonly id: string;
-        readonly " $fragmentSpreads": FragmentRefs<"page_CommanderEntryCard">;
+        readonly " $fragmentSpreads": FragmentRefs<"CardDetail_entryCard">;
       };
     }>;
   };
   readonly id: string;
-  readonly " $fragmentType": "page_CommanderCardEntries";
+  readonly " $fragmentType": "CardDetail_entries";
 };
-export type page_CommanderCardEntries$key = {
-  readonly " $data"?: page_CommanderCardEntries$data;
-  readonly " $fragmentSpreads": FragmentRefs<"page_CommanderCardEntries">;
+export type CardDetail_entries$key = {
+  readonly " $data"?: CardDetail_entries$data;
+  readonly " $fragmentSpreads": FragmentRefs<"CardDetail_entries">;
 };
 
-import CommanderCardEntriesQuery_graphql from './CommanderCardEntriesQuery.graphql';
+import CardDetailEntriesPaginationQuery_graphql from './CardDetailEntriesPaginationQuery.graphql';
 
 const node: ReaderFragment = (function(){
 var v0 = [
@@ -84,14 +84,14 @@ return {
       "fragmentPathInResult": [
         "node"
       ],
-      "operation": CommanderCardEntriesQuery_graphql,
+      "operation": CardDetailEntriesPaginationQuery_graphql,
       "identifierInfo": {
         "identifierField": "id",
         "identifierQueryVariableName": "id"
       }
     }
   },
-  "name": "page_CommanderCardEntries",
+  "name": "CardDetail_entries",
   "selections": [
     {
       "alias": "cardEntries",
@@ -109,7 +109,7 @@ return {
       ],
       "concreteType": "EntryConnection",
       "kind": "LinkedField",
-      "name": "__page_Commander__cardEntries_connection",
+      "name": "__CardDetail__cardEntries_connection",
       "plural": false,
       "selections": [
         {
@@ -132,7 +132,7 @@ return {
                 {
                   "args": null,
                   "kind": "FragmentSpread",
-                  "name": "page_CommanderEntryCard"
+                  "name": "CardDetail_entryCard"
                 },
                 {
                   "alias": null,
@@ -189,6 +189,6 @@ return {
 };
 })();
 
-(node as any).hash = "8ed0c71987c9f9ec36010a124cfe84b4";
+(node as any).hash = "8909c6c1f6b9e3a6c3e4c16d1462289a";
 
 export default node;

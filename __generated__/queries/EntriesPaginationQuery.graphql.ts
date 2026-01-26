@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<19218191c658da4a129cc1a2f43da8e7>>
- * @relayHash da6574b2681a53734cc9784167ee2a7b
+ * @generated SignedSource<<ca9d212a46bedf8d9178d925abb61e18>>
+ * @relayHash ee12ea6c0903ab0f35efd6349fdfff63
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,13 +9,13 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID da6574b2681a53734cc9784167ee2a7b
+// @relayRequestID ee12ea6c0903ab0f35efd6349fdfff63
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type EntriesSortBy = "NEW" | "TOP" | "%future added value";
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
-export type CommanderEntriesQuery$variables = {
+export type EntriesPaginationQuery$variables = {
   count?: number | null | undefined;
   cursor?: string | null | undefined;
   id: string;
@@ -24,14 +24,14 @@ export type CommanderEntriesQuery$variables = {
   sortBy: EntriesSortBy;
   timePeriod: TimePeriod;
 };
-export type CommanderEntriesQuery$data = {
+export type EntriesPaginationQuery$data = {
   readonly node: {
-    readonly " $fragmentSpreads": FragmentRefs<"page_Commanderentries">;
+    readonly " $fragmentSpreads": FragmentRefs<"Entries_list">;
   } | null | undefined;
 };
-export type CommanderEntriesQuery = {
-  response: CommanderEntriesQuery$data;
-  variables: CommanderEntriesQuery$variables;
+export type EntriesPaginationQuery = {
+  response: EntriesPaginationQuery$data;
+  variables: EntriesPaginationQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -149,7 +149,7 @@ return {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "CommanderEntriesQuery",
+    "name": "EntriesPaginationQuery",
     "selections": [
       {
         "alias": null,
@@ -173,7 +173,7 @@ return {
               }
             ],
             "kind": "FragmentSpread",
-            "name": "page_Commanderentries"
+            "name": "Entries_list"
           }
         ],
         "storageKey": null
@@ -194,7 +194,7 @@ return {
       (v2/*: any*/)
     ],
     "kind": "Operation",
-    "name": "CommanderEntriesQuery",
+    "name": "EntriesPaginationQuery",
     "selections": [
       {
         "alias": null,
@@ -373,7 +373,7 @@ return {
                   "filters"
                 ],
                 "handle": "connection",
-                "key": "page_Commander__entries",
+                "key": "Entries__entries",
                 "kind": "LinkedHandle",
                 "name": "entries"
               }
@@ -387,15 +387,15 @@ return {
     ]
   },
   "params": {
-    "id": "da6574b2681a53734cc9784167ee2a7b",
+    "id": "ee12ea6c0903ab0f35efd6349fdfff63",
     "metadata": {},
-    "name": "CommanderEntriesQuery",
+    "name": "EntriesPaginationQuery",
     "operationKind": "query",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "a89ca8fba048693e4fce3c37a917aca0";
+(node as any).hash = "a1162cfdd0e79dbd544b1cbdaef9f257";
 
 export default node;

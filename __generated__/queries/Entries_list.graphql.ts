@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<7f3fcb083ccc39b828e84ca55081b185>>
+ * @generated SignedSource<<5dcce47a11ba524a4a06cb4335979e4b>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,24 +10,24 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type page_Commanderentries$data = {
+export type Entries_list$data = {
   readonly entries: {
     readonly edges: ReadonlyArray<{
       readonly node: {
         readonly id: string;
-        readonly " $fragmentSpreads": FragmentRefs<"page_CommanderEntryCard">;
+        readonly " $fragmentSpreads": FragmentRefs<"Entries_entryCard">;
       };
     }>;
   };
   readonly id: string;
-  readonly " $fragmentType": "page_Commanderentries";
+  readonly " $fragmentType": "Entries_list";
 };
-export type page_Commanderentries$key = {
-  readonly " $data"?: page_Commanderentries$data;
-  readonly " $fragmentSpreads": FragmentRefs<"page_Commanderentries">;
+export type Entries_list$key = {
+  readonly " $data"?: Entries_list$data;
+  readonly " $fragmentSpreads": FragmentRefs<"Entries_list">;
 };
 
-import CommanderEntriesQuery_graphql from './CommanderEntriesQuery.graphql';
+import EntriesPaginationQuery_graphql from './EntriesPaginationQuery.graphql';
 
 const node: ReaderFragment = (function(){
 var v0 = [
@@ -92,14 +92,14 @@ return {
       "fragmentPathInResult": [
         "node"
       ],
-      "operation": CommanderEntriesQuery_graphql,
+      "operation": EntriesPaginationQuery_graphql,
       "identifierInfo": {
         "identifierField": "id",
         "identifierQueryVariableName": "id"
       }
     }
   },
-  "name": "page_Commanderentries",
+  "name": "Entries_list",
   "selections": [
     {
       "alias": "entries",
@@ -133,7 +133,7 @@ return {
       ],
       "concreteType": "EntryConnection",
       "kind": "LinkedField",
-      "name": "__page_Commander__entries_connection",
+      "name": "__Entries__entries_connection",
       "plural": false,
       "selections": [
         {
@@ -156,7 +156,7 @@ return {
                 {
                   "args": null,
                   "kind": "FragmentSpread",
-                  "name": "page_CommanderEntryCard"
+                  "name": "Entries_entryCard"
                 },
                 {
                   "alias": null,
@@ -213,6 +213,6 @@ return {
 };
 })();
 
-(node as any).hash = "a89ca8fba048693e4fce3c37a917aca0";
+(node as any).hash = "a1162cfdd0e79dbd544b1cbdaef9f257";
 
 export default node;

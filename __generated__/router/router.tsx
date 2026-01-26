@@ -21,6 +21,7 @@ import React, {
   useEffect,
   useMemo,
   useState,
+  useTransition,
 } from 'react';
 import {preinit, preloadModule} from 'react-dom';
 import {
@@ -42,8 +43,18 @@ import content_StaplesQueryParameters from "#genfiles/queries/content_StaplesQue
 import type { content_StaplesQuery$variables } from "#genfiles/queries/content_StaplesQuery.graphql";
 import tournaments_TournamentsQueryParameters from "#genfiles/queries/tournaments_TournamentsQuery$parameters";
 import type { tournaments_TournamentsQuery$variables } from "#genfiles/queries/tournaments_TournamentsQuery.graphql";
-import page_CommanderCommanderPageQueryParameters from "#genfiles/queries/page_CommanderCommanderPageQuery$parameters";
-import type { page_CommanderCommanderPageQuery$variables } from "#genfiles/queries/page_CommanderCommanderPageQuery.graphql";
+import customEp_fs_page__commander__commander__, { schema as customEp_fs_page__commander__commander___schema } from "../../pastoria/commander/[commander]/entrypoint";
+import pageQueryParameters from "#genfiles/queries/pageQuery$parameters";
+import type { pageQuery$variables } from "#genfiles/queries/pageQuery.graphql";
+import CardDetailQueryParameters from "#genfiles/queries/CardDetailQuery$parameters";
+import type { CardDetailQuery$variables } from "#genfiles/queries/CardDetailQuery.graphql";
+import EntriesQueryParameters from "#genfiles/queries/EntriesQuery$parameters";
+import type { EntriesQuery$variables } from "#genfiles/queries/EntriesQuery.graphql";
+import StaplesQueryParameters from "#genfiles/queries/StaplesQuery$parameters";
+import type { StaplesQuery$variables } from "#genfiles/queries/StaplesQuery.graphql";
+import StatsQueryParameters from "#genfiles/queries/StatsQuery$parameters";
+import type { StatsQuery$variables } from "#genfiles/queries/StatsQuery.graphql";
+import customEp_fs_page__tournament__tid__, { schema as customEp_fs_page__tournament__tid___schema } from "../../pastoria/tournament/[tid]/entrypoint";
 import page_TournamentPageQueryParameters from "#genfiles/queries/page_TournamentPageQuery$parameters";
 import type { page_TournamentPageQuery$variables } from "#genfiles/queries/page_TournamentPageQuery.graphql";
 
@@ -71,11 +82,11 @@ const ROUTER_CONF = {
     } as const,
   "/commander/[commander]": {
       entrypoint: entrypoint_fs_page__commander__commander__(),
-      schema: z.object({ commander: z.pipe(z.string(), z.transform(decodeURIComponent)), card: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)), maxStanding: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)), minEventSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)), sortBy: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/page_CommanderCommanderPageQuery.graphql').EntriesSortBy)), z.transform(s => s == null ? undefined : s)), timePeriod: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/page_CommanderCommanderPageQuery.graphql').TimePeriod)), z.transform(s => s == null ? undefined : s)) })
+      schema: customEp_fs_page__commander__commander___schema
     } as const,
   "/tournament/[tid]": {
       entrypoint: entrypoint_fs_page__tournament__tid__(),
-      schema: z.object({ tid: z.pipe(z.string(), z.transform(decodeURIComponent)), commander: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)) })
+      schema: customEp_fs_page__tournament__tid___schema
     } as const
 } as const;
 
@@ -369,7 +380,7 @@ export function router__createAppFromEntryPoint(
       location.route()?.entrypoint,
     );
 
-    useEffect(() => {
+    useMemo(() => {
       const route = location.route();
       if (route) {
         // Cast needed for same reason as loadRouteEntryPoint - see that function's docs
@@ -515,48 +526,63 @@ function router__evaluateNavigationDirection(nav: NavigationDirection) {
 
 export function useNavigation() {
   const {setLocation} = useContext(RouterContext);
+  const [isPending, startTransition] = useTransition();
 
   return useMemo(() => {
     function push(nav: NavigationDirection) {
-      setLocation(
-        RouterLocation.parse(router__evaluateNavigationDirection(nav), 'push'),
-      );
+      startTransition(() => {
+        setLocation(
+          RouterLocation.parse(
+            router__evaluateNavigationDirection(nav),
+            'push',
+          ),
+        );
+      });
     }
 
     function replace(nav: NavigationDirection) {
-      setLocation(
-        RouterLocation.parse(
-          router__evaluateNavigationDirection(nav),
-          'replace',
-        ),
-      );
+      startTransition(() => {
+        setLocation(
+          RouterLocation.parse(
+            router__evaluateNavigationDirection(nav),
+            'replace',
+          ),
+        );
+      });
     }
 
     function pushRoute<R extends RouteId>(
       routeId: R,
       params: z.input<RouterConf[R]['schema']>,
     ) {
-      setLocation(
-        RouterLocation.parse(
-          router__createPathForRoute(routeId, params),
-          'push',
-        ),
-      );
+      startTransition(() => {
+        setLocation(
+          RouterLocation.parse(
+            router__createPathForRoute(routeId, params),
+            'push',
+          ),
+        );
+      });
     }
 
     function replaceRoute<R extends RouteId>(
       routeId: R,
       params: z.input<RouterConf[R]['schema']>,
     ) {
-      setLocation((prevLoc) =>
-        RouterLocation.parse(
-          router__createPathForRoute(routeId, {...prevLoc.params(), ...params}),
-          'replace',
-        ),
-      );
+      startTransition(() => {
+        setLocation((prevLoc) =>
+          RouterLocation.parse(
+            router__createPathForRoute(routeId, {
+              ...prevLoc.params(),
+              ...params,
+            }),
+            'replace',
+          ),
+        );
+      });
     }
 
-    return {push, replace, pushRoute, replaceRoute} as const;
+    return {push, replace, pushRoute, replaceRoute, isPending} as const;
   }, [setLocation]);
 }
 
@@ -782,28 +808,81 @@ function entrypoint_fs_page__tournaments_() {
 }
 
 function entrypoint_fs_page__commander__commander__() {
-  const schema = z.object({ commander: z.pipe(z.string(), z.transform(decodeURIComponent)), card: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)), maxStanding: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)), minEventSize: z.pipe(z.nullish(z.coerce.number<number>()), z.transform(s => s == null ? undefined : s)), sortBy: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/page_CommanderCommanderPageQuery.graphql').EntriesSortBy)), z.transform(s => s == null ? undefined : s)), timePeriod: z.pipe(z.nullish(z.transform((s: string) => s as import('../queries/page_CommanderCommanderPageQuery.graphql').TimePeriod)), z.transform(s => s == null ? undefined : s)) });
   const queryHelpers = {
-    commanderQueryRef: (variables: page_CommanderCommanderPageQuery$variables) => ({ parameters: page_CommanderCommanderPageQueryParameters, variables }),
+    shellQueryRef: (variables: pageQuery$variables) => ({ parameters: pageQueryParameters, variables }),
   }
   ;
   const entryPointHelpers = {
+    cardDetail: (variables: CardDetailQuery$variables) => ( {
+      entryPointParams: {},
+      entryPoint: {
+        root: JSResource.fromModuleId('fs:page(/commander/[commander])#cardDetail'),
+        getPreloadProps() {
+          return {
+            queries: {
+              cardDetailQueryRef: { parameters: CardDetailQueryParameters, variables },
+            }
+            ,
+            entryPoints: undefined
+          }
+        }
+      }
+    }
+    ),
+    entries: (variables: EntriesQuery$variables) => ( {
+      entryPointParams: {},
+      entryPoint: {
+        root: JSResource.fromModuleId('fs:page(/commander/[commander])#entries'),
+        getPreloadProps() {
+          return {
+            queries: {
+              entriesQueryRef: { parameters: EntriesQueryParameters, variables },
+            }
+            ,
+            entryPoints: undefined
+          }
+        }
+      }
+    }
+    ),
+    staples: (variables: StaplesQuery$variables) => ( {
+      entryPointParams: {},
+      entryPoint: {
+        root: JSResource.fromModuleId('fs:page(/commander/[commander])#staples'),
+        getPreloadProps() {
+          return {
+            queries: {
+              staplesQueryRef: { parameters: StaplesQueryParameters, variables },
+            }
+            ,
+            entryPoints: undefined
+          }
+        }
+      }
+    }
+    ),
+    stats: (variables: StatsQuery$variables) => ( {
+      entryPointParams: {},
+      entryPoint: {
+        root: JSResource.fromModuleId('fs:page(/commander/[commander])#stats'),
+        getPreloadProps() {
+          return {
+            queries: {
+              statsQueryRef: { parameters: StatsQueryParameters, variables },
+            }
+            ,
+            entryPoints: undefined
+          }
+        }
+      }
+    }
+    ),
   }
   ;
-  function getPreloadProps({params, queries, entryPoints}: EntryPointParams<'/commander/[commander]'>) {
-    const variables = params;
-    return {
-      queries: {
-        commanderQueryRef: queries.commanderQueryRef({card: variables.card, commander: variables.commander, maxStanding: variables.maxStanding, minEventSize: variables.minEventSize, sortBy: variables.sortBy, timePeriod: variables.timePeriod}),
-      }
-      ,
-      entryPoints: undefined
-    }
-  }
   return {
     root: JSResource.fromModuleId('fs:page(/commander/[commander])'),
-    getPreloadProps: (p: {params: Record<string, unknown>}) => getPreloadProps({
-      params: p.params as z.infer<typeof schema>,
+    getPreloadProps: (p: {params: z.infer<typeof customEp_fs_page__commander__commander___schema>}) => customEp_fs_page__commander__commander__({
+      params: p.params,
       queries: queryHelpers,
       entryPoints: entryPointHelpers,
     }),
@@ -811,7 +890,6 @@ function entrypoint_fs_page__commander__commander__() {
 }
 
 function entrypoint_fs_page__tournament__tid__() {
-  const schema = z.object({ tid: z.pipe(z.string(), z.transform(decodeURIComponent)), commander: z.pipe(z.nullish(z.pipe(z.string(), z.transform(decodeURIComponent))), z.transform(s => s == null ? undefined : s)) });
   const queryHelpers = {
     tournamentQueryRef: (variables: page_TournamentPageQuery$variables) => ({ parameters: page_TournamentPageQueryParameters, variables }),
   }
@@ -819,20 +897,10 @@ function entrypoint_fs_page__tournament__tid__() {
   const entryPointHelpers = {
   }
   ;
-  function getPreloadProps({params, queries, entryPoints}: EntryPointParams<'/tournament/[tid]'>) {
-    const variables = params;
-    return {
-      queries: {
-        tournamentQueryRef: queries.tournamentQueryRef({commander: variables.commander, tid: variables.tid}),
-      }
-      ,
-      entryPoints: undefined
-    }
-  }
   return {
     root: JSResource.fromModuleId('fs:page(/tournament/[tid])'),
-    getPreloadProps: (p: {params: Record<string, unknown>}) => getPreloadProps({
-      params: p.params as z.infer<typeof schema>,
+    getPreloadProps: (p: {params: z.infer<typeof customEp_fs_page__tournament__tid___schema>}) => customEp_fs_page__tournament__tid__({
+      params: p.params,
       queries: queryHelpers,
       entryPoints: entryPointHelpers,
     }),

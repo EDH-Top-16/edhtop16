@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<aba5c7974f0195257c5e9a340f36e561>>
- * @relayHash 1016cefb31718b88dc40b311353b8fa3
+ * @generated SignedSource<<119fa9b2a74d8ebb7c10ea4a26d32868>>
+ * @relayHash 9ecc9eb254102624678668965b3511ac
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,76 +9,96 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 1016cefb31718b88dc40b311353b8fa3
+// @relayRequestID 9ecc9eb254102624678668965b3511ac
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type EntriesSortBy = "NEW" | "TOP" | "%future added value";
-export type page_CommanderLazyCardEntriesQuery$variables = {
-  card?: string | null | undefined;
-  commanderName: string;
-  count?: number | null | undefined;
-  cursor?: string | null | undefined;
-  sortBy: EntriesSortBy;
+export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
+export type EntriesQuery$variables = {
+  commander: string;
+  maxStanding?: number | null | undefined;
+  minEventSize?: number | null | undefined;
+  sortBy?: EntriesSortBy | null | undefined;
+  timePeriod?: TimePeriod | null | undefined;
 };
-export type page_CommanderLazyCardEntriesQuery$data = {
+export type EntriesQuery$data = {
   readonly commander: {
-    readonly " $fragmentSpreads": FragmentRefs<"page_CommanderCardEntries">;
+    readonly name: string;
+    readonly " $fragmentSpreads": FragmentRefs<"Entries_list">;
   };
 };
-export type page_CommanderLazyCardEntriesQuery = {
-  response: page_CommanderLazyCardEntriesQuery$data;
-  variables: page_CommanderLazyCardEntriesQuery$variables;
+export type EntriesQuery = {
+  response: EntriesQuery$data;
+  variables: EntriesQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
 var v0 = {
   "defaultValue": null,
   "kind": "LocalArgument",
-  "name": "card"
+  "name": "commander"
 },
 v1 = {
   "defaultValue": null,
   "kind": "LocalArgument",
-  "name": "commanderName"
+  "name": "maxStanding"
 },
 v2 = {
-  "defaultValue": 48,
+  "defaultValue": 60,
   "kind": "LocalArgument",
-  "name": "count"
+  "name": "minEventSize"
 },
 v3 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "cursor"
-},
-v4 = {
-  "defaultValue": null,
+  "defaultValue": "TOP",
   "kind": "LocalArgument",
   "name": "sortBy"
+},
+v4 = {
+  "defaultValue": "ONE_YEAR",
+  "kind": "LocalArgument",
+  "name": "timePeriod"
 },
 v5 = [
   {
     "kind": "Variable",
     "name": "name",
-    "variableName": "commanderName"
+    "variableName": "commander"
   }
 ],
-v6 = [
+v6 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
+  "storageKey": null
+},
+v7 = [
   {
-    "kind": "Variable",
-    "name": "after",
-    "variableName": "cursor"
+    "fields": [
+      {
+        "kind": "Variable",
+        "name": "maxStanding",
+        "variableName": "maxStanding"
+      },
+      {
+        "kind": "Variable",
+        "name": "minEventSize",
+        "variableName": "minEventSize"
+      },
+      {
+        "kind": "Variable",
+        "name": "timePeriod",
+        "variableName": "timePeriod"
+      }
+    ],
+    "kind": "ObjectValue",
+    "name": "filters"
   },
   {
-    "kind": "Variable",
-    "name": "cardName",
-    "variableName": "card"
-  },
-  {
-    "kind": "Variable",
+    "kind": "Literal",
     "name": "first",
-    "variableName": "count"
+    "value": 48
   },
   {
     "kind": "Variable",
@@ -86,18 +106,11 @@ v6 = [
     "variableName": "sortBy"
   }
 ],
-v7 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "id",
-  "storageKey": null
-},
 v8 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "name",
+  "name": "id",
   "storageKey": null
 };
 return {
@@ -113,7 +126,7 @@ return {
     "metadata": {
       "throwOnFieldError": true
     },
-    "name": "page_CommanderLazyCardEntriesQuery",
+    "name": "EntriesQuery",
     "selections": [
       {
         "alias": null,
@@ -123,21 +136,11 @@ return {
         "name": "commander",
         "plural": false,
         "selections": [
+          (v6/*: any*/),
           {
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "count",
-                "variableName": "count"
-              },
-              {
-                "kind": "Variable",
-                "name": "cursor",
-                "variableName": "cursor"
-              }
-            ],
+            "args": null,
             "kind": "FragmentSpread",
-            "name": "page_CommanderCardEntries"
+            "name": "Entries_list"
           }
         ],
         "storageKey": null
@@ -150,13 +153,13 @@ return {
   "operation": {
     "argumentDefinitions": [
       (v0/*: any*/),
-      (v2/*: any*/),
       (v3/*: any*/),
-      (v4/*: any*/),
-      (v1/*: any*/)
+      (v2/*: any*/),
+      (v1/*: any*/),
+      (v4/*: any*/)
     ],
     "kind": "Operation",
-    "name": "page_CommanderLazyCardEntriesQuery",
+    "name": "EntriesQuery",
     "selections": [
       {
         "alias": null,
@@ -166,12 +169,13 @@ return {
         "name": "commander",
         "plural": false,
         "selections": [
+          (v6/*: any*/),
           {
             "alias": null,
-            "args": (v6/*: any*/),
+            "args": (v7/*: any*/),
             "concreteType": "EntryConnection",
             "kind": "LinkedField",
-            "name": "cardEntries",
+            "name": "entries",
             "plural": false,
             "selections": [
               {
@@ -190,7 +194,7 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v7/*: any*/),
+                      (v8/*: any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -234,7 +238,7 @@ return {
                         "name": "player",
                         "plural": false,
                         "selections": [
-                          (v8/*: any*/),
+                          (v6/*: any*/),
                           {
                             "alias": null,
                             "args": null,
@@ -242,7 +246,7 @@ return {
                             "name": "isKnownCheater",
                             "storageKey": null
                           },
-                          (v7/*: any*/)
+                          (v8/*: any*/)
                         ],
                         "storageKey": null
                       },
@@ -254,7 +258,7 @@ return {
                         "name": "tournament",
                         "plural": false,
                         "selections": [
-                          (v8/*: any*/),
+                          (v6/*: any*/),
                           {
                             "alias": null,
                             "args": null,
@@ -276,7 +280,7 @@ return {
                             "name": "TID",
                             "storageKey": null
                           },
-                          (v7/*: any*/)
+                          (v8/*: any*/)
                         ],
                         "storageKey": null
                       },
@@ -330,32 +334,35 @@ return {
           },
           {
             "alias": null,
-            "args": (v6/*: any*/),
+            "args": (v7/*: any*/),
             "filters": [
-              "cardName",
-              "sortBy"
+              "sortBy",
+              "filters"
             ],
             "handle": "connection",
-            "key": "page_Commander__cardEntries",
+            "key": "Entries__entries",
             "kind": "LinkedHandle",
-            "name": "cardEntries"
+            "name": "entries"
           },
-          (v7/*: any*/)
+          (v8/*: any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "id": "1016cefb31718b88dc40b311353b8fa3",
+    "id": "9ecc9eb254102624678668965b3511ac",
     "metadata": {},
-    "name": "page_CommanderLazyCardEntriesQuery",
+    "name": "EntriesQuery",
     "operationKind": "query",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "c423895a4925231cf017e31aff8ded5b";
+(node as any).hash = "b551c55e5f9699bad5c528b14ee92ad7";
+
+import { PreloadableQueryRegistry } from 'relay-runtime';
+PreloadableQueryRegistry.set(node.params.id, node);
 
 export default node;

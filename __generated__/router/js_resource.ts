@@ -41,6 +41,22 @@ const RESOURCE_CONF = {
       src: "pastoria/commander/[commander]/page.tsx",
       loader: (): Promise<ComponentType<PageProps<'/commander/[commander]'>>> => import("../../pastoria/commander/[commander]/page").then(m => m.default)
     },
+  "fs:page(/commander/[commander])#cardDetail": {
+      src: "pastoria/commander/[commander]/(cardDetail).page.tsx",
+      loader: (): Promise<ComponentType<PageProps<'/commander/[commander]#cardDetail'>>> => import("../../pastoria/commander/[commander]/(cardDetail).page").then(m => m.default)
+    },
+  "fs:page(/commander/[commander])#entries": {
+      src: "pastoria/commander/[commander]/(entries).page.tsx",
+      loader: (): Promise<ComponentType<PageProps<'/commander/[commander]#entries'>>> => import("../../pastoria/commander/[commander]/(entries).page").then(m => m.default)
+    },
+  "fs:page(/commander/[commander])#staples": {
+      src: "pastoria/commander/[commander]/(staples).page.tsx",
+      loader: (): Promise<ComponentType<PageProps<'/commander/[commander]#staples'>>> => import("../../pastoria/commander/[commander]/(staples).page").then(m => m.default)
+    },
+  "fs:page(/commander/[commander])#stats": {
+      src: "pastoria/commander/[commander]/(stats).page.tsx",
+      loader: (): Promise<ComponentType<PageProps<'/commander/[commander]#stats'>>> => import("../../pastoria/commander/[commander]/(stats).page").then(m => m.default)
+    },
   "fs:page(/tournament/[tid])": {
       src: "pastoria/tournament/[tid]/page.tsx",
       loader: (): Promise<ComponentType<PageProps<'/tournament/[tid]'>>> => import("../../pastoria/tournament/[tid]/page").then(m => m.default)
