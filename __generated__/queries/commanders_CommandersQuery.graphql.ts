@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<3b03a87f6277ba1c60b0bf2fa7b9a819>>
- * @relayHash 0d987464f681a4c1b986de9fa8534991
+ * @generated SignedSource<<f9b82e942daba667debbfde308397563>>
+ * @relayHash 4cc5e84f1011586695c5e019fa680b9b
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 0d987464f681a4c1b986de9fa8534991
+// @relayRequestID 4cc5e84f1011586695c5e019fa680b9b
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -203,7 +203,7 @@ return {
                         "alias": null,
                         "args": null,
                         "kind": "ScalarField",
-                        "name": "conversionRate",
+                        "name": "topCutFactor",
                         "storageKey": null
                       },
                       {
@@ -315,7 +315,7 @@ return {
     ]
   },
   "params": {
-    "id": "0d987464f681a4c1b986de9fa8534991",
+    "id": "4cc5e84f1011586695c5e019fa680b9b",
     "metadata": {},
     "name": "commanders_CommandersQuery",
     "operationKind": "query",

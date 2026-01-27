@@ -162,9 +162,22 @@ type Commander implements Node {
 }
 
 type CommanderCalculatedStats {
-  conversionRate: Float @semanticNonNull
+  """
+  Coefficient of Variation (CV) measuring variance in pilot conversion factors.
+  Lower values (< 1.25) = "Easy" - results spread evenly among pilots
+  Middle values (1.25-1.75) = "Medium" - typical variance
+  Higher values (> 1.75) = "Difficult" - results concentrated among specialists
+  Returns null if insufficient data (< 3 pilots with 2+ entries).
+  """
+  accessibilityCV: Float
+  conversionRate: Float @deprecated(reason: "Use topCutFactor instead") @semanticNonNull
   count: Int @semanticNonNull
   metaShare: Float @semanticNonNull
+  """
+  How many times more often this commander top cuts vs expected.
+  1.0 = average, 2.0 = 2x more often than expected, 0.5 = half as often.
+  """
+  topCutFactor: Float @semanticNonNull
   topCuts: Int @semanticNonNull
 }
 

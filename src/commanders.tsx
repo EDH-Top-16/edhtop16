@@ -30,7 +30,8 @@ import {Footer} from './components/footer';
 import {LoadMoreButton} from './components/load_more';
 import {Navigation} from './components/navigation';
 import {Select} from './components/select';
-import {formatPercent} from './lib/client/format';
+import {InfoIcon, Tooltip} from './components/ui/tooltip';
+import {formatPercent, formatTopCutFactor} from './lib/client/format';
 
 function TopCommandersCard({
   display = 'card',
@@ -48,7 +49,7 @@ function TopCommandersCard({
         colorId
         breakdownUrl
         stats(filters: {timePeriod: $timePeriod, minSize: $minSize}) {
-          conversionRate
+          topCutFactor
           topCuts
           count
           metaShare
@@ -72,7 +73,7 @@ function TopCommandersCard({
       );
     } else if (secondaryStatistic === 'topCuts') {
       stats.push(
-        `Conversion Rate: ${formatPercent(commander.stats.conversionRate)}`,
+        `Converts: ${formatTopCutFactor(commander.stats.topCutFactor)}`,
         `Top Cuts: ${commander.stats.topCuts}`,
       );
     }
@@ -102,9 +103,9 @@ function TopCommandersCard({
         </div>
         <div className="text-sm opacity-75 lg:hidden">Top Cuts:</div>
         <div className="text-sm">{commander.stats.topCuts}</div>
-        <div className="text-sm opacity-75 lg:hidden">Conversion Rate:</div>
+        <div className="text-sm opacity-75 lg:hidden">Cnvr. Factor:</div>
         <div className="text-sm">
-          {formatPercent(commander.stats.conversionRate)}
+          {formatTopCutFactor(commander.stats.topCutFactor)}
         </div>
       </div>
     );
@@ -203,7 +204,7 @@ export const CommandersPageShell: EntryPointComponent<
                 replaceRoute('/', {sortBy: value});
               }}
             >
-              <option value="CONVERSION">Conversion Rate</option>
+              <option value="CONVERSION">Conversion Factor</option>
               <option value="POPULARITY">Popularity</option>
               <option value="TOP_CUTS">Top Cuts</option>
             </Select>
@@ -368,7 +369,12 @@ export const CommandersPage: EntryPointComponent<
             <div>Entries</div>
             <div>Meta %</div>
             <div>Top Cuts</div>
-            <div>Cnvr. %</div>
+            <div className="flex items-center">
+              Cnvr. Factor
+              <Tooltip content="How often this commander top cuts vs expected. 1.00x = average, 2.00x = twice as often.">
+                <InfoIcon className="ml-1 cursor-help text-white/50 hover:text-white/80" />
+              </Tooltip>
+            </div>
           </div>
         )}
 

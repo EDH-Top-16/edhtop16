@@ -170,7 +170,13 @@ export function getSchema(): GraphQLSchema {
         name: "CommanderCalculatedStats",
         fields() {
             return {
+                accessibilityCV: {
+                    description: "Coefficient of Variation (CV) measuring variance in pilot conversion factors.\nLower values (< 1.25) = \"Easy\" - results spread evenly among pilots\nMiddle values (1.25-1.75) = \"Medium\" - typical variance\nHigher values (> 1.75) = \"Difficult\" - results concentrated among specialists\nReturns null if insufficient data (< 3 pilots with 2+ entries).",
+                    name: "accessibilityCV",
+                    type: GraphQLFloat
+                },
                 conversionRate: {
+                    deprecationReason: "Use topCutFactor instead",
                     name: "conversionRate",
                     type: GraphQLFloat,
                     resolve(source, args, context, info) {
@@ -186,6 +192,14 @@ export function getSchema(): GraphQLSchema {
                 },
                 metaShare: {
                     name: "metaShare",
+                    type: GraphQLFloat,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                topCutFactor: {
+                    description: "How many times more often this commander top cuts vs expected.\n1.0 = average, 2.0 = 2x more often than expected, 0.5 = half as often.",
+                    name: "topCutFactor",
                     type: GraphQLFloat,
                     resolve(source, args, context, info) {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));

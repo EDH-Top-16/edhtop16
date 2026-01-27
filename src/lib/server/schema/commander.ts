@@ -12,6 +12,23 @@ import {Entry} from './entry';
 import {FirstPartyPromo, getActivePromotions} from './promo';
 import {minDateFromTimePeriod, TimePeriod} from './types';
 
+/**
+ * Bayesian smoothing parameters for topCutFactor calculation.
+ * Used to prevent small sample sizes from producing extreme values.
+ */
+const BAYESIAN_SMOOTHING = {
+  /** Number of pseudo-entries to add as prior belief */
+  PRIOR_ENTRIES: 20,
+  /** Assumed conversion factor for prior (1.0 = average) */
+  PRIOR_FACTOR: 1.0,
+  /** Estimated average top cut rate across tournaments (~15%) */
+  AVG_TOP_CUT_RATE: 0.15,
+  /** Pre-computed prior expected top cuts (PRIOR_ENTRIES * AVG_TOP_CUT_RATE) */
+  get PRIOR_EXPECTED() {
+    return this.PRIOR_ENTRIES * this.AVG_TOP_CUT_RATE;
+  },
+} as const;
+
 export type CommanderLoader = DataLoader<number, Commander>;
 
 /** @gqlContext */
@@ -123,10 +140,67 @@ interface CommanderCalculatedStats {
   count: Int;
   /** @gqlField */
   topCuts: Int;
-  /** @gqlField */
+  /**
+   * @deprecated Use topCutFactor instead
+   * @gqlField
+   */
   conversionRate: Float;
+  /**
+   * How many times more often this commander top cuts vs expected.
+   * 1.0 = average, 2.0 = 2x more often than expected, 0.5 = half as often.
+   * @gqlField
+   */
+  topCutFactor: Float;
   /** @gqlField */
   metaShare: Float;
+  /**
+   * Coefficient of Variation (CV) measuring variance in pilot conversion factors.
+   * Lower values (< 1.25) = "Easy" - results spread evenly among pilots
+   * Middle values (1.25-1.75) = "Medium" - typical variance
+   * Higher values (> 1.75) = "Difficult" - results concentrated among specialists
+   * Returns null if insufficient data (< 3 pilots with 2+ entries).
+   * @gqlField
+   */
+  accessibilityCV: Float | null;
+}
+
+/**
+ * Calculate the Coefficient of Variation (CV) from per-pilot conversion factors.
+ * CV = std_dev / mean, measuring how spread out pilot performance is.
+ *
+ * Higher CV means more variance in pilot performance (specialist commanders).
+ * Lower CV means more consistent performance across pilots (accessible commanders).
+ *
+ * Returns null if insufficient data (< 3 qualified pilots with 2+ entries each).
+ */
+function calculatePilotCV(
+  pilotStats: Array<{
+    topCuts: number;
+    expectedTopCuts: number;
+    entries: number;
+  }>,
+): number | null {
+  // Filter to pilots with 2+ entries for signal
+  const qualifiedPilots = pilotStats.filter((p) => p.entries >= 2);
+
+  // Need minimum 3 qualified pilots for reliable CV
+  if (qualifiedPilots.length < 3) return null;
+
+  // Calculate per-pilot conversion factors
+  const pilotFactors = qualifiedPilots.map((p) =>
+    p.expectedTopCuts > 0 ? p.topCuts / p.expectedTopCuts : 0,
+  );
+
+  const n = pilotFactors.length;
+  const mean = pilotFactors.reduce((a, b) => a + b, 0) / n;
+
+  if (mean === 0) return null;
+
+  const variance =
+    pilotFactors.reduce((sum, f) => sum + Math.pow(f - mean, 2), 0) / n;
+  const stdDev = Math.sqrt(variance);
+
+  return stdDev / mean;
 }
 
 export type CommanderStatsLoader = (
@@ -167,7 +241,7 @@ export function commanderStatsLoader(ctx: Context): CommanderStatsLoader {
             ? new Date(filters?.minDate ?? 0)
             : minDateFromTimePeriod(filters?.timePeriod);
 
-        const [entriesQuery, statsQuery] = await Promise.all([
+        const [entriesQuery, statsQuery, pilotStatsQuery] = await Promise.all([
           db
             .selectFrom('Entry')
             .select((eb) => eb.fn.countAll<number>().as('totalEntries'))
@@ -197,6 +271,7 @@ export function commanderStatsLoader(ctx: Context): CommanderStatsLoader {
                       .end(),
                   )
                   .as('topCuts'),
+              // Legacy conversionRate (topCuts / count)
               (eb) =>
                 eb(
                   eb.cast<number>(
@@ -217,6 +292,17 @@ export function commanderStatsLoader(ctx: Context): CommanderStatsLoader {
                   '/',
                   eb.fn.count<number>('Entry.id'),
                 ).as('conversionRate'),
+              // Expected top cuts = sum of (topCut / tournamentSize) for each entry
+              (eb) =>
+                eb.fn
+                  .sum<number>(
+                    eb(
+                      eb.cast<number>(eb.ref('Tournament.topCut'), 'real'),
+                      '/',
+                      eb.ref('Tournament.size'),
+                    ),
+                  )
+                  .as('expectedTopCuts'),
             ])
             .where('Tournament.size', '>=', minSize)
             .where('Tournament.size', '<=', maxSize)
@@ -225,13 +311,84 @@ export function commanderStatsLoader(ctx: Context): CommanderStatsLoader {
             .where('Commander.id', 'in', commanderIds)
             .groupBy('Commander.id')
             .execute(),
+          // Query per-player stats for CV calculation
+          db
+            .selectFrom('Entry')
+            .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+            .select([
+              'Entry.commanderId',
+              'Entry.playerId',
+              (eb) => eb.fn.count<number>('Entry.id').as('entries'),
+              (eb) =>
+                eb.fn
+                  .sum<number>(
+                    eb
+                      .case()
+                      .when('Entry.standing', '<=', eb.ref('Tournament.topCut'))
+                      .then(1)
+                      .else(0)
+                      .end(),
+                  )
+                  .as('topCuts'),
+              (eb) =>
+                eb.fn
+                  .sum<number>(
+                    eb(
+                      eb.cast<number>(eb.ref('Tournament.topCut'), 'real'),
+                      '/',
+                      eb.ref('Tournament.size'),
+                    ),
+                  )
+                  .as('expectedTopCuts'),
+            ])
+            .where('Tournament.size', '>=', minSize)
+            .where('Tournament.size', '<=', maxSize)
+            .where('Tournament.tournamentDate', '>=', minDate.toISOString())
+            .where('Tournament.tournamentDate', '<=', maxDate.toISOString())
+            .where('Entry.commanderId', 'in', commanderIds)
+            .groupBy(['Entry.commanderId', 'Entry.playerId'])
+            .execute(),
         ]);
 
         const totalEntries = entriesQuery.totalEntries ?? 1;
         const statsByCommanderId = new Map<number, CommanderCalculatedStats>();
-        for (const {id, ...stats} of statsQuery) {
+
+        // Group pilot stats by commander for CV calculation
+        const pilotStatsByCommander = new Map<
+          number,
+          Array<{topCuts: number; expectedTopCuts: number; entries: number}>
+        >();
+        for (const row of pilotStatsQuery) {
+          if (!pilotStatsByCommander.has(row.commanderId)) {
+            pilotStatsByCommander.set(row.commanderId, []);
+          }
+          pilotStatsByCommander.get(row.commanderId)!.push({
+            topCuts: row.topCuts ?? 0,
+            expectedTopCuts: row.expectedTopCuts ?? 0,
+            entries: row.entries ?? 0,
+          });
+        }
+
+        for (const {id, expectedTopCuts, ...stats} of statsQuery) {
+          // Calculate topCutFactor with Bayesian smoothing
+          // Raw: topCuts / expectedTopCuts
+          // Smoothed: (topCuts + prior * 1.0) / (expected + prior)
+          const smoothedTopCuts =
+            stats.topCuts +
+            BAYESIAN_SMOOTHING.PRIOR_FACTOR * BAYESIAN_SMOOTHING.PRIOR_EXPECTED;
+          const smoothedExpected =
+            (expectedTopCuts ?? 0) + BAYESIAN_SMOOTHING.PRIOR_EXPECTED;
+          const topCutFactor =
+            smoothedExpected > 0 ? smoothedTopCuts / smoothedExpected : 1.0;
+
+          // Calculate CV from per-player conversion factors
+          const pilotStats = pilotStatsByCommander.get(id) ?? [];
+          const accessibilityCV = calculatePilotCV(pilotStats);
+
           statsByCommanderId.set(id, {
             ...stats,
+            topCutFactor,
+            accessibilityCV,
             metaShare: stats.count / totalEntries,
           });
         }
@@ -241,6 +398,8 @@ export function commanderStatsLoader(ctx: Context): CommanderStatsLoader {
             statsByCommanderId.get(id) ?? {
               topCuts: 0,
               conversionRate: 0,
+              topCutFactor: 1.0,
+              accessibilityCV: null,
               count: 0,
               metaShare: 0,
             },
@@ -672,7 +831,7 @@ export class Commander implements GraphQLNode {
         ? 'stats.count'
         : sortBy === CommandersSortBy.TOP_CUTS
           ? 'stats.topCuts'
-          : 'stats.conversionRate';
+          : 'stats.topCutFactor';
 
     let query = db
       .with('stats', (eb) =>
@@ -696,6 +855,7 @@ export class Commander implements GraphQLNode {
                   .end(),
               )
               .as('topCuts'),
+            // Legacy conversionRate (topCuts / count)
             eb(
               eb.cast(
                 eb.fn.sum(
@@ -711,6 +871,57 @@ export class Commander implements GraphQLNode {
               '/',
               eb.fn.count('Entry.id'),
             ).as('conversionRate'),
+            // Expected top cuts = sum of (topCut / tournamentSize) for each entry
+            eb.fn
+              .sum(
+                eb(
+                  eb.cast(eb.ref('Tournament.topCut'), 'real'),
+                  '/',
+                  eb.ref('Tournament.size'),
+                ),
+              )
+              .as('expectedTopCuts'),
+            // Bayesian-smoothed topCutFactor: (topCuts + prior) / (expected + prior)
+            eb(
+              eb.parens(
+                eb(
+                  eb.cast(
+                    eb.fn.sum(
+                      eb
+                        .case()
+                        .when(
+                          'Entry.standing',
+                          '<=',
+                          eb.ref('Tournament.topCut'),
+                        )
+                        .then(1)
+                        .else(0)
+                        .end(),
+                    ),
+                    'real',
+                  ),
+                  '+',
+                  eb.val(
+                    BAYESIAN_SMOOTHING.PRIOR_FACTOR *
+                      BAYESIAN_SMOOTHING.PRIOR_EXPECTED,
+                  ),
+                ),
+              ),
+              '/',
+              eb.parens(
+                eb(
+                  eb.fn.sum(
+                    eb(
+                      eb.cast(eb.ref('Tournament.topCut'), 'real'),
+                      '/',
+                      eb.ref('Tournament.size'),
+                    ),
+                  ),
+                  '+',
+                  eb.val(BAYESIAN_SMOOTHING.PRIOR_EXPECTED),
+                ),
+              ),
+            ).as('topCutFactor'),
           ]),
       )
       .selectFrom('Commander')
