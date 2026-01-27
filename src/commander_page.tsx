@@ -157,17 +157,16 @@ function getStapleCardType(typeLine: string): StapleCardType {
 }
 
 // Play rate thresholds by card type. Since this is the commander page,
-// it's probably fine by showing everything and not truncating any cards.
-// Can change this in the future if data gets noisy
+// Hide cards with less than 1% play rate by default, with option to show more
 const STAPLE_PLAY_RATE_THRESHOLDS: Record<StapleCardType, number> = {
-  Creature: 0,
-  Instant: 0,
-  Sorcery: 0,
-  Artifact: 0,
-  Enchantment: 0,
-  Planeswalker: 0,
-  Battle: 0,
-  Land: 0,
+  Creature: 0.01,
+  Instant: 0.01,
+  Sorcery: 0.01,
+  Artifact: 0.01,
+  Enchantment: 0.01,
+  Planeswalker: 0.01,
+  Battle: 0.01,
+  Land: 0.01,
 };
 
 type StapleCardData = {
@@ -277,9 +276,21 @@ function CommanderStaples(props: {
 }) {
   const commander = useFragment(
     graphql`
-      fragment commanderPage_CommanderStaples on Commander @throwOnFieldError {
+      fragment commanderPage_CommanderStaples on Commander
+      @throwOnFieldError
+      @argumentDefinitions(
+        timePeriod: {type: "TimePeriod!"}
+        minEventSize: {type: "Int!"}
+        maxStanding: {type: "Int"}
+      ) {
         name
-        staples {
+        staples(
+          filters: {
+            timePeriod: $timePeriod
+            minSize: $minEventSize
+            maxStanding: $maxStanding
+          }
+        ) {
           id
           name
           type
@@ -862,6 +873,11 @@ export const CommanderPage: EntryPointComponent<
       ) @preloadable @throwOnFieldError {
         commander(name: $commander) {
           ...commanderPage_CommanderStaples
+            @arguments(
+              timePeriod: $timePeriod
+              minEventSize: $minEventSize
+              maxStanding: $maxStanding
+            )
             @include(if: $showStaples)
             @alias(as: "staples")
           ...commanderPage_entries
@@ -964,10 +980,7 @@ export const CommanderPageShell: EntryPointComponent<
       </CommanderBanner>
       {commander.promo && <FirstPartyPromo promo={commander.promo} />}
 
-      <TabList
-        className="mx-auto max-w-(--breakpoint-md)"
-        border={tab === 'staples' || tab === 'card'}
-      >
+      <TabList className="mx-auto max-w-(--breakpoint-md)" border={false}>
         <Tab
           selected={tab === 'entries' || !tab}
           onClick={() => {
@@ -1024,22 +1037,24 @@ export const CommanderPageShell: EntryPointComponent<
         )}
       </TabList>
 
-      {tab === 'entries' && (
-        <div className="mx-auto grid max-w-(--breakpoint-md) grid-cols-2 gap-4 border-b border-white/40 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
-          <Select
-            id="commander-sort-by"
-            label="Sort By"
-            value={sortBy}
-            onChange={(e) => {
-              replaceRoute('/commander/:commander', {
-                commander: commander.name,
-                sortBy: e,
-              });
-            }}
-          >
-            <option value="TOP">Top Performing</option>
-            <option value="NEW">Recent</option>
-          </Select>
+      {(tab === 'entries' || tab === 'staples') && (
+        <div className="mx-auto grid max-w-(--breakpoint-md) grid-cols-2 gap-4 p-6 text-center text-black sm:flex sm:flex-wrap sm:justify-center">
+          {tab === 'entries' && (
+            <Select
+              id="commander-sort-by"
+              label="Sort By"
+              value={sortBy}
+              onChange={(e) => {
+                replaceRoute('/commander/:commander', {
+                  commander: commander.name,
+                  sortBy: e,
+                });
+              }}
+            >
+              <option value="TOP">Top Performing</option>
+              <option value="NEW">Recent</option>
+            </Select>
+          )}
 
           <Select
             id="commanders-time-period"
@@ -1080,13 +1095,13 @@ export const CommanderPageShell: EntryPointComponent<
           </Select>
 
           <Select
-            id="commander-event-size"
+            id="commander-standing"
             label="Standing"
-            value={`${maxStanding}`}
+            value={`${maxStanding ?? ''}`}
             onChange={(e) => {
               replaceRoute('/commander/:commander', {
                 commander: commander.name,
-                maxStanding: Number(e),
+                maxStanding: e ? Number(e) : undefined,
               });
             }}
           >

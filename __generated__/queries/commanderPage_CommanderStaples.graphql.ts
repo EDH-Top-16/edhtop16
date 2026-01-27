@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<05ccfc62f6328f4081f7aabf8bb2a4b7>>
+ * @generated SignedSource<<5e91611b3e45ed3185aacebfab1f1168>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -36,7 +36,23 @@ var v0 = {
   "storageKey": null
 };
 return {
-  "argumentDefinitions": [],
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "maxStanding"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "minEventSize"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "timePeriod"
+    }
+  ],
   "kind": "Fragment",
   "metadata": {
     "throwOnFieldError": true
@@ -46,7 +62,29 @@ return {
     (v0/*: any*/),
     {
       "alias": null,
-      "args": null,
+      "args": [
+        {
+          "fields": [
+            {
+              "kind": "Variable",
+              "name": "maxStanding",
+              "variableName": "maxStanding"
+            },
+            {
+              "kind": "Variable",
+              "name": "minSize",
+              "variableName": "minEventSize"
+            },
+            {
+              "kind": "Variable",
+              "name": "timePeriod",
+              "variableName": "timePeriod"
+            }
+          ],
+          "kind": "ObjectValue",
+          "name": "filters"
+        }
+      ],
       "concreteType": "Card",
       "kind": "LinkedField",
       "name": "staples",
@@ -97,6 +135,6 @@ return {
 };
 })();
 
-(node as any).hash = "dfc9e8d10e088d7f7f326092a36036fa";
+(node as any).hash = "fad635bf9d2e28542e037afe829104de";
 
 export default node;

@@ -1,6 +1,5 @@
 import {DB} from '#genfiles/db/types.js';
 import DataLoader from 'dataloader';
-import {subYears} from 'date-fns';
 import {fromGlobalId, toGlobalId} from 'graphql-relay';
 import {Float, Int} from 'grats';
 import {Selectable, sql} from 'kysely';
@@ -96,6 +95,16 @@ export interface CommanderStatsFilters {
 export interface EntriesFilter {
   timePeriod: TimePeriod;
   minEventSize: Int;
+  maxStanding?: Int;
+}
+
+/** @gqlInput */
+export interface CommanderStaplesFilters {
+  minSize?: Int;
+  maxSize?: Int;
+  minDate?: string;
+  maxDate?: string;
+  timePeriod?: TimePeriod;
   maxStanding?: Int;
 }
 
@@ -574,37 +583,72 @@ export class Commander implements GraphQLNode {
   }
 
   /** @gqlField */
-  async staples(): Promise<Card[]> {
-    const oneYearAgo = subYears(new Date(), 1).toISOString();
-    const {totalEntries} = await db
+  async staples(filters?: CommanderStaplesFilters | null): Promise<Card[]> {
+    const minSize = filters?.minSize ?? 0;
+    const maxSize = filters?.maxSize ?? 1_000_000;
+    const maxDate = filters?.maxDate ? new Date(filters.maxDate) : new Date();
+    const minDate =
+      filters?.minDate != null
+        ? new Date(filters.minDate)
+        : minDateFromTimePeriod(filters?.timePeriod ?? TimePeriod.ONE_YEAR);
+    const maxStanding = filters?.maxStanding;
+
+    // Build entry count query with filters
+    let entryCountQuery = db
       .selectFrom('Entry')
-      .select([(eb) => eb.fn.countAll<number>().as('totalEntries')])
+      .select((eb) => eb.fn.countAll<number>().as('totalEntries'))
       .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
       .where('Entry.commanderId', '=', this.id)
-      .where('Tournament.tournamentDate', '>=', oneYearAgo)
-      .executeTakeFirstOrThrow();
+      .where('Tournament.tournamentDate', '>=', minDate.toISOString())
+      .where('Tournament.tournamentDate', '<=', maxDate.toISOString())
+      .where('Tournament.size', '>=', minSize)
+      .where('Tournament.size', '<=', maxSize);
+
+    if (maxStanding != null) {
+      entryCountQuery = entryCountQuery.where(
+        'Entry.standing',
+        '<=',
+        maxStanding,
+      );
+    }
+
+    const {totalEntries} = await entryCountQuery.executeTakeFirstOrThrow();
+
+    // No entries match the filters, return empty array
+    if (totalEntries === 0) {
+      return [];
+    }
 
     const query = db
       .with('entries', (eb) => {
-        return eb
+        let cteQuery = eb
           .selectFrom('DecklistItem')
           .leftJoin('Card', 'Card.id', 'DecklistItem.cardId')
           .leftJoin('Entry', 'Entry.id', 'DecklistItem.entryId')
           .leftJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
           .where('Entry.commanderId', '=', this.id)
-          .where('Tournament.tournamentDate', '>=', oneYearAgo)
+          .where('Tournament.tournamentDate', '>=', minDate.toISOString())
+          .where('Tournament.tournamentDate', '<=', maxDate.toISOString())
+          .where('Tournament.size', '>=', minSize)
+          .where('Tournament.size', '<=', maxSize);
+
+        if (maxStanding != null) {
+          cteQuery = cteQuery.where('Entry.standing', '<=', maxStanding);
+        }
+
+        return cteQuery
           .groupBy('Card.id')
-          .select((eb) => [
-            eb.ref('Card.id').as('cardId'),
-            eb(
-              eb.cast(eb.fn.count<number>('Card.id'), 'real'),
+          .select((eb2) => [
+            eb2.ref('Card.id').as('cardId'),
+            eb2(
+              eb2.cast(eb2.fn.count<number>('Card.id'), 'real'),
               '/',
               totalEntries,
             ).as('playRateLastYear'),
           ]);
       })
       .selectFrom('Card')
-      .leftJoin('entries', 'entries.cardId', 'Card.id')
+      .innerJoin('entries', 'entries.cardId', 'Card.id')
       .where((eb) =>
         eb(
           eb.fn('json_extract', ['Card.data', sql`'$.type_line'`]),
@@ -612,20 +656,13 @@ export class Commander implements GraphQLNode {
           '%Land%',
         ),
       )
-      .orderBy(
-        (eb) =>
-          eb('entries.playRateLastYear', '-', eb.ref('Card.playRateLastYear')),
-        'desc',
-      )
+      .orderBy('entries.playRateLastYear', 'desc')
       .selectAll('Card')
       .select('entries.playRateLastYear as commanderPlayRate');
 
-    const rows = await query.limit(100).execute();
+    const rows = await query.execute();
     return rows.map(
       (r) =>
-        // TODO(@ryan): probably want to check this casting to see if it's the right thing to do
-        // Assuming we need null bc it's a left join? I also have the card constructor
-        // accpet `null`, but convert that to `undefined`
         new Card(r, {playRateOverride: r.commanderPlayRate as number | null}),
     );
   }
