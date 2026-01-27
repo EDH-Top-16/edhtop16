@@ -7,24 +7,24 @@ code in this repository.
 
 **Core Development**
 
-- `pnpm run dev` - Start development server
+- `npm run dev` - Start development server
 - `pnpm install` - Install dependencies (uses pnpm workspaces)
 
 **Build Commands**
 
-- `pnpm run build` - Full build (client + server)
-- `pnpm run build:client` - Build client only
-- `pnpm run build:server` - Build server only (SSR)
+- `npm run build` - Full build (client + server)
+- `npm run build:client` - Build client only
+- `npm run build:server` - Build server only (SSR)
 
 **Code Generation**
 
-- `pnpm run generate:relay` - Generate Relay artifacts (run after GraphQL
+- `npm run generate:relay` - Generate Relay artifacts (run after GraphQL
   changes)
-- `pnpm run generate:db` - Regenerate SQLite database from scripts
-- `pnpm run generate:dbtypes` - Generate TypeScript types from database schema
-- `pnpm run generate:router` - Generate Router routing artifacts (see Pastoria
+- `npm run generate:db` - Regenerate SQLite database from scripts
+- `npm run generate:dbtypes` - Generate TypeScript types from database schema
+- `npm run generate:router` - Generate Router routing artifacts (see Pastoria
   System below)
-- `pnpm run generate:schema` - Generate GraphQL schema
+- `npm run generate:schema` - Print GraphQL schema
 
 **Database Migrations**
 
@@ -218,7 +218,7 @@ This project uses **pnpm workspaces** for managing multiple packages:
 
 ## Important Notes
 
-- Always run `pnpm relay-compiler` after modifying GraphQL queries or schema
+- Always run `npm run generate:relay` after modifying GraphQL queries or schema
 - Always run `npm run generate:schema` after modifying GraphQL schema code in
   `src/lib/server/schema/`
 - Always run `npm run generate:router` after adding/modifying JSDoc route

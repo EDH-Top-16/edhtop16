@@ -1,13 +1,8 @@
 {
-  "src": "./",
+  "src": "./src",
   "schema": "./__generated__/schema/schema.graphql",
   "language": "typescript",
-  "excludes": [
-    "**/node_modules/**",
-    "**/__mocks__/**",
-    "**/__generated__/**",
-    "**/public/**"
-  ],
+  "excludes": ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"],
   "artifactDirectory": "./__generated__/queries",
   "eagerEsModules": true,
   "persistConfig": {
