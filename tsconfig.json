@@ -17,11 +17,9 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "allowImportingTsExtensions": false,
     "paths": {
       "#src/*": ["./src/*"],
-      "#genfiles/*": ["./__generated__/*"],
-      "#components/*": ["./components/*"]
+      "#genfiles/*": ["./__generated__/*"]
     }
   },
   "include": [
