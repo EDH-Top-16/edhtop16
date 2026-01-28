@@ -12,6 +12,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY vendor ./vendor/
 RUN pnpm install --frozen-lockfile
 
 COPY . .
@@ -41,6 +42,7 @@ ENV NODE_ENV=production
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY vendor ./vendor/
 RUN pnpm install --frozen-lockfile --prod
 
 # Copy build output from build stage and install dependencies.
