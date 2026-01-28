@@ -64,6 +64,7 @@ export async function searchResults(
             .as('topCuts'),
       ])
       .where('Commander.name', '!=', 'Unknown Commander')
+      .where('Commander.name', '!=', '')
       .groupBy('Commander.id')
       .orderBy('entries', 'desc')
       .execute();
