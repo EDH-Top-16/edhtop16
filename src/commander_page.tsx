@@ -810,6 +810,8 @@ function CommanderBanner({
                   key={src}
                   src={src}
                   alt={`${commander.name} art`}
+                  loading="lazy"
+                  decoding="async"
                 />
               );
             })}
