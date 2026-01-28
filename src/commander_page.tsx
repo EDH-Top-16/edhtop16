@@ -437,8 +437,6 @@ function CommanderCardDetail(props: {
               src={card.cardPreviewImageUrl}
               alt={card.name}
               className="max-w-xs rounded-lg shadow-lg"
-              loading="lazy"
-              decoding="async"
             />
           )}
           <div className="text-center">
