@@ -148,6 +148,7 @@ export class Tournament implements GraphQLNode {
       left join "Commander" c on c.id = e."commanderId"
       where t."id" = ${this.id}
       and c.name != 'Unknown Commander'
+      and c.name != ''
       group by e."commanderId"
       order by "topCuts" desc, entries desc
     `.execute(db);
