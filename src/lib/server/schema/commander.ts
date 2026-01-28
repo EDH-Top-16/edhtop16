@@ -48,7 +48,7 @@ export function createCommanderCardsLoader(ctx: Context): CommanderCardsLoader {
       if (commanders.length === 0) return [];
 
       const names = commanders.map((c) =>
-        c === 'Unknown Commander' ? [] : c.split(' / '),
+        c === 'Unknown Commander' || c === '' ? [] : c.split(' / '),
       );
 
       const cards = await db
