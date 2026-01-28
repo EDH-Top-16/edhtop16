@@ -284,10 +284,10 @@ export class Commander implements GraphQLNode {
     filters?: EntriesFilter | null,
     sortBy: EntriesSortBy = EntriesSortBy.TOP,
   ): Promise<Connection<Entry>> {
-    const minEventSize = filters?.minEventSize ?? 60;
+    const minEventSize = filters?.minEventSize ?? 50;
     const maxStanding = filters?.maxStanding ?? Number.MAX_SAFE_INTEGER;
     const minDate = minDateFromTimePeriod(
-      filters?.timePeriod ?? TimePeriod.ALL_TIME,
+      filters?.timePeriod ?? TimePeriod.ONE_YEAR,
     );
 
     let query = db
