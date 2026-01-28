@@ -8,17 +8,22 @@
     "generate:db": "node --experimental-strip-types scripts/pull-database.ts",
     "generate:dbtypes": "DATABASE_URL=edhtop16.db kysely-codegen --out-file=./__generated__/db/types.d.ts",
     "generate:profiledbtypes": "kysely-codegen --url 'env(PROFILE_DATABASE_URL)' --out-file=./scripts/__generated__/profile_db_types.d.ts",
-    "build": "just pastoria::release",
-    "dev": "just pastoria::dev",
+    "generate:schema": "grats",
+    "generate:relay": "relay-compiler",
+    "generate:router": "pastoria generate",
+    "build": "pastoria build",
+    "dev": "pastoria dev",
     "start": "NODE_ENV=production pastoria-server",
-    "migrate": "node --experimental-strip-types scripts/migrate.ts"
+    "migrate": "node --experimental-strip-types scripts/migrate.ts",
+    "update-pastoria": "cd ../pastoria && pnpm run -r --filter './packages/pastoria*' build && pnpm pack -r --filter './packages/pastoria*' --out '../edhtop16/vendor/%s.tgz'"
   },
   "pastoria": {
     "enableGraphiQLInProduction": true
   },
   "imports": {
     "#src/*": "./src/*",
-    "#genfiles/*": "./__generated__/*"
+    "#genfiles/*": "./__generated__/*",
+    "#pastoria/*": "./pastoria/*"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

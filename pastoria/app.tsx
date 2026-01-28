@@ -10,8 +10,7 @@ declare global {
   }
 }
 
-/** @appRoot */
-export function App({children}: PropsWithChildren<{}>) {
+export default function App({children}: PropsWithChildren<{}>) {
   useEffect(() => {
     window.dataLayer = window.dataLayer || [];
     window.gtag = function (...args: any): void {
