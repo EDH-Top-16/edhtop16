@@ -3,4 +3,9 @@
  * Do not modify this file directly.
  */
 
-export {Context as Context} from '../../src/lib/server/context';
+import {PastoriaRootContext} from 'pastoria-runtime/server';
+
+/**
+ * @gqlContext
+ */
+export class Context extends PastoriaRootContext {}

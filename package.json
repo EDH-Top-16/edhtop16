@@ -17,9 +17,6 @@
     "migrate": "node --experimental-strip-types scripts/migrate.ts",
     "update-pastoria": "cd ../pastoria && pnpm run -r --filter './packages/pastoria*' build && pnpm pack -r --filter './packages/pastoria*' --out '../edhtop16/vendor/%s.tgz'"
   },
-  "pastoria": {
-    "enableGraphiQLInProduction": true
-  },
   "imports": {
     "#src/*": "./src/*",
     "#genfiles/*": "./__generated__/*",
@@ -44,7 +41,6 @@
     "js-cookie": "^3.0.5",
     "kysely": "^0.27.6",
     "lucide-react": "^0.555.0",
-    "pastoria-config": "^1.0.1",
     "pastoria-runtime": "^1.0.13",
     "pastoria-server": "^1.0.15",
     "picocolors": "^1.1.1",

@@ -8,7 +8,6 @@ overrides:
   pastoria: file:./vendor/pastoria.tgz
   pastoria-runtime: file:./vendor/pastoria-runtime.tgz
   pastoria-server: file:./vendor/pastoria-server.tgz
-  pastoria-config: file:./vendor/pastoria-config.tgz
 
 importers:
 
@@ -68,15 +67,12 @@ importers:
       lucide-react:
         specifier: ^0.555.0
         version: 0.555.0(react@19.2.0)
-      pastoria-config:
-        specifier: file:vendor/pastoria-config.tgz
-        version: file:vendor/pastoria-config.tgz
       pastoria-runtime:
         specifier: file:vendor/pastoria-runtime.tgz
-        version: file:vendor/pastoria-runtime.tgz(express@5.1.0)(graphql@17.0.0-alpha.9)(pastoria-config@file:vendor/pastoria-config.tgz)(radix3@1.1.2)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76)
+        version: file:vendor/pastoria-runtime.tgz(express@5.1.0)(graphql@17.0.0-alpha.9)(radix3@1.1.2)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76)
       pastoria-server:
         specifier: file:vendor/pastoria-server.tgz
-        version: file:vendor/pastoria-server.tgz(express@5.1.0)(pastoria-config@file:vendor/pastoria-config.tgz)(pastoria-runtime@file:vendor/pastoria-runtime.tgz(express@5.1.0)(graphql@17.0.0-alpha.9)(pastoria-config@file:vendor/pastoria-config.tgz)(radix3@1.1.2)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76))
+        version: file:vendor/pastoria-server.tgz(express@5.1.0)(pastoria-runtime@file:vendor/pastoria-runtime.tgz(express@5.1.0)(graphql@17.0.0-alpha.9)(radix3@1.1.2)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76))
       picocolors:
         specifier: ^1.1.1
         version: 1.1.1
@@ -176,7 +172,7 @@ importers:
         version: 0.17.0(better-sqlite3@11.10.0)(kysely@0.27.6)(pg@8.16.3)
       pastoria:
         specifier: file:vendor/pastoria.tgz
-        version: file:vendor/pastoria.tgz(@types/node@22.18.8)(babel-plugin-react-compiler@1.0.0)(express@5.1.0)(grats@0.0.33)(jiti@2.6.1)(lightningcss@1.30.2)(pastoria-config@file:vendor/pastoria-config.tgz)(relay-compiler@20.1.1)(tailwindcss@4.1.14)
+        version: file:vendor/pastoria.tgz(@types/node@22.18.8)(babel-plugin-react-compiler@1.0.0)(express@5.1.0)(grats@0.0.33)(jiti@2.6.1)(lightningcss@1.30.2)(relay-compiler@20.1.1)(tailwindcss@4.1.14)
       pg:
         specifier: ^8.16.3
         version: 8.16.3
@@ -2329,17 +2325,12 @@ packages:
     resolution: {integrity: sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==}
     engines: {node: '>= 0.8'}
 
-  pastoria-config@file:vendor/pastoria-config.tgz:
-    resolution: {integrity: sha512-fGegB1tFxbHv37/i4f00hc/lGOSuxja5rw7ua8vaOr7/1mJMbmWCZSwuTSA3mc5FMoC8KcFWNCsojkNvbo079Q==, tarball: file:vendor/pastoria-config.tgz}
-    version: 1.0.1
-
   pastoria-runtime@file:vendor/pastoria-runtime.tgz:
-    resolution: {integrity: sha512-vuPcjXA1YXx6THlYiSLhWF33W4QQS43wUBV4dIaQmC+7myF83bX5P40fP4d1mmvRfD5VcSqtgmmxOzS+hfKlkg==, tarball: file:vendor/pastoria-runtime.tgz}
+    resolution: {integrity: sha512-eujG3Qq7B53tQ3jvll1NX1ZpHVr3MexM/ioWZWAJxXmIoHE7htkIyB0nnDYUiiAeHdUSXBDNsbrslRj3ApsSlA==, tarball: file:vendor/pastoria-runtime.tgz}
     version: 1.0.13
     peerDependencies:
       express: ^5.1.0
       graphql: 17.0.0-alpha.9
-      pastoria-config: 1.0.1
       radix3: ^1.1.2
       react: ^19.2.0
       react-dom: ^19.2.0
@@ -2348,23 +2339,21 @@ packages:
       zod: ^3.25.76
 
   pastoria-server@file:vendor/pastoria-server.tgz:
-    resolution: {integrity: sha512-vtRZ8YI08DnIS8qnhG3BYWZYaerFYvK2YGPWRkFQzZmIKRBHqsP50AIdNpfKT9fvp1J5vGA1KfWpwFBaSvLU/A==, tarball: file:vendor/pastoria-server.tgz}
+    resolution: {integrity: sha512-PsP+AKmijyjltCzzMG39mp/dMzJ/Q6QuTUl9HcT1Hq8sTEzfyVXE7QmB/c2OdtkTA0lwOkhkBLbJtE7bXQ9Wsw==, tarball: file:vendor/pastoria-server.tgz}
     version: 1.0.15
     hasBin: true
     peerDependencies:
       express: ^5.1.0
-      pastoria-config: 1.0.1
       pastoria-runtime: 1.0.13
 
   pastoria@file:vendor/pastoria.tgz:
-    resolution: {integrity: sha512-VAoFMxOxzuxI8oftCRI78UidMF8Qt/vWe+XPpCo+B5Z0JLnWS0/k3IKF0L6La/Y7lQyPxG9NIGHes6W35DwH6g==, tarball: file:vendor/pastoria.tgz}
+    resolution: {integrity: sha512-lO0sv33nJjktXL/4YJTehfGwEU1nX3FI5TC5w5myZMdUO+qFFbu4ocWWDhfe4U0UtzYvFc359yiuWNjw9O5d5A==, tarball: file:vendor/pastoria.tgz}
     version: 1.1.0
     hasBin: true
     peerDependencies:
       babel-plugin-react-compiler: ^1.0.0
       express: ^5.1.0
       grats: ^0.0.33
-      pastoria-config: 1.0.1
       relay-compiler: ^20.1.1
       tailwindcss: ^4.1.14
     peerDependenciesMeta:
@@ -4973,14 +4962,11 @@ snapshots:
 
   parseurl@1.3.3: {}
 
-  pastoria-config@file:vendor/pastoria-config.tgz: {}
-
-  pastoria-runtime@file:vendor/pastoria-runtime.tgz(express@5.1.0)(graphql@17.0.0-alpha.9)(pastoria-config@file:vendor/pastoria-config.tgz)(radix3@1.1.2)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76):
+  pastoria-runtime@file:vendor/pastoria-runtime.tgz(express@5.1.0)(graphql@17.0.0-alpha.9)(radix3@1.1.2)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76):
     dependencies:
       dataloader: 2.2.3
       express: 5.1.0
       graphql: 17.0.0-alpha.9
-      pastoria-config: file:vendor/pastoria-config.tgz
       radix3: 1.1.2
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
@@ -4989,16 +4975,15 @@ snapshots:
       serialize-javascript: 6.0.2
       zod: 3.25.76
 
-  pastoria-server@file:vendor/pastoria-server.tgz(express@5.1.0)(pastoria-config@file:vendor/pastoria-config.tgz)(pastoria-runtime@file:vendor/pastoria-runtime.tgz(express@5.1.0)(graphql@17.0.0-alpha.9)(pastoria-config@file:vendor/pastoria-config.tgz)(radix3@1.1.2)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76)):
+  pastoria-server@file:vendor/pastoria-server.tgz(express@5.1.0)(pastoria-runtime@file:vendor/pastoria-runtime.tgz(express@5.1.0)(graphql@17.0.0-alpha.9)(radix3@1.1.2)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76)):
     dependencies:
       cookie-parser: 1.4.7
       dotenv: 16.6.1
       express: 5.1.0
-      pastoria-config: file:vendor/pastoria-config.tgz
-      pastoria-runtime: file:vendor/pastoria-runtime.tgz(express@5.1.0)(graphql@17.0.0-alpha.9)(pastoria-config@file:vendor/pastoria-config.tgz)(radix3@1.1.2)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76)
+      pastoria-runtime: file:vendor/pastoria-runtime.tgz(express@5.1.0)(graphql@17.0.0-alpha.9)(radix3@1.1.2)(react-dom@19.2.0(react@19.2.0))(react-relay@20.1.1(react@19.2.0))(react@19.2.0)(relay-runtime@20.1.1)(zod@3.25.76)
       picocolors: 1.1.1
 
-  pastoria@file:vendor/pastoria.tgz(@types/node@22.18.8)(babel-plugin-react-compiler@1.0.0)(express@5.1.0)(grats@0.0.33)(jiti@2.6.1)(lightningcss@1.30.2)(pastoria-config@file:vendor/pastoria-config.tgz)(relay-compiler@20.1.1)(tailwindcss@4.1.14):
+  pastoria@file:vendor/pastoria.tgz(@types/node@22.18.8)(babel-plugin-react-compiler@1.0.0)(express@5.1.0)(grats@0.0.33)(jiti@2.6.1)(lightningcss@1.30.2)(relay-compiler@20.1.1)(tailwindcss@4.1.14):
     dependencies:
       '@parcel/watcher': 2.5.1
       '@tailwindcss/vite': 4.1.18(vite@7.1.12(@types/node@22.18.8)(jiti@2.6.1)(lightningcss@1.30.2))
@@ -5009,7 +4994,6 @@ snapshots:
       dotenv: 16.6.1
       express: 5.1.0
       grats: 0.0.33
-      pastoria-config: file:vendor/pastoria-config.tgz
       picocolors: 1.1.1
       relay-compiler: 20.1.1
       tailwindcss: 4.1.14
