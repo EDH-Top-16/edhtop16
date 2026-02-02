@@ -447,26 +447,35 @@ async function createCards(
 
   info`Creating ${pc.cyan(mainDeckCardIds.size)} cards from oracle ID's`();
 
-  const insertedCards = await db
-    .insertInto('Card')
-    .values(
-      Array.from(mainDeckCardIds)
-        .map((id) => oracleCards.cardByOracleId.get(id))
-        .filter((c) => c != null)
-        .map((c) => ({
-          oracleId: c.oracle_id,
-          name: c.name,
-          data: JSON.stringify(c),
-        })),
-    )
-    .onConflict((oc) =>
-      oc.column('oracleId').doUpdateSet((eb) => ({
-        name: eb.ref('excluded.name'),
-        data: eb.ref('excluded.data'),
-      })),
-    )
-    .returning(['id', 'oracleId'])
-    .execute();
+  const cardValues = Array.from(mainDeckCardIds)
+    .map((id) => oracleCards.cardByOracleId.get(id))
+    .filter((c) => c != null)
+    .map((c) => ({
+      oracleId: c.oracle_id,
+      name: c.name,
+      data: JSON.stringify(c),
+    }));
+
+  // SQLite has a limit of 999 variables per query
+  // Card has 3 fields (oracleId, name, data), so we can insert ~333 rows per batch
+  // Use 300 as a safe batch size
+  const insertedCards = await chunkedWorkerPool(
+    cardValues,
+    async (chunk) => {
+      return await db
+        .insertInto('Card')
+        .values(chunk)
+        .onConflict((oc) =>
+          oc.column('oracleId').doUpdateSet((eb) => ({
+            name: eb.ref('excluded.name'),
+            data: eb.ref('excluded.data'),
+          })),
+        )
+        .returning(['id', 'oracleId'])
+        .execute();
+    },
+    {chunkSize: 300, workers: 1},
+  );
 
   return new Map(insertedCards.map((c) => [c.oracleId, c.id]));
 }
@@ -513,12 +522,24 @@ async function createEntries(
     }),
   );
 
-  const insertedEntries = await db
-    .insertInto('Entry')
-    .values(entries.flat())
-    .onConflict((oc) => oc.columns(['tournamentId', 'playerId']).doNothing())
-    .returning(['Entry.id', 'Entry.playerId', 'Entry.tournamentId'])
-    .execute();
+  // SQLite has a limit of 999 variables per query
+  // Entry has 10 fields, so we can insert ~99 rows per batch
+  // Use 90 as a safe batch size
+  const allEntries = entries.flat();
+  const insertedEntries = await chunkedWorkerPool(
+    allEntries,
+    async (chunk) => {
+      return await db
+        .insertInto('Entry')
+        .values(chunk)
+        .onConflict((oc) =>
+          oc.columns(['tournamentId', 'playerId']).doNothing(),
+        )
+        .returning(['Entry.id', 'Entry.playerId', 'Entry.tournamentId'])
+        .execute();
+    },
+    {chunkSize: 90, workers: 1},
+  );
 
   const tidByTournamentId = new Map(
     Array.from(tournamentIdByTid).map(([id, tid]) => [tid, id] as const),
