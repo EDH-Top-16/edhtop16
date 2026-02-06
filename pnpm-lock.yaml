@@ -2326,7 +2326,7 @@ packages:
     engines: {node: '>= 0.8'}
 
   pastoria-runtime@file:vendor/pastoria-runtime.tgz:
-    resolution: {integrity: sha512-eujG3Qq7B53tQ3jvll1NX1ZpHVr3MexM/ioWZWAJxXmIoHE7htkIyB0nnDYUiiAeHdUSXBDNsbrslRj3ApsSlA==, tarball: file:vendor/pastoria-runtime.tgz}
+    resolution: {integrity: sha512-AOmsoyQyrcdWfy5oCSLmQ/cuR4wDgeCFymKax7j3pbUIXO6iohbQTSe4NgBH06Is+2bQ+ItAQLMGIaQpMHsP+A==, tarball: file:vendor/pastoria-runtime.tgz}
     version: 1.0.13
     peerDependencies:
       express: ^5.1.0
@@ -2347,7 +2347,7 @@ packages:
       pastoria-runtime: 1.0.13
 
   pastoria@file:vendor/pastoria.tgz:
-    resolution: {integrity: sha512-kvMdrF4Adnjp8FVwFeN9TfieIKQMrZCaLi56dacDJNP0dLkB3ZScqiK9Y9czj+gquVKPUqIChAoVQOsrNumnZQ==, tarball: file:vendor/pastoria.tgz}
+    resolution: {integrity: sha512-ScaFiRBwd3vvhxaxR9sVUmgJJRWSIyIMgTbABfgiJAM8aTosx9x8faZZjk9GzdXNufmaDi6qwtMA0Rkuz/OxCA==, tarball: file:vendor/pastoria.tgz}
     version: 1.1.0
     hasBin: true
     peerDependencies:
