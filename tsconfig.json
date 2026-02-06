@@ -20,8 +20,8 @@
     "paths": {
       "#src/*": ["./src/*"],
       "#genfiles/*": ["./__generated__/*"],
-      "#pastoria/*": ["./pastoria/*"],
-    },
+      "#pastoria/*": ["./pastoria/*"]
+    }
   },
   "include": [
     "__generated__/**/*.ts",
@@ -30,18 +30,18 @@
     "src/**/*.tsx",
     "types/*.ts",
     "pastoria/**/*.ts",
-    "pastoria/**/*.tsx",
+    "pastoria/**/*.tsx"
   ],
   "exclude": ["node_modules"],
   "ts-node": {
     "compilerOptions": {
-      "module": "CommonJS",
-    },
+      "module": "CommonJS"
+    }
   },
   "grats": {
     "graphqlSchema": "./__generated__/schema/schema.graphql",
     "tsSchema": "./__generated__/schema/schema.ts",
     "nullableByDefault": true,
-    "strictSemanticNullability": true,
-  },
+    "strictSemanticNullability": true
+  }
 }
