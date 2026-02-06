@@ -1071,6 +1071,10 @@ export function getSchema(): GraphQLSchema {
         name: "TournamentFilters",
         fields() {
             return {
+                hideUnknownWinners: {
+                    name: "hideUnknownWinners",
+                    type: GraphQLString
+                },
                 maxDate: {
                     name: "maxDate",
                     type: GraphQLString
