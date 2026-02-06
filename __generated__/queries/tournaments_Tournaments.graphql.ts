@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<55e615f4312a29b21a6c604efe071c92>>
+ * @generated SignedSource<<66d671b566c0eefdf0cd1faeb841a591>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -46,6 +46,10 @@ return {
     },
     {
       "kind": "RootArgument",
+      "name": "hideUnknownWinners"
+    },
+    {
+      "kind": "RootArgument",
       "name": "minSize"
     },
     {
@@ -88,6 +92,11 @@ return {
       "args": [
         {
           "fields": [
+            {
+              "kind": "Variable",
+              "name": "hideUnknownWinners",
+              "variableName": "hideUnknownWinners"
+            },
             {
               "kind": "Variable",
               "name": "minSize",
@@ -195,6 +204,6 @@ return {
 };
 })();
 
-(node as any).hash = "78ac87d122bb597002fca8b2f6669cb1";
+(node as any).hash = "06042db88b86571ce98981bca1f29f17";
 
 export default node;

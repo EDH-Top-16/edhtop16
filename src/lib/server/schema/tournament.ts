@@ -50,6 +50,7 @@ export interface TournamentFilters {
   maxDate?: string;
   minSize?: Int;
   maxSize?: Int;
+  hideUnknownWinners?: string;
 }
 
 /** @gqlType */
@@ -207,6 +208,22 @@ export class Tournament implements GraphQLNode {
       ? new Date(filters.maxDate)
       : new Date();
     query = query.where('tournamentDate', '<=', maxDateValue.toISOString());
+
+    if (filters?.hideUnknownWinners === 'true') {
+      query = query.where(({exists, selectFrom}) =>
+        exists(
+          selectFrom('Entry')
+            .leftJoin('Player', 'Player.id', 'Entry.playerId')
+            .leftJoin('Commander', 'Commander.id', 'Entry.commanderId')
+            .whereRef('Entry.tournamentId', '=', 'Tournament.id')
+            .where('Entry.standing', '=', 1)
+            .where('Player.name', '!=', 'Unknown Player')
+            .where('Commander.name', '!=', 'Unknown Commander')
+            .where('Commander.name', '!=', '')
+            .select(sql.lit(1).as('one')),
+        ),
+      );
+    }
 
     if (after) {
       const cursor = TournamentsCursor.fromString(after);

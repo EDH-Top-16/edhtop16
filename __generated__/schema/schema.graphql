@@ -118,6 +118,7 @@ input EntryFilters {
 }
 
 input TournamentFilters {
+  hideUnknownWinners: String
   maxDate: String
   maxSize: Int
   minDate: String

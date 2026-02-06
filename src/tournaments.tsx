@@ -96,6 +96,7 @@ export const TournamentsPageShell: EntryPointComponent<
     sortBy = 'DATE',
     timePeriod = 'ALL_TIME',
     minSize = 0,
+    hideUnknownWinners,
   } = useRouteParams('/tournaments');
   const {replaceRoute} = useNavigation();
 
@@ -114,7 +115,7 @@ export const TournamentsPageShell: EntryPointComponent<
             cEDH Tournaments
           </h1>
 
-          <div className="flex flex-wrap gap-x-4 gap-y-2">
+          <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
             <Select
               id="tournaments-sort-by"
               label="Sort By"
@@ -158,6 +159,20 @@ export const TournamentsPageShell: EntryPointComponent<
               <option value="ONE_YEAR">1 Year</option>
               <option value="ALL_TIME">All Time</option>
             </Select>
+
+            <Select
+              id="tournaments-hide-unknown"
+              label="Hide Unknowns"
+              value={hideUnknownWinners === 'true' ? 'true' : ''}
+              onChange={(value) => {
+                replaceRoute('/tournaments', {
+                  hideUnknownWinners: value === 'true' ? 'true' : undefined,
+                });
+              }}
+            >
+              <option value="">Show All</option>
+              <option value="true">Hide</option>
+            </Select>
           </div>
         </div>
 
@@ -183,6 +198,7 @@ export const TournamentsPage: EntryPointComponent<
         $timePeriod: TimePeriod = ALL_TIME
         $sortBy: TournamentSortBy = DATE
         $minSize: Int = 0
+        $hideUnknownWinners: String
       ) @preloadable @throwOnFieldError {
         ...tournaments_Tournaments
 
@@ -209,7 +225,11 @@ export const TournamentsPage: EntryPointComponent<
         tournaments(
           first: $count
           after: $cursor
-          filters: {timePeriod: $timePeriod, minSize: $minSize}
+          filters: {
+            timePeriod: $timePeriod
+            minSize: $minSize
+            hideUnknownWinners: $hideUnknownWinners
+          }
           sortBy: $sortBy
         ) @connection(key: "tournaments__tournaments") {
           edges {

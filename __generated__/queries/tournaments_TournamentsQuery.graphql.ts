@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<f4d588f1edff60f83773f4e64b96ac52>>
- * @relayHash 32aadc8136065f85d656e193812d46fb
+ * @generated SignedSource<<5252465889d394a95a7181caa8f2ec42>>
+ * @relayHash 4b72b9b512b6386cd51c39724b686d1d
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,13 +9,14 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 32aadc8136065f85d656e193812d46fb
+// @relayRequestID 4b72b9b512b6386cd51c39724b686d1d
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type TournamentSortBy = "DATE" | "PLAYERS" | "%future added value";
 export type tournaments_TournamentsQuery$variables = {
+  hideUnknownWinners?: string | null | undefined;
   minSize?: number | null | undefined;
   sortBy?: TournamentSortBy | null | undefined;
   timePeriod?: TimePeriod | null | undefined;
@@ -33,23 +34,33 @@ export type tournaments_TournamentsQuery = {
 
 const node: ConcreteRequest = (function(){
 var v0 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "hideUnknownWinners"
+},
+v1 = {
   "defaultValue": 0,
   "kind": "LocalArgument",
   "name": "minSize"
 },
-v1 = {
+v2 = {
   "defaultValue": "DATE",
   "kind": "LocalArgument",
   "name": "sortBy"
 },
-v2 = {
+v3 = {
   "defaultValue": "ALL_TIME",
   "kind": "LocalArgument",
   "name": "timePeriod"
 },
-v3 = [
+v4 = [
   {
     "fields": [
+      {
+        "kind": "Variable",
+        "name": "hideUnknownWinners",
+        "variableName": "hideUnknownWinners"
+      },
       {
         "kind": "Variable",
         "name": "minSize",
@@ -75,14 +86,14 @@ v3 = [
     "variableName": "sortBy"
   }
 ],
-v4 = {
+v5 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
 },
-v5 = {
+v6 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -94,7 +105,8 @@ return {
     "argumentDefinitions": [
       (v0/*: any*/),
       (v1/*: any*/),
-      (v2/*: any*/)
+      (v2/*: any*/),
+      (v3/*: any*/)
     ],
     "kind": "Fragment",
     "metadata": {
@@ -130,6 +142,7 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
+      (v3/*: any*/),
       (v2/*: any*/),
       (v1/*: any*/),
       (v0/*: any*/)
@@ -139,7 +152,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v4/*: any*/),
         "concreteType": "TournamentConnection",
         "kind": "LinkedField",
         "name": "tournaments",
@@ -161,7 +174,7 @@ return {
                 "name": "node",
                 "plural": false,
                 "selections": [
-                  (v4/*: any*/),
+                  (v5/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -169,7 +182,7 @@ return {
                     "name": "TID",
                     "storageKey": null
                   },
-                  (v5/*: any*/),
+                  (v6/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -206,8 +219,8 @@ return {
                         "name": "player",
                         "plural": false,
                         "selections": [
-                          (v5/*: any*/),
-                          (v4/*: any*/)
+                          (v6/*: any*/),
+                          (v5/*: any*/)
                         ],
                         "storageKey": null
                       },
@@ -234,15 +247,15 @@ return {
                                 "name": "imageUrls",
                                 "storageKey": null
                               },
-                              (v4/*: any*/)
+                              (v5/*: any*/)
                             ],
                             "storageKey": null
                           },
-                          (v4/*: any*/)
+                          (v5/*: any*/)
                         ],
                         "storageKey": null
                       },
-                      (v4/*: any*/)
+                      (v5/*: any*/)
                     ],
                     "storageKey": "entries(maxStanding:1)"
                   },
@@ -296,7 +309,7 @@ return {
       },
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v4/*: any*/),
         "filters": [
           "filters",
           "sortBy"
@@ -362,7 +375,7 @@ return {
     ]
   },
   "params": {
-    "id": "32aadc8136065f85d656e193812d46fb",
+    "id": "4b72b9b512b6386cd51c39724b686d1d",
     "metadata": {},
     "name": "tournaments_TournamentsQuery",
     "operationKind": "query",
@@ -371,7 +384,7 @@ return {
 };
 })();
 
-(node as any).hash = "03e59d93acc0b0d16c534d39f0594850";
+(node as any).hash = "c45793a1663c72c08bbd3d5d6d0f2276";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

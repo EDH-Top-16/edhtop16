@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<af51f78c9586e3d6bfc8b8aae77b849f>>
- * @relayHash ba9512b6cedba05b75f702515b9cde45
+ * @generated SignedSource<<3fb4b36ab3664ced71d6c7d7da420577>>
+ * @relayHash 3ec9630584f16ef88ae7b8a618e721ff
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID ba9512b6cedba05b75f702515b9cde45
+// @relayRequestID 3ec9630584f16ef88ae7b8a618e721ff
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -18,6 +18,7 @@ export type TournamentSortBy = "DATE" | "PLAYERS" | "%future added value";
 export type AllTournamentsQuery$variables = {
   count?: number | null | undefined;
   cursor?: string | null | undefined;
+  hideUnknownWinners?: string | null | undefined;
   minSize?: number | null | undefined;
   sortBy: TournamentSortBy;
   timePeriod?: TimePeriod | null | undefined;
@@ -45,6 +46,11 @@ var v0 = [
   {
     "defaultValue": null,
     "kind": "LocalArgument",
+    "name": "hideUnknownWinners"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
     "name": "minSize"
   },
   {
@@ -66,6 +72,11 @@ v1 = [
   },
   {
     "fields": [
+      {
+        "kind": "Variable",
+        "name": "hideUnknownWinners",
+        "variableName": "hideUnknownWinners"
+      },
       {
         "kind": "Variable",
         "name": "minSize",
@@ -310,7 +321,7 @@ return {
     ]
   },
   "params": {
-    "id": "ba9512b6cedba05b75f702515b9cde45",
+    "id": "3ec9630584f16ef88ae7b8a618e721ff",
     "metadata": {},
     "name": "AllTournamentsQuery",
     "operationKind": "query",
@@ -319,6 +330,6 @@ return {
 };
 })();
 
-(node as any).hash = "78ac87d122bb597002fca8b2f6669cb1";
+(node as any).hash = "06042db88b86571ce98981bca1f29f17";
 
 export default node;
