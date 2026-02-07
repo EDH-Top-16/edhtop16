@@ -2347,7 +2347,7 @@ packages:
       pastoria-runtime: 1.0.13
 
   pastoria@file:vendor/pastoria.tgz:
-    resolution: {integrity: sha512-aAV0p5QAXkx4hDmMSrrlNd3fVtdJP/xUYO39FaF0DVHGHkY6M4LfhVQOyjUpqpWNtEnSIgJMT0SGEwaUFexNEw==, tarball: file:vendor/pastoria.tgz}
+    resolution: {integrity: sha512-/g9Veb8NxqPp7SwQCY8CyG4orPCAGcX9XYUtx4h7pBcyIADe+kdDuWH8dptEmP+QMy/iMBHEZgvOWxF39c7Rew==, tarball: file:vendor/pastoria.tgz}
     version: 1.1.0
     hasBin: true
     peerDependencies:
@@ -4995,6 +4995,7 @@ snapshots:
       express: 5.1.0
       grats: 0.0.33
       picocolors: 1.1.1
+      prettier: 3.6.2
       relay-compiler: 20.1.1
       tailwindcss: 4.1.14
       ts-morph: 26.0.0
