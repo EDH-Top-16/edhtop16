@@ -6,7 +6,7 @@ import {
 import commanderPage_CommanderShellQueryParameters from '#genfiles/queries/commanderPage_CommanderShellQuery$parameters';
 import commanderPage_CommanderStatsQueryParameters from '#genfiles/queries/commanderPage_CommanderStatsQuery$parameters';
 import {JSResource, ModuleType} from '#genfiles/router/js_resource';
-import {EntryPointParams} from '#genfiles/router/router';
+import {getSchemaForRoute} from '#genfiles/router/router';
 import {EntryPoint} from 'react-relay/hooks';
 
 /**
@@ -21,10 +21,10 @@ import {EntryPoint} from 'react-relay/hooks';
  */
 export const entrypoint: EntryPoint<
   ModuleType<'m#commander_page_shell'>,
-  EntryPointParams<'/commander/:commander'>
+  {params: Record<string, unknown>}
 > = {
   root: JSResource.fromModuleId('m#commander_page_shell'),
-  getPreloadProps({params, schema}) {
+  getPreloadProps({params}) {
     const {
       commander,
       tab = 'entries',
@@ -33,7 +33,7 @@ export const entrypoint: EntryPoint<
       timePeriod = 'ONE_YEAR',
       maxStanding,
       minEventSize = 50,
-    } = schema.parse(params);
+    } = getSchemaForRoute('/commander/:commander').parse(params);
 
     return {
       queries: {

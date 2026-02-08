@@ -1,7 +1,7 @@
 import tournamentView_TournamentPageShellQueryParameters from '#genfiles/queries/tournamentView_TournamentPageShellQuery$parameters';
 import tournamentView_TournamentQueryParameters from '#genfiles/queries/tournamentView_TournamentQuery$parameters';
 import {JSResource, ModuleType} from '#genfiles/router/js_resource';
-import {EntryPointParams} from '#genfiles/router/router';
+import {getSchemaForRoute} from '#genfiles/router/router';
 import {EntryPoint} from 'react-relay/hooks';
 
 /**
@@ -12,11 +12,12 @@ import {EntryPoint} from 'react-relay/hooks';
  */
 export const entrypoint: EntryPoint<
   ModuleType<'m#tournament_page_shell'>,
-  EntryPointParams<'/tournament/:tid'>
+  {params: Record<string, unknown>}
 > = {
   root: JSResource.fromModuleId('m#tournament_page_shell'),
-  getPreloadProps({params, schema}) {
-    const {tid, commander, tab} = schema.parse(params);
+  getPreloadProps({params}) {
+    const {tid, commander, tab} =
+      getSchemaForRoute('/tournament/:tid').parse(params);
 
     return {
       queries: {
