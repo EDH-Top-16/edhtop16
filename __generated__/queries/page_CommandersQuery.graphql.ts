@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<3b03a87f6277ba1c60b0bf2fa7b9a819>>
- * @relayHash 0d987464f681a4c1b986de9fa8534991
+ * @generated SignedSource<<d50c86658dfa3340d67c304155bb3fc4>>
+ * @relayHash 0969740a16e481d99c17be0d6e6adb82
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,25 +9,25 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 0d987464f681a4c1b986de9fa8534991
+// @relayRequestID 0969740a16e481d99c17be0d6e6adb82
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type CommandersSortBy = "CONVERSION" | "POPULARITY" | "TOP_CUTS" | "%future added value";
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
-export type commanders_CommandersQuery$variables = {
+export type page_CommandersQuery$variables = {
   colorId?: string | null | undefined;
   minEntries?: number | null | undefined;
   minSize?: number | null | undefined;
   sortBy?: CommandersSortBy | null | undefined;
   timePeriod?: TimePeriod | null | undefined;
 };
-export type commanders_CommandersQuery$data = {
-  readonly " $fragmentSpreads": FragmentRefs<"commanders_topCommanders">;
+export type page_CommandersQuery$data = {
+  readonly " $fragmentSpreads": FragmentRefs<"page_topCommanders">;
 };
-export type commanders_CommandersQuery = {
-  response: commanders_CommandersQuery$data;
-  variables: commanders_CommandersQuery$variables;
+export type page_CommandersQuery = {
+  response: page_CommandersQuery$data;
+  variables: page_CommandersQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -109,12 +109,12 @@ return {
     "metadata": {
       "throwOnFieldError": true
     },
-    "name": "commanders_CommandersQuery",
+    "name": "page_CommandersQuery",
     "selections": [
       {
         "args": null,
         "kind": "FragmentSpread",
-        "name": "commanders_topCommanders"
+        "name": "page_topCommanders"
       }
     ],
     "type": "Query",
@@ -130,7 +130,7 @@ return {
       (v0/*: any*/)
     ],
     "kind": "Operation",
-    "name": "commanders_CommandersQuery",
+    "name": "page_CommandersQuery",
     "selections": [
       {
         "alias": null,
@@ -308,23 +308,23 @@ return {
           "minTournamentSize"
         ],
         "handle": "connection",
-        "key": "commanders__commanders",
+        "key": "page__commanders",
         "kind": "LinkedHandle",
         "name": "commanders"
       }
     ]
   },
   "params": {
-    "id": "0d987464f681a4c1b986de9fa8534991",
+    "id": "0969740a16e481d99c17be0d6e6adb82",
     "metadata": {},
-    "name": "commanders_CommandersQuery",
+    "name": "page_CommandersQuery",
     "operationKind": "query",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "bd461e2f25a94292a186166c29d52084";
+(node as any).hash = "90267924f11e360eaeca3e8e55335f57";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

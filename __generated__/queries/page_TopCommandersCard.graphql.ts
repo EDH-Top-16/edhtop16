@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<86083563f0b75d78f32cf126a1039cdc>>
+ * @generated SignedSource<<55c6e9a725ed634beab5ec4ac91461d6>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type commanders_TopCommandersCard$data = {
+export type page_TopCommandersCard$data = {
   readonly breakdownUrl: string;
   readonly cards: ReadonlyArray<{
     readonly imageUrls: ReadonlyArray<string>;
@@ -23,11 +23,11 @@ export type commanders_TopCommandersCard$data = {
     readonly metaShare: number;
     readonly topCuts: number;
   };
-  readonly " $fragmentType": "commanders_TopCommandersCard";
+  readonly " $fragmentType": "page_TopCommandersCard";
 };
-export type commanders_TopCommandersCard$key = {
-  readonly " $data"?: commanders_TopCommandersCard$data;
-  readonly " $fragmentSpreads": FragmentRefs<"commanders_TopCommandersCard">;
+export type page_TopCommandersCard$key = {
+  readonly " $data"?: page_TopCommandersCard$data;
+  readonly " $fragmentSpreads": FragmentRefs<"page_TopCommandersCard">;
 };
 
 const node: ReaderFragment = {
@@ -45,7 +45,7 @@ const node: ReaderFragment = {
   "metadata": {
     "throwOnFieldError": true
   },
-  "name": "commanders_TopCommandersCard",
+  "name": "page_TopCommandersCard",
   "selections": [
     {
       "alias": null,
@@ -147,6 +147,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "5cfcaaac70e4024bb7d44c0bb33c5ab9";
+(node as any).hash = "aa0dd418b036106efc74d0a236f792a6";
 
 export default node;

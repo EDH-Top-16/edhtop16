@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<27461b4081dd19a4eded500d02a2024c>>
- * @relayHash f58d870e9e29169826b25ea9336637bc
+ * @generated SignedSource<<23e3f2846382349f88c88ace05fa3fe9>>
+ * @relayHash ae02a986b972aa62d9b5c0a414e553bd
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID f58d870e9e29169826b25ea9336637bc
+// @relayRequestID ae02a986b972aa62d9b5c0a414e553bd
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -25,7 +25,7 @@ export type TopCommandersQuery$variables = {
   timePeriod: TimePeriod;
 };
 export type TopCommandersQuery$data = {
-  readonly " $fragmentSpreads": FragmentRefs<"commanders_topCommanders">;
+  readonly " $fragmentSpreads": FragmentRefs<"page_topCommanders">;
 };
 export type TopCommandersQuery = {
   response: TopCommandersQuery$data;
@@ -136,7 +136,7 @@ return {
           }
         ],
         "kind": "FragmentSpread",
-        "name": "commanders_topCommanders"
+        "name": "page_topCommanders"
       }
     ],
     "type": "Query",
@@ -324,14 +324,14 @@ return {
           "minTournamentSize"
         ],
         "handle": "connection",
-        "key": "commanders__commanders",
+        "key": "page__commanders",
         "kind": "LinkedHandle",
         "name": "commanders"
       }
     ]
   },
   "params": {
-    "id": "f58d870e9e29169826b25ea9336637bc",
+    "id": "ae02a986b972aa62d9b5c0a414e553bd",
     "metadata": {},
     "name": "TopCommandersQuery",
     "operationKind": "query",
@@ -340,6 +340,6 @@ return {
 };
 })();
 
-(node as any).hash = "ce5f422630b9caae16afa5ccd3861155";
+(node as any).hash = "0d6847cc3bda4a4eb8c98853b3774b73";
 
 export default node;

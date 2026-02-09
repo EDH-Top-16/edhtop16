@@ -1,14 +1,22 @@
-import {commanders_CommandersQuery} from '#genfiles/queries/commanders_CommandersQuery.graphql';
-import {commanders_DisplayPreferencesQuery} from '#genfiles/queries/commanders_DisplayPreferencesQuery.graphql.js';
-import {commanders_HomePagePromoQuery} from '#genfiles/queries/commanders_HomePagePromoQuery.graphql.js';
-import {commanders_topCommanders$key} from '#genfiles/queries/commanders_topCommanders.graphql';
-import {commanders_TopCommandersCard$key} from '#genfiles/queries/commanders_TopCommandersCard.graphql';
+import {page_CommandersQuery} from '#genfiles/queries/page_CommandersQuery.graphql';
+import {page_DisplayPreferencesQuery} from '#genfiles/queries/page_DisplayPreferencesQuery.graphql.js';
+import {page_HomePagePromoQuery} from '#genfiles/queries/page_HomePagePromoQuery.graphql.js';
+import {page_topCommanders$key} from '#genfiles/queries/page_topCommanders.graphql';
+import {page_TopCommandersCard$key} from '#genfiles/queries/page_TopCommandersCard.graphql';
 import {TopCommandersQuery} from '#genfiles/queries/TopCommandersQuery.graphql';
 import {ModuleType} from '#genfiles/router/js_resource.js';
 import {Link, useNavigation, useRouteParams} from '#genfiles/router/router';
+import {ColorIdentity} from '#src/assets/icons/colors';
+import {Card} from '#src/components/card';
+import {ColorSelection} from '#src/components/color_selection';
 import {LoadingIcon} from '#src/components/fallback';
+import {Footer} from '#src/components/footer';
+import {LoadMoreButton} from '#src/components/load_more';
+import {Navigation} from '#src/components/navigation';
 import {FirstPartyPromo} from '#src/components/promo.jsx';
+import {Select} from '#src/components/select';
 import {LIST_STYLE_COOKIE_NAME} from '#src/lib/client/display_preferences.js';
+import {formatPercent} from '#src/lib/client/format';
 import RectangleStackIcon from '@heroicons/react/24/solid/RectangleStackIcon';
 import TableCellsIcon from '@heroicons/react/24/solid/TableCellsIcon';
 import cn from 'classnames';
@@ -19,18 +27,11 @@ import {
   EntryPointComponent,
   EntryPointContainer,
   graphql,
+  PreloadedQuery,
   useFragment,
   usePaginationFragment,
   usePreloadedQuery,
 } from 'react-relay/hooks';
-import {ColorIdentity} from './assets/icons/colors';
-import {Card} from './components/card';
-import {ColorSelection} from './components/color_selection';
-import {Footer} from './components/footer';
-import {LoadMoreButton} from './components/load_more';
-import {Navigation} from './components/navigation';
-import {Select} from './components/select';
-import {formatPercent} from './lib/client/format';
 
 function TopCommandersCard({
   display = 'card',
@@ -39,11 +40,11 @@ function TopCommandersCard({
 }: {
   display?: 'table' | 'card';
   secondaryStatistic: 'topCuts' | 'count';
-  commander: commanders_TopCommandersCard$key;
+  commander: page_TopCommandersCard$key;
 }) {
   const commander = useFragment(
     graphql`
-      fragment commanders_TopCommandersCard on Commander @throwOnFieldError {
+      fragment page_TopCommandersCard on Commander @throwOnFieldError {
         name
         colorId
         breakdownUrl
@@ -134,14 +135,15 @@ function TopCommandersCard({
   );
 }
 
-/** @route / */
-export const CommandersPageShell: EntryPointComponent<
-  {promoQueryRef: commanders_HomePagePromoQuery},
-  {commandersRef: EntryPoint<ModuleType<'m#index'>>}
-> = ({queries, entryPoints}) => {
+export type Queries = {
+  promoQueryRef: page_HomePagePromoQuery;
+  commandersQueryRef: page_CommandersQuery;
+};
+
+export default function CommandersPageShell({queries}: PastoriaPageProps<'/'>) {
   const {homePagePromo} = usePreloadedQuery(
     graphql`
-      query commanders_HomePagePromoQuery @preloadable {
+      query page_HomePagePromoQuery @preloadable {
         homePagePromo {
           ...promo_EmbededPromo
         }
@@ -259,28 +261,24 @@ export const CommandersPageShell: EntryPointComponent<
         {homePagePromo && <FirstPartyPromo promo={homePagePromo} />}
 
         <Suspense fallback={<LoadingIcon />}>
-          <EntryPointContainer
-            entryPointReference={entryPoints.commandersRef}
-            props={{}}
-          />
+          <CommandersPage commandersQueryRef={queries.commandersQueryRef} />
         </Suspense>
       </div>
     </>
   );
-};
+}
 
 function useCommandersDisplay() {
-  const {displayPreferences} =
-    useClientQuery<commanders_DisplayPreferencesQuery>(
-      graphql`
-        query commanders_DisplayPreferencesQuery {
-          displayPreferences {
-            listStyle
-          }
+  const {displayPreferences} = useClientQuery<page_DisplayPreferencesQuery>(
+    graphql`
+      query page_DisplayPreferencesQuery {
+        displayPreferences {
+          listStyle
         }
-      `,
-      {},
-    );
+      }
+    `,
+    {},
+  );
 
   const listStyle = displayPreferences?.listStyle;
 
@@ -296,34 +294,34 @@ function useCommandersDisplay() {
   }, [listStyle, toggleDisplay]);
 }
 
-/** @resource m#index */
-export const CommandersPage: EntryPointComponent<
-  {commandersQueryRef: commanders_CommandersQuery},
-  {}
-> = ({queries}) => {
+function CommandersPage({
+  commandersQueryRef,
+}: {
+  commandersQueryRef: PreloadedQuery<page_CommandersQuery>;
+}) {
   const query = usePreloadedQuery(
     graphql`
-      query commanders_CommandersQuery(
+      query page_CommandersQuery(
         $timePeriod: TimePeriod = SIX_MONTHS
         $sortBy: CommandersSortBy = POPULARITY
         $minEntries: Int = 20
         $minSize: Int = 50
         $colorId: String
       ) @preloadable @throwOnFieldError {
-        ...commanders_topCommanders
+        ...page_topCommanders
       }
     `,
-    queries.commandersQueryRef,
+    commandersQueryRef,
   );
 
   const [display] = useCommandersDisplay();
 
   const {data, loadNext, isLoadingNext, hasNext} = usePaginationFragment<
     TopCommandersQuery,
-    commanders_topCommanders$key
+    page_topCommanders$key
   >(
     graphql`
-      fragment commanders_topCommanders on Query
+      fragment page_topCommanders on Query
       @throwOnFieldError
       @argumentDefinitions(
         cursor: {type: "String"}
@@ -338,11 +336,11 @@ export const CommandersPage: EntryPointComponent<
           colorId: $colorId
           minEntries: $minEntries
           minTournamentSize: $minSize
-        ) @connection(key: "commanders__commanders") {
+        ) @connection(key: "page__commanders") {
           edges {
             node {
               id
-              ...commanders_TopCommandersCard
+              ...page_TopCommandersCard
             }
           }
         }
@@ -378,8 +376,8 @@ export const CommandersPage: EntryPointComponent<
             display={display}
             commander={node}
             secondaryStatistic={
-              queries.commandersQueryRef.variables.sortBy === 'CONVERSION' ||
-              queries.commandersQueryRef.variables.sortBy === 'TOP_CUTS'
+              commandersQueryRef.variables.sortBy === 'CONVERSION' ||
+              commandersQueryRef.variables.sortBy === 'TOP_CUTS'
                 ? 'topCuts'
                 : 'count'
             }
@@ -396,4 +394,4 @@ export const CommandersPage: EntryPointComponent<
       <Footer />
     </>
   );
-};
+}

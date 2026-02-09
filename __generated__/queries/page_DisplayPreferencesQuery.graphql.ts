@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<1f01822f1db03c933757e065915e42d0>>
+ * @generated SignedSource<<33ec53765e999535cd406713db8486e6>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -21,15 +21,15 @@ import { displayPreferences as queryDisplayPreferencesResolverType } from "../..
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryDisplayPreferencesResolverType satisfies () => LiveState<DisplayPreferences | null | undefined>);
 import { DisplayPreferences } from "../../src/lib/client/display_preferences";
-export type commanders_DisplayPreferencesQuery$variables = Record<PropertyKey, never>;
-export type commanders_DisplayPreferencesQuery$data = {
+export type page_DisplayPreferencesQuery$variables = Record<PropertyKey, never>;
+export type page_DisplayPreferencesQuery$data = {
   readonly displayPreferences: {
     readonly listStyle: string | null | undefined;
   } | null | undefined;
 };
-export type commanders_DisplayPreferencesQuery = {
-  response: commanders_DisplayPreferencesQuery$data;
-  variables: commanders_DisplayPreferencesQuery$variables;
+export type page_DisplayPreferencesQuery = {
+  response: page_DisplayPreferencesQuery$data;
+  variables: page_DisplayPreferencesQuery$variables;
 };
 
 import {displayPreferences as queryDisplayPreferencesResolver} from '../../src/lib/client/display_preferences';
@@ -44,7 +44,7 @@ const node: ConcreteRequest = {
     "metadata": {
       "hasClientEdges": true
     },
-    "name": "commanders_DisplayPreferencesQuery",
+    "name": "page_DisplayPreferencesQuery",
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
@@ -97,7 +97,7 @@ const node: ConcreteRequest = {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "commanders_DisplayPreferencesQuery",
+    "name": "page_DisplayPreferencesQuery",
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
@@ -145,15 +145,15 @@ const node: ConcreteRequest = {
     ]
   },
   "params": {
-    "cacheID": "eb2d498232a8a5119b931f4da98eeeb5",
+    "cacheID": "fa6c1c76fda4805959fae2fcbd915dd5",
     "id": null,
     "metadata": {},
-    "name": "commanders_DisplayPreferencesQuery",
+    "name": "page_DisplayPreferencesQuery",
     "operationKind": "query",
     "text": null
   }
 };
 
-(node as any).hash = "b67b64afaa8f57c2319eab538ac6d7d0";
+(node as any).hash = "ec36c90d9e3522e55a1102ff8b8a0891";
 
 export default node;

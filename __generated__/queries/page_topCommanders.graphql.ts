@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<a0b88e94689ef78501966aba32fe467b>>
+ * @generated SignedSource<<719c9440cc0433af2f089f08c251fab7>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,20 +10,20 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type commanders_topCommanders$data = {
+export type page_topCommanders$data = {
   readonly commanders: {
     readonly edges: ReadonlyArray<{
       readonly node: {
         readonly id: string;
-        readonly " $fragmentSpreads": FragmentRefs<"commanders_TopCommandersCard">;
+        readonly " $fragmentSpreads": FragmentRefs<"page_TopCommandersCard">;
       };
     }>;
   };
-  readonly " $fragmentType": "commanders_topCommanders";
+  readonly " $fragmentType": "page_topCommanders";
 };
-export type commanders_topCommanders$key = {
-  readonly " $data"?: commanders_topCommanders$data;
-  readonly " $fragmentSpreads": FragmentRefs<"commanders_topCommanders">;
+export type page_topCommanders$key = {
+  readonly " $data"?: page_topCommanders$data;
+  readonly " $fragmentSpreads": FragmentRefs<"page_topCommanders">;
 };
 
 import TopCommandersQuery_graphql from './TopCommandersQuery.graphql';
@@ -89,7 +89,7 @@ return {
       "operation": TopCommandersQuery_graphql
     }
   },
-  "name": "commanders_topCommanders",
+  "name": "page_topCommanders",
   "selections": [
     {
       "alias": "commanders",
@@ -122,7 +122,7 @@ return {
       ],
       "concreteType": "CommanderConnection",
       "kind": "LinkedField",
-      "name": "__commanders__commanders_connection",
+      "name": "__page__commanders_connection",
       "plural": false,
       "selections": [
         {
@@ -151,7 +151,7 @@ return {
                 {
                   "args": null,
                   "kind": "FragmentSpread",
-                  "name": "commanders_TopCommandersCard"
+                  "name": "page_TopCommandersCard"
                 },
                 {
                   "alias": null,
@@ -207,6 +207,6 @@ return {
 };
 })();
 
-(node as any).hash = "ce5f422630b9caae16afa5ccd3861155";
+(node as any).hash = "0d6847cc3bda4a4eb8c98853b3774b73";
 
 export default node;
