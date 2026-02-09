@@ -6,7 +6,7 @@ import {
 import commanderPage_CommanderShellQueryParameters from '#genfiles/queries/commanderPage_CommanderShellQuery$parameters';
 import commanderPage_CommanderStatsQueryParameters from '#genfiles/queries/commanderPage_CommanderStatsQuery$parameters';
 import {JSResource, ModuleType} from '#genfiles/router/js_resource';
-import {getSchemaForRoute} from '#genfiles/router/router';
+import {EntryPointParams} from '#genfiles/router/router';
 import {EntryPoint} from 'react-relay/hooks';
 
 /**
@@ -21,20 +21,19 @@ import {EntryPoint} from 'react-relay/hooks';
  */
 export const entrypoint: EntryPoint<
   ModuleType<'m#commander_page_shell'>,
-  {params: Record<string, unknown>}
+  EntryPointParams<'/commander/:commander'>
+  // {params: Record<string, unknown>}
 > = {
   root: JSResource.fromModuleId('m#commander_page_shell'),
-  getPreloadProps({params}) {
-    const {
-      commander,
-      tab = 'entries',
-      card,
-      sortBy = 'TOP',
-      timePeriod = 'ONE_YEAR',
-      maxStanding,
-      minEventSize = 50,
-    } = getSchemaForRoute('/commander/:commander').parse(params);
-
+  getPreloadProps({
+    commander,
+    tab = 'entries',
+    card,
+    sortBy = 'TOP',
+    timePeriod = 'ONE_YEAR',
+    maxStanding,
+    minEventSize = 50,
+  }) {
     return {
       queries: {
         commanderRef: {
