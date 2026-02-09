@@ -1,11 +1,23 @@
-import {searchbar_CommanderNamesQuery} from '#genfiles/queries/searchbar_CommanderNamesQuery.graphql';
+import {
+  searchbar_CommanderNamesQuery,
+  SearchResultType,
+} from '#genfiles/queries/searchbar_CommanderNamesQuery.graphql';
 import {useNavigation} from '#genfiles/router/router';
 import cn from 'classnames';
 import {format, parseISO} from 'date-fns';
-import {useCallback, useEffect, useId, useMemo, useRef, useState} from 'react';
+import {
+  Ref,
+  Suspense,
+  useCallback,
+  useEffect,
+  useId,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {graphql, useLazyLoadQuery} from 'react-relay/hooks';
 import {SearchItem, useSearch} from '../lib/client/search';
-import {ServerSafeSuspense} from '../lib/client/suspense';
 
 const MAX_DISPLAYED_RESULTS = 20;
 
@@ -71,24 +83,22 @@ export function Searchbar({
       ref={containerRef}
       className="relative z-10 w-full grow text-lg text-black md:max-w-[400px]"
     >
-      <ServerSafeSuspense fallback={null}>
-        <SearchInput
-          inputRef={inputRef}
-          searchTerm={searchTerm}
-          isActive={isActive}
-          searchType={searchType}
-          selectedIndex={selectedIndex}
-          onSearchTermChange={(term) => {
-            setSearchTerm(term);
-            setIsOpen(true);
-          }}
-          onFocus={() => setIsOpen(true)}
-          onArrowDown={handleArrowDown}
-          onArrowUp={handleArrowUp}
-          onEscape={handleEscape}
-          onNavigate={handleClose}
-        />
-      </ServerSafeSuspense>
+      <SearchInput
+        inputRef={inputRef}
+        searchTerm={searchTerm}
+        isActive={isActive}
+        searchType={searchType}
+        selectedIndex={selectedIndex}
+        onSearchTermChange={(term) => {
+          setSearchTerm(term);
+          setIsOpen(true);
+        }}
+        onFocus={() => setIsOpen(true)}
+        onArrowDown={handleArrowDown}
+        onArrowUp={handleArrowUp}
+        onEscape={handleEscape}
+        onNavigate={handleClose}
+      />
     </div>
   );
 }
@@ -128,29 +138,7 @@ function SearchInput({
     }
   }, [searchType]);
 
-  const {searchResults} = useLazyLoadQuery<searchbar_CommanderNamesQuery>(
-    graphql`
-      query searchbar_CommanderNamesQuery($searchTypes: [SearchResultType!]!)
-      @throwOnFieldError {
-        searchResults(types: $searchTypes) {
-          name
-          url
-          tournamentDate
-          size
-          topdeckUrl
-          winnerName
-          entries
-          topCuts
-          metaShare
-        }
-      }
-    `,
-    {searchTypes},
-  );
-
   const listboxId = useId();
-  const suggestions = useSearch(searchResults, searchTerm);
-  const displayedSuggestions = suggestions.slice(0, MAX_DISPLAYED_RESULTS);
 
   const navigateTo = useCallback(
     (url: string) => {
@@ -160,12 +148,16 @@ function SearchInput({
     [push, onNavigate],
   );
 
+  const suggestionsRef = useRef<SuggestionsRef | null>(null);
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault();
-          onArrowDown(suggestions.length);
+          if (suggestionsRef.current) {
+            onArrowDown(suggestionsRef.current.suggestionsLength);
+          }
           break;
         case 'ArrowUp':
           e.preventDefault();
@@ -173,8 +165,8 @@ function SearchInput({
           break;
         case 'Enter':
           e.preventDefault();
-          if (selectedIndex >= 0 && displayedSuggestions[selectedIndex]) {
-            navigateTo(displayedSuggestions[selectedIndex].url);
+          if (suggestionsRef.current?.selectedItem) {
+            navigateTo(suggestionsRef.current.selectedItem.url);
           }
           break;
         case 'Escape':
@@ -183,15 +175,7 @@ function SearchInput({
           break;
       }
     },
-    [
-      onArrowDown,
-      onArrowUp,
-      onEscape,
-      selectedIndex,
-      displayedSuggestions,
-      navigateTo,
-      suggestions.length,
-    ],
+    [onArrowDown, onArrowUp, onEscape, navigateTo],
   );
 
   const activeDescendantId =
@@ -226,29 +210,74 @@ function SearchInput({
           aria-label="Search results"
           className="absolute max-h-[90vh] min-h-80 w-full overflow-y-auto rounded-b-xl bg-white"
         >
-          <Suggestions
-            listboxId={listboxId}
-            suggestions={displayedSuggestions}
-            selectedIndex={selectedIndex}
-            onNavigate={navigateTo}
-          />
+          <Suspense>
+            <Suggestions
+              ref={suggestionsRef}
+              listboxId={listboxId}
+              selectedIndex={selectedIndex}
+              onNavigate={navigateTo}
+              searchTypes={searchTypes}
+              searchTerm={searchTerm}
+            />
+          </Suspense>
         </ul>
       )}
     </>
   );
 }
 
+interface SuggestionsRef {
+  selectedItem?: SearchItem;
+  suggestionsLength: number;
+}
+
 function Suggestions({
   listboxId,
-  suggestions,
   selectedIndex,
   onNavigate,
+  searchTypes,
+  searchTerm,
+  ref,
 }: {
   listboxId: string;
-  suggestions: SearchItem[];
   selectedIndex: number;
   onNavigate: (url: string) => void;
+  searchTypes: readonly SearchResultType[];
+  searchTerm: string;
+  ref: Ref<SuggestionsRef>;
 }) {
+  const {searchResults} = useLazyLoadQuery<searchbar_CommanderNamesQuery>(
+    graphql`
+      query searchbar_CommanderNamesQuery($searchTypes: [SearchResultType!]!)
+      @throwOnFieldError {
+        searchResults(types: $searchTypes) {
+          name
+          url
+          tournamentDate
+          size
+          topdeckUrl
+          winnerName
+          entries
+          topCuts
+          metaShare
+        }
+      }
+    `,
+    {searchTypes},
+  );
+
+  const allSuggestions = useSearch(searchResults, searchTerm);
+  const suggestions = allSuggestions.slice(0, MAX_DISPLAYED_RESULTS);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      selectedItem: suggestions[selectedIndex],
+      suggestionsLength: suggestions.length,
+    }),
+    [selectedIndex, suggestions],
+  );
+
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
 
   // Scroll selected item into view
