@@ -75,6 +75,19 @@ async function main() {
   const entryIds = entries.map((e) => e.id);
   info`Found ${entryIds.length} entries for this tournament`();
 
+  // Count match seats that will be deleted
+  let matchSeatCount = 0;
+  if (entryIds.length > 0) {
+    const matchSeats = await db
+      .selectFrom('MatchSeat')
+      .select((eb) => eb.fn.countAll<number>().as('count'))
+      .where('entryId', 'in', entryIds)
+      .executeTakeFirst();
+    matchSeatCount = matchSeats?.count ?? 0;
+  }
+
+  info`Found ${matchSeatCount} match seats to delete`();
+
   // Count decklist items that will be deleted
   let decklistItemCount = 0;
   if (entryIds.length > 0) {
@@ -90,13 +103,20 @@ async function main() {
 
   if (dryRun) {
     info`Dry run complete. Would delete:`();
+    console.log(pc.cyan(`  - ${matchSeatCount} match seats`));
     console.log(pc.cyan(`  - ${decklistItemCount} decklist items`));
     console.log(pc.cyan(`  - ${entryIds.length} entries`));
     console.log(pc.cyan(`  - 1 tournament`));
     return;
   }
 
-  // Delete in order: DecklistItems -> Entries -> Tournament
+  // Delete in order: MatchSeats -> DecklistItems -> Entries -> Tournament
+  info`Deleting match seats...`();
+  if (entryIds.length > 0) {
+    await db.deleteFrom('MatchSeat').where('entryId', 'in', entryIds).execute();
+  }
+  success`Deleted ${matchSeatCount} match seats`();
+
   info`Deleting decklist items...`();
   if (entryIds.length > 0) {
     await db
