@@ -39,7 +39,7 @@ function TopCommandersCard({
   ...props
 }: {
   display?: 'table' | 'card';
-  secondaryStatistic: 'topCuts' | 'count';
+  secondaryStatistic: 'topCuts' | 'count' | 'winRate';
   commander: page_TopCommandersCard$key;
 }) {
   const commander = useFragment(
@@ -53,6 +53,7 @@ function TopCommandersCard({
           topCuts
           count
           metaShare
+          winRate
         }
 
         cards {
@@ -71,6 +72,11 @@ function TopCommandersCard({
         `Meta Share: ${formatPercent(commander.stats.metaShare)}`,
         `Entries: ${commander.stats.count}`,
       );
+    } else if (secondaryStatistic === 'winRate') {
+      stats.push(
+        `Win Rate: ${formatPercent(commander.stats.winRate)}`,
+        `Entries: ${commander.stats.count}`,
+      );
     } else if (secondaryStatistic === 'topCuts') {
       stats.push(
         `Conversion Rate: ${formatPercent(commander.stats.conversionRate)}`,
@@ -83,7 +89,7 @@ function TopCommandersCard({
 
   if (display === 'table') {
     return (
-      <div className="grid w-full grid-cols-[130px_1fr] items-center gap-x-2 overflow-x-hidden rounded-sm bg-[#312d5a]/50 p-4 text-white shadow-md lg:grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px]">
+      <div className="grid w-full grid-cols-[130px_1fr] items-center gap-x-2 overflow-x-hidden rounded-sm bg-[#312d5a]/50 p-4 text-white shadow-md lg:grid-cols-[130px_minmax(300px,1fr)_100px_100px_100px_100px_100px]">
         <div>
           <ColorIdentity identity={commander.colorId} />
         </div>
@@ -107,6 +113,8 @@ function TopCommandersCard({
         <div className="text-sm">
           {formatPercent(commander.stats.conversionRate)}
         </div>
+        <div className="text-sm opacity-75 lg:hidden">Win Rate:</div>
+        <div className="text-sm">{formatPercent(commander.stats.winRate)}</div>
       </div>
     );
   }
@@ -208,6 +216,7 @@ export default function CommandersPageShell({queries}: PastoriaPageProps<'/'>) {
               <option value="CONVERSION">Conversion Rate</option>
               <option value="POPULARITY">Popularity</option>
               <option value="TOP_CUTS">Top Cuts</option>
+              <option value="WINRATE">Win Rate</option>
             </Select>
 
             <Select
@@ -360,13 +369,14 @@ function CommandersPage({
         )}
       >
         {display === 'table' && (
-          <div className="sticky top-[68px] hidden w-full grid-cols-[130px_minmax(350px,1fr)_100px_100px_100px_100px] items-center gap-x-2 overflow-x-hidden bg-[#514f86] p-4 text-sm text-white lg:grid">
+          <div className="sticky top-[68px] hidden w-full grid-cols-[130px_minmax(300px,1fr)_100px_100px_100px_100px_100px] items-center gap-x-2 overflow-x-hidden bg-[#514f86] p-4 text-sm text-white lg:grid">
             <div>Color</div>
             <div>Commander</div>
             <div>Entries</div>
             <div>Meta %</div>
             <div>Top Cuts</div>
             <div>Cnvr. %</div>
+            <div>Win %</div>
           </div>
         )}
 
@@ -376,10 +386,12 @@ function CommandersPage({
             display={display}
             commander={node}
             secondaryStatistic={
-              commandersQueryRef.variables.sortBy === 'CONVERSION' ||
-              commandersQueryRef.variables.sortBy === 'TOP_CUTS'
-                ? 'topCuts'
-                : 'count'
+              commandersQueryRef.variables.sortBy === 'WINRATE'
+                ? 'winRate'
+                : commandersQueryRef.variables.sortBy === 'CONVERSION' ||
+                    commandersQueryRef.variables.sortBy === 'TOP_CUTS'
+                  ? 'topCuts'
+                  : 'count'
             }
           />
         ))}

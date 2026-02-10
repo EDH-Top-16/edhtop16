@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<23e3f2846382349f88c88ace05fa3fe9>>
- * @relayHash ae02a986b972aa62d9b5c0a414e553bd
+ * @generated SignedSource<<e69fb6a6ffc90d60de00f56f3737e72f>>
+ * @relayHash 86fac9d8c2353944c65306a21cd17574
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,11 +9,11 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID ae02a986b972aa62d9b5c0a414e553bd
+// @relayRequestID 86fac9d8c2353944c65306a21cd17574
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type CommandersSortBy = "CONVERSION" | "POPULARITY" | "TOP_CUTS" | "%future added value";
+export type CommandersSortBy = "CONVERSION" | "POPULARITY" | "TOP_CUTS" | "WINRATE" | "%future added value";
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type TopCommandersQuery$variables = {
   colorId?: string | null | undefined;
@@ -242,6 +242,13 @@ return {
                         "kind": "ScalarField",
                         "name": "metaShare",
                         "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "winRate",
+                        "storageKey": null
                       }
                     ],
                     "storageKey": null
@@ -331,7 +338,7 @@ return {
     ]
   },
   "params": {
-    "id": "ae02a986b972aa62d9b5c0a414e553bd",
+    "id": "86fac9d8c2353944c65306a21cd17574",
     "metadata": {},
     "name": "TopCommandersQuery",
     "operationKind": "query",

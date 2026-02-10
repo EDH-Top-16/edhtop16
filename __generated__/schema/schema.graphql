@@ -37,6 +37,7 @@ enum CommandersSortBy {
   CONVERSION
   POPULARITY
   TOP_CUTS
+  WINRATE
 }
 
 enum EntriesSortBy {
@@ -166,6 +167,7 @@ type CommanderCalculatedStats {
   count: Int @semanticNonNull
   metaShare: Float @semanticNonNull
   topCuts: Int @semanticNonNull
+  winRate: Float @semanticNonNull
 }
 
 type CommanderCardStats {

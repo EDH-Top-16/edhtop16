@@ -197,6 +197,13 @@ export function getSchema(): GraphQLSchema {
                     resolve(source, args, context, info) {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));
                     }
+                },
+                winRate: {
+                    name: "winRate",
+                    type: GraphQLFloat,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
                 }
             };
         }
@@ -962,6 +969,9 @@ export function getSchema(): GraphQLSchema {
             },
             TOP_CUTS: {
                 value: "TOP_CUTS"
+            },
+            WINRATE: {
+                value: "WINRATE"
             }
         }
     });
