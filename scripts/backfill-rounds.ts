@@ -114,9 +114,10 @@ async function main({tid: targetTids}: {tid?: string[]}) {
   info`Found ${tournaments.length} tournaments to backfill`();
 
   let totalSeats = 0;
-  for (let ti = 0; ti < tournaments.length; ti++) {
-    const t = tournaments[ti];
-    if (ti > 0) await new Promise((r) => setTimeout(r, 200));
+  let isFirst = true;
+  for (const t of tournaments) {
+    if (!isFirst) await new Promise((r) => setTimeout(r, 200));
+    isFirst = false;
 
     let rounds;
     try {
@@ -143,8 +144,8 @@ async function main({tid: targetTids}: {tid?: string[]}) {
         const isDraw =
           table.winner_id === 'Draw' || table.winner === 'Draw' ? 1 : 0;
 
-        for (let i = 0; i < table.players.length; i++) {
-          const player = table.players[i];
+        for (const [i, player] of table.players.entries()) {
+          if (player.id == null) continue;
           const entryId = entryIdByTidAndProfile.get(`${t.TID}:${player.id}`);
           if (entryId == null) continue;
 
