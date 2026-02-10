@@ -543,6 +543,10 @@ export function getSchema(): GraphQLSchema {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));
                     }
                 },
+                drawRate: {
+                    name: "drawRate",
+                    type: GraphQLFloat
+                },
                 entries: {
                     name: "entries",
                     type: new GraphQLList(new GraphQLNonNull(EntryType)),
@@ -575,6 +579,22 @@ export function getSchema(): GraphQLSchema {
                 promo: {
                     name: "promo",
                     type: FirstPartyPromoType
+                },
+                seatWinRate1: {
+                    name: "seatWinRate1",
+                    type: GraphQLFloat
+                },
+                seatWinRate2: {
+                    name: "seatWinRate2",
+                    type: GraphQLFloat
+                },
+                seatWinRate3: {
+                    name: "seatWinRate3",
+                    type: GraphQLFloat
+                },
+                seatWinRate4: {
+                    name: "seatWinRate4",
+                    type: GraphQLFloat
                 },
                 size: {
                     name: "size",

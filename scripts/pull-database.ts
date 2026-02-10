@@ -10,6 +10,7 @@ import {
   type InsertObject,
   Kysely,
   PostgresDialect,
+  sql,
   SqliteDialect,
 } from 'kysely';
 import {createWriteStream} from 'node:fs';
@@ -650,6 +651,41 @@ async function addCardPlayRates() {
   success`Finished calculating play rates!`();
 }
 
+async function addSeatWinRates() {
+  info`Calculating seat win rates and draw rates for tournaments...`();
+
+  await sql`
+    UPDATE "Tournament"
+    SET
+      "seatWinRate1" = sub."seatWinRate1",
+      "seatWinRate2" = sub."seatWinRate2",
+      "seatWinRate3" = sub."seatWinRate3",
+      "seatWinRate4" = sub."seatWinRate4",
+      "drawRate" = sub."drawRate"
+    FROM (
+      SELECT
+        e."tournamentId",
+        SUM(CASE WHEN ms."seatNumber" = 0 AND ms."isWinner" = 1 THEN 1.0 ELSE 0.0 END)
+          / NULLIF(SUM(CASE WHEN ms."seatNumber" = 0 THEN 1 ELSE 0 END), 0) AS "seatWinRate1",
+        SUM(CASE WHEN ms."seatNumber" = 1 AND ms."isWinner" = 1 THEN 1.0 ELSE 0.0 END)
+          / NULLIF(SUM(CASE WHEN ms."seatNumber" = 1 THEN 1 ELSE 0 END), 0) AS "seatWinRate2",
+        SUM(CASE WHEN ms."seatNumber" = 2 AND ms."isWinner" = 1 THEN 1.0 ELSE 0.0 END)
+          / NULLIF(SUM(CASE WHEN ms."seatNumber" = 2 THEN 1 ELSE 0 END), 0) AS "seatWinRate3",
+        SUM(CASE WHEN ms."seatNumber" = 3 AND ms."isWinner" = 1 THEN 1.0 ELSE 0.0 END)
+          / NULLIF(SUM(CASE WHEN ms."seatNumber" = 3 THEN 1 ELSE 0 END), 0) AS "seatWinRate4",
+        SUM(CASE WHEN ms."seatNumber" = 0 AND ms."isDraw" = 1 THEN 1.0 ELSE 0.0 END)
+          / NULLIF(SUM(CASE WHEN ms."seatNumber" = 0 THEN 1 ELSE 0 END), 0) AS "drawRate"
+      FROM "MatchSeat" ms
+      JOIN "Entry" e ON e."id" = ms."entryId"
+      WHERE ms."isBye" = 0
+      GROUP BY e."tournamentId"
+    ) sub
+    WHERE "Tournament"."id" = sub."tournamentId"
+  `.execute(db);
+
+  success`Finished calculating seat win rates!`();
+}
+
 async function updateProfilesFromEDHTop16Platform() {
   if (!process.env.PROFILE_DATABASE_URL) {
     info`Skipping profile sync: PROFILE_DATABASE_URL not set`();
@@ -749,6 +785,7 @@ async function main({tid: importedTids}: {tid?: string[]}) {
   await createRounds(tournaments, tournamentIdByTid, entryIdByTidAndProfile);
   await createDecklists(tournaments, cardIdByOracleId, entryIdByTidAndProfile);
   await addCardPlayRates();
+  await addSeatWinRates();
   await updateProfilesFromEDHTop16Platform();
 }
 
