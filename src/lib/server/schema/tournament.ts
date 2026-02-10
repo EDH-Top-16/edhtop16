@@ -93,6 +93,17 @@ export class Tournament implements GraphQLNode {
   /** @gqlField */
   tournamentDate: string;
 
+  /** @gqlField */
+  seatWinRate1: Float | null;
+  /** @gqlField */
+  seatWinRate2: Float | null;
+  /** @gqlField */
+  seatWinRate3: Float | null;
+  /** @gqlField */
+  seatWinRate4: Float | null;
+  /** @gqlField */
+  drawRate: Float | null;
+
   constructor(private readonly row: Selectable<DB['Tournament']>) {
     this.id = row.id;
     this.TID = row.TID;
@@ -101,6 +112,11 @@ export class Tournament implements GraphQLNode {
     this.swissRounds = row.swissRounds;
     this.topCut = row.topCut;
     this.tournamentDate = row.tournamentDate;
+    this.seatWinRate1 = row.seatWinRate1 ?? null;
+    this.seatWinRate2 = row.seatWinRate2 ?? null;
+    this.seatWinRate3 = row.seatWinRate3 ?? null;
+    this.seatWinRate4 = row.seatWinRate4 ?? null;
+    this.drawRate = row.drawRate ?? null;
   }
 
   /** @gqlField */

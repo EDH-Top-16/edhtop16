@@ -280,10 +280,15 @@ type Tournament implements Node {
   TID: String @semanticNonNull
   bracketUrl: String @semanticNonNull
   breakdown: [TournamentBreakdownGroup!] @semanticNonNull
+  drawRate: Float
   entries(commander: String, maxStanding: Int): [Entry!] @semanticNonNull
   id: ID!
   name: String @semanticNonNull
   promo: FirstPartyPromo
+  seatWinRate1: Float
+  seatWinRate2: Float
+  seatWinRate3: Float
+  seatWinRate4: Float
   size: Int @semanticNonNull
   swissRounds: Int @semanticNonNull
   topCut: Int @semanticNonNull
