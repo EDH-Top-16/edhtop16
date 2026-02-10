@@ -199,6 +199,11 @@ function TournamentBanner(props: {
         size
         tournamentDate
         bracketUrl
+        seatWinRate1
+        seatWinRate2
+        seatWinRate3
+        seatWinRate4
+        drawRate
 
         winner: entries(maxStanding: 1) {
           commander {
@@ -264,6 +269,39 @@ function TournamentBanner(props: {
           <span>{format(tournament.tournamentDate, 'MMMM do yyyy')}</span>
           <span>{tournament.size} Players</span>
         </div>
+
+        {tournament.seatWinRate1 != null &&
+          tournament.seatWinRate2 != null &&
+          tournament.seatWinRate3 != null &&
+          tournament.seatWinRate4 != null && (
+            <div className="absolute bottom-0 z-10 mx-auto flex w-full items-center justify-around border-t border-white/60 bg-black/50 px-3 text-center text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border">
+              <span className="text-white/60">Win Rate</span>
+              <div className="mr-1 ml-2 border-l border-white/60 py-2">
+                &nbsp;
+              </div>{' '}
+              Seat 1: {formatPercent(tournament.seatWinRate1)}
+              <div className="mr-1 ml-2 border-l border-white/60 py-2">
+                &nbsp;
+              </div>{' '}
+              Seat 2: {formatPercent(tournament.seatWinRate2)}
+              <div className="mr-1 ml-2 border-l border-white/60 py-2">
+                &nbsp;
+              </div>{' '}
+              Seat 3: {formatPercent(tournament.seatWinRate3)}
+              <div className="mr-1 ml-2 border-l border-white/60 py-2">
+                &nbsp;
+              </div>{' '}
+              Seat 4: {formatPercent(tournament.seatWinRate4)}
+              {tournament.drawRate != null && (
+                <>
+                  <div className="mr-1 ml-2 border-l border-white/60 py-2">
+                    &nbsp;
+                  </div>{' '}
+                  Draws: {formatPercent(tournament.drawRate)}
+                </>
+              )}
+            </div>
+          )}
       </div>
     </div>
   );

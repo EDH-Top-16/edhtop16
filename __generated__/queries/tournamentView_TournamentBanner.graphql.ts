@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<3d0e5de02d9b6ce1ad4d9a497aa71208>>
+ * @generated SignedSource<<bafd1f7794d6888a5bc8908d2380aea3>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -12,7 +12,12 @@ import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type tournamentView_TournamentBanner$data = {
   readonly bracketUrl: string;
+  readonly drawRate: number | null | undefined;
   readonly name: string;
+  readonly seatWinRate1: number | null | undefined;
+  readonly seatWinRate2: number | null | undefined;
+  readonly seatWinRate3: number | null | undefined;
+  readonly seatWinRate4: number | null | undefined;
   readonly size: number;
   readonly tournamentDate: string;
   readonly winner: ReadonlyArray<{
@@ -66,6 +71,41 @@ const node: ReaderFragment = {
       "storageKey": null
     },
     {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "seatWinRate1",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "seatWinRate2",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "seatWinRate3",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "seatWinRate4",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "drawRate",
+      "storageKey": null
+    },
+    {
       "alias": "winner",
       "args": [
         {
@@ -116,6 +156,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "8e5f4096222f64b36a35e03b61a25d60";
+(node as any).hash = "4feb26b3f52d89bd689d039b803b0fd5";
 
 export default node;

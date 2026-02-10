@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<37a80e465f3416395738326aed3ebc33>>
- * @relayHash c54e42025edf199e2fa2810fc0a8b7c3
+ * @generated SignedSource<<2acc7b9c8f66c5f33bd70dffc58b9239>>
+ * @relayHash 58d125c0f4fa1ceb694250131715e423
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID c54e42025edf199e2fa2810fc0a8b7c3
+// @relayRequestID 58d125c0f4fa1ceb694250131715e423
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -154,6 +154,41 @@ return {
             "storageKey": null
           },
           {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "seatWinRate1",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "seatWinRate2",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "seatWinRate3",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "seatWinRate4",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "drawRate",
+            "storageKey": null
+          },
+          {
             "alias": "winner",
             "args": [
               {
@@ -262,7 +297,7 @@ return {
     ]
   },
   "params": {
-    "id": "c54e42025edf199e2fa2810fc0a8b7c3",
+    "id": "58d125c0f4fa1ceb694250131715e423",
     "metadata": {},
     "name": "tournamentView_TournamentPageShellQuery",
     "operationKind": "query",
