@@ -43,6 +43,17 @@ export interface Entry {
   winsSwiss: number;
 }
 
+export interface MatchSeat {
+  entryId: number;
+  id: Generated<number | null>;
+  isBye: Generated<number>;
+  isDraw: Generated<number>;
+  isWinner: Generated<number>;
+  round: string;
+  seatNumber: number;
+  tableNumber: number | null;
+}
+
 export interface Player {
   coachingBio: string | null;
   coachingBookingUrl: string | null;
@@ -70,6 +81,7 @@ export interface DB {
   Commander: Commander;
   DecklistItem: DecklistItem;
   Entry: Entry;
+  MatchSeat: MatchSeat;
   Player: Player;
   Tournament: Tournament;
 }
