@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<af51f78c9586e3d6bfc8b8aae77b849f>>
- * @relayHash ba9512b6cedba05b75f702515b9cde45
+ * @generated SignedSource<<3391fc55355414f195fd4de1a3990429>>
+ * @relayHash 091031f1b200cc8377ba7ab78a5e4b69
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID ba9512b6cedba05b75f702515b9cde45
+// @relayRequestID 091031f1b200cc8377ba7ab78a5e4b69
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -23,7 +23,7 @@ export type AllTournamentsQuery$variables = {
   timePeriod?: TimePeriod | null | undefined;
 };
 export type AllTournamentsQuery$data = {
-  readonly " $fragmentSpreads": FragmentRefs<"tournaments_Tournaments">;
+  readonly " $fragmentSpreads": FragmentRefs<"page_Tournaments">;
 };
 export type AllTournamentsQuery = {
   response: AllTournamentsQuery$data;
@@ -126,7 +126,7 @@ return {
           }
         ],
         "kind": "FragmentSpread",
-        "name": "tournaments_Tournaments"
+        "name": "page_Tournaments"
       }
     ],
     "type": "Query",
@@ -303,14 +303,14 @@ return {
           "sortBy"
         ],
         "handle": "connection",
-        "key": "tournaments__tournaments",
+        "key": "page__tournaments",
         "kind": "LinkedHandle",
         "name": "tournaments"
       }
     ]
   },
   "params": {
-    "id": "ba9512b6cedba05b75f702515b9cde45",
+    "id": "091031f1b200cc8377ba7ab78a5e4b69",
     "metadata": {},
     "name": "AllTournamentsQuery",
     "operationKind": "query",
@@ -319,6 +319,6 @@ return {
 };
 })();
 
-(node as any).hash = "78ac87d122bb597002fca8b2f6669cb1";
+(node as any).hash = "0ade3515a5b0bbd772d7769ce298515a";
 
 export default node;

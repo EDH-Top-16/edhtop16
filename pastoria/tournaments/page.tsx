@@ -1,36 +1,33 @@
 import {AllTournamentsQuery} from '#genfiles/queries/AllTournamentsQuery.graphql';
-import {tournaments_TournamentCard$key} from '#genfiles/queries/tournaments_TournamentCard.graphql';
-import {tournaments_Tournaments$key} from '#genfiles/queries/tournaments_Tournaments.graphql';
-import {tournaments_TournamentsQuery} from '#genfiles/queries/tournaments_TournamentsQuery.graphql';
-import {ModuleType} from '#genfiles/router/js_resource.js';
+import {page_TournamentCard$key} from '#genfiles/queries/page_TournamentCard.graphql';
+import {page_Tournaments$key} from '#genfiles/queries/page_Tournaments.graphql';
+import {page_TournamentsQuery} from '#genfiles/queries/page_TournamentsQuery.graphql';
 import {
   RouteLink,
   useNavigation,
   useRouteParams,
 } from '#genfiles/router/router';
+import {Card} from '#src/components/card';
 import {LoadingIcon} from '#src/components/fallback';
+import {Footer} from '#src/components/footer';
+import {LoadMoreButton} from '#src/components/load_more';
+import {Navigation} from '#src/components/navigation';
+import {FirstPartyPromo} from '#src/components/promo';
+import {Select} from '#src/components/select';
 import {format} from 'date-fns';
 import {Suspense, useMemo} from 'react';
 import {
-  EntryPoint,
-  EntryPointComponent,
-  EntryPointContainer,
   graphql,
+  PreloadedQuery,
   useFragment,
   usePaginationFragment,
   usePreloadedQuery,
 } from 'react-relay/hooks';
-import {Card} from './components/card';
-import {Footer} from './components/footer';
-import {LoadMoreButton} from './components/load_more';
-import {Navigation} from './components/navigation';
-import {Select} from './components/select';
-import {FirstPartyPromo} from './components/promo';
 
-function TournamentCard(props: {commander: tournaments_TournamentCard$key}) {
+function TournamentCard(props: {commander: page_TournamentCard$key}) {
   const tournament = useFragment(
     graphql`
-      fragment tournaments_TournamentCard on Tournament @throwOnFieldError {
+      fragment page_TournamentCard on Tournament @throwOnFieldError {
         TID
         name
         size
@@ -87,11 +84,13 @@ function TournamentCard(props: {commander: tournaments_TournamentCard$key}) {
   );
 }
 
-/** @route /tournaments */
-export const TournamentsPageShell: EntryPointComponent<
-  {},
-  {tournamentsRef: EntryPoint<ModuleType<'route(/tournaments)#tournaments'>>}
-> = ({entryPoints}) => {
+export type Queries = {
+  tournamentQueryRef: page_TournamentsQuery;
+};
+
+export default function TournamentsPageShell({
+  queries,
+}: PastoriaPageProps<'/tournaments'>) {
   const {
     sortBy = 'DATE',
     timePeriod = 'ALL_TIME',
@@ -162,44 +161,41 @@ export const TournamentsPageShell: EntryPointComponent<
         </div>
 
         <Suspense fallback={<LoadingIcon />}>
-          <EntryPointContainer
-            entryPointReference={entryPoints.tournamentsRef}
-            props={{}}
-          />
+          <TournamentsPage tournamentQueryRef={queries.tournamentQueryRef} />
         </Suspense>
       </div>
     </>
   );
-};
+}
 
-/** @resource route(/tournaments)#tournaments */
-export const TournamentsPage: EntryPointComponent<
-  {tournamentQueryRef: tournaments_TournamentsQuery},
-  {}
-> = ({queries}) => {
+function TournamentsPage({
+  tournamentQueryRef,
+}: {
+  tournamentQueryRef: PreloadedQuery<page_TournamentsQuery>;
+}) {
   const query = usePreloadedQuery(
     graphql`
-      query tournaments_TournamentsQuery(
+      query page_TournamentsQuery(
         $timePeriod: TimePeriod = ALL_TIME
         $sortBy: TournamentSortBy = DATE
         $minSize: Int = 0
       ) @preloadable @throwOnFieldError {
-        ...tournaments_Tournaments
+        ...page_Tournaments
 
         tournamentPagePromo {
           ...promo_EmbededPromo
         }
       }
     `,
-    queries.tournamentQueryRef,
+    tournamentQueryRef,
   );
 
   const {data, loadNext, isLoadingNext, hasNext} = usePaginationFragment<
     AllTournamentsQuery,
-    tournaments_Tournaments$key
+    page_Tournaments$key
   >(
     graphql`
-      fragment tournaments_Tournaments on Query
+      fragment page_Tournaments on Query
       @throwOnFieldError
       @argumentDefinitions(
         cursor: {type: "String"}
@@ -211,11 +207,11 @@ export const TournamentsPage: EntryPointComponent<
           after: $cursor
           filters: {timePeriod: $timePeriod, minSize: $minSize}
           sortBy: $sortBy
-        ) @connection(key: "tournaments__tournaments") {
+        ) @connection(key: "page__tournaments") {
           edges {
             node {
               id
-              ...tournaments_TournamentCard
+              ...page_TournamentCard
             }
           }
         }
@@ -250,4 +246,4 @@ export const TournamentsPage: EntryPointComponent<
       <Footer />
     </>
   );
-};
+}

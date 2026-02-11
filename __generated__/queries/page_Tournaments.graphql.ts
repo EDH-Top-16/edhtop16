@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<55e615f4312a29b21a6c604efe071c92>>
+ * @generated SignedSource<<d8963fac03803616aa8e14ee4d25213b>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,20 +10,20 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type tournaments_Tournaments$data = {
+export type page_Tournaments$data = {
   readonly tournaments: {
     readonly edges: ReadonlyArray<{
       readonly node: {
         readonly id: string;
-        readonly " $fragmentSpreads": FragmentRefs<"tournaments_TournamentCard">;
+        readonly " $fragmentSpreads": FragmentRefs<"page_TournamentCard">;
       };
     }>;
   };
-  readonly " $fragmentType": "tournaments_Tournaments";
+  readonly " $fragmentType": "page_Tournaments";
 };
-export type tournaments_Tournaments$key = {
-  readonly " $data"?: tournaments_Tournaments$data;
-  readonly " $fragmentSpreads": FragmentRefs<"tournaments_Tournaments">;
+export type page_Tournaments$key = {
+  readonly " $data"?: page_Tournaments$data;
+  readonly " $fragmentSpreads": FragmentRefs<"page_Tournaments">;
 };
 
 import AllTournamentsQuery_graphql from './AllTournamentsQuery.graphql';
@@ -81,7 +81,7 @@ return {
       "operation": AllTournamentsQuery_graphql
     }
   },
-  "name": "tournaments_Tournaments",
+  "name": "page_Tournaments",
   "selections": [
     {
       "alias": "tournaments",
@@ -110,7 +110,7 @@ return {
       ],
       "concreteType": "TournamentConnection",
       "kind": "LinkedField",
-      "name": "__tournaments__tournaments_connection",
+      "name": "__page__tournaments_connection",
       "plural": false,
       "selections": [
         {
@@ -139,7 +139,7 @@ return {
                 {
                   "args": null,
                   "kind": "FragmentSpread",
-                  "name": "tournaments_TournamentCard"
+                  "name": "page_TournamentCard"
                 },
                 {
                   "alias": null,
@@ -195,6 +195,6 @@ return {
 };
 })();
 
-(node as any).hash = "78ac87d122bb597002fca8b2f6669cb1";
+(node as any).hash = "0ade3515a5b0bbd772d7769ce298515a";
 
 export default node;
