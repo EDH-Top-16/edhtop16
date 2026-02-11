@@ -1,23 +1,24 @@
-import {staples_StaplesCard$key} from '#genfiles/queries/staples_StaplesCard.graphql.js';
-import {staples_StaplesQuery} from '#genfiles/queries/staples_StaplesQuery.graphql';
-import {staples_TypesSection$key} from '#genfiles/queries/staples_TypesSection.graphql.js';
+import {page_StaplesCard$key} from '#genfiles/queries/page_StaplesCard.graphql.js';
+import {page_StaplesQuery} from '#genfiles/queries/page_StaplesQuery.graphql';
+import {page_TypesSection$key} from '#genfiles/queries/page_TypesSection.graphql.js';
 import {ModuleType} from '#genfiles/router/js_resource.js';
 import {useNavigation, useRouteParams} from '#genfiles/router/router';
+import {ManaCost} from '#src/assets/icons/colors';
+import {ColorSelection} from '#src/components/color_selection';
 import {LoadingIcon} from '#src/components/fallback';
+import {Footer} from '#src/components/footer';
+import {Navigation} from '#src/components/navigation';
+import {Select} from '#src/components/select';
 import {Suspense, useMemo, useState} from 'react';
 import {
   EntryPoint,
   EntryPointComponent,
   EntryPointContainer,
   graphql,
+  PreloadedQuery,
   useFragment,
   usePreloadedQuery,
 } from 'react-relay/hooks';
-import {ManaCost} from './assets/icons/colors';
-import {ColorSelection} from './components/color_selection';
-import {Footer} from './components/footer';
-import {Navigation} from './components/navigation';
-import {Select} from './components/select';
 
 const TYPE_ORDER = [
   'Creature',
@@ -45,10 +46,10 @@ function getCardType(typeLine: string): CardType {
   return 'Artifact';
 }
 
-function StapleCardRow(props: {card: staples_StaplesCard$key}) {
+function StapleCardRow(props: {card: page_StaplesCard$key}) {
   const card = useFragment(
     graphql`
-      fragment staples_StaplesCard on Card @throwOnFieldError {
+      fragment page_StaplesCard on Card @throwOnFieldError {
         id
         name
         type
@@ -86,7 +87,7 @@ type CardData = {
   name: string;
   type: string;
   playRateLastYear: number;
-  ' $fragmentSpreads': staples_StaplesCard$key[' $fragmentSpreads'];
+  ' $fragmentSpreads': page_StaplesCard$key[' $fragmentSpreads'];
 };
 
 // Play rate thresholds by card type (cards below threshold are hidden by default)
@@ -106,18 +107,18 @@ function TypeSection({
   ...props
 }: {
   type: CardType;
-  cards: staples_TypesSection$key;
+  cards: page_TypesSection$key;
 }) {
   const cards = useFragment(
     graphql`
-      fragment staples_TypesSection on Card
+      fragment page_TypesSection on Card
       @relay(plural: true)
       @throwOnFieldError {
         id
         name
         type
         playRateLastYear
-        ...staples_StaplesCard
+        ...page_StaplesCard
       }
     `,
     props.cards,
@@ -171,11 +172,13 @@ function TypeSection({
   );
 }
 
-/** @route /staples */
-export const StaplesPageShell: EntryPointComponent<
-  {},
-  {staplesRef: EntryPoint<ModuleType<'route(/staples)#staples_page'>>}
-> = ({entryPoints}) => {
+export type Queries = {
+  staplesQueryRef: page_StaplesQuery;
+};
+
+export default function StaplesPageShell({
+  queries,
+}: PastoriaPageProps<'/staples'>) {
   const {colorId = '', type = ''} = useRouteParams('/staples');
   const {replaceRoute} = useNavigation();
 
@@ -237,34 +240,31 @@ export const StaplesPageShell: EntryPointComponent<
         </div>
 
         <Suspense fallback={<LoadingIcon />}>
-          <EntryPointContainer
-            entryPointReference={entryPoints.staplesRef}
-            props={{}}
-          />
+          <StaplesPage staplesQueryRef={queries.staplesQueryRef} />
         </Suspense>
       </div>
     </>
   );
-};
+}
 
-/** @resource route(/staples)#staples_page */
-export const StaplesPage: EntryPointComponent<
-  {staplesQueryRef: staples_StaplesQuery},
-  {}
-> = ({queries}) => {
+function StaplesPage({
+  staplesQueryRef,
+}: {
+  staplesQueryRef: PreloadedQuery<page_StaplesQuery>;
+}) {
   const data = usePreloadedQuery(
     graphql`
-      query staples_StaplesQuery($colorId: String, $type: String) @preloadable {
+      query page_StaplesQuery($colorId: String, $type: String) @preloadable {
         staples(colorId: $colorId, type: $type) {
           id
           name
           type
           playRateLastYear
-          ...staples_TypesSection
+          ...page_TypesSection
         }
       }
     `,
-    queries.staplesQueryRef,
+    staplesQueryRef,
   );
 
   const groupedCards = useMemo(() => {
@@ -350,4 +350,4 @@ export const StaplesPage: EntryPointComponent<
       <Footer />
     </>
   );
-};
+}
