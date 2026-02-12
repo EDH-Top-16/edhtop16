@@ -22,7 +22,6 @@ import {EntryPoint} from 'react-relay/hooks';
 export const entrypoint: EntryPoint<
   ModuleType<'m#commander_page_shell'>,
   EntryPointParams<'/commander/:commander'>
-  // {params: Record<string, unknown>}
 > = {
   root: JSResource.fromModuleId('m#commander_page_shell'),
   getPreloadProps({

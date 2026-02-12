@@ -1,7 +1,6 @@
 import {page_StaplesCard$key} from '#genfiles/queries/page_StaplesCard.graphql.js';
 import {page_StaplesQuery} from '#genfiles/queries/page_StaplesQuery.graphql';
 import {page_TypesSection$key} from '#genfiles/queries/page_TypesSection.graphql.js';
-import {ModuleType} from '#genfiles/router/js_resource.js';
 import {useNavigation, useRouteParams} from '#genfiles/router/router';
 import {ManaCost} from '#src/assets/icons/colors';
 import {ColorSelection} from '#src/components/color_selection';
@@ -11,9 +10,6 @@ import {Navigation} from '#src/components/navigation';
 import {Select} from '#src/components/select';
 import {Suspense, useMemo, useState} from 'react';
 import {
-  EntryPoint,
-  EntryPointComponent,
-  EntryPointContainer,
   graphql,
   PreloadedQuery,
   useFragment,
