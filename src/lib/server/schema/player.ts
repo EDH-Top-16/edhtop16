@@ -54,11 +54,6 @@ const ALL_KNOWN_CHEATERS: {
     topdeckProfile: 'O5vGNnGpjIVyV2SYOqr0pBCWqJq2',
     expiration: new Date('2027-04-29'),
   },
-  // https://x.com/CriticalEDH/status/2021746249515647140?s=20
-  {
-    topdeckProfile: 'AS66LY9awMMQdlypIBE9ygSAqoE2',
-    expiration: new Date('2027-08-11'),
-  },
 ];
 
 const now = Date.now();

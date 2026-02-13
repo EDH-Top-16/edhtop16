@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<47b5ff6a948fae798dd33f47914c509f>>
- * @relayHash 58d125c0f4fa1ceb694250131715e423
+ * @generated SignedSource<<0aa61aaa67f6fb20e362e8eb2c12aff6>>
+ * @relayHash b64e2dc79f7784b4354a9cadb9230d1c
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 58d125c0f4fa1ceb694250131715e423
+// @relayRequestID b64e2dc79f7784b4354a9cadb9230d1c
 
 import { PreloadableConcreteRequest } from 'relay-runtime';
 import { tournamentView_TournamentPageShellQuery } from './tournamentView_TournamentPageShellQuery.graphql';
@@ -17,7 +17,7 @@ import { tournamentView_TournamentPageShellQuery } from './tournamentView_Tourna
 const node: PreloadableConcreteRequest<tournamentView_TournamentPageShellQuery> = {
   "kind": "PreloadableConcreteRequest",
   "params": {
-    "id": "58d125c0f4fa1ceb694250131715e423",
+    "id": "b64e2dc79f7784b4354a9cadb9230d1c",
     "metadata": {},
     "name": "tournamentView_TournamentPageShellQuery",
     "operationKind": "query",

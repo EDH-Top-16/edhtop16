@@ -185,6 +185,11 @@ export class Tournament implements GraphQLNode {
     return getActivePromotions({tid: this.TID})[0];
   }
 
+  /** @gqlField */
+  editorsNote(): string | undefined {
+    return TOURNAMENT_NOTES.get(this.TID);
+  }
+
   /** @gqlQueryField */
   static async tournament(TID: string): Promise<Tournament> {
     const row = await db
@@ -291,3 +296,6 @@ class TournamentsCursor {
     return [this.id, this.size, this.date].join(';');
   }
 }
+
+/** EDHTop16's editors notes for a specific tournament. */
+const TOURNAMENT_NOTES = new Map<string, string>([]);
