@@ -281,7 +281,6 @@ type Tournament implements Node {
   bracketUrl: String @semanticNonNull
   breakdown: [TournamentBreakdownGroup!] @semanticNonNull
   drawRate: Float
-  editorsNote: String
   entries(commander: String, maxStanding: Int): [Entry!] @semanticNonNull
   id: ID!
   name: String @semanticNonNull
