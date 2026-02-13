@@ -26,6 +26,7 @@ import {Navigation} from './components/navigation';
 import {FirstPartyPromo} from './components/promo';
 import {Tab, TabList} from './components/tabs';
 import {formatOrdinals, formatPercent} from './lib/client/format';
+import {tournamentView_EditorsNote$key} from '#genfiles/queries/tournamentView_EditorsNote.graphql.js';
 
 function EntryCard({
   highlightFirst = true,
@@ -307,6 +308,29 @@ function TournamentBanner(props: {
   );
 }
 
+function TournamentEditorsNote(props: {
+  tournament: tournamentView_EditorsNote$key;
+}) {
+  const {editorsNote} = useFragment(
+    graphql`
+      fragment tournamentView_EditorsNote on Tournament {
+        editorsNote
+      }
+    `,
+    props.tournament,
+  );
+
+  if (!editorsNote) return null;
+
+  return (
+    <div className="mx-auto max-w-(--breakpoint-md) px-6 pt-4">
+      <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+        <span className="font-semibold">Editor's note:</span> {editorsNote}
+      </div>
+    </div>
+  );
+}
+
 function useTournamentMeta(
   tournamentFromProps: tournamentView_TournamentMeta$key,
 ) {
@@ -338,10 +362,13 @@ export const TournamentPageShell: EntryPointComponent<
           TID
           ...tournamentView_TournamentBanner
           ...tournamentView_TournamentMeta
+          ...tournamentView_EditorsNote
 
           promo {
             ...promo_EmbededPromo
           }
+
+          editorsNote
         }
       }
     `,
@@ -373,6 +400,7 @@ export const TournamentPageShell: EntryPointComponent<
       <Navigation />
       <TournamentBanner tournament={tournament} />
       {tournament.promo && <FirstPartyPromo promo={tournament.promo} />}
+      <TournamentEditorsNote tournament={tournament} />
 
       <TabList className="mx-auto max-w-(--breakpoint-md)">
         <Tab id="entries" selected={tab === 'entries'} onClick={setSelectedTab}>

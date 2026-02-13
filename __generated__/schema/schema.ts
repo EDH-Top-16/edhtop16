@@ -547,6 +547,10 @@ export function getSchema(): GraphQLSchema {
                     name: "drawRate",
                     type: GraphQLFloat
                 },
+                editorsNote: {
+                    name: "editorsNote",
+                    type: GraphQLString
+                },
                 entries: {
                     name: "entries",
                     type: new GraphQLList(new GraphQLNonNull(EntryType)),
