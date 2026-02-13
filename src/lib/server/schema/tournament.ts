@@ -298,11 +298,4 @@ class TournamentsCursor {
 }
 
 /** EDHTop16's editors notes for a specific tournament. */
-const TOURNAMENT_NOTES = new Map<string, string>([
-  [
-    'the-royal-rumble-the-second-showdown-cedh-12k',
-    `There were unverified allegations of cheating at this tournament.
-The head judge gave contradictory statements to several players at the event that ultimately did not align with their ruling, causing rumors to spread.
-EDHTop16 cannot verify intent to cheat.`,
-  ],
-]);
+const TOURNAMENT_NOTES = new Map<string, string>([]);
