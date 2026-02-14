@@ -31,11 +31,17 @@ export class Context {
    * @returns A promise that resolves to the context instance
    */
   static async createFromRequest(req: Request): Promise<Context> {
-    const session = await auth.api.getSession({
-      headers: fromNodeHeaders(req.headers),
-    });
+    let user: User | null = null;
+    try {
+      const session = await auth.api.getSession({
+        headers: fromNodeHeaders(req.headers),
+      });
+      user = session?.user ?? null;
+    } catch (e) {
+      console.error('Failed to get session:', e);
+    }
 
-    return new this(req, session?.user ?? null);
+    return new this(req, user);
   }
 
   /**
