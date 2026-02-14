@@ -12,6 +12,7 @@ import { countrySeatWinRates as queryCountrySeatWinRatesResolver } from "./../..
 import { homePagePromo as queryHomePagePromoResolver, tournamentPagePromo as queryTournamentPagePromoResolver } from "./../../src/lib/server/schema/promo";
 import { createEntryLoader as createEntryLoader } from "./../../src/lib/server/schema/entry";
 import { searchResults as querySearchResultsResolver } from "./../../src/lib/server/schema/search";
+import { viewer as queryViewerResolver } from "./../../src/lib/server/schema/viewer";
 async function assertNonNull<T>(value: T | Promise<T>): Promise<T> {
     const awaited = await value;
     if (awaited == null)
@@ -1196,6 +1197,45 @@ export function getSchema(): GraphQLSchema {
             }
         }
     });
+    const DiscordRoleType: GraphQLEnumType = new GraphQLEnumType({
+        name: "DiscordRole",
+        values: {
+            CONTRIBUTOR: {
+                value: "CONTRIBUTOR"
+            },
+            DEVELOPER: {
+                value: "DEVELOPER"
+            },
+            SUPPORTER: {
+                value: "SUPPORTER"
+            }
+        }
+    });
+    const ViewerType: GraphQLObjectType = new GraphQLObjectType({
+        name: "Viewer",
+        fields() {
+            return {
+                discordRoles: {
+                    name: "discordRoles",
+                    type: new GraphQLList(new GraphQLNonNull(DiscordRoleType)),
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                hideAds: {
+                    name: "hideAds",
+                    type: GraphQLBoolean,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                name: {
+                    name: "name",
+                    type: GraphQLString
+                }
+            };
+        }
+    });
     const QueryType: GraphQLObjectType = new GraphQLObjectType({
         name: "Query",
         fields() {
@@ -1375,6 +1415,13 @@ export function getSchema(): GraphQLSchema {
                     resolve(_source, args) {
                         return assertNonNull(queryTournamentsResolver.tournaments(args.first, args.after, args.filters, args.sortBy));
                     }
+                },
+                viewer: {
+                    name: "viewer",
+                    type: ViewerType,
+                    resolve(_source, _args, context) {
+                        return queryViewerResolver(context);
+                    }
                 }
             };
         }
@@ -1481,6 +1528,6 @@ export function getSchema(): GraphQLSchema {
                 }
             })],
         query: QueryType,
-        types: [CommandersSortByType, EntriesSortByType, EntrySortByType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CommanderStatsFiltersType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, CountrySeatWinRateType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, PageInfoType, PlayerType, QueryType, SearchResultType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType]
+        types: [CommandersSortByType, DiscordRoleType, EntriesSortByType, EntrySortByType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CommanderStatsFiltersType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, CountrySeatWinRateType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, PageInfoType, PlayerType, QueryType, SearchResultType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType, ViewerType]
     });
 }
