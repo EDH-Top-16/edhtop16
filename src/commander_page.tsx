@@ -37,6 +37,7 @@ import {LoadMoreButton} from './components/load_more';
 import {Navigation} from './components/navigation';
 import {FirstPartyPromo} from './components/promo';
 import {Select} from './components/select';
+import {NitroAd} from './components/nitro_ad';
 import {Tab, TabList} from './components/tabs';
 import {formatOrdinals, formatPercent} from './lib/client/format';
 import {ServerSafeSuspense} from './lib/client/suspense';
@@ -963,6 +964,19 @@ export const CommanderPageShell: EntryPointComponent<
         </Suspense>
       </CommanderBanner>
       {commander.promo && <FirstPartyPromo promo={commander.promo} />}
+
+      <div className="mx-auto flex min-h-[82px] max-w-(--breakpoint-md) items-center justify-center py-4 md:min-h-[122px]">
+        <NitroAd
+          id="nitro-commander-top"
+          options={{
+            sizes: [
+              ['728', '90'],
+              ['320', '50'],
+            ],
+            mediaQuery: '(min-width: 728px),(min-width: 0px)',
+          }}
+        />
+      </div>
 
       <TabList
         className="mx-auto max-w-(--breakpoint-md)"
