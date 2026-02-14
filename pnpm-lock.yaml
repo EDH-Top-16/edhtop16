@@ -19,6 +19,9 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.2.4
         version: 1.2.4(@types/react@19.2.2)(react@19.2.0)
+      '@rapideditor/country-coder':
+        specifier: ^5.6.1
+        version: 5.6.1
       '@types/cookie-parser':
         specifier: ^1.4.9
         version: 1.4.9(@types/express@5.0.3)
@@ -787,6 +790,10 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  '@rapideditor/country-coder@5.6.1':
+    resolution: {integrity: sha512-/3xCpRIyhGv0lKxk26qNJgBWU6UnvE6SmOvE2GWE1CKu6pxcUVukECg6XVJLfmesYWyKHmaj1ZXtNOpz3lJkWg==}
+    engines: {bun: '>=1.3'}
 
   '@reverecre/promise@0.1.0':
     resolution: {integrity: sha512-VDwHYuBvB8IPJf4knLLGaS/MWjsIYMBOLpeACeh/z/9fbpTm0EFIOu1il7Ac3CAntZB9SCfpV9QGqp49bQC5Ig==}
@@ -2146,6 +2153,9 @@ packages:
     resolution: {integrity: sha512-utfs7Pr5uJyyvDETitgsaqSyjCb2qNRAtuqUeWIAKztsOYdcACf2KtARYXg2pSvhkt+9NfoaNY7fxjl6nuMjIQ==}
     engines: {node: '>= 12.0.0'}
 
+  lineclip@1.1.5:
+    resolution: {integrity: sha512-KlA/wRSjpKl7tS9iRUdlG72oQ7qZ1IlVbVgHwoO10TBR/4gQ86uhKow6nlzMAJJhjCWKto8OeoAzzIzKSmN25A==}
+
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
 
@@ -2550,6 +2560,9 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
+  quickselect@1.1.1:
+    resolution: {integrity: sha512-qN0Gqdw4c4KGPsBOQafj6yj/PA6c/L63f6CaZ/DCF/xF4Esu3jVmKLUDYxghFx8Kb/O7y9tI7x2RjTSXwdK1iQ==}
+
   radix3@1.1.2:
     resolution: {integrity: sha512-b484I/7b8rDEdSDKckSSBA8knMpcdsXudlE/LNL639wFoHKwLbEkQFZHWEYwDC0wa0FKUcCY+GAF73Z7wxNVFA==}
 
@@ -2563,6 +2576,9 @@ packages:
   raw-body@3.0.1:
     resolution: {integrity: sha512-9G8cA+tuMS75+6G/TzW8OtLzmBDMo8p1JRxN5AZ+LAp8uxGA8V8GZm4GQ4/N5QNQEnLmg6SS7wyuSmbKepiKqA==}
     engines: {node: '>= 0.10'}
+
+  rbush@2.0.2:
+    resolution: {integrity: sha512-XBOuALcTm+O/H8G90b6pzu6nX6v2zCKiFG4BJho8a+bY6AER6t8uQUZdi5bomQc0AprCWhEGa7ncAbbRap0bRA==}
 
   rc@1.2.8:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
@@ -2933,6 +2949,9 @@ packages:
 
   whatwg-url@5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
+
+  which-polygon@2.2.1:
+    resolution: {integrity: sha512-RlpWbqz12OMT0r2lEHk7IUPXz0hb1L/ZZsGushB2P2qxuBu1aq1+bcTfsLtfoRBYHsED6ruBMiwFaidvXZfQVw==}
 
   which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
@@ -3493,6 +3512,10 @@ snapshots:
       react: 19.2.0
     optionalDependencies:
       '@types/react': 19.2.2
+
+  '@rapideditor/country-coder@5.6.1':
+    dependencies:
+      which-polygon: 2.2.1
 
   '@reverecre/promise@0.1.0': {}
 
@@ -4796,6 +4819,8 @@ snapshots:
       lightningcss-win32-arm64-msvc: 1.30.2
       lightningcss-win32-x64-msvc: 1.30.2
 
+  lineclip@1.1.5: {}
+
   lines-and-columns@1.2.4: {}
 
   locate-path@6.0.0:
@@ -5135,6 +5160,8 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
+  quickselect@1.1.1: {}
+
   radix3@1.1.2: {}
 
   randombytes@2.1.0:
@@ -5149,6 +5176,10 @@ snapshots:
       http-errors: 2.0.0
       iconv-lite: 0.7.0
       unpipe: 1.0.0
+
+  rbush@2.0.2:
+    dependencies:
+      quickselect: 1.1.1
 
   rc@1.2.8:
     dependencies:
@@ -5535,6 +5566,11 @@ snapshots:
     dependencies:
       tr46: 0.0.3
       webidl-conversions: 3.0.1
+
+  which-polygon@2.2.1:
+    dependencies:
+      lineclip: 1.1.5
+      rbush: 2.0.2
 
   which@2.0.2:
     dependencies:

@@ -67,14 +67,20 @@ export interface Player {
 
 export interface Tournament {
   bracketUrl: string | null;
+  city: string | null;
+  country: string | null;
   drawRate: number | null;
   id: Generated<number>;
+  latitude: number | null;
+  locationName: string | null;
+  longitude: number | null;
   name: string;
   seatWinRate1: number | null;
   seatWinRate2: number | null;
   seatWinRate3: number | null;
   seatWinRate4: number | null;
   size: number;
+  state: string | null;
   swissRounds: number;
   TID: string;
   topCut: number;

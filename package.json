@@ -25,6 +25,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@radix-ui/react-slot": "^1.2.4",
+    "@rapideditor/country-coder": "^5.6.1",
     "@types/cookie-parser": "^1.4.9",
     "better-sqlite3": "^11.10.0",
     "class-variance-authority": "^0.7.1",
