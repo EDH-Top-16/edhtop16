@@ -37,13 +37,13 @@ export default function App({children}: PropsWithChildren<{}>) {
       window.nitroAds =
         window.nitroAds ||
         ({
-          createAd: function () {
+          createAd: function (...args: unknown[]) {
             return new Promise((e) => {
-              window.nitroAds.queue.push(['createAd', arguments, e]);
+              window.nitroAds.queue.push(['createAd', args, e]);
             });
           },
-          addUserToken: function () {
-            window.nitroAds.queue.push(['addUserToken', arguments]);
+          addUserToken: function (...args: unknown[]) {
+            window.nitroAds.queue.push(['addUserToken', args]);
           },
           queue: [],
         } as any);
