@@ -1,0 +1,29 @@
+import {authClient} from '#src/lib/client/auth';
+
+export function LoginButton() {
+  const {data: session, isPending} = authClient.useSession();
+
+  if (isPending) return null;
+
+  if (session?.user) {
+    return (
+      <button
+        className="text-sm text-white/60 underline decoration-transparent transition-colors hover:text-white hover:decoration-inherit"
+        onClick={() => authClient.signOut()}
+      >
+        Sign Out
+      </button>
+    );
+  }
+
+  return (
+    <button
+      className="text-sm text-white/60 underline decoration-transparent transition-colors hover:text-white hover:decoration-inherit"
+      onClick={() =>
+        authClient.signIn.social({provider: 'discord', callbackURL: '/'})
+      }
+    >
+      Sign In
+    </button>
+  );
+}

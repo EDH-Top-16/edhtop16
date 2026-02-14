@@ -1,5 +1,6 @@
 import {Link} from '#genfiles/router/router';
 import {useEffect, useRef} from 'react';
+import {LoginButton} from './login_button';
 
 export function Footer() {
   const privacyRef = useRef<HTMLDivElement>(null);
@@ -67,6 +68,8 @@ export function Footer() {
       >
         TopDeck.gg
       </a>
+
+      <LoginButton />
 
       {/* Container for NitroPay privacy links, populated client-side only. */}
       <div ref={privacyRef} className="contents" />
