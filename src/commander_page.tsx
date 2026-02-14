@@ -965,15 +965,17 @@ export const CommanderPageShell: EntryPointComponent<
       </CommanderBanner>
       {commander.promo && <FirstPartyPromo promo={commander.promo} />}
 
-      <div className="mx-auto flex min-h-[82px] max-w-(--breakpoint-md) items-center justify-center py-4 md:min-h-[122px]">
+      <div className="mx-auto max-w-(--breakpoint-md) py-4">
         <NitroAd
           id="nitro-commander-top"
           options={{
-            sizes: [
-              ['728', '90'],
-              ['320', '50'],
-            ],
-            mediaQuery: '(min-width: 728px),(min-width: 0px)',
+            sizes: [],
+            report: {
+              enabled: true,
+              icon: true,
+              wording: 'Report Ad',
+              position: 'top-right',
+            },
           }}
         />
       </div>
