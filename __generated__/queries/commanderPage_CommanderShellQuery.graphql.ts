@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<047a88209351f58656cf87c51173d8fb>>
- * @relayHash 4cdabd944aa285429e450a0c88ac74cf
+ * @generated SignedSource<<c3fe40fc61517a52a205c26e4379f0f5>>
+ * @relayHash eb32d14fe663d0efdc3840ce9d323065
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 4cdabd944aa285429e450a0c88ac74cf
+// @relayRequestID eb32d14fe663d0efdc3840ce9d323065
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -25,6 +25,9 @@ export type commanderPage_CommanderShellQuery$data = {
     } | null | undefined;
     readonly " $fragmentSpreads": FragmentRefs<"commanderPage_CommanderBanner" | "commanderPage_CommanderMeta">;
   };
+  readonly viewer: {
+    readonly hideAds: boolean;
+  } | null | undefined;
 };
 export type commanderPage_CommanderShellQuery = {
   response: commanderPage_CommanderShellQuery$data;
@@ -39,28 +42,46 @@ var v0 = [
     "name": "commander"
   }
 ],
-v1 = [
+v1 = {
+  "alias": null,
+  "args": null,
+  "concreteType": "Viewer",
+  "kind": "LinkedField",
+  "name": "viewer",
+  "plural": false,
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "hideAds",
+      "storageKey": null
+    }
+  ],
+  "storageKey": null
+},
+v2 = [
   {
     "kind": "Variable",
     "name": "name",
     "variableName": "commander"
   }
 ],
-v2 = {
+v3 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "name",
   "storageKey": null
 },
-v3 = {
+v4 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "breakdownUrl",
   "storageKey": null
 },
-v4 = {
+v5 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -76,16 +97,17 @@ return {
     },
     "name": "commanderPage_CommanderShellQuery",
     "selections": [
+      (v1/*: any*/),
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v2/*: any*/),
         "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "commander",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
           (v3/*: any*/),
+          (v4/*: any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -125,16 +147,17 @@ return {
     "kind": "Operation",
     "name": "commanderPage_CommanderShellQuery",
     "selections": [
+      (v1/*: any*/),
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v2/*: any*/),
         "concreteType": "Commander",
         "kind": "LinkedField",
         "name": "commander",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
           (v3/*: any*/),
+          (v4/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -157,7 +180,7 @@ return {
                 "name": "imageUrls",
                 "storageKey": null
               },
-              (v4/*: any*/)
+              (v5/*: any*/)
             ],
             "storageKey": null
           },
@@ -214,14 +237,14 @@ return {
             ],
             "storageKey": null
           },
-          (v4/*: any*/)
+          (v5/*: any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "id": "4cdabd944aa285429e450a0c88ac74cf",
+    "id": "eb32d14fe663d0efdc3840ce9d323065",
     "metadata": {},
     "name": "commanderPage_CommanderShellQuery",
     "operationKind": "query",
@@ -230,7 +253,7 @@ return {
 };
 })();
 
-(node as any).hash = "7d0761b7dcb9242e28982bace11a4159";
+(node as any).hash = "2c4f25ed4d6d91247d3307c21d00bd0c";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

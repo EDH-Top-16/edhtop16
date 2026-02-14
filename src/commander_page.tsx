@@ -924,11 +924,14 @@ export const CommanderPageShell: EntryPointComponent<
   queries,
   extraProps: {maxStanding, minEventSize, sortBy, timePeriod, tab, cardName},
 }) => {
-  const {commander} = usePreloadedQuery(
+  const {commander, viewer} = usePreloadedQuery(
     graphql`
       query commanderPage_CommanderShellQuery($commander: String!)
       @preloadable
       @throwOnFieldError {
+        viewer {
+          hideAds
+        }
         commander(name: $commander) {
           name
           breakdownUrl
@@ -965,24 +968,26 @@ export const CommanderPageShell: EntryPointComponent<
       </CommanderBanner>
       {commander.promo && <FirstPartyPromo promo={commander.promo} />}
 
-      <div className="mx-auto flex max-w-(--breakpoint-md) items-center justify-center overflow-hidden py-4">
-        <NitroAd
-          id="nitro-commander-top"
-          options={{
-            sizes: [
-              ['728', '90'],
-              ['320', '50'],
-            ],
-            mediaQuery: '(min-width: 728px),(min-width: 0px)',
-            report: {
-              enabled: true,
-              icon: true,
-              wording: 'Report Ad',
-              position: 'top-right',
-            },
-          }}
-        />
-      </div>
+      {!viewer?.hideAds && (
+        <div className="mx-auto flex max-w-(--breakpoint-md) items-center justify-center overflow-hidden py-4">
+          <NitroAd
+            id="nitro-commander-top"
+            options={{
+              sizes: [
+                ['728', '90'],
+                ['320', '50'],
+              ],
+              mediaQuery: '(min-width: 728px),(min-width: 0px)',
+              report: {
+                enabled: true,
+                icon: true,
+                wording: 'Report Ad',
+                position: 'top-right',
+              },
+            }}
+          />
+        </div>
+      )}
 
       <TabList
         className="mx-auto max-w-(--breakpoint-md)"
