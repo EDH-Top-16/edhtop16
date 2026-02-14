@@ -3,6 +3,7 @@
  * well-shaped form.
  */
 
+import {feature} from '@rapideditor/country-coder';
 import {chunkedWorkerPool} from '@reverecre/promise';
 import Database from 'better-sqlite3';
 import {subYears} from 'date-fns';
@@ -173,12 +174,28 @@ async function createTournaments(
         swissRounds: t.swissNum,
         topCut: t.topCut,
         bracketUrl: `https://topdeck.gg/bracket/${t.TID}`,
+        locationName: t.eventData?.location ?? null,
+        city: t.eventData?.city ?? null,
+        state: t.eventData?.state ?? null,
+        latitude: t.eventData?.lat ?? null,
+        longitude: t.eventData?.lng ?? null,
+        country:
+          t.eventData?.lat != null && t.eventData?.lng != null
+            ? (feature([t.eventData.lng, t.eventData.lat])?.properties
+                ?.nameEn ?? null)
+            : null,
       })),
     )
     .onConflict((oc) =>
-      oc.column('TID').doUpdateSet({
-        TID: (eb) => eb.ref('excluded.TID'),
-      }),
+      oc.column('TID').doUpdateSet((eb) => ({
+        TID: eb.ref('excluded.TID'),
+        locationName: eb.ref('excluded.locationName'),
+        city: eb.ref('excluded.city'),
+        state: eb.ref('excluded.state'),
+        latitude: eb.ref('excluded.latitude'),
+        longitude: eb.ref('excluded.longitude'),
+        country: eb.ref('excluded.country'),
+      })),
     )
     .returning(['id', 'TID'])
     .execute();
