@@ -53,5 +53,19 @@ export async function countrySeatWinRates(args: {
     .having(sql`count(distinct Tournament.id)`, '>=', minTournaments)
     .execute();
 
-  return rows as CountrySeatWinRate[];
+  return rows.flatMap((row) =>
+    row.country != null
+      ? [
+          {
+            country: row.country,
+            tournaments: row.tournaments,
+            seatWinRate1: row.seatWinRate1,
+            seatWinRate2: row.seatWinRate2,
+            seatWinRate3: row.seatWinRate3,
+            seatWinRate4: row.seatWinRate4,
+            drawRate: row.drawRate,
+          },
+        ]
+      : [],
+  );
 }
