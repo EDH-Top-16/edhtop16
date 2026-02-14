@@ -40,6 +40,12 @@ enum CommandersSortBy {
   WINRATE
 }
 
+enum DiscordRole {
+  CONTRIBUTOR
+  DEVELOPER
+  SUPPORTER
+}
+
 enum EntriesSortBy {
   NEW
   TOP
@@ -273,6 +279,7 @@ type Query {
   tournament(TID: String!): Tournament @semanticNonNull
   tournamentPagePromo: FirstPartyPromo
   tournaments(after: String, filters: TournamentFilters, first: Int! = 20, sortBy: TournamentSortBy! = DATE): TournamentConnection @semanticNonNull
+  viewer: Viewer
 }
 
 type SearchResult {
@@ -323,4 +330,10 @@ type TournamentConnection {
 type TournamentEdge {
   cursor: String @semanticNonNull
   node: Tournament @semanticNonNull
+}
+
+type Viewer {
+  discordRoles: [DiscordRole!] @semanticNonNull
+  hideAds: Boolean @semanticNonNull
+  name: String
 }
