@@ -8,6 +8,7 @@ import { id as commanderIdResolver, id as entryIdResolver, id as playerIdResolve
 import { createPlayerLoader as createPlayerLoader, Player as queryCheatersResolver, Player as queryPlayerResolver } from "./../../src/lib/server/schema/player";
 import { createTournamentLoader as createTournamentLoader, Tournament as queryTournamentResolver, Tournament as queryTournamentsResolver } from "./../../src/lib/server/schema/tournament";
 import { Card as queryCardResolver, createCardLoader as createCardLoader, Card as queryStaplesResolver } from "./../../src/lib/server/schema/card";
+import { countrySeatWinRates as queryCountrySeatWinRatesResolver } from "./../../src/lib/server/schema/reports";
 import { homePagePromo as queryHomePagePromoResolver, tournamentPagePromo as queryTournamentPagePromoResolver } from "./../../src/lib/server/schema/promo";
 import { createEntryLoader as createEntryLoader } from "./../../src/lib/server/schema/entry";
 import { searchResults as querySearchResultsResolver } from "./../../src/lib/server/schema/search";
@@ -999,6 +1000,62 @@ export function getSchema(): GraphQLSchema {
             }
         }
     });
+    const CountrySeatWinRateType: GraphQLObjectType = new GraphQLObjectType({
+        name: "CountrySeatWinRate",
+        fields() {
+            return {
+                country: {
+                    name: "country",
+                    type: GraphQLString,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                drawRate: {
+                    name: "drawRate",
+                    type: GraphQLFloat,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                seatWinRate1: {
+                    name: "seatWinRate1",
+                    type: GraphQLFloat,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                seatWinRate2: {
+                    name: "seatWinRate2",
+                    type: GraphQLFloat,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                seatWinRate3: {
+                    name: "seatWinRate3",
+                    type: GraphQLFloat,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                seatWinRate4: {
+                    name: "seatWinRate4",
+                    type: GraphQLFloat,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                tournaments: {
+                    name: "tournaments",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                }
+            };
+        }
+    });
     const SearchResultType: GraphQLObjectType = new GraphQLObjectType({
         name: "SearchResult",
         fields() {
@@ -1207,6 +1264,18 @@ export function getSchema(): GraphQLSchema {
                         return assertNonNull(queryCommandersResolver.commanders(args.first, args.after, args.minEntries, args.minTournamentSize, args.timePeriod, args.sortBy, args.colorId));
                     }
                 },
+                countrySeatWinRates: {
+                    name: "countrySeatWinRates",
+                    type: new GraphQLList(new GraphQLNonNull(CountrySeatWinRateType)),
+                    args: {
+                        minTournaments: {
+                            type: GraphQLInt
+                        }
+                    },
+                    resolve(_source, args) {
+                        return assertNonNull(queryCountrySeatWinRatesResolver(args));
+                    }
+                },
                 homePagePromo: {
                     name: "homePagePromo",
                     type: FirstPartyPromoType,
@@ -1412,6 +1481,6 @@ export function getSchema(): GraphQLSchema {
                 }
             })],
         query: QueryType,
-        types: [CommandersSortByType, EntriesSortByType, EntrySortByType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CommanderStatsFiltersType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, PageInfoType, PlayerType, QueryType, SearchResultType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType]
+        types: [CommandersSortByType, EntriesSortByType, EntrySortByType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CommanderStatsFiltersType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, CountrySeatWinRateType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, PageInfoType, PlayerType, QueryType, SearchResultType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType]
     });
 }
