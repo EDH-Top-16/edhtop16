@@ -1,5 +1,8 @@
 import type {Request} from 'express';
 import DataLoader from 'dataloader';
+import {auth} from './auth.js';
+import {fromNodeHeaders} from 'better-auth/node';
+import type {User} from 'better-auth';
 
 /**
  * Base class for GraphQL contexts.
@@ -9,10 +12,14 @@ export class Context {
   /** The Express request object */
   public readonly req: Request;
 
+  /** The authenticated user, or null if not logged in */
+  public readonly user: User | null;
+
   private readonly DERIVED_CACHE = new Map<string, unknown>();
 
-  constructor(req: Request) {
+  constructor(req: Request, user: User | null) {
     this.req = req;
+    this.user = user;
   }
 
   /**
@@ -23,7 +30,11 @@ export class Context {
    * @returns A promise that resolves to the context instance
    */
   static async createFromRequest(req: Request): Promise<Context> {
-    return new this(req);
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
+
+    return new this(req, session?.user ?? null);
   }
 
   /**
