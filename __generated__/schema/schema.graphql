@@ -191,6 +191,16 @@ type CommanderEdge {
   node: Commander @semanticNonNull
 }
 
+type CountrySeatWinRate {
+  country: String @semanticNonNull
+  drawRate: Float @semanticNonNull
+  seatWinRate1: Float @semanticNonNull
+  seatWinRate2: Float @semanticNonNull
+  seatWinRate3: Float @semanticNonNull
+  seatWinRate4: Float @semanticNonNull
+  tournaments: Int @semanticNonNull
+}
+
 type Entry implements Node {
   commander: Commander @semanticNonNull
   decklist: String
@@ -254,6 +264,7 @@ type Query {
   cheaters: [Player!] @semanticNonNull
   commander(name: String!): Commander @semanticNonNull
   commanders(after: String, colorId: String, first: Int! = 20, minEntries: Int, minTournamentSize: Int, sortBy: CommandersSortBy! = CONVERSION, timePeriod: TimePeriod! = ONE_MONTH): CommanderConnection @semanticNonNull
+  countrySeatWinRates(minTournaments: Int): [CountrySeatWinRate!] @semanticNonNull
   homePagePromo: FirstPartyPromo
   node(id: ID!): Node
   player(profile: String!): Player @semanticNonNull
