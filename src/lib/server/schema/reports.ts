@@ -35,19 +35,21 @@ export async function countrySeatWinRates(args: {
     .select([
       'Tournament.country',
       sql<number>`count(distinct Tournament.id)`.as('tournaments'),
-      sql<number>`avg(case when MatchSeat.seatNumber = 1 then cast(MatchSeat.isWinner as real) end)`.as(
+      sql<number>`coalesce(avg(case when MatchSeat.seatNumber = 0 then cast(MatchSeat.isWinner as real) end), 0)`.as(
         'seatWinRate1',
       ),
-      sql<number>`avg(case when MatchSeat.seatNumber = 2 then cast(MatchSeat.isWinner as real) end)`.as(
+      sql<number>`coalesce(avg(case when MatchSeat.seatNumber = 1 then cast(MatchSeat.isWinner as real) end), 0)`.as(
         'seatWinRate2',
       ),
-      sql<number>`avg(case when MatchSeat.seatNumber = 3 then cast(MatchSeat.isWinner as real) end)`.as(
+      sql<number>`coalesce(avg(case when MatchSeat.seatNumber = 2 then cast(MatchSeat.isWinner as real) end), 0)`.as(
         'seatWinRate3',
       ),
-      sql<number>`avg(case when MatchSeat.seatNumber = 4 then cast(MatchSeat.isWinner as real) end)`.as(
+      sql<number>`coalesce(avg(case when MatchSeat.seatNumber = 3 then cast(MatchSeat.isWinner as real) end), 0)`.as(
         'seatWinRate4',
       ),
-      sql<number>`avg(cast(MatchSeat.isDraw as real))`.as('drawRate'),
+      sql<number>`coalesce(avg(cast(MatchSeat.isDraw as real)), 0)`.as(
+        'drawRate',
+      ),
     ])
     .groupBy('Tournament.country')
     .having(sql`count(distinct Tournament.id)`, '>=', minTournaments)
