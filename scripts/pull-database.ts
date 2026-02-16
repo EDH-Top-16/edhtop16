@@ -368,34 +368,42 @@ async function createEntries(
   // Entry has 10 fields, so we can insert ~99 rows per batch
   // Use 90 as a safe batch size
   const allEntries = entries.flat();
-  const insertedEntries = await chunkedWorkerPool(
+  await chunkedWorkerPool(
     allEntries,
     async (chunk) => {
-      return await db
+      await db
         .insertInto('Entry')
         .values(chunk)
         .onConflict((oc) =>
           oc.columns(['tournamentId', 'playerId']).doNothing(),
         )
-        .returning(['Entry.id', 'Entry.playerId', 'Entry.tournamentId'])
         .execute();
+      return chunk;
     },
     {chunkSize: 90, workers: 1},
   );
 
-  const tidByTournamentId = new Map(
-    Array.from(tournamentIdByTid).map(([id, tid]) => [tid, id] as const),
-  );
-
-  const profileByPlayerId = new Map(
-    Array.from(playerIdByProfile).map(([id, tid]) => [tid, id] as const),
-  );
+  // Query the database for all entry IDs matching the imported tournaments.
+  // We can't rely on INSERT...RETURNING because ON CONFLICT DO NOTHING
+  // doesn't return existing rows, which means re-imported tournaments
+  // would have no entry ID mappings.
+  const tournamentIds = Array.from(tournamentIdByTid.values());
+  const entryRows = await db
+    .selectFrom('Entry as e')
+    .innerJoin('Player as p', 'p.id', 'e.playerId')
+    .innerJoin('Tournament as t', 't.id', 'e.tournamentId')
+    .select(['e.id as entryId', 't.TID', 'p.topdeckProfile'])
+    .where('e.tournamentId', 'in', tournamentIds)
+    .execute();
 
   const entryIdByTidAndProfile = new Map<string, number>();
-  for (const {id, playerId, tournamentId} of insertedEntries) {
-    const tid = tidByTournamentId.get(tournamentId)!;
-    const profile = profileByPlayerId.get(playerId)!;
-    entryIdByTidAndProfile.set(`${tid}:${profile}`, id);
+  for (const row of entryRows) {
+    if (row.topdeckProfile) {
+      entryIdByTidAndProfile.set(
+        `${row.TID}:${row.topdeckProfile}`,
+        row.entryId,
+      );
+    }
   }
 
   return (tid: string, profile: string) => {
