@@ -1,6 +1,6 @@
-import {z} from 'zod/v4';
 import Dataloader from 'dataloader';
 import undici from 'undici';
+import {z} from 'zod/v4';
 
 export class TopDeckClient {
   static readonly player = z.object({
