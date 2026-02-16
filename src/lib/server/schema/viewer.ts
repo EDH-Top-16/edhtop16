@@ -3,8 +3,6 @@ import {profileDb} from '../profile_db.js';
 import {Profile} from './profile.js';
 import {Team} from './team.js';
 
-export const ALLOWED_TEAM_CREATION = new Set(['aAJvwKsiyaeCG79ZsJtNIe59aTA3']);
-
 /** @gqlEnum */
 export enum DiscordRole {
   SUPPORTER = 'SUPPORTER',
@@ -60,7 +58,7 @@ export class Viewer {
       .where('profile.userId', '=', this.ctx.user!.id)
       .executeTakeFirst();
 
-    return row != null && ALLOWED_TEAM_CREATION.has(row.topdeckProfile);
+    return row != null;
   }
 
   /** @gqlField */

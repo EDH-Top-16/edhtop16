@@ -3,7 +3,7 @@ import type {Context} from '../context.js';
 import {profileDb, type ProfileDB} from '../profile_db.js';
 import {GraphQLNode} from './connection.js';
 import {Profile} from './profile.js';
-import {ALLOWED_TEAM_CREATION, Viewer} from './viewer.js';
+import {Viewer} from './viewer.js';
 import {fromGlobalId} from 'graphql-relay';
 
 /** @gqlType */
@@ -144,10 +144,6 @@ export async function createTeam(
     .selectAll()
     .where('userId', '=', ctx.user.id)
     .executeTakeFirstOrThrow();
-
-  if (!ALLOWED_TEAM_CREATION.has(profile.topdeckProfile)) {
-    throw new Error('Team creation is still in beta');
-  }
 
   const allowedMemberProfiles = await ctx.topdeckClient.players.loadMany(
     team.memberProfileUrls
