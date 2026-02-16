@@ -975,7 +975,7 @@ export const CommanderPageShell: EntryPointComponent<
       {commander.promo && <FirstPartyPromo promo={commander.promo} />}
 
       {!viewer?.hideAds && (
-        <div className="mx-auto flex max-w-(--breakpoint-md) items-center justify-center overflow-hidden py-4">
+        <div className="mx-auto flex max-w-full items-center justify-center overflow-hidden py-4">
           <NitroAd
             id="nitro-commander-top"
             options={{
