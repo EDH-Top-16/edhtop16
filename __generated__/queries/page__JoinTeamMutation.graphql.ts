@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<cb2189f93f576a8860983454874bb6f5>>
- * @relayHash 0958e602905f754affb29f0674dd7b6b
+ * @generated SignedSource<<10222fdb9af756c6daaf2d063277b5ac>>
+ * @relayHash f8b36473bca2f2ba80bc14a0df31e719
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,13 +9,13 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 0958e602905f754affb29f0674dd7b6b
+// @relayRequestID f8b36473bca2f2ba80bc14a0df31e719
 
 import { ConcreteRequest } from 'relay-runtime';
-export type claimPage_JoinTeamMutation$variables = {
+export type page__JoinTeamMutation$variables = {
   teamId: string;
 };
-export type claimPage_JoinTeamMutation$data = {
+export type page__JoinTeamMutation$data = {
   readonly selectTeam: {
     readonly profile: {
       readonly team: {
@@ -24,9 +24,9 @@ export type claimPage_JoinTeamMutation$data = {
     } | null | undefined;
   } | null | undefined;
 };
-export type claimPage_JoinTeamMutation = {
-  response: claimPage_JoinTeamMutation$data;
-  variables: claimPage_JoinTeamMutation$variables;
+export type page__JoinTeamMutation = {
+  response: page__JoinTeamMutation$data;
+  variables: page__JoinTeamMutation$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -63,7 +63,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "claimPage_JoinTeamMutation",
+    "name": "page__JoinTeamMutation",
     "selections": [
       {
         "alias": null,
@@ -107,7 +107,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "claimPage_JoinTeamMutation",
+    "name": "page__JoinTeamMutation",
     "selections": [
       {
         "alias": null,
@@ -148,15 +148,15 @@ return {
     ]
   },
   "params": {
-    "id": "0958e602905f754affb29f0674dd7b6b",
+    "id": "f8b36473bca2f2ba80bc14a0df31e719",
     "metadata": {},
-    "name": "claimPage_JoinTeamMutation",
+    "name": "page__JoinTeamMutation",
     "operationKind": "mutation",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "724885ea70c845cbbed6a58f0d7d4093";
+(node as any).hash = "110f4eb66b6cef7fbe59f21f1d20a4d7";
 
 export default node;

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<18054d59110355c9aedd90cdb02641c7>>
+ * @generated SignedSource<<ac4a8f8073dc453f5d757bdc132629e8>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,23 +10,23 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type claimPage_DiscordAuthCard$data = {
+export type page__DiscordAuthCard$data = {
   readonly viewer: {
     readonly email: string | null | undefined;
     readonly image: string | null | undefined;
   } | null | undefined;
-  readonly " $fragmentType": "claimPage_DiscordAuthCard";
+  readonly " $fragmentType": "page__DiscordAuthCard";
 };
-export type claimPage_DiscordAuthCard$key = {
-  readonly " $data"?: claimPage_DiscordAuthCard$data;
-  readonly " $fragmentSpreads": FragmentRefs<"claimPage_DiscordAuthCard">;
+export type page__DiscordAuthCard$key = {
+  readonly " $data"?: page__DiscordAuthCard$data;
+  readonly " $fragmentSpreads": FragmentRefs<"page__DiscordAuthCard">;
 };
 
 const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "claimPage_DiscordAuthCard",
+  "name": "page__DiscordAuthCard",
   "selections": [
     {
       "alias": null,
@@ -58,6 +58,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "3968ee0d320bb7a2c708973091548d83";
+(node as any).hash = "56e7e6058e7915dca9d2a1e1c08a4550";
 
 export default node;

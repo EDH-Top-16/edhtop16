@@ -1,17 +1,17 @@
-import {claimPage_ClaimProfileMutation} from '#genfiles/queries/claimPage_ClaimProfileMutation.graphql.js';
-import {claimPage_ClaimProfileQuery} from '#genfiles/queries/claimPage_ClaimProfileQuery.graphql.js';
-import {claimPage_CoachingInfoCard$key} from '#genfiles/queries/claimPage_CoachingInfoCard.graphql.js';
-import {claimPage_CreateTeamMutation} from '#genfiles/queries/claimPage_CreateTeamMutation.graphql.js';
-import {claimPage_DeleteProfileMutation} from '#genfiles/queries/claimPage_DeleteProfileMutation.graphql.js';
-import {claimPage_DeleteTeamMutation} from '#genfiles/queries/claimPage_DeleteTeamMutation.graphql.js';
-import {claimPage_DiscordAuthCard$key} from '#genfiles/queries/claimPage_DiscordAuthCard.graphql.js';
-import {claimPage_TeamCard$key} from '#genfiles/queries/claimPage_TeamCard.graphql.js';
-import {claimPage_TopdeckProfileCard$key} from '#genfiles/queries/claimPage_TopdeckProfileCard.graphql.js';
-import {claimPage_UpdateCoachingProfileMutation} from '#genfiles/queries/claimPage_UpdateCoachingProfileMutation.graphql.js';
-import {claimPage_LeaveTeamMutation} from '#genfiles/queries/claimPage_LeaveTeamMutation.graphql.js';
-import {claimPage_JoinTeamMutation} from '#genfiles/queries/claimPage_JoinTeamMutation.graphql.js';
-import {claimPage_AddTeamMemberMutation} from '#genfiles/queries/claimPage_AddTeamMemberMutation.graphql.js';
-import {claimPage_RemoveTeamMemberMutation} from '#genfiles/queries/claimPage_RemoveTeamMemberMutation.graphql.js';
+import {page__ClaimProfileMutation} from '#genfiles/queries/page__ClaimProfileMutation.graphql.js';
+import {page__ClaimProfileQuery} from '#genfiles/queries/page__ClaimProfileQuery.graphql.js';
+import {page__CoachingInfoCard$key} from '#genfiles/queries/page__CoachingInfoCard.graphql.js';
+import {page__CreateTeamMutation} from '#genfiles/queries/page__CreateTeamMutation.graphql.js';
+import {page__DeleteProfileMutation} from '#genfiles/queries/page__DeleteProfileMutation.graphql.js';
+import {page__DeleteTeamMutation} from '#genfiles/queries/page__DeleteTeamMutation.graphql.js';
+import {page__DiscordAuthCard$key} from '#genfiles/queries/page__DiscordAuthCard.graphql.js';
+import {page__TeamCard$key} from '#genfiles/queries/page__TeamCard.graphql.js';
+import {page__TopdeckProfileCard$key} from '#genfiles/queries/page__TopdeckProfileCard.graphql.js';
+import {page__UpdateCoachingProfileMutation} from '#genfiles/queries/page__UpdateCoachingProfileMutation.graphql.js';
+import {page__LeaveTeamMutation} from '#genfiles/queries/page__LeaveTeamMutation.graphql.js';
+import {page__JoinTeamMutation} from '#genfiles/queries/page__JoinTeamMutation.graphql.js';
+import {page__AddTeamMemberMutation} from '#genfiles/queries/page__AddTeamMemberMutation.graphql.js';
+import {page__RemoveTeamMemberMutation} from '#genfiles/queries/page__RemoveTeamMemberMutation.graphql.js';
 import {useCallback, useMemo, useState} from 'react';
 import {
   EntryPointComponent,
@@ -45,26 +45,27 @@ import {Label} from '#src/components/ui/label';
 import {Textarea} from '#src/components/ui/textarea';
 import {authClient} from '#src/lib/client/auth';
 import {cn} from '#src/lib/utils';
-import {Navigation} from './components/navigation';
+import {Navigation} from '#src/components/navigation';
 
 const topdeckProfileUrlSchema = z
   .url()
   .startsWith('https://topdeck.gg/profile/');
 
-/** @resource m#claim_page */
-export const ClaimPage: EntryPointComponent<
-  {claimQuery: claimPage_ClaimProfileQuery},
-  {}
-> = ({queries}) => {
+export type Queries = {
+  claimQuery: page__ClaimProfileQuery;
+};
+
+export default function ProfilePage({queries}: PastoriaPageProps<'/profile'>) {
   const query = usePreloadedQuery(
     graphql`
-      query claimPage_ClaimProfileQuery @preloadable {
-        ...claimPage_DiscordAuthCard
+      query page__ClaimProfileQuery @preloadable {
+        ...page__DiscordAuthCard
         viewer {
-          ...claimPage_TopdeckProfileCard
-          ...claimPage_TeamCard
+          ...page__TopdeckProfileCard
+          ...page__TeamCard
+          hideAds
           profile {
-            ...claimPage_CoachingInfoCard
+            ...page__CoachingInfoCard
           }
         }
       }
@@ -80,6 +81,9 @@ export const ClaimPage: EntryPointComponent<
         <div className="grid gap-4 sm:container md:grid-cols-2 lg:grid-cols-3">
           <DiscordAuthCard query={query} />
           {query.viewer && <TopdeckProfileCard user={query.viewer} />}
+          {query.viewer && (
+            <AdFreeCard viewIsAdFree={query.viewer.hideAds ?? false} />
+          )}
           {query.viewer?.profile && (
             <CoachingInfoCard profile={query.viewer.profile} />
           )}
@@ -88,12 +92,12 @@ export const ClaimPage: EntryPointComponent<
       </div>
     </>
   );
-};
+}
 
-function DiscordAuthCard(props: {query: claimPage_DiscordAuthCard$key}) {
+function DiscordAuthCard(props: {query: page__DiscordAuthCard$key}) {
   const {viewer} = useFragment(
     graphql`
-      fragment claimPage_DiscordAuthCard on Query {
+      fragment page__DiscordAuthCard on Query {
         viewer {
           email
           image
@@ -106,7 +110,7 @@ function DiscordAuthCard(props: {query: claimPage_DiscordAuthCard$key}) {
   function login() {
     authClient.signIn.social({
       provider: 'discord',
-      callbackURL: '/',
+      callbackURL: '/profile',
     });
   }
 
@@ -158,10 +162,10 @@ function DiscordAuthCard(props: {query: claimPage_DiscordAuthCard$key}) {
   );
 }
 
-function TopdeckProfileCard(props: {user: claimPage_TopdeckProfileCard$key}) {
+function TopdeckProfileCard(props: {user: page__TopdeckProfileCard$key}) {
   const {profile} = useFragment(
     graphql`
-      fragment claimPage_TopdeckProfileCard on Viewer @throwOnFieldError {
+      fragment page__TopdeckProfileCard on Viewer @throwOnFieldError {
         profile {
           id
           name
@@ -175,18 +179,19 @@ function TopdeckProfileCard(props: {user: claimPage_TopdeckProfileCard$key}) {
     props.user,
   );
 
-  const [deleteProfile, isDeleting] =
-    useMutation<claimPage_DeleteProfileMutation>(graphql`
-      mutation claimPage_DeleteProfileMutation {
+  const [deleteProfile, isDeleting] = useMutation<page__DeleteProfileMutation>(
+    graphql`
+      mutation page__DeleteProfileMutation {
         deleteProfile {
           success
           error
           viewer {
-            ...claimPage_TopdeckProfileCard
+            ...page__TopdeckProfileCard
           }
         }
       }
-    `);
+    `,
+  );
 
   const handleDelete = useCallback(() => {
     deleteProfile({variables: {}});
@@ -234,23 +239,75 @@ function TopdeckProfileCard(props: {user: claimPage_TopdeckProfileCard$key}) {
   );
 }
 
+function AdFreeCard({viewIsAdFree}: {viewIsAdFree: boolean}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="font-title">Ad-Free Experience</CardTitle>
+        <CardDescription>
+          Supporters enjoy an ad-free browsing experience on EDHTop16.
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent>
+        {viewIsAdFree ? (
+          <div className="flex flex-col items-center gap-2">
+            <span className="rounded-full bg-green-900/50 px-3 py-1 text-sm text-green-300">
+              Active
+            </span>
+            <p className="text-center text-sm text-gray-400">
+              You have an ad-free experience. Thank you for your support!
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-3">
+            <span className="rounded-full bg-gray-800 px-3 py-1 text-sm text-gray-400">
+              Inactive
+            </span>
+            <p className="text-center text-sm text-gray-400">
+              Join our Discord server and become a supporter to remove ads.
+            </p>
+            <a
+              href="https://discord.com/servers/edhtop16-1317628921445089402"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button variant="outline">
+                <svg
+                  className="h-5 w-5"
+                  viewBox="0 -28.5 256 256"
+                  fill="currentColor"
+                >
+                  <path d="M216.856 16.597A208.502 208.502 0 0 0 164.042 0c-2.275 4.113-4.933 9.645-6.766 14.046-19.692-2.961-39.203-2.961-58.533 0-1.832-4.4-4.55-9.933-6.846-14.046a207.809 207.809 0 0 0-52.855 16.638C5.618 67.147-3.443 116.4 1.087 164.956c22.169 16.555 43.653 26.612 64.775 33.193A161.094 161.094 0 0 0 79.735 175.3a136.413 136.413 0 0 1-21.846-10.632 108.636 108.636 0 0 0 5.356-4.237c42.122 19.702 87.89 19.702 129.51 0a131.66 131.66 0 0 0 5.355 4.237 136.07 136.07 0 0 1-21.886 10.653c4.006 8.02 8.638 15.67 13.873 22.848 21.142-6.58 42.646-16.637 64.815-33.213 5.316-56.288-9.08-105.09-38.056-148.36ZM85.474 135.095c-12.645 0-23.015-11.805-23.015-26.18s10.149-26.2 23.015-26.2c12.867 0 23.236 11.804 23.015 26.2.02 14.375-10.148 26.18-23.015 26.18Zm85.051 0c-12.645 0-23.014-11.805-23.014-26.18s10.148-26.2 23.014-26.2c12.867 0 23.236 11.804 23.015 26.2 0 14.375-10.148 26.18-23.015 26.18Z" />
+                </svg>
+                Join Discord
+              </Button>
+            </a>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function ClaimProfileForm() {
-  const [claimProfile, isClaiming] =
-    useMutation<claimPage_ClaimProfileMutation>(graphql`
-      mutation claimPage_ClaimProfileMutation($topdeckProfileUrl: String!) {
+  const [claimProfile, isClaiming] = useMutation<page__ClaimProfileMutation>(
+    graphql`
+      mutation page__ClaimProfileMutation($topdeckProfileUrl: String!) {
         claimProfile(profileUrl: $topdeckProfileUrl) {
           success
           error
           viewer {
-            ...claimPage_TopdeckProfileCard
-            ...claimPage_TeamCard
+            ...page__TopdeckProfileCard
+            ...page__TeamCard
             profile {
-              ...claimPage_CoachingInfoCard
+              ...page__CoachingInfoCard
             }
           }
         }
       }
-    `);
+    `,
+  );
 
   const [profileUrl, setProfileUrl] = useState('');
   const profileUrlError = useMemo(() => {
@@ -303,10 +360,10 @@ function ClaimProfileForm() {
   );
 }
 
-function CoachingInfoCard(props: {profile: claimPage_CoachingInfoCard$key}) {
+function CoachingInfoCard(props: {profile: page__CoachingInfoCard$key}) {
   const profile = useFragment(
     graphql`
-      fragment claimPage_CoachingInfoCard on Profile @throwOnFieldError {
+      fragment page__CoachingInfoCard on Profile @throwOnFieldError {
         offersCoaching
         coachingBio
         coachingBookingUrl
@@ -317,13 +374,13 @@ function CoachingInfoCard(props: {profile: claimPage_CoachingInfoCard$key}) {
   );
 
   const [updateCoachingProfile, isUpdating] =
-    useMutation<claimPage_UpdateCoachingProfileMutation>(graphql`
-      mutation claimPage_UpdateCoachingProfileMutation(
+    useMutation<page__UpdateCoachingProfileMutation>(graphql`
+      mutation page__UpdateCoachingProfileMutation(
         $coachingInfo: CoachingInfoInput!
       ) {
         updateCoachingInfo(coachingInfo: $coachingInfo) {
           profile {
-            ...claimPage_CoachingInfoCard
+            ...page__CoachingInfoCard
           }
         }
       }
@@ -442,10 +499,10 @@ function CoachingInfoCard(props: {profile: claimPage_CoachingInfoCard$key}) {
   );
 }
 
-function TeamCard(props: {user: claimPage_TeamCard$key}) {
+function TeamCard(props: {user: page__TeamCard$key}) {
   const {canCreateTeam, ownedTeam, profile} = useFragment(
     graphql`
-      fragment claimPage_TeamCard on Viewer @throwOnFieldError {
+      fragment page__TeamCard on Viewer @throwOnFieldError {
         canCreateTeam
 
         ownedTeam {
@@ -476,12 +533,12 @@ function TeamCard(props: {user: claimPage_TeamCard$key}) {
     props.user,
   );
 
-  const [deleteTeam, isDeleting] = useMutation<claimPage_DeleteTeamMutation>(
+  const [deleteTeam, isDeleting] = useMutation<page__DeleteTeamMutation>(
     graphql`
-      mutation claimPage_DeleteTeamMutation($teamId: String!) {
+      mutation page__DeleteTeamMutation($teamId: String!) {
         deleteTeam(teamId: $teamId) {
           owner {
-            ...claimPage_TeamCard
+            ...page__TeamCard
           }
         }
       }
@@ -495,26 +552,24 @@ function TeamCard(props: {user: claimPage_TeamCard$key}) {
     });
   }, [deleteTeam, ownedTeam]);
 
-  const [leaveTeam, isLeaving] = useMutation<claimPage_LeaveTeamMutation>(
-    graphql`
-      mutation claimPage_LeaveTeamMutation {
-        removeSelfFromTeam {
-          profile {
-            team {
-              name
-            }
+  const [leaveTeam, isLeaving] = useMutation<page__LeaveTeamMutation>(graphql`
+    mutation page__LeaveTeamMutation {
+      removeSelfFromTeam {
+        profile {
+          team {
+            name
           }
         }
       }
-    `,
-  );
+    }
+  `);
 
   const handleLeaveTeam = useCallback(() => {
     leaveTeam({variables: {}});
   }, [leaveTeam]);
 
-  const [joinTeam, isJoining] = useMutation<claimPage_JoinTeamMutation>(graphql`
-    mutation claimPage_JoinTeamMutation($teamId: String!) {
+  const [joinTeam, isJoining] = useMutation<page__JoinTeamMutation>(graphql`
+    mutation page__JoinTeamMutation($teamId: String!) {
       selectTeam(teamId: $teamId) {
         profile {
           team {
@@ -532,9 +587,9 @@ function TeamCard(props: {user: claimPage_TeamCard$key}) {
     [joinTeam],
   );
 
-  const [addMember, isAddingMember] =
-    useMutation<claimPage_AddTeamMemberMutation>(graphql`
-      mutation claimPage_AddTeamMemberMutation(
+  const [addMember, isAddingMember] = useMutation<page__AddTeamMemberMutation>(
+    graphql`
+      mutation page__AddTeamMemberMutation(
         $teamId: String!
         $profileUrl: String!
       ) {
@@ -551,11 +606,12 @@ function TeamCard(props: {user: claimPage_TeamCard$key}) {
           }
         }
       }
-    `);
+    `,
+  );
 
   const [removeMember, isRemovingMember] =
-    useMutation<claimPage_RemoveTeamMemberMutation>(graphql`
-      mutation claimPage_RemoveTeamMemberMutation(
+    useMutation<page__RemoveTeamMemberMutation>(graphql`
+      mutation page__RemoveTeamMemberMutation(
         $teamId: String!
         $topdeckProfileId: String!
       ) {
@@ -585,7 +641,7 @@ function TeamCard(props: {user: claimPage_TeamCard$key}) {
   );
 
   return (
-    <Card className="md:col-span-2">
+    <Card className="row-span-2 md:col-span-2">
       <CardHeader>
         <CardTitle className="font-title">Team</CardTitle>
         <CardDescription>Showcase your playgroup on EDHTop16.</CardDescription>
@@ -720,12 +776,12 @@ function TeamCard(props: {user: claimPage_TeamCard$key}) {
 }
 
 function CreateTeamDialog() {
-  const [createTeam, isCreating] = useMutation<claimPage_CreateTeamMutation>(
+  const [createTeam, isCreating] = useMutation<page__CreateTeamMutation>(
     graphql`
-      mutation claimPage_CreateTeamMutation($team: CreateTeamInput!) {
+      mutation page__CreateTeamMutation($team: CreateTeamInput!) {
         createTeam(team: $team) {
           owner {
-            ...claimPage_TeamCard
+            ...page__TeamCard
           }
         }
       }

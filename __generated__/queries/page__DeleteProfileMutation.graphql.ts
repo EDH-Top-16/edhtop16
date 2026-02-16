@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<88f9a21c871f34fe7373a58cb6c2b323>>
- * @relayHash 5646c2326f13c39d3959404a9daa1414
+ * @generated SignedSource<<9e9b0a2fdf8ede116602fc54bd6eb91d>>
+ * @relayHash 4843f57643f117e909e2a7ee88aba46e
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,23 +9,23 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 5646c2326f13c39d3959404a9daa1414
+// @relayRequestID 4843f57643f117e909e2a7ee88aba46e
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type claimPage_DeleteProfileMutation$variables = Record<PropertyKey, never>;
-export type claimPage_DeleteProfileMutation$data = {
+export type page__DeleteProfileMutation$variables = Record<PropertyKey, never>;
+export type page__DeleteProfileMutation$data = {
   readonly deleteProfile: {
     readonly error: string | null | undefined;
     readonly success: boolean | null | undefined;
     readonly viewer: {
-      readonly " $fragmentSpreads": FragmentRefs<"claimPage_TopdeckProfileCard">;
+      readonly " $fragmentSpreads": FragmentRefs<"page__TopdeckProfileCard">;
     } | null | undefined;
   } | null | undefined;
 };
-export type claimPage_DeleteProfileMutation = {
-  response: claimPage_DeleteProfileMutation$data;
-  variables: claimPage_DeleteProfileMutation$variables;
+export type page__DeleteProfileMutation = {
+  response: page__DeleteProfileMutation$data;
+  variables: page__DeleteProfileMutation$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -48,7 +48,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "claimPage_DeleteProfileMutation",
+    "name": "page__DeleteProfileMutation",
     "selections": [
       {
         "alias": null,
@@ -71,7 +71,7 @@ return {
               {
                 "args": null,
                 "kind": "FragmentSpread",
-                "name": "claimPage_TopdeckProfileCard"
+                "name": "page__TopdeckProfileCard"
               }
             ],
             "storageKey": null
@@ -87,7 +87,7 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "claimPage_DeleteProfileMutation",
+    "name": "page__DeleteProfileMutation",
     "selections": [
       {
         "alias": null,
@@ -169,15 +169,15 @@ return {
     ]
   },
   "params": {
-    "id": "5646c2326f13c39d3959404a9daa1414",
+    "id": "4843f57643f117e909e2a7ee88aba46e",
     "metadata": {},
-    "name": "claimPage_DeleteProfileMutation",
+    "name": "page__DeleteProfileMutation",
     "operationKind": "mutation",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "32f82b4e94c1eac132a733ffe1fdda73";
+(node as any).hash = "ba16827684f67eec49a3427b14215ab6";
 
 export default node;

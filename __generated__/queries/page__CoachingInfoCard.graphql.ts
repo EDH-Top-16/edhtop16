@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<8e67003b12b03bd3820134f19ce26f04>>
+ * @generated SignedSource<<537d5b10ddb3aca462203557ee7b6bcc>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,16 +10,16 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type claimPage_CoachingInfoCard$data = {
+export type page__CoachingInfoCard$data = {
   readonly coachingBio: string | null | undefined;
   readonly coachingBookingUrl: string | null | undefined;
   readonly coachingRatePerHour: number | null | undefined;
   readonly offersCoaching: boolean;
-  readonly " $fragmentType": "claimPage_CoachingInfoCard";
+  readonly " $fragmentType": "page__CoachingInfoCard";
 };
-export type claimPage_CoachingInfoCard$key = {
-  readonly " $data"?: claimPage_CoachingInfoCard$data;
-  readonly " $fragmentSpreads": FragmentRefs<"claimPage_CoachingInfoCard">;
+export type page__CoachingInfoCard$key = {
+  readonly " $data"?: page__CoachingInfoCard$data;
+  readonly " $fragmentSpreads": FragmentRefs<"page__CoachingInfoCard">;
 };
 
 const node: ReaderFragment = {
@@ -28,7 +28,7 @@ const node: ReaderFragment = {
   "metadata": {
     "throwOnFieldError": true
   },
-  "name": "claimPage_CoachingInfoCard",
+  "name": "page__CoachingInfoCard",
   "selections": [
     {
       "alias": null,
@@ -63,6 +63,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "2d0508ea92dba0b16db1198651165d66";
+(node as any).hash = "f9a6a93edf2208dc762b9ac4805d5419";
 
 export default node;

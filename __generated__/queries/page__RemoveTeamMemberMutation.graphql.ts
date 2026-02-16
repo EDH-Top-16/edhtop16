@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<3d939febedfe39b44f818d366ce95915>>
- * @relayHash 76ed787e4236e9c205ad873c6f91f34b
+ * @generated SignedSource<<32c19997fce1ac12838975142ba814ec>>
+ * @relayHash 3e65760d1c2c1763904186078ae64524
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,15 +9,15 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 76ed787e4236e9c205ad873c6f91f34b
+// @relayRequestID 3e65760d1c2c1763904186078ae64524
 
 import { ConcreteRequest } from 'relay-runtime';
-export type claimPage_AddTeamMemberMutation$variables = {
-  profileUrl: string;
+export type page__RemoveTeamMemberMutation$variables = {
   teamId: string;
+  topdeckProfileId: string;
 };
-export type claimPage_AddTeamMemberMutation$data = {
-  readonly addTeamMember: {
+export type page__RemoveTeamMemberMutation$data = {
+  readonly removeTeamMember: {
     readonly team: {
       readonly id: string;
       readonly invites: ReadonlyArray<{
@@ -30,40 +30,42 @@ export type claimPage_AddTeamMemberMutation$data = {
     } | null | undefined;
   } | null | undefined;
 };
-export type claimPage_AddTeamMemberMutation = {
-  response: claimPage_AddTeamMemberMutation$data;
-  variables: claimPage_AddTeamMemberMutation$variables;
+export type page__RemoveTeamMemberMutation = {
+  response: page__RemoveTeamMemberMutation$data;
+  variables: page__RemoveTeamMemberMutation$variables;
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "profileUrl"
-},
-v1 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "teamId"
-},
-v2 = [
+var v0 = [
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "teamId"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "topdeckProfileId"
+  }
+],
+v1 = [
   {
     "alias": null,
     "args": [
       {
         "kind": "Variable",
-        "name": "profileUrl",
-        "variableName": "profileUrl"
+        "name": "teamId",
+        "variableName": "teamId"
       },
       {
         "kind": "Variable",
-        "name": "teamId",
-        "variableName": "teamId"
+        "name": "topdeckProfileId",
+        "variableName": "topdeckProfileId"
       }
     ],
     "concreteType": "TeamMemberResponse",
     "kind": "LinkedField",
-    "name": "addTeamMember",
+    "name": "removeTeamMember",
     "plural": false,
     "selections": [
       {
@@ -136,37 +138,31 @@ v2 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
-    ],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "claimPage_AddTeamMemberMutation",
-    "selections": (v2/*: any*/),
+    "name": "page__RemoveTeamMemberMutation",
+    "selections": (v1/*: any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
-    ],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "claimPage_AddTeamMemberMutation",
-    "selections": (v2/*: any*/)
+    "name": "page__RemoveTeamMemberMutation",
+    "selections": (v1/*: any*/)
   },
   "params": {
-    "id": "76ed787e4236e9c205ad873c6f91f34b",
+    "id": "3e65760d1c2c1763904186078ae64524",
     "metadata": {},
-    "name": "claimPage_AddTeamMemberMutation",
+    "name": "page__RemoveTeamMemberMutation",
     "operationKind": "mutation",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "cc0cb5d96cf37663b7fc1f75371e2c06";
+(node as any).hash = "61e9325e2c622ad99e27def490ca6f79";
 
 export default node;

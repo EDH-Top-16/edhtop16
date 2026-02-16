@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<0ad033f6b70acadfeb0880b0ad6250d1>>
- * @relayHash 42f6e79e067856a5c5251d19e4a08717
+ * @generated SignedSource<<830840779c2bf3e418f631423997aa3f>>
+ * @relayHash f454653f15342c78c4a040b369b4d48f
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,23 +9,24 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 42f6e79e067856a5c5251d19e4a08717
+// @relayRequestID f454653f15342c78c4a040b369b4d48f
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type claimPage_ClaimProfileQuery$variables = Record<PropertyKey, never>;
-export type claimPage_ClaimProfileQuery$data = {
+export type page__ClaimProfileQuery$variables = Record<PropertyKey, never>;
+export type page__ClaimProfileQuery$data = {
   readonly viewer: {
+    readonly hideAds: boolean | null | undefined;
     readonly profile: {
-      readonly " $fragmentSpreads": FragmentRefs<"claimPage_CoachingInfoCard">;
+      readonly " $fragmentSpreads": FragmentRefs<"page__CoachingInfoCard">;
     } | null | undefined;
-    readonly " $fragmentSpreads": FragmentRefs<"claimPage_TeamCard" | "claimPage_TopdeckProfileCard">;
+    readonly " $fragmentSpreads": FragmentRefs<"page__TeamCard" | "page__TopdeckProfileCard">;
   } | null | undefined;
-  readonly " $fragmentSpreads": FragmentRefs<"claimPage_DiscordAuthCard">;
+  readonly " $fragmentSpreads": FragmentRefs<"page__DiscordAuthCard">;
 };
-export type claimPage_ClaimProfileQuery = {
-  response: claimPage_ClaimProfileQuery$data;
-  variables: claimPage_ClaimProfileQuery$variables;
+export type page__ClaimProfileQuery = {
+  response: page__ClaimProfileQuery$data;
+  variables: page__ClaimProfileQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -33,31 +34,38 @@ var v0 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "id",
+  "name": "hideAds",
   "storageKey": null
 },
 v1 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "name",
+  "name": "id",
   "storageKey": null
 },
 v2 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "username",
+  "name": "name",
   "storageKey": null
 },
 v3 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "topdeckProfile",
+  "name": "username",
   "storageKey": null
 },
 v4 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "topdeckProfile",
+  "storageKey": null
+},
+v5 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -69,12 +77,12 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "claimPage_ClaimProfileQuery",
+    "name": "page__ClaimProfileQuery",
     "selections": [
       {
         "args": null,
         "kind": "FragmentSpread",
-        "name": "claimPage_DiscordAuthCard"
+        "name": "page__DiscordAuthCard"
       },
       {
         "alias": null,
@@ -87,13 +95,14 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "claimPage_TopdeckProfileCard"
+            "name": "page__TopdeckProfileCard"
           },
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "claimPage_TeamCard"
+            "name": "page__TeamCard"
           },
+          (v0/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -105,7 +114,7 @@ return {
               {
                 "args": null,
                 "kind": "FragmentSpread",
-                "name": "claimPage_CoachingInfoCard"
+                "name": "page__CoachingInfoCard"
               }
             ],
             "storageKey": null
@@ -121,7 +130,7 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "claimPage_ClaimProfileQuery",
+    "name": "page__ClaimProfileQuery",
     "selections": [
       {
         "alias": null,
@@ -153,11 +162,11 @@ return {
             "name": "profile",
             "plural": false,
             "selections": [
-              (v0/*: any*/),
               (v1/*: any*/),
               (v2/*: any*/),
               (v3/*: any*/),
               (v4/*: any*/),
+              (v5/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -173,8 +182,8 @@ return {
                 "name": "selectableTeams",
                 "plural": true,
                 "selections": [
-                  (v0/*: any*/),
-                  (v1/*: any*/)
+                  (v1/*: any*/),
+                  (v2/*: any*/)
                 ],
                 "storageKey": null
               },
@@ -186,8 +195,8 @@ return {
                 "name": "team",
                 "plural": false,
                 "selections": [
-                  (v1/*: any*/),
-                  (v0/*: any*/)
+                  (v2/*: any*/),
+                  (v1/*: any*/)
                 ],
                 "storageKey": null
               },
@@ -230,8 +239,8 @@ return {
             "name": "ownedTeam",
             "plural": false,
             "selections": [
-              (v0/*: any*/),
               (v1/*: any*/),
+              (v2/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -240,10 +249,10 @@ return {
                 "name": "invites",
                 "plural": true,
                 "selections": [
-                  (v3/*: any*/),
-                  (v1/*: any*/),
-                  (v2/*: any*/),
                   (v4/*: any*/),
+                  (v2/*: any*/),
+                  (v3/*: any*/),
+                  (v5/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -256,23 +265,24 @@ return {
               }
             ],
             "storageKey": null
-          }
+          },
+          (v0/*: any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "id": "42f6e79e067856a5c5251d19e4a08717",
+    "id": "f454653f15342c78c4a040b369b4d48f",
     "metadata": {},
-    "name": "claimPage_ClaimProfileQuery",
+    "name": "page__ClaimProfileQuery",
     "operationKind": "query",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "05f31c8509d899f15c778fdbfee9df0d";
+(node as any).hash = "394810e0f613ee010eb9056875b00958";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

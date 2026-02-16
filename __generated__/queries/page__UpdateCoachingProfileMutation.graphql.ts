@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<c3202bdd4d976f2b9f2c74a3dd7f5cc3>>
- * @relayHash 61816edf9bd7a5db8f9bc4e97c57074c
+ * @generated SignedSource<<7556a14cb5111a6c339ed4041a06591c>>
+ * @relayHash 440f8188079970f64dc9b71ac5c39dcc
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 61816edf9bd7a5db8f9bc4e97c57074c
+// @relayRequestID 440f8188079970f64dc9b71ac5c39dcc
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -19,19 +19,19 @@ export type CoachingInfoInput = {
   coachingRatePerHour?: number | null | undefined;
   offersCoaching: boolean;
 };
-export type claimPage_UpdateCoachingProfileMutation$variables = {
+export type page__UpdateCoachingProfileMutation$variables = {
   coachingInfo: CoachingInfoInput;
 };
-export type claimPage_UpdateCoachingProfileMutation$data = {
+export type page__UpdateCoachingProfileMutation$data = {
   readonly updateCoachingInfo: {
     readonly profile: {
-      readonly " $fragmentSpreads": FragmentRefs<"claimPage_CoachingInfoCard">;
+      readonly " $fragmentSpreads": FragmentRefs<"page__CoachingInfoCard">;
     } | null | undefined;
   } | null | undefined;
 };
-export type claimPage_UpdateCoachingProfileMutation = {
-  response: claimPage_UpdateCoachingProfileMutation$data;
-  variables: claimPage_UpdateCoachingProfileMutation$variables;
+export type page__UpdateCoachingProfileMutation = {
+  response: page__UpdateCoachingProfileMutation$data;
+  variables: page__UpdateCoachingProfileMutation$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -54,7 +54,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "claimPage_UpdateCoachingProfileMutation",
+    "name": "page__UpdateCoachingProfileMutation",
     "selections": [
       {
         "alias": null,
@@ -75,7 +75,7 @@ return {
               {
                 "args": null,
                 "kind": "FragmentSpread",
-                "name": "claimPage_CoachingInfoCard"
+                "name": "page__CoachingInfoCard"
               }
             ],
             "storageKey": null
@@ -91,7 +91,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "claimPage_UpdateCoachingProfileMutation",
+    "name": "page__UpdateCoachingProfileMutation",
     "selections": [
       {
         "alias": null,
@@ -153,15 +153,15 @@ return {
     ]
   },
   "params": {
-    "id": "61816edf9bd7a5db8f9bc4e97c57074c",
+    "id": "440f8188079970f64dc9b71ac5c39dcc",
     "metadata": {},
-    "name": "claimPage_UpdateCoachingProfileMutation",
+    "name": "page__UpdateCoachingProfileMutation",
     "operationKind": "mutation",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "6317bbc3fc73ece2e52933a502645ed6";
+(node as any).hash = "0da346b6cdc80a581e30d70c9963835b";
 
 export default node;

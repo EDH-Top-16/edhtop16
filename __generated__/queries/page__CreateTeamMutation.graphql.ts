@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<ad83e8b72b984e2217059d7c947c8570>>
- * @relayHash 7985944fdb51601a3ab36305d6c471db
+ * @generated SignedSource<<16a2519a18f99b6396884a7c887505dc>>
+ * @relayHash edb705fdd782dc4440d1eeab937f0e5e
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,23 +9,27 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 7985944fdb51601a3ab36305d6c471db
+// @relayRequestID edb705fdd782dc4440d1eeab937f0e5e
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type claimPage_DeleteTeamMutation$variables = {
-  teamId: string;
+export type CreateTeamInput = {
+  memberProfileUrls: string;
+  name: string;
 };
-export type claimPage_DeleteTeamMutation$data = {
-  readonly deleteTeam: {
+export type page__CreateTeamMutation$variables = {
+  team: CreateTeamInput;
+};
+export type page__CreateTeamMutation$data = {
+  readonly createTeam: {
     readonly owner: {
-      readonly " $fragmentSpreads": FragmentRefs<"claimPage_TeamCard">;
+      readonly " $fragmentSpreads": FragmentRefs<"page__TeamCard">;
     } | null | undefined;
   } | null | undefined;
 };
-export type claimPage_DeleteTeamMutation = {
-  response: claimPage_DeleteTeamMutation$data;
-  variables: claimPage_DeleteTeamMutation$variables;
+export type page__CreateTeamMutation = {
+  response: page__CreateTeamMutation$data;
+  variables: page__CreateTeamMutation$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -33,14 +37,14 @@ var v0 = [
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "teamId"
+    "name": "team"
   }
 ],
 v1 = [
   {
     "kind": "Variable",
-    "name": "teamId",
-    "variableName": "teamId"
+    "name": "team",
+    "variableName": "team"
   }
 ],
 v2 = {
@@ -69,14 +73,14 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "claimPage_DeleteTeamMutation",
+    "name": "page__CreateTeamMutation",
     "selections": [
       {
         "alias": null,
         "args": (v1/*: any*/),
         "concreteType": "CreateTeamResponse",
         "kind": "LinkedField",
-        "name": "deleteTeam",
+        "name": "createTeam",
         "plural": false,
         "selections": [
           {
@@ -90,7 +94,7 @@ return {
               {
                 "args": null,
                 "kind": "FragmentSpread",
-                "name": "claimPage_TeamCard"
+                "name": "page__TeamCard"
               }
             ],
             "storageKey": null
@@ -106,14 +110,14 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "claimPage_DeleteTeamMutation",
+    "name": "page__CreateTeamMutation",
     "selections": [
       {
         "alias": null,
         "args": (v1/*: any*/),
         "concreteType": "CreateTeamResponse",
         "kind": "LinkedField",
-        "name": "deleteTeam",
+        "name": "createTeam",
         "plural": false,
         "selections": [
           {
@@ -226,15 +230,15 @@ return {
     ]
   },
   "params": {
-    "id": "7985944fdb51601a3ab36305d6c471db",
+    "id": "edb705fdd782dc4440d1eeab937f0e5e",
     "metadata": {},
-    "name": "claimPage_DeleteTeamMutation",
+    "name": "page__CreateTeamMutation",
     "operationKind": "mutation",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "31c5f33cdd5645e71c482ab447a9834f";
+(node as any).hash = "198e84bf7a8a848807974786872bf6d7";
 
 export default node;

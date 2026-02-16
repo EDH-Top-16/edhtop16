@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<b515dccc87fc0dbe295959c59ec5a201>>
- * @relayHash 36911970281df5f35c7f94aa840abd2f
+ * @generated SignedSource<<2b318b61cca75737529941ac07c2c623>>
+ * @relayHash c0492d878c9d428805cf06552879a23b
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,28 +9,28 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 36911970281df5f35c7f94aa840abd2f
+// @relayRequestID c0492d878c9d428805cf06552879a23b
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type claimPage_ClaimProfileMutation$variables = {
+export type page__ClaimProfileMutation$variables = {
   topdeckProfileUrl: string;
 };
-export type claimPage_ClaimProfileMutation$data = {
+export type page__ClaimProfileMutation$data = {
   readonly claimProfile: {
     readonly error: string | null | undefined;
     readonly success: boolean | null | undefined;
     readonly viewer: {
       readonly profile: {
-        readonly " $fragmentSpreads": FragmentRefs<"claimPage_CoachingInfoCard">;
+        readonly " $fragmentSpreads": FragmentRefs<"page__CoachingInfoCard">;
       } | null | undefined;
-      readonly " $fragmentSpreads": FragmentRefs<"claimPage_TeamCard" | "claimPage_TopdeckProfileCard">;
+      readonly " $fragmentSpreads": FragmentRefs<"page__TeamCard" | "page__TopdeckProfileCard">;
     } | null | undefined;
   } | null | undefined;
 };
-export type claimPage_ClaimProfileMutation = {
-  response: claimPage_ClaimProfileMutation$data;
-  variables: claimPage_ClaimProfileMutation$variables;
+export type page__ClaimProfileMutation = {
+  response: page__ClaimProfileMutation$data;
+  variables: page__ClaimProfileMutation$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -102,7 +102,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "claimPage_ClaimProfileMutation",
+    "name": "page__ClaimProfileMutation",
     "selections": [
       {
         "alias": null,
@@ -125,12 +125,12 @@ return {
               {
                 "args": null,
                 "kind": "FragmentSpread",
-                "name": "claimPage_TopdeckProfileCard"
+                "name": "page__TopdeckProfileCard"
               },
               {
                 "args": null,
                 "kind": "FragmentSpread",
-                "name": "claimPage_TeamCard"
+                "name": "page__TeamCard"
               },
               {
                 "alias": null,
@@ -143,7 +143,7 @@ return {
                   {
                     "args": null,
                     "kind": "FragmentSpread",
-                    "name": "claimPage_CoachingInfoCard"
+                    "name": "page__CoachingInfoCard"
                   }
                 ],
                 "storageKey": null
@@ -162,7 +162,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "claimPage_ClaimProfileMutation",
+    "name": "page__ClaimProfileMutation",
     "selections": [
       {
         "alias": null,
@@ -303,15 +303,15 @@ return {
     ]
   },
   "params": {
-    "id": "36911970281df5f35c7f94aa840abd2f",
+    "id": "c0492d878c9d428805cf06552879a23b",
     "metadata": {},
-    "name": "claimPage_ClaimProfileMutation",
+    "name": "page__ClaimProfileMutation",
     "operationKind": "mutation",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "64cf16049394404b96f3aa126ec48196";
+(node as any).hash = "f8a597381b7e45994c38557d7ab191ce";
 
 export default node;

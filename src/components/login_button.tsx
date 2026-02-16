@@ -10,8 +10,7 @@ export function LoginButton() {
     return (
       <RouteLink
         className="text-sm text-white/60 underline decoration-transparent transition-colors hover:text-white hover:decoration-inherit"
-        // onClick={() => authClient.signOut()}
-        route="/claim"
+        route="/profile"
         params={{}}
       >
         My Profile

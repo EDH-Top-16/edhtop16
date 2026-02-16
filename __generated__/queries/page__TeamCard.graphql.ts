@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<a5ad79fe121df92a5b998af390c2d327>>
+ * @generated SignedSource<<00986b2c01a6683a0c6fdee470137a0a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type claimPage_TeamCard$data = {
+export type page__TeamCard$data = {
   readonly canCreateTeam: boolean;
   readonly ownedTeam: {
     readonly id: string;
@@ -33,11 +33,11 @@ export type claimPage_TeamCard$data = {
     } | null | undefined;
     readonly topdeckProfile: string;
   } | null | undefined;
-  readonly " $fragmentType": "claimPage_TeamCard";
+  readonly " $fragmentType": "page__TeamCard";
 };
-export type claimPage_TeamCard$key = {
-  readonly " $data"?: claimPage_TeamCard$data;
-  readonly " $fragmentSpreads": FragmentRefs<"claimPage_TeamCard">;
+export type page__TeamCard$key = {
+  readonly " $data"?: page__TeamCard$data;
+  readonly " $fragmentSpreads": FragmentRefs<"page__TeamCard">;
 };
 
 const node: ReaderFragment = (function(){
@@ -68,7 +68,7 @@ return {
   "metadata": {
     "throwOnFieldError": true
   },
-  "name": "claimPage_TeamCard",
+  "name": "page__TeamCard",
   "selections": [
     {
       "alias": null,
@@ -167,6 +167,6 @@ return {
 };
 })();
 
-(node as any).hash = "36379cc4a9be6f4f88adc3a48412def9";
+(node as any).hash = "3666c0b79f69ad2be2ca1f8ae65efee2";
 
 export default node;

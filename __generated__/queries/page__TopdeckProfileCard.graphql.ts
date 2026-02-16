@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<f72fb0f57a6dbed0216df17c9a1def37>>
+ * @generated SignedSource<<1aebe287dc01f13944ee41b7a5297c6a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type claimPage_TopdeckProfileCard$data = {
+export type page__TopdeckProfileCard$data = {
   readonly profile: {
     readonly id: string;
     readonly name: string | null | undefined;
@@ -19,11 +19,11 @@ export type claimPage_TopdeckProfileCard$data = {
     readonly topdeckProfile: string;
     readonly username: string | null | undefined;
   } | null | undefined;
-  readonly " $fragmentType": "claimPage_TopdeckProfileCard";
+  readonly " $fragmentType": "page__TopdeckProfileCard";
 };
-export type claimPage_TopdeckProfileCard$key = {
-  readonly " $data"?: claimPage_TopdeckProfileCard$data;
-  readonly " $fragmentSpreads": FragmentRefs<"claimPage_TopdeckProfileCard">;
+export type page__TopdeckProfileCard$key = {
+  readonly " $data"?: page__TopdeckProfileCard$data;
+  readonly " $fragmentSpreads": FragmentRefs<"page__TopdeckProfileCard">;
 };
 
 const node: ReaderFragment = {
@@ -32,7 +32,7 @@ const node: ReaderFragment = {
   "metadata": {
     "throwOnFieldError": true
   },
-  "name": "claimPage_TopdeckProfileCard",
+  "name": "page__TopdeckProfileCard",
   "selections": [
     {
       "alias": null,
@@ -92,6 +92,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "dd309e58460ed170d5b3e1a19ce5660c";
+(node as any).hash = "43f66962492dad73a8ea561b128280b2";
 
 export default node;

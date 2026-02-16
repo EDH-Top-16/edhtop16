@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<7682cbbf055f84f8bdffaee4df60e176>>
- * @relayHash eb9536a5997374c169144bb177508493
+ * @generated SignedSource<<455237900bd7eff79f2bb280d2e20728>>
+ * @relayHash 3b3b3c3d70194223f5f7ef9e6abdc59c
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,11 +9,11 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID eb9536a5997374c169144bb177508493
+// @relayRequestID 3b3b3c3d70194223f5f7ef9e6abdc59c
 
 import { ConcreteRequest } from 'relay-runtime';
-export type claimPage_LeaveTeamMutation$variables = Record<PropertyKey, never>;
-export type claimPage_LeaveTeamMutation$data = {
+export type page__LeaveTeamMutation$variables = Record<PropertyKey, never>;
+export type page__LeaveTeamMutation$data = {
   readonly removeSelfFromTeam: {
     readonly profile: {
       readonly team: {
@@ -22,9 +22,9 @@ export type claimPage_LeaveTeamMutation$data = {
     } | null | undefined;
   } | null | undefined;
 };
-export type claimPage_LeaveTeamMutation = {
-  response: claimPage_LeaveTeamMutation$data;
-  variables: claimPage_LeaveTeamMutation$variables;
+export type page__LeaveTeamMutation = {
+  response: page__LeaveTeamMutation$data;
+  variables: page__LeaveTeamMutation$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -47,7 +47,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "claimPage_LeaveTeamMutation",
+    "name": "page__LeaveTeamMutation",
     "selections": [
       {
         "alias": null,
@@ -91,7 +91,7 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "claimPage_LeaveTeamMutation",
+    "name": "page__LeaveTeamMutation",
     "selections": [
       {
         "alias": null,
@@ -132,15 +132,15 @@ return {
     ]
   },
   "params": {
-    "id": "eb9536a5997374c169144bb177508493",
+    "id": "3b3b3c3d70194223f5f7ef9e6abdc59c",
     "metadata": {},
-    "name": "claimPage_LeaveTeamMutation",
+    "name": "page__LeaveTeamMutation",
     "operationKind": "mutation",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "62303d85b81284653c3d03fb070c60bc";
+(node as any).hash = "035a726343d54455e34e5e77fdd145c9";
 
 export default node;
