@@ -449,6 +449,10 @@ export function getSchema(): GraphQLSchema {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));
                     }
                 },
+                team: {
+                    name: "team",
+                    type: GraphQLString
+                },
                 topCuts: {
                     name: "topCuts",
                     type: GraphQLInt,

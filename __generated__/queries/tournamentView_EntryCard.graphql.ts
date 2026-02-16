@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b7c57c372448f1b49862e2d75bed01ea>>
+ * @generated SignedSource<<64484ef6da01c6760a3bd4950f1fbe27>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -24,6 +24,7 @@ export type tournamentView_EntryCard$data = {
   readonly player: {
     readonly isKnownCheater: boolean;
     readonly name: string;
+    readonly team: string | null | undefined;
   };
   readonly standing: number;
   readonly wins: number;
@@ -98,6 +99,13 @@ return {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
+          "name": "team",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
           "name": "isKnownCheater",
           "storageKey": null
         }
@@ -147,6 +155,6 @@ return {
 };
 })();
 
-(node as any).hash = "3af0b4e824c08d063a626445887ad228";
+(node as any).hash = "fb7ac60da19027bf97df82625079bb14";
 
 export default node;

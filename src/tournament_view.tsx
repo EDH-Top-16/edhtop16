@@ -46,6 +46,7 @@ function EntryCard({
 
         player {
           name
+          team
           isKnownCheater
         }
 
@@ -76,6 +77,11 @@ function EntryCard({
       {entry.player?.isKnownCheater && (
         <span className="absolute right-0 rounded-full bg-red-600 px-2 py-1 text-xs uppercase">
           Cheater
+        </span>
+      )}
+      {!entry.player?.isKnownCheater && entry.player?.team && (
+        <span className="absolute right-0 rounded-full bg-white/10 px-2 py-1 text-xs">
+          {entry.player.team}
         </span>
       )}
     </span>

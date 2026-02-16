@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<52e78f057283f0589d84541364589edf>>
- * @relayHash 6d338428e05ff88c90049e3e496180e8
+ * @generated SignedSource<<be325c7a851a15c39a8a2888e859a8aa>>
+ * @relayHash 199c716fe5153e48e072a3173ee7dd0f
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 6d338428e05ff88c90049e3e496180e8
+// @relayRequestID 199c716fe5153e48e072a3173ee7dd0f
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -177,6 +177,13 @@ v12 = [
     "plural": false,
     "selections": [
       (v9/*: any*/),
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "team",
+        "storageKey": null
+      },
       {
         "alias": null,
         "args": null,
@@ -425,7 +432,7 @@ return {
     ]
   },
   "params": {
-    "id": "6d338428e05ff88c90049e3e496180e8",
+    "id": "199c716fe5153e48e072a3173ee7dd0f",
     "metadata": {},
     "name": "tournamentView_TournamentQuery",
     "operationKind": "query",

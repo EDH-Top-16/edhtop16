@@ -124,6 +124,7 @@ export async function claimProfile(
     .values({
       topdeckProfile: topdeckProfile.id,
       userId: ctx.user.id,
+      offersCoaching: false,
     })
     .execute();
 

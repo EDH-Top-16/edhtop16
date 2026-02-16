@@ -297,6 +297,7 @@ type Player implements Node {
   isKnownCheater: Boolean @semanticNonNull
   losses: Int @semanticNonNull
   name: String @semanticNonNull
+  team: String
   topCuts: Int @semanticNonNull
   topdeckProfile: String
   winRate: Float @semanticNonNull

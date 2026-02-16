@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<82a9c9685530965ebb9e6254e1f87861>>
- * @relayHash a7c0295eeb9a27e9341d7252bc294e26
+ * @generated SignedSource<<34d10b4a1a3ecb6302122809edb444c9>>
+ * @relayHash 76fd1e04b4cec6db53074469761f0ee4
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID a7c0295eeb9a27e9341d7252bc294e26
+// @relayRequestID 76fd1e04b4cec6db53074469761f0ee4
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -239,6 +239,13 @@ return {
                             "alias": null,
                             "args": null,
                             "kind": "ScalarField",
+                            "name": "team",
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
                             "name": "isKnownCheater",
                             "storageKey": null
                           },
@@ -347,7 +354,7 @@ return {
     ]
   },
   "params": {
-    "id": "a7c0295eeb9a27e9341d7252bc294e26",
+    "id": "76fd1e04b4cec6db53074469761f0ee4",
     "metadata": {},
     "name": "commanderPage_LazyCardEntriesQuery",
     "operationKind": "query",

@@ -704,8 +704,10 @@ async function addSeatWinRates() {
 }
 
 async function updateProfilesFromEDHTop16Platform() {
-  if (!process.env.PROFILE_DATABASE_URL) {
-    info`Skipping profile sync: PROFILE_DATABASE_URL not set`();
+  const profileDatabaseUrl =
+    process.env.DATABASE_URL ?? process.env.PROFILE_DATABASE_URL;
+  if (!profileDatabaseUrl) {
+    info`Skipping profile sync: DATABASE_URL not set`();
     return;
   }
 
@@ -713,7 +715,7 @@ async function updateProfilesFromEDHTop16Platform() {
   const profileDb = new Kysely<ProfileDB>({
     dialect: new PostgresDialect({
       pool: new Pool({
-        connectionString: process.env.PROFILE_DATABASE_URL,
+        connectionString: profileDatabaseUrl,
         ssl: process.env.PROFILE_DATABASE_CA_CERT
           ? {
               rejectUnauthorized: true,
@@ -728,14 +730,17 @@ async function updateProfilesFromEDHTop16Platform() {
     info`Fetching coaching profiles from platform database...`();
     const profiles = await profileDb
       .selectFrom('profile')
+      .leftJoin('team', 'team.id', 'profile.teamId')
       .select([
-        'topdeckProfile',
-        'offersCoaching',
-        'coachingBio',
-        'coachingBookingUrl',
-        'coachingRatePerHour',
+        'profile.topdeckProfile',
+        'profile.offersCoaching',
+        'profile.coachingBio',
+        'profile.coachingBookingUrl',
+        'profile.coachingRatePerHour',
+        'team.name as teamName',
+        'team.id as teamId',
       ])
-      .where('topdeckProfile', 'is not', null)
+      .where('profile.topdeckProfile', 'is not', null)
       .execute();
 
     info`Found ${profiles.length} profiles with TopDeck links`();
@@ -745,7 +750,7 @@ async function updateProfilesFromEDHTop16Platform() {
       return;
     }
 
-    // Update players with coaching information
+    // Update players with coaching and team information
     let updatedCount = 0;
     for (const profile of profiles) {
       const result = await db
@@ -755,6 +760,8 @@ async function updateProfilesFromEDHTop16Platform() {
           coachingBio: profile.coachingBio,
           coachingBookingUrl: profile.coachingBookingUrl,
           coachingRatePerHour: profile.coachingRatePerHour,
+          team: profile.teamName ?? null,
+          teamId: profile.teamId ?? null,
         })
         .where('topdeckProfile', '=', profile.topdeckProfile!)
         .executeTakeFirst();
@@ -764,7 +771,7 @@ async function updateProfilesFromEDHTop16Platform() {
       }
     }
 
-    success`Updated coaching information for ${updatedCount} players`();
+    success`Updated coaching and team information for ${updatedCount} players`();
   } finally {
     await profileDb.destroy();
   }

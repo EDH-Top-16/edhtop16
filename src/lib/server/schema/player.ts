@@ -96,11 +96,14 @@ export class Player implements GraphQLNode {
   readonly name: string;
   /** @gqlField */
   readonly topdeckProfile: string | null;
+  /** @gqlField */
+  readonly team: string | null;
 
   constructor(row: Selectable<DB['Player']>) {
     this.id = row.id;
     this.name = row.name;
     this.topdeckProfile = row.topdeckProfile;
+    this.team = row.team;
   }
 
   /** @gqlField */
