@@ -1,4 +1,9 @@
 import type {Context} from '../context.js';
+import {profileDb} from '../profile_db.js';
+import {Profile} from './profile.js';
+import {Team} from './team.js';
+
+export const ALLOWED_TEAM_CREATION = new Set(['aAJvwKsiyaeCG79ZsJtNIe59aTA3']);
 
 /** @gqlEnum */
 export enum DiscordRole {
@@ -15,7 +20,7 @@ const ROLE_ID_MAP: Record<string, DiscordRole> = {
 
 /** @gqlType */
 export class Viewer {
-  private ctx: Context;
+  ctx: Context;
 
   constructor(ctx: Context) {
     this.ctx = ctx;
@@ -24,6 +29,49 @@ export class Viewer {
   /** @gqlField */
   get name(): string | null {
     return this.ctx.user?.name ?? null;
+  }
+
+  /** @gqlField */
+  get email(): string {
+    return this.ctx.user!.email;
+  }
+
+  /** @gqlField */
+  get image(): string | null {
+    return this.ctx.user?.image ?? null;
+  }
+
+  /** @gqlField */
+  async profile(): Promise<Profile | null> {
+    const row = await profileDb
+      .selectFrom('profile')
+      .selectAll()
+      .where('profile.userId', '=', this.ctx.user!.id)
+      .executeTakeFirst();
+
+    return row == null ? null : new Profile(row);
+  }
+
+  /** @gqlField */
+  async canCreateTeam(): Promise<boolean> {
+    const row = await profileDb
+      .selectFrom('profile')
+      .select(['topdeckProfile'])
+      .where('profile.userId', '=', this.ctx.user!.id)
+      .executeTakeFirst();
+
+    return row != null && ALLOWED_TEAM_CREATION.has(row.topdeckProfile);
+  }
+
+  /** @gqlField */
+  async ownedTeam(): Promise<Team | null> {
+    const team = await profileDb
+      .selectFrom('team')
+      .selectAll()
+      .where('ownerId', '=', this.ctx.user!.id)
+      .executeTakeFirst();
+
+    return team == null ? null : new Team(team);
   }
 
   /** @gqlField */

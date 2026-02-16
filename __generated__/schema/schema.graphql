@@ -94,6 +94,13 @@ input CardEntriesFilters {
   tournamentTID: String
 }
 
+input CoachingInfoInput {
+  coachingBio: String
+  coachingBookingUrl: String
+  coachingRatePerHour: Float
+  offersCoaching: Boolean!
+}
+
 input CommanderStatsFilters {
   colorId: String
   maxDate: String
@@ -101,6 +108,11 @@ input CommanderStatsFilters {
   minDate: String
   minSize: Int
   timePeriod: TimePeriod
+}
+
+input CreateTeamInput {
+  memberProfileUrls: String!
+  name: String!
 }
 
 input EntriesFilter {
@@ -151,6 +163,16 @@ type Card implements Node {
   """Link to the card on Scryfall."""
   scryfallUrl: String @semanticNonNull
   type: String @semanticNonNull
+}
+
+type ClaimProfileResponse {
+  error: String
+  success: Boolean @semanticNonNull
+  viewer: Viewer
+}
+
+type CoachingInfoResponse {
+  profile: Profile
 }
 
 type Commander implements Node {
@@ -207,6 +229,10 @@ type CountrySeatWinRate {
   tournaments: Int @semanticNonNull
 }
 
+type CreateTeamResponse {
+  owner: Viewer @semanticNonNull
+}
+
 type Entry implements Node {
   commander: Commander @semanticNonNull
   decklist: String
@@ -244,6 +270,18 @@ type FirstPartyPromo {
   title: String @semanticNonNull
 }
 
+type Mutation {
+  addTeamMember(profileUrl: String!, teamId: String!): TeamMemberResponse @semanticNonNull
+  claimProfile(profileUrl: String!): ClaimProfileResponse @semanticNonNull
+  createTeam(team: CreateTeamInput!): CreateTeamResponse @semanticNonNull
+  deleteProfile: ClaimProfileResponse @semanticNonNull
+  deleteTeam(teamId: String!): CreateTeamResponse @semanticNonNull
+  removeSelfFromTeam: UpdateProfileResponse @semanticNonNull
+  removeTeamMember(teamId: String!, topdeckProfileId: String!): TeamMemberResponse @semanticNonNull
+  selectTeam(teamId: String!): UpdateProfileResponse @semanticNonNull
+  updateCoachingInfo(coachingInfo: CoachingInfoInput!): CoachingInfoResponse @semanticNonNull
+}
+
 type PageInfo {
   endCursor: String
   hasNextPage: Boolean @semanticNonNull
@@ -263,6 +301,20 @@ type Player implements Node {
   topdeckProfile: String
   winRate: Float @semanticNonNull
   wins: Int @semanticNonNull
+}
+
+type Profile implements Node {
+  coachingBio: String
+  coachingBookingUrl: String
+  coachingRatePerHour: Float
+  id: ID!
+  name: String
+  offersCoaching: Boolean @semanticNonNull
+  profileImage: String @semanticNonNull
+  selectableTeams: [Team!] @semanticNonNull
+  team: Team
+  topdeckProfile: String @semanticNonNull
+  username: String
 }
 
 type Query {
@@ -292,6 +344,27 @@ type SearchResult {
   tournamentDate: String
   url: String @semanticNonNull
   winnerName: String
+}
+
+type Team implements Node {
+  id: ID!
+  invites: [TeamMemberInvite!] @semanticNonNull
+  isOwner: Boolean @semanticNonNull
+  members: [Profile!] @semanticNonNull
+  name: String @semanticNonNull
+}
+
+type TeamMemberInvite {
+  joined: Boolean @semanticNonNull
+  joinedProfile: Profile
+  name: String
+  profileImage: String @semanticNonNull
+  topdeckProfile: String @semanticNonNull
+  username: String
+}
+
+type TeamMemberResponse {
+  team: Team @semanticNonNull
 }
 
 type Tournament implements Node {
@@ -332,8 +405,17 @@ type TournamentEdge {
   node: Tournament @semanticNonNull
 }
 
+type UpdateProfileResponse {
+  profile: Profile @semanticNonNull
+}
+
 type Viewer {
+  canCreateTeam: Boolean @semanticNonNull
   discordRoles: [DiscordRole!] @semanticNonNull
+  email: String @semanticNonNull
   hideAds: Boolean @semanticNonNull
+  image: String
   name: String
+  ownedTeam: Team
+  profile: Profile
 }

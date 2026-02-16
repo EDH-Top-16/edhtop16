@@ -4,7 +4,7 @@
  */
 import { defaultFieldResolver, GraphQLSchema, GraphQLDirective, DirectiveLocation, GraphQLList, GraphQLInt, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLEnumType, GraphQLFloat, GraphQLInputObjectType, GraphQLID, GraphQLInterfaceType, GraphQLBoolean } from "graphql";
 import { createCommanderCardsLoader as createCommanderCardsLoader, commanderStatsLoader as commanderStatsLoader, createCommanderLoader as createCommanderLoader, Commander as queryCommanderResolver, Commander as queryCommandersResolver } from "./../../src/lib/server/schema/commander";
-import { id as commanderIdResolver, id as entryIdResolver, id as playerIdResolver, id as tournamentIdResolver, id as cardIdResolver, node as queryNodeResolver } from "./../../src/lib/server/schema/connection";
+import { id as commanderIdResolver, id as entryIdResolver, id as playerIdResolver, id as tournamentIdResolver, id as cardIdResolver, node as queryNodeResolver, id as teamIdResolver, id as profileIdResolver } from "./../../src/lib/server/schema/connection";
 import { createPlayerLoader as createPlayerLoader, Player as queryCheatersResolver, Player as queryPlayerResolver } from "./../../src/lib/server/schema/player";
 import { createTournamentLoader as createTournamentLoader, Tournament as queryTournamentResolver, Tournament as queryTournamentsResolver } from "./../../src/lib/server/schema/tournament";
 import { Card as queryCardResolver, createCardLoader as createCardLoader, Card as queryStaplesResolver } from "./../../src/lib/server/schema/card";
@@ -13,6 +13,8 @@ import { homePagePromo as queryHomePagePromoResolver, tournamentPagePromo as que
 import { createEntryLoader as createEntryLoader } from "./../../src/lib/server/schema/entry";
 import { searchResults as querySearchResultsResolver } from "./../../src/lib/server/schema/search";
 import { viewer as queryViewerResolver } from "./../../src/lib/server/schema/viewer";
+import { addTeamMember as mutationAddTeamMemberResolver, createTeam as mutationCreateTeamResolver, deleteTeam as mutationDeleteTeamResolver, removeSelfFromTeam as mutationRemoveSelfFromTeamResolver, removeTeamMember as mutationRemoveTeamMemberResolver, selectTeam as mutationSelectTeamResolver } from "./../../src/lib/server/schema/team";
+import { claimProfile as mutationClaimProfileResolver, deleteProfile as mutationDeleteProfileResolver, updateCoachingInfo as mutationUpdateCoachingInfoResolver } from "./../../src/lib/server/schema/profile";
 async function assertNonNull<T>(value: T | Promise<T>): Promise<T> {
     const awaited = await value;
     if (awaited == null)
@@ -1211,13 +1213,193 @@ export function getSchema(): GraphQLSchema {
             }
         }
     });
+    const ProfileType: GraphQLObjectType = new GraphQLObjectType({
+        name: "Profile",
+        fields() {
+            return {
+                coachingBio: {
+                    name: "coachingBio",
+                    type: GraphQLString
+                },
+                coachingBookingUrl: {
+                    name: "coachingBookingUrl",
+                    type: GraphQLString
+                },
+                coachingRatePerHour: {
+                    name: "coachingRatePerHour",
+                    type: GraphQLFloat
+                },
+                id: {
+                    name: "id",
+                    type: new GraphQLNonNull(GraphQLID),
+                    resolve(source) {
+                        return profileIdResolver(source);
+                    }
+                },
+                name: {
+                    name: "name",
+                    type: GraphQLString,
+                    resolve(source, _args, context) {
+                        return source.name(context);
+                    }
+                },
+                offersCoaching: {
+                    name: "offersCoaching",
+                    type: GraphQLBoolean,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                profileImage: {
+                    name: "profileImage",
+                    type: GraphQLString,
+                    resolve(source, _args, context) {
+                        return assertNonNull(source.profileImage(context));
+                    }
+                },
+                selectableTeams: {
+                    name: "selectableTeams",
+                    type: new GraphQLList(new GraphQLNonNull(TeamType)),
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                team: {
+                    name: "team",
+                    type: TeamType
+                },
+                topdeckProfile: {
+                    name: "topdeckProfile",
+                    type: GraphQLString,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                username: {
+                    name: "username",
+                    type: GraphQLString,
+                    resolve(source, _args, context) {
+                        return source.username(context);
+                    }
+                }
+            };
+        },
+        interfaces() {
+            return [NodeType];
+        }
+    });
+    const TeamMemberInviteType: GraphQLObjectType = new GraphQLObjectType({
+        name: "TeamMemberInvite",
+        fields() {
+            return {
+                joined: {
+                    name: "joined",
+                    type: GraphQLBoolean,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                joinedProfile: {
+                    name: "joinedProfile",
+                    type: ProfileType
+                },
+                name: {
+                    name: "name",
+                    type: GraphQLString,
+                    resolve(source, _args, context) {
+                        return source.name(context);
+                    }
+                },
+                profileImage: {
+                    name: "profileImage",
+                    type: GraphQLString,
+                    resolve(source, _args, context) {
+                        return assertNonNull(source.profileImage(context));
+                    }
+                },
+                topdeckProfile: {
+                    name: "topdeckProfile",
+                    type: GraphQLString,
+                    resolve(source, _args, context) {
+                        return assertNonNull(source.topdeckProfile(context));
+                    }
+                },
+                username: {
+                    name: "username",
+                    type: GraphQLString,
+                    resolve(source, _args, context) {
+                        return source.username(context);
+                    }
+                }
+            };
+        }
+    });
+    const TeamType: GraphQLObjectType = new GraphQLObjectType({
+        name: "Team",
+        fields() {
+            return {
+                id: {
+                    name: "id",
+                    type: new GraphQLNonNull(GraphQLID),
+                    resolve(source) {
+                        return teamIdResolver(source);
+                    }
+                },
+                invites: {
+                    name: "invites",
+                    type: new GraphQLList(new GraphQLNonNull(TeamMemberInviteType)),
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                isOwner: {
+                    name: "isOwner",
+                    type: GraphQLBoolean,
+                    resolve(source, _args, context) {
+                        return assertNonNull(source.isOwner(context));
+                    }
+                },
+                members: {
+                    name: "members",
+                    type: new GraphQLList(new GraphQLNonNull(ProfileType)),
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                name: {
+                    name: "name",
+                    type: GraphQLString,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                }
+            };
+        },
+        interfaces() {
+            return [NodeType];
+        }
+    });
     const ViewerType: GraphQLObjectType = new GraphQLObjectType({
         name: "Viewer",
         fields() {
             return {
+                canCreateTeam: {
+                    name: "canCreateTeam",
+                    type: GraphQLBoolean,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
                 discordRoles: {
                     name: "discordRoles",
                     type: new GraphQLList(new GraphQLNonNull(DiscordRoleType)),
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                email: {
+                    name: "email",
+                    type: GraphQLString,
                     resolve(source, args, context, info) {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));
                     }
@@ -1229,9 +1411,21 @@ export function getSchema(): GraphQLSchema {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));
                     }
                 },
+                image: {
+                    name: "image",
+                    type: GraphQLString
+                },
                 name: {
                     name: "name",
                     type: GraphQLString
+                },
+                ownedTeam: {
+                    name: "ownedTeam",
+                    type: TeamType
+                },
+                profile: {
+                    name: "profile",
+                    type: ProfileType
                 }
             };
         }
@@ -1426,6 +1620,230 @@ export function getSchema(): GraphQLSchema {
             };
         }
     });
+    const TeamMemberResponseType: GraphQLObjectType = new GraphQLObjectType({
+        name: "TeamMemberResponse",
+        fields() {
+            return {
+                team: {
+                    name: "team",
+                    type: TeamType,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                }
+            };
+        }
+    });
+    const ClaimProfileResponseType: GraphQLObjectType = new GraphQLObjectType({
+        name: "ClaimProfileResponse",
+        fields() {
+            return {
+                error: {
+                    name: "error",
+                    type: GraphQLString
+                },
+                success: {
+                    name: "success",
+                    type: GraphQLBoolean,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                viewer: {
+                    name: "viewer",
+                    type: ViewerType
+                }
+            };
+        }
+    });
+    const CreateTeamResponseType: GraphQLObjectType = new GraphQLObjectType({
+        name: "CreateTeamResponse",
+        fields() {
+            return {
+                owner: {
+                    name: "owner",
+                    type: ViewerType,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                }
+            };
+        }
+    });
+    const CreateTeamInputType: GraphQLInputObjectType = new GraphQLInputObjectType({
+        name: "CreateTeamInput",
+        fields() {
+            return {
+                memberProfileUrls: {
+                    name: "memberProfileUrls",
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                name: {
+                    name: "name",
+                    type: new GraphQLNonNull(GraphQLString)
+                }
+            };
+        }
+    });
+    const UpdateProfileResponseType: GraphQLObjectType = new GraphQLObjectType({
+        name: "UpdateProfileResponse",
+        fields() {
+            return {
+                profile: {
+                    name: "profile",
+                    type: ProfileType,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                }
+            };
+        }
+    });
+    const CoachingInfoResponseType: GraphQLObjectType = new GraphQLObjectType({
+        name: "CoachingInfoResponse",
+        fields() {
+            return {
+                profile: {
+                    name: "profile",
+                    type: ProfileType
+                }
+            };
+        }
+    });
+    const CoachingInfoInputType: GraphQLInputObjectType = new GraphQLInputObjectType({
+        name: "CoachingInfoInput",
+        fields() {
+            return {
+                coachingBio: {
+                    name: "coachingBio",
+                    type: GraphQLString
+                },
+                coachingBookingUrl: {
+                    name: "coachingBookingUrl",
+                    type: GraphQLString
+                },
+                coachingRatePerHour: {
+                    name: "coachingRatePerHour",
+                    type: GraphQLFloat
+                },
+                offersCoaching: {
+                    name: "offersCoaching",
+                    type: new GraphQLNonNull(GraphQLBoolean)
+                }
+            };
+        }
+    });
+    const MutationType: GraphQLObjectType = new GraphQLObjectType({
+        name: "Mutation",
+        fields() {
+            return {
+                addTeamMember: {
+                    name: "addTeamMember",
+                    type: TeamMemberResponseType,
+                    args: {
+                        profileUrl: {
+                            type: new GraphQLNonNull(GraphQLString)
+                        },
+                        teamId: {
+                            type: new GraphQLNonNull(GraphQLString)
+                        }
+                    },
+                    resolve(_source, args, context) {
+                        return assertNonNull(mutationAddTeamMemberResolver(context, args.teamId, args.profileUrl));
+                    }
+                },
+                claimProfile: {
+                    name: "claimProfile",
+                    type: ClaimProfileResponseType,
+                    args: {
+                        profileUrl: {
+                            type: new GraphQLNonNull(GraphQLString)
+                        }
+                    },
+                    resolve(_source, args, context) {
+                        return assertNonNull(mutationClaimProfileResolver(context, args.profileUrl));
+                    }
+                },
+                createTeam: {
+                    name: "createTeam",
+                    type: CreateTeamResponseType,
+                    args: {
+                        team: {
+                            type: new GraphQLNonNull(CreateTeamInputType)
+                        }
+                    },
+                    resolve(_source, args, context) {
+                        return assertNonNull(mutationCreateTeamResolver(context, args.team));
+                    }
+                },
+                deleteProfile: {
+                    name: "deleteProfile",
+                    type: ClaimProfileResponseType,
+                    resolve(_source, _args, context) {
+                        return assertNonNull(mutationDeleteProfileResolver(context));
+                    }
+                },
+                deleteTeam: {
+                    name: "deleteTeam",
+                    type: CreateTeamResponseType,
+                    args: {
+                        teamId: {
+                            type: new GraphQLNonNull(GraphQLString)
+                        }
+                    },
+                    resolve(_source, args, context) {
+                        return assertNonNull(mutationDeleteTeamResolver(context, args.teamId));
+                    }
+                },
+                removeSelfFromTeam: {
+                    name: "removeSelfFromTeam",
+                    type: UpdateProfileResponseType,
+                    resolve(_source, _args, context) {
+                        return assertNonNull(mutationRemoveSelfFromTeamResolver(context));
+                    }
+                },
+                removeTeamMember: {
+                    name: "removeTeamMember",
+                    type: TeamMemberResponseType,
+                    args: {
+                        teamId: {
+                            type: new GraphQLNonNull(GraphQLString)
+                        },
+                        topdeckProfileId: {
+                            type: new GraphQLNonNull(GraphQLString)
+                        }
+                    },
+                    resolve(_source, args, context) {
+                        return assertNonNull(mutationRemoveTeamMemberResolver(context, args.teamId, args.topdeckProfileId));
+                    }
+                },
+                selectTeam: {
+                    name: "selectTeam",
+                    type: UpdateProfileResponseType,
+                    args: {
+                        teamId: {
+                            type: new GraphQLNonNull(GraphQLString)
+                        }
+                    },
+                    resolve(_source, args, context) {
+                        return assertNonNull(mutationSelectTeamResolver(context, args.teamId));
+                    }
+                },
+                updateCoachingInfo: {
+                    name: "updateCoachingInfo",
+                    type: CoachingInfoResponseType,
+                    args: {
+                        coachingInfo: {
+                            type: new GraphQLNonNull(CoachingInfoInputType)
+                        }
+                    },
+                    resolve(_source, args, context) {
+                        return assertNonNull(mutationUpdateCoachingInfoResolver(context, args.coachingInfo));
+                    }
+                }
+            };
+        }
+    });
     const EntrySortByType: GraphQLEnumType = new GraphQLEnumType({
         name: "EntrySortBy",
         values: {
@@ -1528,6 +1946,7 @@ export function getSchema(): GraphQLSchema {
                 }
             })],
         query: QueryType,
-        types: [CommandersSortByType, DiscordRoleType, EntriesSortByType, EntrySortByType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CommanderStatsFiltersType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, CountrySeatWinRateType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, PageInfoType, PlayerType, QueryType, SearchResultType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType, ViewerType]
+        mutation: MutationType,
+        types: [CommandersSortByType, DiscordRoleType, EntriesSortByType, EntrySortByType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CoachingInfoInputType, CommanderStatsFiltersType, CreateTeamInputType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, ClaimProfileResponseType, CoachingInfoResponseType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, CountrySeatWinRateType, CreateTeamResponseType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, MutationType, PageInfoType, PlayerType, ProfileType, QueryType, SearchResultType, TeamType, TeamMemberInviteType, TeamMemberResponseType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType, UpdateProfileResponseType, ViewerType]
     });
 }

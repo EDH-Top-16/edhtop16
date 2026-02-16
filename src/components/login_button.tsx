@@ -1,3 +1,4 @@
+import {RouteLink} from '#genfiles/router/router.jsx';
 import {authClient} from '#src/lib/client/auth';
 
 export function LoginButton() {
@@ -7,12 +8,14 @@ export function LoginButton() {
 
   if (session?.user) {
     return (
-      <button
+      <RouteLink
         className="text-sm text-white/60 underline decoration-transparent transition-colors hover:text-white hover:decoration-inherit"
-        onClick={() => authClient.signOut()}
+        // onClick={() => authClient.signOut()}
+        route="/claim"
+        params={{}}
       >
-        Sign Out
-      </button>
+        My Profile
+      </RouteLink>
     );
   }
 

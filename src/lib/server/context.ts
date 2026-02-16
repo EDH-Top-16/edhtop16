@@ -2,6 +2,7 @@ import type {Request} from 'express';
 import DataLoader from 'dataloader';
 import {auth} from './auth.js';
 import {getDiscordGuildRoles} from './discord.js';
+import {TopDeckClient} from './topdeck_client.js';
 import {fromNodeHeaders} from 'better-auth/node';
 import type {User} from 'better-auth';
 
@@ -48,6 +49,19 @@ export class Context {
    * Returns the authenticated user's role IDs in the EDHTop16 Discord server.
    * The result is cached for the lifetime of this request.
    */
+  get topdeckClient(): TopDeckClient {
+    return this.derived(
+      'topdeckClient',
+      () => new TopDeckClient(process.env.TOPDECK_GG_API_KEY!),
+    );
+  }
+
+  async listUserAccounts() {
+    return await auth.api.listUserAccounts({
+      headers: fromNodeHeaders(this.req.headers),
+    });
+  }
+
   getDiscordRoles = (): Promise<string[]> => {
     return this.derived('discordRoles', () =>
       this.user ? getDiscordGuildRoles(this.user.id) : Promise.resolve([]),
