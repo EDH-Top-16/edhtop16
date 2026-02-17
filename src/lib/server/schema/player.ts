@@ -71,6 +71,11 @@ const ALL_KNOWN_CHUDS: {
     topdeckProfile: '@jase',
     expiration: new Date('2099-01-01'),
   },
+  // https://topdeck.gg/profile/8ldaeuelAKNFP48MrbSHQYkHXFF3
+  {
+    topdeckProfile: '8ldaeuelAKNFP48MrbSHQYkHXFF3',
+    expiration: new Date('2099-01-01'),
+  },
 ];
 
 const now = Date.now();
