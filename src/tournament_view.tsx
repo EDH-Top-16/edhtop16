@@ -10,7 +10,14 @@ import {LoadingIcon} from '#src/components/fallback.jsx';
 import ArrowRightIcon from '@heroicons/react/24/solid/ArrowRightIcon';
 import cn from 'classnames';
 import {format} from 'date-fns';
-import {MouseEvent, Suspense, useCallback, useMemo} from 'react';
+import {
+  MouseEvent,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   EntryPoint,
   EntryPointComponent,
@@ -48,6 +55,7 @@ function EntryCard({
           name
           team
           isKnownCheater
+          isKnownChud
         }
 
         commander {
@@ -62,6 +70,13 @@ function EntryCard({
     props.entry,
   );
 
+  const [showChuds, setShowChuds] = useState(false);
+  useEffect(() => {
+    setShowChuds(
+      new URLSearchParams(window.location.search).get('showChuds') === 'true',
+    );
+  }, []);
+
   let entryName = `${entry.player?.name ?? 'Unknown Player'}`;
   if (entry.standing === 1) {
     entryName = `🥇 ${entryName}`;
@@ -71,6 +86,8 @@ function EntryCard({
     entryName = `🥉 ${entryName}`;
   }
 
+  const showChudBadge = showChuds && entry.player?.isKnownChud;
+
   const entryNameNode = (
     <span className="relative flex items-baseline">
       {entryName}
@@ -79,11 +96,18 @@ function EntryCard({
           Cheater
         </span>
       )}
-      {!entry.player?.isKnownCheater && entry.player?.team && (
-        <span className="absolute right-0 rounded-full bg-white/10 px-2 py-1 text-xs">
-          {entry.player.team}
+      {showChudBadge && !entry.player?.isKnownCheater && (
+        <span className="absolute right-0 rounded-full bg-orange-600 px-2 py-1 text-xs uppercase">
+          Chud
         </span>
       )}
+      {!entry.player?.isKnownCheater &&
+        !showChudBadge &&
+        entry.player?.team && (
+          <span className="absolute right-0 rounded-full bg-white/10 px-2 py-1 text-xs">
+            {entry.player.team}
+          </span>
+        )}
     </span>
   );
 

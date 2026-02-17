@@ -295,6 +295,7 @@ type Player implements Node {
   entries: [Entry!] @semanticNonNull
   id: ID!
   isKnownCheater: Boolean @semanticNonNull
+  isKnownChud: Boolean @semanticNonNull
   losses: Int @semanticNonNull
   name: String @semanticNonNull
   team: String
@@ -321,6 +322,7 @@ type Profile implements Node {
 type Query {
   card(name: String!): Card @semanticNonNull
   cheaters: [Player!] @semanticNonNull
+  chuds: [Player!] @semanticNonNull
   commander(name: String!): Commander @semanticNonNull
   commanders(after: String, colorId: String, first: Int! = 20, minEntries: Int, minTournamentSize: Int, sortBy: CommandersSortBy! = CONVERSION, timePeriod: TimePeriod! = ONE_MONTH): CommanderConnection @semanticNonNull
   countrySeatWinRates(minTournaments: Int): [CountrySeatWinRate!] @semanticNonNull

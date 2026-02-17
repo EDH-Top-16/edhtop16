@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<65a9dd0e356e69e2ff43cdf573747471>>
+ * @generated SignedSource<<0e977d2d4c1a05bc02375f6b4981023f>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,6 +16,7 @@ export type commanderPage_EntryCard$data = {
   readonly losses: number;
   readonly player: {
     readonly isKnownCheater: boolean;
+    readonly isKnownChud: boolean;
     readonly name: string;
     readonly team: string | null | undefined;
   };
@@ -107,6 +108,13 @@ return {
           "kind": "ScalarField",
           "name": "isKnownCheater",
           "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "isKnownChud",
+          "storageKey": null
         }
       ],
       "storageKey": null
@@ -150,6 +158,6 @@ return {
 };
 })();
 
-(node as any).hash = "8f001defa9905a4adadebb3cdb885b6e";
+(node as any).hash = "9b7c0c3da48dd34e614b9ce1d4ed1194";
 
 export default node;

@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<be325c7a851a15c39a8a2888e859a8aa>>
- * @relayHash 199c716fe5153e48e072a3173ee7dd0f
+ * @generated SignedSource<<aaa0e5b91e03c903c0c269a01c00909c>>
+ * @relayHash bb25aff5f54d221677fca5a5a720b69d
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 199c716fe5153e48e072a3173ee7dd0f
+// @relayRequestID bb25aff5f54d221677fca5a5a720b69d
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -189,6 +189,13 @@ v12 = [
         "args": null,
         "kind": "ScalarField",
         "name": "isKnownCheater",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "isKnownChud",
         "storageKey": null
       },
       (v6/*: any*/)
@@ -432,7 +439,7 @@ return {
     ]
   },
   "params": {
-    "id": "199c716fe5153e48e072a3173ee7dd0f",
+    "id": "bb25aff5f54d221677fca5a5a720b69d",
     "metadata": {},
     "name": "tournamentView_TournamentQuery",
     "operationKind": "query",

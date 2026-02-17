@@ -5,7 +5,7 @@
 import { defaultFieldResolver, GraphQLSchema, GraphQLDirective, DirectiveLocation, GraphQLList, GraphQLInt, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLEnumType, GraphQLFloat, GraphQLInputObjectType, GraphQLID, GraphQLInterfaceType, GraphQLBoolean } from "graphql";
 import { createCommanderCardsLoader as createCommanderCardsLoader, commanderStatsLoader as commanderStatsLoader, createCommanderLoader as createCommanderLoader, Commander as queryCommanderResolver, Commander as queryCommandersResolver } from "./../../src/lib/server/schema/commander";
 import { id as commanderIdResolver, id as entryIdResolver, id as playerIdResolver, id as tournamentIdResolver, id as cardIdResolver, node as queryNodeResolver, id as teamIdResolver, id as profileIdResolver } from "./../../src/lib/server/schema/connection";
-import { createPlayerLoader as createPlayerLoader, Player as queryCheatersResolver, Player as queryPlayerResolver } from "./../../src/lib/server/schema/player";
+import { createPlayerLoader as createPlayerLoader, Player as queryCheatersResolver, Player as queryChudsResolver, Player as queryPlayerResolver } from "./../../src/lib/server/schema/player";
 import { createTournamentLoader as createTournamentLoader, Tournament as queryTournamentResolver, Tournament as queryTournamentsResolver } from "./../../src/lib/server/schema/tournament";
 import { Card as queryCardResolver, createCardLoader as createCardLoader, Card as queryStaplesResolver } from "./../../src/lib/server/schema/card";
 import { countrySeatWinRates as queryCountrySeatWinRatesResolver } from "./../../src/lib/server/schema/reports";
@@ -430,6 +430,13 @@ export function getSchema(): GraphQLSchema {
                 },
                 isKnownCheater: {
                     name: "isKnownCheater",
+                    type: GraphQLBoolean,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                isKnownChud: {
+                    name: "isKnownChud",
                     type: GraphQLBoolean,
                     resolve(source, args, context, info) {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));
@@ -1455,6 +1462,13 @@ export function getSchema(): GraphQLSchema {
                     type: new GraphQLList(new GraphQLNonNull(PlayerType)),
                     resolve() {
                         return assertNonNull(queryCheatersResolver.cheaters());
+                    }
+                },
+                chuds: {
+                    name: "chuds",
+                    type: new GraphQLList(new GraphQLNonNull(PlayerType)),
+                    resolve() {
+                        return assertNonNull(queryChudsResolver.chuds());
                     }
                 },
                 commander: {

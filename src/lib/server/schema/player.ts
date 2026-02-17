@@ -56,7 +56,32 @@ const ALL_KNOWN_CHEATERS: {
   },
 ];
 
+const ALL_KNOWN_CHUDS: {
+  topdeckProfile: string;
+  expiration: Date;
+  activeDate?: Date;
+}[] = [
+  // Joseph Fago - https://topdeck.gg/profile/cOHH27D1bKSu9TTa2FkZ3frml9Y2
+  {
+    topdeckProfile: 'cOHH27D1bKSu9TTa2FkZ3frml9Y2',
+    expiration: new Date('2099-01-01'),
+  },
+  // Jase Sanders - https://topdeck.gg/profile/@jase
+  {
+    topdeckProfile: '@jase',
+    expiration: new Date('2099-01-01'),
+  },
+];
+
 const now = Date.now();
+const UNEXPIRED_CHUDS = new Set(
+  ALL_KNOWN_CHUDS.filter(
+    (p) =>
+      isAfter(p.expiration, now) &&
+      (p.activeDate == null || !isAfter(p.activeDate, now)),
+  ).map((p) => p.topdeckProfile),
+);
+
 const UNEXPIRED_CHEATERS = new Set(
   ALL_KNOWN_CHEATERS.filter(
     (p) =>
@@ -247,6 +272,13 @@ export class Player implements GraphQLNode {
     );
   }
 
+  /** @gqlField */
+  isKnownChud(): boolean {
+    return (
+      this.topdeckProfile != null && UNEXPIRED_CHUDS.has(this.topdeckProfile)
+    );
+  }
+
   /** @gqlQueryField */
   static async player(profile: string): Promise<Player> {
     const row = await db
@@ -267,6 +299,20 @@ export class Player implements GraphQLNode {
       .selectFrom('Player')
       .selectAll()
       .where('topdeckProfile', 'in', allCheaters)
+      .execute();
+
+    return players.map((p) => new Player(p));
+  }
+
+  /** @gqlQueryField */
+  static async chuds(): Promise<Player[]> {
+    const allChuds = ALL_KNOWN_CHUDS.map((p) => p.topdeckProfile);
+    if (allChuds.length === 0) return [];
+
+    const players = await db
+      .selectFrom('Player')
+      .selectAll()
+      .where('topdeckProfile', 'in', allChuds)
       .execute();
 
     return players.map((p) => new Player(p));

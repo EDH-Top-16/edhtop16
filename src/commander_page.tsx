@@ -18,7 +18,7 @@ import {Link, useNavigation} from '#genfiles/router/router';
 import {LoadingIcon} from '#src/components/fallback.jsx';
 import cn from 'classnames';
 import {format} from 'date-fns';
-import {PropsWithChildren, Suspense, useMemo, useState} from 'react';
+import {PropsWithChildren, Suspense, useEffect, useMemo, useState} from 'react';
 import {
   EntryPoint,
   EntryPointComponent,
@@ -56,6 +56,7 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
           name
           team
           isKnownCheater
+          isKnownChud
         }
 
         tournament {
@@ -69,6 +70,13 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
     props.entry,
   );
 
+  const [showChuds, setShowChuds] = useState(false);
+  useEffect(() => {
+    setShowChuds(
+      new URLSearchParams(window.location.search).get('showChuds') === 'true',
+    );
+  }, []);
+
   let entryName = `${entry.player?.name ?? 'Unknown Player'}`;
   if (entry.standing === 1) {
     entryName = `🥇 ${entryName}`;
@@ -78,6 +86,8 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
     entryName = `🥉 ${entryName}`;
   }
 
+  const showChudBadge = showChuds && entry.player?.isKnownChud;
+
   const entryNameNode = (
     <span className="relative flex items-baseline">
       {entryName}
@@ -86,11 +96,18 @@ function EntryCard(props: {entry: commanderPage_EntryCard$key}) {
           Cheater
         </span>
       )}
-      {!entry.player?.isKnownCheater && entry.player?.team && (
-        <span className="absolute right-0 rounded-full bg-white/10 px-2 py-1 text-xs">
-          {entry.player.team}
+      {showChudBadge && !entry.player?.isKnownCheater && (
+        <span className="absolute right-0 rounded-full bg-orange-600 px-2 py-1 text-xs uppercase">
+          Chud
         </span>
       )}
+      {!entry.player?.isKnownCheater &&
+        !showChudBadge &&
+        entry.player?.team && (
+          <span className="absolute right-0 rounded-full bg-white/10 px-2 py-1 text-xs">
+            {entry.player.team}
+          </span>
+        )}
     </span>
   );
 
