@@ -2840,7 +2840,7 @@ packages:
       pastoria-runtime: 1.0.13
 
   pastoria@file:vendor/pastoria.tgz:
-    resolution: {integrity: sha512-iwBjZ93E/7wjTSYzqGLOYzHgiMcdX8gzC4RHFo2ncFYwQe/vTZ5xfnXOa9F/Bt2AaWz8LanY/7PYlKavrJqFxQ==, tarball: file:vendor/pastoria.tgz}
+    resolution: {integrity: sha512-zq8yvCuiM+eS4PkIXFYkAxe7gqdX/NCYS3XIXd+HZ9i7pQgUNmJdgo47E/pQE6D7w2o1lMMo5/nA9evgOgwOrg==, tarball: file:vendor/pastoria.tgz}
     version: 1.1.0
     hasBin: true
     peerDependencies:
