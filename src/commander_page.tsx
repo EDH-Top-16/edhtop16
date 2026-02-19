@@ -979,8 +979,11 @@ export const CommanderPageShell: EntryPointComponent<
           <NitroAd
             id="nitro-commander-top"
             className="h-[50px] w-full lg:h-[90px]"
+            sizes={[
+              ['728', '90'],
+              ['320', '50'],
+            ]}
             options={{
-              delayLoading: true,
               report: {
                 enabled: true,
                 icon: true,
