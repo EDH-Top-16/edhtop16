@@ -978,12 +978,9 @@ export const CommanderPageShell: EntryPointComponent<
         <div className="mx-auto flex max-w-full items-center justify-center overflow-hidden py-4">
           <NitroAd
             id="nitro-commander-top"
+            className="h-[50px] lg:h-[90px]"
             options={{
-              sizes: [
-                ['728', '90'],
-                ['320', '50'],
-              ],
-              mediaQuery: '(min-width: 728px),(min-width: 0px)',
+              delayLoading: true,
               report: {
                 enabled: true,
                 icon: true,
