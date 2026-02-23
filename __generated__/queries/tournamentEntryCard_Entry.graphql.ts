@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<64484ef6da01c6760a3bd4950f1fbe27>>
+ * @generated SignedSource<<7ec15303d0e8c9723e5caedc71d10752>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type tournamentView_EntryCard$data = {
+export type tournamentEntryCard_Entry$data = {
   readonly commander: {
     readonly breakdownUrl: string;
     readonly cards: ReadonlyArray<{
@@ -28,11 +28,11 @@ export type tournamentView_EntryCard$data = {
   };
   readonly standing: number;
   readonly wins: number;
-  readonly " $fragmentType": "tournamentView_EntryCard";
+  readonly " $fragmentType": "tournamentEntryCard_Entry";
 };
-export type tournamentView_EntryCard$key = {
-  readonly " $data"?: tournamentView_EntryCard$data;
-  readonly " $fragmentSpreads": FragmentRefs<"tournamentView_EntryCard">;
+export type tournamentEntryCard_Entry$key = {
+  readonly " $data"?: tournamentEntryCard_Entry$data;
+  readonly " $fragmentSpreads": FragmentRefs<"tournamentEntryCard_Entry">;
 };
 
 const node: ReaderFragment = (function(){
@@ -49,7 +49,7 @@ return {
   "metadata": {
     "throwOnFieldError": true
   },
-  "name": "tournamentView_EntryCard",
+  "name": "tournamentEntryCard_Entry",
   "selections": [
     {
       "alias": null,
@@ -155,6 +155,6 @@ return {
 };
 })();
 
-(node as any).hash = "fb7ac60da19027bf97df82625079bb14";
+(node as any).hash = "e3fa8331fb0d23a37aa8d49da9006a58";
 
 export default node;

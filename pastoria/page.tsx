@@ -4,8 +4,7 @@ import {page_HomePagePromoQuery} from '#genfiles/queries/page_HomePagePromoQuery
 import {page_topCommanders$key} from '#genfiles/queries/page_topCommanders.graphql';
 import {page_TopCommandersCard$key} from '#genfiles/queries/page_TopCommandersCard.graphql';
 import {TopCommandersQuery} from '#genfiles/queries/TopCommandersQuery.graphql';
-import {ModuleType} from '#genfiles/router/js_resource.js';
-import {Link, useNavigation, useRouteParams} from '#genfiles/router/router';
+import {Link, useNavigation} from '#genfiles/router/router';
 import {ColorIdentity} from '#src/assets/icons/colors';
 import {Card} from '#src/components/card';
 import {ColorSelection} from '#src/components/color_selection';
@@ -23,9 +22,6 @@ import cn from 'classnames';
 import {Suspense, useCallback, useMemo} from 'react';
 import {useClientQuery} from 'react-relay';
 import {
-  EntryPoint,
-  EntryPointComponent,
-  EntryPointContainer,
   graphql,
   PreloadedQuery,
   useFragment,
@@ -148,7 +144,38 @@ export type Queries = {
   commandersQueryRef: page_CommandersQuery;
 };
 
-export default function CommandersPageShell({queries}: PastoriaPageProps<'/'>) {
+export type ExtraProps = {
+  sortBy: string;
+  timePeriod: string;
+  minEntries: number;
+  minTournamentSize: number;
+  colorId: string;
+};
+
+export const getPreloadProps: GetPreloadProps<'/'> = ({queries, variables}) => {
+  return {
+    queries: {
+      promoQueryRef: queries.promoQueryRef({}),
+      commandersQueryRef: queries.commandersQueryRef(variables),
+    },
+    entryPoints: {},
+    extraProps: {
+      sortBy: variables.sortBy ?? 'POPULARITY',
+      timePeriod: variables.timePeriod ?? 'SIX_MONTHS',
+      minEntries: variables.minEntries ?? 20,
+      minTournamentSize: variables.minSize ?? 50,
+      colorId: variables.colorId ?? '',
+    },
+  };
+};
+
+export default function CommandersPageShell({
+  queries,
+  extraProps,
+}: PastoriaPageProps<'/'>) {
+  const {sortBy, timePeriod, minEntries, minTournamentSize, colorId} =
+    extraProps;
+
   const {homePagePromo} = usePreloadedQuery(
     graphql`
       query page_HomePagePromoQuery @preloadable {
@@ -160,13 +187,6 @@ export default function CommandersPageShell({queries}: PastoriaPageProps<'/'>) {
     queries.promoQueryRef,
   );
 
-  const {
-    sortBy = 'POPULARITY',
-    timePeriod = 'SIX_MONTHS',
-    minEntries = 20,
-    minSize: minTournamentSize = 50,
-    colorId = '',
-  } = useRouteParams('/');
   const {replaceRoute} = useNavigation();
   const [display, toggleDisplay] = useCommandersDisplay();
 

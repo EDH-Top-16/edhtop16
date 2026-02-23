@@ -1,7 +1,7 @@
 import {page_StaplesCard$key} from '#genfiles/queries/page_StaplesCard.graphql.js';
 import {page_StaplesQuery} from '#genfiles/queries/page_StaplesQuery.graphql';
 import {page_TypesSection$key} from '#genfiles/queries/page_TypesSection.graphql.js';
-import {useNavigation, useRouteParams} from '#genfiles/router/router';
+import {useNavigation} from '#genfiles/router/router';
 import {ManaCost} from '#src/assets/icons/colors';
 import {ColorSelection} from '#src/components/color_selection';
 import {LoadingIcon} from '#src/components/fallback';
@@ -175,7 +175,7 @@ export type Queries = {
 export default function StaplesPageShell({
   queries,
 }: PastoriaPageProps<'/staples'>) {
-  const {colorId = '', type = ''} = useRouteParams('/staples');
+  const {colorId, type} = queries.staplesQueryRef.variables;
   const {replaceRoute} = useNavigation();
 
   return (
@@ -201,7 +201,7 @@ export default function StaplesPageShell({
         <div className="mb-8 flex flex-col items-start space-y-4 md:flex-row md:items-end md:space-y-0">
           <div className="flex-1">
             <ColorSelection
-              selected={colorId}
+              selected={colorId ?? ''}
               onChange={(value) => {
                 replaceRoute('/staples', {
                   colorId: value || null,

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d016a153bd7d2dfb64ce16da52073ce4>>
+ * @generated SignedSource<<b05f7f963b153bace398d0c48c911bd3>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,20 +10,20 @@
 
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type tournamentView_EditorsNote$data = {
+export type page_EditorsNote$data = {
   readonly editorsNote: string | null | undefined;
-  readonly " $fragmentType": "tournamentView_EditorsNote";
+  readonly " $fragmentType": "page_EditorsNote";
 };
-export type tournamentView_EditorsNote$key = {
-  readonly " $data"?: tournamentView_EditorsNote$data;
-  readonly " $fragmentSpreads": FragmentRefs<"tournamentView_EditorsNote">;
+export type page_EditorsNote$key = {
+  readonly " $data"?: page_EditorsNote$data;
+  readonly " $fragmentSpreads": FragmentRefs<"page_EditorsNote">;
 };
 
 const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "tournamentView_EditorsNote",
+  "name": "page_EditorsNote",
   "selections": [
     {
       "alias": null,
@@ -37,6 +37,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "634d17a80463d0992ee4c498e035d3c0";
+(node as any).hash = "be1140275f642b5a25f8c9141631d29f";
 
 export default node;

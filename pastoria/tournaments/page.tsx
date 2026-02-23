@@ -2,11 +2,7 @@ import {AllTournamentsQuery} from '#genfiles/queries/AllTournamentsQuery.graphql
 import {page_TournamentCard$key} from '#genfiles/queries/page_TournamentCard.graphql';
 import {page_Tournaments$key} from '#genfiles/queries/page_Tournaments.graphql';
 import {page_TournamentsQuery} from '#genfiles/queries/page_TournamentsQuery.graphql';
-import {
-  RouteLink,
-  useNavigation,
-  useRouteParams,
-} from '#genfiles/router/router';
+import {RouteLink, useNavigation} from '#genfiles/router/router';
 import {Card} from '#src/components/card';
 import {LoadingIcon} from '#src/components/fallback';
 import {Footer} from '#src/components/footer';
@@ -71,7 +67,7 @@ function TournamentCard(props: {commander: page_TournamentCard$key}) {
     >
       <div className="flex h-32 flex-col space-y-2">
         <RouteLink
-          route="/tournament/:tid"
+          route="/tournament/[tid]"
           params={{tid: tournament.TID}}
           className="line-clamp-2 text-xl font-bold underline decoration-transparent transition-colors group-hover:decoration-inherit"
         >
@@ -91,11 +87,11 @@ export type Queries = {
 export default function TournamentsPageShell({
   queries,
 }: PastoriaPageProps<'/tournaments'>) {
-  const {
-    sortBy = 'DATE',
-    timePeriod = 'ALL_TIME',
-    minSize = 0,
-  } = useRouteParams('/tournaments');
+  const sortBy = queries.tournamentQueryRef.variables.sortBy ?? 'DATE';
+  const timePeriod =
+    queries.tournamentQueryRef.variables.timePeriod ?? 'ALL_TIME';
+  const minSize = queries.tournamentQueryRef.variables.minSize ?? 0;
+
   const {replaceRoute} = useNavigation();
 
   return (

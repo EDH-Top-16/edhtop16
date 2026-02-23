@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<0124320486c4207b4dd6f490b77df6ef>>
- * @relayHash b64e2dc79f7784b4354a9cadb9230d1c
+ * @generated SignedSource<<1950964ddeb3d9f9f4648db118e924eb>>
+ * @relayHash 7f70ecadf21e82158d128944e6f4b9e6
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,26 +9,26 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID b64e2dc79f7784b4354a9cadb9230d1c
+// @relayRequestID 7f70ecadf21e82158d128944e6f4b9e6
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type tournamentView_TournamentPageShellQuery$variables = {
+export type page_TournamentPageShellQuery$variables = {
   tid: string;
 };
-export type tournamentView_TournamentPageShellQuery$data = {
+export type page_TournamentPageShellQuery$data = {
   readonly tournament: {
     readonly TID: string;
     readonly editorsNote: string | null | undefined;
     readonly promo: {
       readonly " $fragmentSpreads": FragmentRefs<"promo_EmbededPromo">;
     } | null | undefined;
-    readonly " $fragmentSpreads": FragmentRefs<"tournamentView_EditorsNote" | "tournamentView_TournamentBanner" | "tournamentView_TournamentMeta">;
+    readonly " $fragmentSpreads": FragmentRefs<"page_EditorsNote" | "page_TournamentBanner" | "page_TournamentMeta">;
   };
 };
-export type tournamentView_TournamentPageShellQuery = {
-  response: tournamentView_TournamentPageShellQuery$data;
-  variables: tournamentView_TournamentPageShellQuery$variables;
+export type page_TournamentPageShellQuery = {
+  response: page_TournamentPageShellQuery$data;
+  variables: page_TournamentPageShellQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -74,7 +74,7 @@ return {
     "metadata": {
       "throwOnFieldError": true
     },
-    "name": "tournamentView_TournamentPageShellQuery",
+    "name": "page_TournamentPageShellQuery",
     "selections": [
       {
         "alias": null,
@@ -88,17 +88,17 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "tournamentView_TournamentBanner"
+            "name": "page_TournamentBanner"
           },
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "tournamentView_TournamentMeta"
+            "name": "page_TournamentMeta"
           },
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "tournamentView_EditorsNote"
+            "name": "page_EditorsNote"
           },
           {
             "alias": null,
@@ -128,7 +128,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "tournamentView_TournamentPageShellQuery",
+    "name": "page_TournamentPageShellQuery",
     "selections": [
       {
         "alias": null,
@@ -312,16 +312,16 @@ return {
     ]
   },
   "params": {
-    "id": "b64e2dc79f7784b4354a9cadb9230d1c",
+    "id": "7f70ecadf21e82158d128944e6f4b9e6",
     "metadata": {},
-    "name": "tournamentView_TournamentPageShellQuery",
+    "name": "page_TournamentPageShellQuery",
     "operationKind": "query",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "9df7eec0463ba61001b6ae28fd7f507a";
+(node as any).hash = "9a5f0d01901d9a0fca3b837c4bd0b0a4";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);
