@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<afe0bde1acc18d4d9d025165d097e1da>>
- * @relayHash b1a3a47f9df070f7cb94f1e398da064a
+ * @generated SignedSource<<b7d83b2f90075f8796076d006da98815>>
+ * @relayHash a2a303564a57b3e4a2e82dc2ab1235eb
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID b1a3a47f9df070f7cb94f1e398da064a
+// @relayRequestID a2a303564a57b3e4a2e82dc2ab1235eb
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -292,6 +292,13 @@ return {
                                 "name": "isKnownCheater",
                                 "storageKey": null
                               },
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "tag",
+                                "storageKey": null
+                              },
                               (v9/*: any*/)
                             ],
                             "storageKey": null
@@ -394,7 +401,7 @@ return {
     ]
   },
   "params": {
-    "id": "b1a3a47f9df070f7cb94f1e398da064a",
+    "id": "a2a303564a57b3e4a2e82dc2ab1235eb",
     "metadata": {},
     "name": "CommanderEntriesListQuery",
     "operationKind": "query",

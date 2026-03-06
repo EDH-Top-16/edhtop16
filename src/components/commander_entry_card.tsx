@@ -1,4 +1,5 @@
 import {formatOrdinals} from '#src/lib/client/format';
+import cn from 'classnames';
 import {graphql, useFragment} from 'react-relay/hooks';
 import {Card} from './card';
 import {Link} from '#genfiles/router/router';
@@ -21,6 +22,7 @@ export function CommanderEntryCard(props: {
           name
           team
           isKnownCheater
+          tag
         }
 
         tournament {
@@ -43,21 +45,19 @@ export function CommanderEntryCard(props: {
     entryName = `🥉 ${entryName}`;
   }
 
-  const entryNameNode = (
-    <span className="relative flex items-baseline">
-      {entryName}
-      {entry.player?.isKnownCheater && (
-        <span className="absolute right-0 rounded-full bg-red-600 px-2 py-1 text-xs uppercase">
-          Cheater
-        </span>
-      )}
-      {!entry.player?.isKnownCheater && entry.player?.team && (
-        <span className="absolute right-0 rounded-full bg-white/10 px-2 py-1 text-xs">
-          {entry.player.team}
-        </span>
-      )}
+  const playerLabel = entry.player?.isKnownCheater ? (
+    <span className="shrink-0 rounded-full bg-red-600 px-2 py-1 text-xs font-bold uppercase">
+      Cheater
     </span>
-  );
+  ) : entry.player?.tag ? (
+    <span className="shrink-0 rounded-full bg-amber-600 px-2 py-1 text-xs font-bold uppercase">
+      {entry.player.tag}
+    </span>
+  ) : entry.player?.team ? (
+    <span className="shrink-0 rounded-full bg-white/10 px-2 py-1 text-xs font-bold">
+      {entry.player.team}
+    </span>
+  ) : null;
 
   const bottomText = (
     <div className="flex">
@@ -75,16 +75,41 @@ export function CommanderEntryCard(props: {
   return (
     <Card bottomText={bottomText}>
       <div className="flex h-32 flex-col">
+        {playerLabel && (
+          <div className="absolute top-5 right-4 sm:top-6 sm:right-6">
+            {playerLabel}
+          </div>
+        )}
         {entry.decklist ? (
           <a
             href={entry.decklist}
             target="_blank"
-            className="line-clamp-1 text-xl font-bold underline decoration-transparent transition-colors hover:decoration-inherit"
+            className={cn(
+              'truncate font-bold underline decoration-transparent transition-colors hover:decoration-inherit',
+              playerLabel && 'mr-36',
+              entryName.length > 24
+                ? 'text-base'
+                : entryName.length > 18
+                  ? 'text-lg'
+                  : 'text-xl',
+            )}
           >
-            {entryNameNode}
+            {entryName}
           </a>
         ) : (
-          <span className="text-xl font-bold">{entryNameNode}</span>
+          <span
+            className={cn(
+              'truncate font-bold',
+              playerLabel && 'mr-36',
+              entryName.length > 24
+                ? 'text-base'
+                : entryName.length > 18
+                  ? 'text-lg'
+                  : 'text-xl',
+            )}
+          >
+            {entryName}
+          </span>
         )}
 
         <Link

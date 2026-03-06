@@ -449,6 +449,10 @@ export function getSchema(): GraphQLSchema {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));
                     }
                 },
+                tag: {
+                    name: "tag",
+                    type: GraphQLString
+                },
                 team: {
                     name: "team",
                     type: GraphQLString

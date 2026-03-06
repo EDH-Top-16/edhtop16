@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<58d4411d01a5f5dc4ed9359a009af995>>
- * @relayHash ff0b3786887c9434cae7aa6548e48f44
+ * @generated SignedSource<<2893224b8a244267bbafa33c598a365c>>
+ * @relayHash 3b85ccb08883b503018f077c2a65e3e0
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID ff0b3786887c9434cae7aa6548e48f44
+// @relayRequestID 3b85ccb08883b503018f077c2a65e3e0
 
 import { PreloadableConcreteRequest } from 'relay-runtime';
 import { standings_TournamentStandingsQuery } from './standings_TournamentStandingsQuery.graphql';
@@ -17,7 +17,7 @@ import { standings_TournamentStandingsQuery } from './standings_TournamentStandi
 const node: PreloadableConcreteRequest<standings_TournamentStandingsQuery> = {
   "kind": "PreloadableConcreteRequest",
   "params": {
-    "id": "ff0b3786887c9434cae7aa6548e48f44",
+    "id": "3b85ccb08883b503018f077c2a65e3e0",
     "metadata": {},
     "name": "standings_TournamentStandingsQuery",
     "operationKind": "query",

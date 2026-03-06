@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<ecc94d8548ac15e4dfb8fccc64915188>>
- * @relayHash da2ed7ba97fbe3b0e47b0fd898f7b751
+ * @generated SignedSource<<d1284cfcc810aac51a259836e5f87420>>
+ * @relayHash 456ea336ab0f428a527eef70126067ab
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID da2ed7ba97fbe3b0e47b0fd898f7b751
+// @relayRequestID 456ea336ab0f428a527eef70126067ab
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -259,6 +259,13 @@ return {
                                 "name": "isKnownCheater",
                                 "storageKey": null
                               },
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "tag",
+                                "storageKey": null
+                              },
                               (v7/*: any*/)
                             ],
                             "storageKey": null
@@ -366,7 +373,7 @@ return {
     ]
   },
   "params": {
-    "id": "da2ed7ba97fbe3b0e47b0fd898f7b751",
+    "id": "456ea336ab0f428a527eef70126067ab",
     "metadata": {},
     "name": "CommanderStaplesCardEntriesQuery",
     "operationKind": "query",

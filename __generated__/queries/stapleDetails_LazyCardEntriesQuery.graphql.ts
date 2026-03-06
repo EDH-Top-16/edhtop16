@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<86e728d8f4d537b47250cebeb98ba79e>>
- * @relayHash f66e98fcc0af4b69d56cd7847958f469
+ * @generated SignedSource<<dbaade5fe1aa712f2a94760ebce00415>>
+ * @relayHash c6f7d4a008818c8a167a2e3946546d01
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID f66e98fcc0af4b69d56cd7847958f469
+// @relayRequestID c6f7d4a008818c8a167a2e3946546d01
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -249,6 +249,13 @@ return {
                             "name": "isKnownCheater",
                             "storageKey": null
                           },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "tag",
+                            "storageKey": null
+                          },
                           (v7/*: any*/)
                         ],
                         "storageKey": null
@@ -359,7 +366,7 @@ return {
     ]
   },
   "params": {
-    "id": "f66e98fcc0af4b69d56cd7847958f469",
+    "id": "c6f7d4a008818c8a167a2e3946546d01",
     "metadata": {},
     "name": "stapleDetails_LazyCardEntriesQuery",
     "operationKind": "query",
