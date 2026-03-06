@@ -57,10 +57,10 @@ const ALL_KNOWN_CHEATERS: {
 ];
 
 const PLAYER_TAGS = new Map<string, string>([
-  // // spuki
-  // ['yDmurQQALDMAZ5XelLf8KibSaaB3', 'Coper'],
-  // // Alex James Stockwell
-  // ['73UqV6xEFaTr5Y5JqFRGFfrCcCT2', 'Chud'],
+  // spuki
+  ['yDmurQQALDMAZ5XelLf8KibSaaB3', 'Coper'],
+  // Alex James Stockwell
+  ['73UqV6xEFaTr5Y5JqFRGFfrCcCT2', 'Chud'],
 ]);
 
 const now = Date.now();
