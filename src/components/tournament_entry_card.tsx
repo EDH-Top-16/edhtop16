@@ -99,7 +99,7 @@ export function TournamentEntryCard({
             target="_blank"
             className={cn(
               'truncate font-bold underline decoration-transparent transition-colors hover:decoration-inherit',
-              playerLabel && 'mr-36',
+              playerLabel && 'mr-24 sm:mr-36',
               entryName.length > 24
                 ? 'text-base'
                 : entryName.length > 18
@@ -113,7 +113,7 @@ export function TournamentEntryCard({
           <span
             className={cn(
               'truncate font-bold',
-              playerLabel && 'mr-36',
+              playerLabel && 'mr-24 sm:mr-36',
               entryName.length > 24
                 ? 'text-base'
                 : entryName.length > 18
