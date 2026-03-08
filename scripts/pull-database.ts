@@ -245,7 +245,7 @@ async function createCommanders(
         name: commanderName(s.deckObj?.Commanders),
         colorId: wubrgify(
           Object.values(s.deckObj?.Commanders ?? {}).flatMap(
-            (c) => oracleCards.cardByScryfallId.get(c.id)?.color_identity ?? [],
+            (c) => oracleCards.cardByOracleId.get(c.id)?.color_identity ?? [],
           ),
         ),
       })),
@@ -257,7 +257,10 @@ async function createCommanders(
     .insertInto('Commander')
     .values(commanders)
     .onConflict((oc) =>
-      oc.column('name').doUpdateSet({name: (eb) => eb.ref('excluded.name')}),
+      oc.column('name').doUpdateSet({
+        name: (eb) => eb.ref('excluded.name'),
+        colorId: (eb) => eb.ref('excluded.colorId'),
+      }),
     )
     .returning(['name', 'id'])
     .execute();
