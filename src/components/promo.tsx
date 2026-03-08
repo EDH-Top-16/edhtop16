@@ -18,10 +18,15 @@ export function FirstPartyPromo({
       fragment promo_EmbededPromo on FirstPartyPromo @throwOnFieldError {
         title
         description
+        richDescription {
+          type
+          text
+        }
         buttonText
         backgroundImageUrl
         imageUrl
         href
+        buttonColor
       }
     `,
     props.promo,
@@ -57,14 +62,28 @@ export function FirstPartyPromo({
             </h2>
 
             <p className="mb-2 text-xs text-white/90 md:mb-3 md:text-sm lg:text-base">
-              {promo.description.map((text, i) => {
+              {promo.description &&
+                promo.description.map((text, i) => {
+                  return (
+                    <span
+                      key={i}
+                      className={cn(
+                        'block',
+                        i === 0 && promo.description!.length > 1 && 'font-bold',
+                        i > 0 && 'pt-2',
+                      )}
+                    >
+                      {text}
+                    </span>
+                  );
+                })}
+
+              {promo.richDescription?.map(({type, text}, i) => {
                 return (
                   <span
                     key={i}
                     className={cn(
-                      'block',
-                      i === 0 && promo.description.length > 1 && 'font-bold',
-                      i > 0 && 'pt-2',
+                      type === 'bold' && 'font-extrabold underline',
                     )}
                   >
                     {text}
@@ -73,7 +92,15 @@ export function FirstPartyPromo({
               })}
             </p>
 
-            <div className="inline-block rounded-md bg-amber-500 px-3 py-1.5 text-sm font-semibold text-black transition-colors group-hover:bg-amber-600 md:px-4 md:py-2 md:text-base">
+            <div
+              className={cn(
+                'inline-block rounded-md px-3 py-1.5 text-sm font-semibold text-black transition-colors md:px-4 md:py-2 md:text-base',
+                promo.buttonColor === 'teal' &&
+                  'bg-teal-500 group-hover:bg-teal-600',
+                (promo.buttonColor == null || promo.buttonColor === 'amber') &&
+                  'bg-amber-500 group-hover:bg-amber-600',
+              )}
+            >
               {promo.buttonText}
             </div>
           </div>

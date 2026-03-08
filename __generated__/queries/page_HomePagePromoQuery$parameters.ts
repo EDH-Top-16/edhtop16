@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<5e2ac43e5b6acd40441e5b47bfb5406c>>
- * @relayHash 2accab97f1e628518929d5b5d9cd55d9
+ * @generated SignedSource<<03f123da6796481a5586eb11b113260f>>
+ * @relayHash 416e958e103c43a545826c193e2f8cce
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 2accab97f1e628518929d5b5d9cd55d9
+// @relayRequestID 416e958e103c43a545826c193e2f8cce
 
 import { PreloadableConcreteRequest } from 'relay-runtime';
 import { page_HomePagePromoQuery } from './page_HomePagePromoQuery.graphql';
@@ -17,7 +17,7 @@ import { page_HomePagePromoQuery } from './page_HomePagePromoQuery.graphql';
 const node: PreloadableConcreteRequest<page_HomePagePromoQuery> = {
   "kind": "PreloadableConcreteRequest",
   "params": {
-    "id": "2accab97f1e628518929d5b5d9cd55d9",
+    "id": "416e958e103c43a545826c193e2f8cce",
     "metadata": {},
     "name": "page_HomePagePromoQuery",
     "operationKind": "query",
