@@ -56,28 +56,39 @@ export default function App({children}: PropsWithChildren<{}>) {
   }, []);
 
   return (
-    <>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
-      />
+    <html>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-      <meta
-        name="impact-site-verification"
-        // @ts-expect-error "value" is not a real property on <meta> but the vendor wants it.
-        value="22b35f9f-86c1-4c02-b751-cfdff5a1c83b"
-      />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        />
 
-      <script
-        async
-        src="https://www.googletagmanager.com/gtag/js?id=G-51DLXH804W"
-      />
+        <meta
+          name="impact-site-verification"
+          // @ts-expect-error "value" is not a real property on <meta> but the vendor wants it.
+          value="22b35f9f-86c1-4c02-b751-cfdff5a1c83b"
+        />
 
-      <Suspense fallback={<Edhtop16Fallback />}>
-        <main className="relative min-h-screen bg-[#514f86]">{children}</main>
-      </Suspense>
-    </>
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-51DLXH804W"
+        />
+      </head>
+
+      <body>
+        <Suspense fallback={<Edhtop16Fallback />}>
+          <main className="relative min-h-screen bg-[#514f86]">{children}</main>
+        </Suspense>
+      </body>
+    </html>
   );
 }
