@@ -11,8 +11,8 @@
     "generate:schema": "grats",
     "generate:relay": "relay-compiler",
     "generate:router": "pastoria generate",
-    "build": "pastoria build",
-    "dev": "pastoria dev",
+    "build": "vite build",
+    "dev": "vite",
     "start": "NODE_ENV=production pastoria-server",
     "migrate": "node --experimental-strip-types scripts/migrate.ts",
     "update-pastoria": "cd ../pastoria && pnpm run -r --filter './packages/pastoria*' build && pnpm pack -r --filter './packages/pastoria*' --out '../edhtop16/vendor/%s.tgz'"

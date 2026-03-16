@@ -2951,7 +2951,7 @@ packages:
       pastoria-runtime: 1.0.13
 
   pastoria@file:vendor/pastoria.tgz:
-    resolution: {integrity: sha512-fQujCrz/REuwgRR+vQlWhrbyHGVIiKRd854eolE36KYYwL8ItxNsZ9mi0mPNMRx1VffIZ3rVGyCNnOE2uS9Ksg==, tarball: file:vendor/pastoria.tgz}
+    resolution: {integrity: sha512-S+9wHoCg6Y8r5CPTqnQ0ObOmY/ZrdZxC2KXupYf3CBpS7gtdGudSVFO5EYOlf+gKA7lpibVBcahOuk4sieMxQA==, tarball: file:vendor/pastoria.tgz}
     version: 1.1.0
     hasBin: true
     peerDependencies:
