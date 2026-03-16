@@ -60,6 +60,16 @@ enum EntrySortBy {
   WINS
 }
 
+enum PromoButtonColor {
+  amber
+  teal
+}
+
+enum PromoContentType {
+  bold
+  normal
+}
+
 enum SearchResultType {
   COMMANDER
   TOURNAMENT
@@ -263,10 +273,12 @@ type EntryEdge {
 
 type FirstPartyPromo {
   backgroundImageUrl: String @semanticNonNull
+  buttonColor: PromoButtonColor
   buttonText: String @semanticNonNull
-  description: [String!] @semanticNonNull
+  description: [String!]
   href: String @semanticNonNull
   imageUrl: String
+  richDescription: [PromoRichContent!]
   title: String @semanticNonNull
 }
 
@@ -317,6 +329,11 @@ type Profile implements Node {
   team: Team
   topdeckProfile: String @semanticNonNull
   username: String
+}
+
+type PromoRichContent {
+  text: String @semanticNonNull
+  type: PromoContentType @semanticNonNull
 }
 
 type Query {

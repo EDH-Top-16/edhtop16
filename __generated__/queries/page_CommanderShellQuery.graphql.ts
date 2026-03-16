@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<274a0f01eea82e68eba90da9b15157da>>
- * @relayHash 359a08dcb8813832f1c6e00ab9134124
+ * @generated SignedSource<<a033f9ee9eca21d2747481958e4b2cb3>>
+ * @relayHash 46f7b86b1a3284b809267e072cc7d949
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 359a08dcb8813832f1c6e00ab9134124
+// @relayRequestID 46f7b86b1a3284b809267e072cc7d949
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -213,6 +213,31 @@ return {
               {
                 "alias": null,
                 "args": null,
+                "concreteType": "PromoRichContent",
+                "kind": "LinkedField",
+                "name": "richDescription",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "type",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "text",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
                 "kind": "ScalarField",
                 "name": "buttonText",
                 "storageKey": null
@@ -237,6 +262,13 @@ return {
                 "kind": "ScalarField",
                 "name": "href",
                 "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "buttonColor",
+                "storageKey": null
               }
             ],
             "storageKey": null
@@ -248,7 +280,7 @@ return {
     ]
   },
   "params": {
-    "id": "359a08dcb8813832f1c6e00ab9134124",
+    "id": "46f7b86b1a3284b809267e072cc7d949",
     "metadata": {},
     "name": "page_CommanderShellQuery",
     "operationKind": "query",

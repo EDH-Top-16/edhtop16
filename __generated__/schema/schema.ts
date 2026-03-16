@@ -124,6 +124,49 @@ export function getSchema(): GraphQLSchema {
             };
         }
     });
+    const PromoButtonColorType: GraphQLEnumType = new GraphQLEnumType({
+        name: "PromoButtonColor",
+        values: {
+            amber: {
+                value: "amber"
+            },
+            teal: {
+                value: "teal"
+            }
+        }
+    });
+    const PromoContentTypeType: GraphQLEnumType = new GraphQLEnumType({
+        name: "PromoContentType",
+        values: {
+            bold: {
+                value: "bold"
+            },
+            normal: {
+                value: "normal"
+            }
+        }
+    });
+    const PromoRichContentType: GraphQLObjectType = new GraphQLObjectType({
+        name: "PromoRichContent",
+        fields() {
+            return {
+                text: {
+                    name: "text",
+                    type: GraphQLString,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                type: {
+                    name: "type",
+                    type: PromoContentTypeType,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                }
+            };
+        }
+    });
     const FirstPartyPromoType: GraphQLObjectType = new GraphQLObjectType({
         name: "FirstPartyPromo",
         fields() {
@@ -135,6 +178,10 @@ export function getSchema(): GraphQLSchema {
                         return assertNonNull(defaultFieldResolver(source, args, context, info));
                     }
                 },
+                buttonColor: {
+                    name: "buttonColor",
+                    type: PromoButtonColorType
+                },
                 buttonText: {
                     name: "buttonText",
                     type: GraphQLString,
@@ -144,10 +191,7 @@ export function getSchema(): GraphQLSchema {
                 },
                 description: {
                     name: "description",
-                    type: new GraphQLList(new GraphQLNonNull(GraphQLString)),
-                    resolve(source, args, context, info) {
-                        return assertNonNull(defaultFieldResolver(source, args, context, info));
-                    }
+                    type: new GraphQLList(new GraphQLNonNull(GraphQLString))
                 },
                 href: {
                     name: "href",
@@ -159,6 +203,10 @@ export function getSchema(): GraphQLSchema {
                 imageUrl: {
                     name: "imageUrl",
                     type: GraphQLString
+                },
+                richDescription: {
+                    name: "richDescription",
+                    type: new GraphQLList(new GraphQLNonNull(PromoRichContentType))
                 },
                 title: {
                     name: "title",
@@ -1955,6 +2003,6 @@ export function getSchema(): GraphQLSchema {
             })],
         query: QueryType,
         mutation: MutationType,
-        types: [CommandersSortByType, DiscordRoleType, EntriesSortByType, EntrySortByType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CoachingInfoInputType, CommanderStatsFiltersType, CreateTeamInputType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, ClaimProfileResponseType, CoachingInfoResponseType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, CountrySeatWinRateType, CreateTeamResponseType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, MutationType, PageInfoType, PlayerType, ProfileType, QueryType, SearchResultType, TeamType, TeamMemberInviteType, TeamMemberResponseType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType, UpdateProfileResponseType, ViewerType]
+        types: [CommandersSortByType, DiscordRoleType, EntriesSortByType, EntrySortByType, PromoButtonColorType, PromoContentTypeType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CoachingInfoInputType, CommanderStatsFiltersType, CreateTeamInputType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, ClaimProfileResponseType, CoachingInfoResponseType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, CountrySeatWinRateType, CreateTeamResponseType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, MutationType, PageInfoType, PlayerType, ProfileType, PromoRichContentType, QueryType, SearchResultType, TeamType, TeamMemberInviteType, TeamMemberResponseType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType, UpdateProfileResponseType, ViewerType]
     });
 }

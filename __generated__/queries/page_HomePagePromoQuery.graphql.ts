@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<d115987977fdd6b477a93b6e499bf367>>
- * @relayHash 2accab97f1e628518929d5b5d9cd55d9
+ * @generated SignedSource<<e16b1f7c35a3988f4cdb966d0f82421f>>
+ * @relayHash 416e958e103c43a545826c193e2f8cce
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 2accab97f1e628518929d5b5d9cd55d9
+// @relayRequestID 416e958e103c43a545826c193e2f8cce
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -82,6 +82,31 @@ const node: ConcreteRequest = {
           {
             "alias": null,
             "args": null,
+            "concreteType": "PromoRichContent",
+            "kind": "LinkedField",
+            "name": "richDescription",
+            "plural": true,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "type",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "text",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
             "kind": "ScalarField",
             "name": "buttonText",
             "storageKey": null
@@ -106,6 +131,13 @@ const node: ConcreteRequest = {
             "kind": "ScalarField",
             "name": "href",
             "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "buttonColor",
+            "storageKey": null
           }
         ],
         "storageKey": null
@@ -113,7 +145,7 @@ const node: ConcreteRequest = {
     ]
   },
   "params": {
-    "id": "2accab97f1e628518929d5b5d9cd55d9",
+    "id": "416e958e103c43a545826c193e2f8cce",
     "metadata": {},
     "name": "page_HomePagePromoQuery",
     "operationKind": "query",

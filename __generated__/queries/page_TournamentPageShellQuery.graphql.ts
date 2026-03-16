@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<1950964ddeb3d9f9f4648db118e924eb>>
- * @relayHash 7f70ecadf21e82158d128944e6f4b9e6
+ * @generated SignedSource<<11093a7a8982ae58047a0e1c8d29cecd>>
+ * @relayHash 3cce27237d48a8507b9cfa85cf90bab7
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 7f70ecadf21e82158d128944e6f4b9e6
+// @relayRequestID 3cce27237d48a8507b9cfa85cf90bab7
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -277,6 +277,31 @@ return {
               {
                 "alias": null,
                 "args": null,
+                "concreteType": "PromoRichContent",
+                "kind": "LinkedField",
+                "name": "richDescription",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "type",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "text",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
                 "kind": "ScalarField",
                 "name": "buttonText",
                 "storageKey": null
@@ -301,6 +326,13 @@ return {
                 "kind": "ScalarField",
                 "name": "href",
                 "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "buttonColor",
+                "storageKey": null
               }
             ],
             "storageKey": null
@@ -312,7 +344,7 @@ return {
     ]
   },
   "params": {
-    "id": "7f70ecadf21e82158d128944e6f4b9e6",
+    "id": "3cce27237d48a8507b9cfa85cf90bab7",
     "metadata": {},
     "name": "page_TournamentPageShellQuery",
     "operationKind": "query",
