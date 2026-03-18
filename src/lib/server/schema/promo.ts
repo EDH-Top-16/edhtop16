@@ -63,6 +63,7 @@ const promos: FirstPartyPromo[] = [
     backgroundImageUrl: '/promos/tap_for_hope/banner.png',
     imageUrl: '/promos/tap_for_hope/button.png',
     href: 'https://topdeck.gg/event/the-quest-part-1',
+    tid: '*',
     commander: '*',
     buttonColor: PromoButtonColor.TEAL,
   },
