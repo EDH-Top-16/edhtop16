@@ -5,6 +5,6 @@ onlyBuiltDependencies:
   - esbuild
 
 overrides:
-  pastoria: file:./vendor/pastoria.tgz
-  pastoria-runtime: file:./vendor/pastoria-runtime.tgz
-  pastoria-server: file:./vendor/pastoria-server.tgz
+  '@pastoria/vite': file:./vendor/pastoria-vite.tgz
+  '@pastoria/runtime': file:./vendor/pastoria-runtime.tgz
+  '@pastoria/server': file:./vendor/pastoria-server.tgz
