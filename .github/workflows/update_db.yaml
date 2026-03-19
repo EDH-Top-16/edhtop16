@@ -39,27 +39,22 @@ jobs:
           use_https = True
           EOF
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - name: Setup Vite+
+        uses: voidzero-dev/setup-vp@v1
         with:
           node-version: "24"
-
-      - name: Setup pnpm
-        run: corepack enable && corepack prepare pnpm@latest --activate
-
-      - name: Install Node Dependencies
-        run: pnpm install --frozen-lockfile
+          cache: true
 
       - name: Pull Latest DB
         run: s3cmd get s3://edhtop16/edhtop16.db
 
       - name: Run Database Migrations
-        run: pnpm run migrate
+        run: vp run migrate
         env:
           NODE_OPTIONS: --max-old-space-size=4096
 
       - name: Generate Application Database
-        run: pnpm run generate:db
+        run: vp run generate:db
         env:
           NODE_OPTIONS: --max-old-space-size=4096
           TOPDECK_GG_API_KEY: ${{ secrets.TOPDECK_GG_API_KEY }}
