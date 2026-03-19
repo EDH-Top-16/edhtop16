@@ -1,3 +1,4 @@
+import {page__AddTeamMemberMutation} from '#genfiles/queries/page__AddTeamMemberMutation.graphql.js';
 import {page__ClaimProfileMutation} from '#genfiles/queries/page__ClaimProfileMutation.graphql.js';
 import {page__ClaimProfileQuery} from '#genfiles/queries/page__ClaimProfileQuery.graphql.js';
 import {page__CoachingInfoCard$key} from '#genfiles/queries/page__CoachingInfoCard.graphql.js';
@@ -5,22 +6,13 @@ import {page__CreateTeamMutation} from '#genfiles/queries/page__CreateTeamMutati
 import {page__DeleteProfileMutation} from '#genfiles/queries/page__DeleteProfileMutation.graphql.js';
 import {page__DeleteTeamMutation} from '#genfiles/queries/page__DeleteTeamMutation.graphql.js';
 import {page__DiscordAuthCard$key} from '#genfiles/queries/page__DiscordAuthCard.graphql.js';
+import {page__JoinTeamMutation} from '#genfiles/queries/page__JoinTeamMutation.graphql.js';
+import {page__LeaveTeamMutation} from '#genfiles/queries/page__LeaveTeamMutation.graphql.js';
+import {page__RemoveTeamMemberMutation} from '#genfiles/queries/page__RemoveTeamMemberMutation.graphql.js';
 import {page__TeamCard$key} from '#genfiles/queries/page__TeamCard.graphql.js';
 import {page__TopdeckProfileCard$key} from '#genfiles/queries/page__TopdeckProfileCard.graphql.js';
 import {page__UpdateCoachingProfileMutation} from '#genfiles/queries/page__UpdateCoachingProfileMutation.graphql.js';
-import {page__LeaveTeamMutation} from '#genfiles/queries/page__LeaveTeamMutation.graphql.js';
-import {page__JoinTeamMutation} from '#genfiles/queries/page__JoinTeamMutation.graphql.js';
-import {page__AddTeamMemberMutation} from '#genfiles/queries/page__AddTeamMemberMutation.graphql.js';
-import {page__RemoveTeamMemberMutation} from '#genfiles/queries/page__RemoveTeamMemberMutation.graphql.js';
-import {useCallback, useMemo, useState} from 'react';
-import {
-  EntryPointComponent,
-  graphql,
-  useFragment,
-  useMutation,
-  usePreloadedQuery,
-} from 'react-relay';
-import {z} from 'zod/v4';
+import {Navigation} from '#src/components/navigation';
 import {Button} from '#src/components/ui/button';
 import {
   Card,
@@ -45,7 +37,14 @@ import {Label} from '#src/components/ui/label';
 import {Textarea} from '#src/components/ui/textarea';
 import {authClient} from '#src/lib/client/auth';
 import {cn} from '#src/lib/utils';
-import {Navigation} from '#src/components/navigation';
+import {useCallback, useMemo, useState} from 'react';
+import {
+  graphql,
+  useFragment,
+  useMutation,
+  usePreloadedQuery,
+} from 'react-relay';
+import {z} from 'zod/v4';
 
 const topdeckProfileUrlSchema = z
   .url()
@@ -108,14 +107,14 @@ function DiscordAuthCard(props: {query: page__DiscordAuthCard$key}) {
   );
 
   function login() {
-    authClient.signIn.social({
+    void authClient.signIn.social({
       provider: 'discord',
       callbackURL: '/profile',
     });
   }
 
   function logout() {
-    authClient.signOut().then(() => {
+    void authClient.signOut().then(() => {
       window.location.reload();
     });
   }

@@ -73,7 +73,7 @@ async function main() {
     try {
       results = await topdeckClient.listTournaments({TID: tids});
     } catch (e) {
-      console.error(`  Error fetching batch: ${e}`);
+      console.error(`  Error fetching batch: ${e as string}`);
       continue;
     }
 

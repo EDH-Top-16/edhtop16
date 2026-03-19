@@ -329,7 +329,7 @@ export function router__createAppFromEntryPoint(
 
     useEffect(() => {
       loadEntryPointRef(location.params());
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      // oxlint-disable-next-line react-hooks/exhaustive-deps
     }, [location]);
 
     const entryPoint = entryPointRef ?? initialEntryPoint;

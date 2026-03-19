@@ -232,19 +232,19 @@ export class Tournament implements GraphQLNode {
     if (after) {
       const cursor = TournamentsCursor.fromString(after);
       if (sortBy === TournamentSortBy.PLAYERS) {
-        query = query.where(({eb, tuple, refTuple}) =>
+        query = query.where((eb) =>
           eb(
-            refTuple('size', 'tournamentDate', 'id'),
+            eb.refTuple('size', 'tournamentDate', 'id'),
             '<',
-            tuple(cursor.size, cursor.date, cursor.id),
+            eb.tuple(cursor.size, cursor.date, cursor.id),
           ),
         );
       } else {
-        query = query.where(({eb, tuple, refTuple}) =>
+        query = query.where((eb) =>
           eb(
-            refTuple('tournamentDate', 'size', 'id'),
+            eb.refTuple('tournamentDate', 'size', 'id'),
             '<',
-            tuple(cursor.date, cursor.size, cursor.id),
+            eb.tuple(cursor.date, cursor.size, cursor.id),
           ),
         );
       }

@@ -312,7 +312,7 @@ function useCommandersDisplay() {
   const listStyle = displayPreferences?.listStyle;
 
   const toggleDisplay = useCallback(() => {
-    window.cookieStore.set(
+    void window.cookieStore.set(
       LIST_STYLE_COOKIE_NAME,
       listStyle === 'table' ? 'card' : 'table',
     );

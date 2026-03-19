@@ -340,23 +340,23 @@ export class Commander implements GraphQLNode {
     if (after) {
       const cursor = CommanderEntriesCursor.fromString(after);
       if (sortBy === EntriesSortBy.NEW) {
-        query = query.where(({eb, tuple, refTuple}) =>
+        query = query.where((eb) =>
           eb(
-            refTuple('Tournament.tournamentDate', 'Entry.id'),
+            eb.refTuple('Tournament.tournamentDate', 'Entry.id'),
             '<',
-            tuple(cursor.date, cursor.id),
+            eb.tuple(cursor.date, cursor.id),
           ),
         );
       } else {
-        query = query.where(({eb, tuple, refTuple, and, or}) =>
-          or([
+        query = query.where((eb) =>
+          eb.or([
             eb('standing', '>', cursor.standing),
-            and([
+            eb.and([
               eb('standing', '=', cursor.standing),
               eb(
-                refTuple('Tournament.size', 'Entry.id'),
+                eb.refTuple('Tournament.size', 'Entry.id'),
                 '<',
-                tuple(cursor.size, cursor.id),
+                eb.tuple(cursor.size, cursor.id),
               ),
             ]),
           ]),
@@ -556,23 +556,23 @@ export class Commander implements GraphQLNode {
     if (after) {
       const cursor = CommanderEntriesCursor.fromString(after);
       if (sortBy === EntriesSortBy.NEW) {
-        query = query.where(({eb, tuple, refTuple}) =>
+        query = query.where((eb) =>
           eb(
-            refTuple('Tournament.tournamentDate', 'Entry.id'),
+            eb.refTuple('Tournament.tournamentDate', 'Entry.id'),
             '<',
-            tuple(cursor.date, cursor.id),
+            eb.tuple(cursor.date, cursor.id),
           ),
         );
       } else {
-        query = query.where(({eb, tuple, refTuple, and, or}) =>
-          or([
+        query = query.where((eb) =>
+          eb.or([
             eb('standing', '>', cursor.standing),
-            and([
+            eb.and([
               eb('standing', '=', cursor.standing),
               eb(
-                refTuple('Tournament.size', 'Entry.id'),
+                eb.refTuple('Tournament.size', 'Entry.id'),
                 '<',
-                tuple(cursor.size, cursor.id),
+                eb.tuple(cursor.size, cursor.id),
               ),
             ]),
           ]),

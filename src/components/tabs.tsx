@@ -19,8 +19,7 @@ function Edhtop16TabList({
   );
 }
 
-interface Edhtop16TabProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface Edhtop16TabProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   selected?: boolean;
 }
 
