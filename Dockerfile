@@ -11,8 +11,7 @@ RUN npm install -g vite-plus
 
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY vendor ./vendor/
-RUN pnpm install --frozen-lockfile --ignore-scripts
-RUN vp config
+RUN pnpm install --frozen-lockfile
 
 COPY . .
 RUN vp build
@@ -37,12 +36,13 @@ EXPOSE 8000
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Install pnpm
+# Install pnpm and vite-plus
 RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN npm install -g vite-plus
 
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY vendor ./vendor/
-RUN pnpm install --frozen-lockfile --prod --ignore-scripts
+RUN pnpm install --frozen-lockfile --prod
 
 # Copy build output from build stage and install dependencies.
 COPY --from=build /build/dist ./dist
