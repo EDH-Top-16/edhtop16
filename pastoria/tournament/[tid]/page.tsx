@@ -10,9 +10,10 @@ import {FirstPartyPromo} from '#src/components/promo';
 import {Tab, TabList} from '#src/components/tabs';
 import {formatPercent} from '#src/lib/client/format';
 import ArrowRightIcon from '@heroicons/react/24/solid/ArrowRightIcon';
+import ChevronDownIcon from '@heroicons/react/24/solid/ChevronDownIcon';
 import cn from 'classnames';
 import {format} from 'date-fns';
-import {MouseEvent, Suspense, useCallback, useMemo} from 'react';
+import {MouseEvent, Suspense, useCallback, useMemo, useState} from 'react';
 import {
   EntryPoint,
   EntryPointContainer,
@@ -22,6 +23,97 @@ import {
 } from 'react-relay/hooks';
 import {z} from 'zod/v4-mini';
 
+type SeatWinRateRow = {
+  readonly seat1: number | null | undefined;
+  readonly seat2: number | null | undefined;
+  readonly seat3: number | null | undefined;
+  readonly seat4: number | null | undefined;
+  readonly drawRate: number | null | undefined;
+};
+
+function SeatWinRateRowCollapsed(props: {rates: SeatWinRateRow}) {
+  const {rates} = props;
+  if (
+    rates.seat1 == null ||
+    rates.seat2 == null ||
+    rates.seat3 == null ||
+    rates.seat4 == null
+  ) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-1 items-stretch px-2 text-center text-xs whitespace-nowrap text-white sm:px-3 sm:text-sm">
+      <span className="flex items-center py-2 text-white/60">Win Rate</span>
+      <div className="mx-1.5 border-l border-white/60 sm:mx-2"> </div>
+      <span className="flex items-center py-2">
+        S1: {formatPercent(rates.seat1)}
+      </span>
+      <div className="mx-1.5 border-l border-white/60 sm:mx-2"> </div>
+      <span className="flex items-center py-2">
+        S2: {formatPercent(rates.seat2)}
+      </span>
+      <div className="mx-1.5 border-l border-white/60 sm:mx-2"> </div>
+      <span className="flex items-center py-2">
+        S3: {formatPercent(rates.seat3)}
+      </span>
+      <div className="mx-1.5 border-l border-white/60 sm:mx-2"> </div>
+      <span className="flex items-center py-2">
+        S4: {formatPercent(rates.seat4)}
+      </span>
+      {rates.drawRate != null && (
+        <>
+          <div className="mx-1.5 border-l border-white/60 sm:mx-2"> </div>
+          <span className="flex items-center py-2">
+            Draw: {formatPercent(rates.drawRate)}
+          </span>
+        </>
+      )}
+    </div>
+  );
+}
+
+function SeatWinRateTableRow(props: {
+  label: string;
+  rates: SeatWinRateRow;
+  hasDraws: boolean;
+}) {
+  const {label, rates, hasDraws} = props;
+  if (
+    rates.seat1 == null ||
+    rates.seat2 == null ||
+    rates.seat3 == null ||
+    rates.seat4 == null
+  ) {
+    return null;
+  }
+
+  return (
+    <div className="flex items-center text-center text-xs text-white sm:text-sm">
+      <span className="w-18 shrink-0 px-1 text-white/60 sm:w-20 md:w-24">
+        {label}
+      </span>
+      <span className="min-w-14 flex-1 border-l border-white/30 py-1.5 md:px-3">
+        {formatPercent(rates.seat1)}
+      </span>
+      <span className="min-w-14 flex-1 border-l border-white/30 py-1.5 md:px-3">
+        {formatPercent(rates.seat2)}
+      </span>
+      <span className="min-w-14 flex-1 border-l border-white/30 py-1.5 md:px-3">
+        {formatPercent(rates.seat3)}
+      </span>
+      <span className="min-w-14 flex-1 border-l border-white/30 py-1.5 md:px-3">
+        {formatPercent(rates.seat4)}
+      </span>
+      {hasDraws && (
+        <span className="min-w-14 flex-1 border-l border-white/30 py-1.5 md:px-3">
+          {rates.drawRate != null ? formatPercent(rates.drawRate) : '-'}
+        </span>
+      )}
+    </div>
+  );
+}
+
 function TournamentBanner(props: {tournament: page_TournamentBanner$key}) {
   const tournament = useFragment(
     graphql`
@@ -30,12 +122,37 @@ function TournamentBanner(props: {tournament: page_TournamentBanner$key}) {
         size
         tournamentDate
         bracketUrl
-        seatWinRate1
-        seatWinRate2
-        seatWinRate3
-        seatWinRate4
-        drawRate
-
+        topCut
+        seatWinRatesByPhase {
+          all {
+            seat1
+            seat2
+            seat3
+            seat4
+            drawRate
+          }
+          swiss {
+            seat1
+            seat2
+            seat3
+            seat4
+            drawRate
+          }
+          topCut {
+            seat1
+            seat2
+            seat3
+            seat4
+            drawRate
+          }
+          finals {
+            seat1
+            seat2
+            seat3
+            seat4
+            drawRate
+          }
+        }
         winner: entries(maxStanding: 1) {
           commander {
             cards {
@@ -57,9 +174,18 @@ function TournamentBanner(props: {tournament: page_TournamentBanner$key}) {
     }
   }, [tournament]);
 
+  const [expanded, setExpanded] = useState(false);
+
+  const allRates = tournament.seatWinRatesByPhase.all;
+  const hasSeatData =
+    allRates.seat1 != null &&
+    allRates.seat2 != null &&
+    allRates.seat3 != null &&
+    allRates.seat4 != null;
+
   return (
-    <div className="h-64 w-full bg-black/60 md:h-80">
-      <div className="relative mx-auto flex h-full w-full max-w-(--breakpoint-xl) flex-col items-center justify-center space-y-4">
+    <div className="min-h-64 w-full bg-black/60 md:min-h-80">
+      <div className="relative mx-auto flex min-h-64 w-full max-w-(--breakpoint-xl) flex-col items-center pb-0 md:min-h-80">
         {tournament.winner[0] != null && (
           <div className="absolute top-0 left-0 flex h-full w-full brightness-40">
             {tournament.winner[0].commander.cards
@@ -93,46 +219,79 @@ function TournamentBanner(props: {tournament: page_TournamentBanner$key}) {
           </div>
         )}
 
-        <h1 className="font-title relative text-center text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
-          {tournament.name}
-        </h1>
-        <div className="relative flex w-full max-w-(--breakpoint-md) flex-col items-center justify-evenly gap-1 text-base text-white md:flex-row md:text-lg lg:text-xl">
-          <span>{format(tournament.tournamentDate, 'MMMM do yyyy')}</span>
-          <span>{tournament.size} Players</span>
+        <div className="relative flex flex-1 flex-col items-center justify-center">
+          <h1 className="font-title text-center text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
+            {tournament.name}
+          </h1>
+          <div className="mt-2 flex w-full max-w-(--breakpoint-md) flex-col items-center justify-evenly gap-1 text-base text-white md:flex-row md:text-lg lg:text-xl">
+            <span>{format(tournament.tournamentDate, 'MMMM do yyyy')}</span>
+            <span>{tournament.size} Players</span>
+          </div>
         </div>
 
-        {tournament.seatWinRate1 != null &&
-          tournament.seatWinRate2 != null &&
-          tournament.seatWinRate3 != null &&
-          tournament.seatWinRate4 != null && (
-            <div className="absolute bottom-0 z-10 mx-auto flex w-full items-center justify-around border-t border-white/60 bg-black/50 px-3 text-center text-sm text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border">
-              <span className="text-white/60">Win Rate</span>
-              <div className="mr-1 ml-2 border-l border-white/60 py-2">
-                &nbsp;
-              </div>{' '}
-              Seat 1: {formatPercent(tournament.seatWinRate1)}
-              <div className="mr-1 ml-2 border-l border-white/60 py-2">
-                &nbsp;
-              </div>{' '}
-              Seat 2: {formatPercent(tournament.seatWinRate2)}
-              <div className="mr-1 ml-2 border-l border-white/60 py-2">
-                &nbsp;
-              </div>{' '}
-              Seat 3: {formatPercent(tournament.seatWinRate3)}
-              <div className="mr-1 ml-2 border-l border-white/60 py-2">
-                &nbsp;
-              </div>{' '}
-              Seat 4: {formatPercent(tournament.seatWinRate4)}
-              {tournament.drawRate != null && (
-                <>
-                  <div className="mr-1 ml-2 border-l border-white/60 py-2">
-                    &nbsp;
-                  </div>{' '}
-                  Draws: {formatPercent(tournament.drawRate)}
-                </>
+        {hasSeatData && (
+          <div className="relative z-10 mt-auto w-full border-t border-white/60 bg-black/50 text-white sm:mt-6 sm:mb-3 sm:w-auto sm:rounded-lg sm:border">
+            <div className="flex items-center">
+              {expanded ? (
+                <div className="flex flex-1 flex-col divide-y divide-white/30">
+                  <div className="flex items-center text-center text-xs text-white/50">
+                    <span className="w-18 shrink-0 sm:w-20 md:w-24"> </span>
+                    <span className="min-w-14 flex-1 border-l border-white/30 py-1 md:px-3">
+                      S1
+                    </span>
+                    <span className="min-w-14 flex-1 border-l border-white/30 py-1 md:px-3">
+                      S2
+                    </span>
+                    <span className="min-w-14 flex-1 border-l border-white/30 py-1 md:px-3">
+                      S3
+                    </span>
+                    <span className="min-w-14 flex-1 border-l border-white/30 py-1 md:px-3">
+                      S4
+                    </span>
+                    {allRates.drawRate != null && (
+                      <span className="min-w-14 flex-1 border-l border-white/30 py-1 md:px-3">
+                        Draw
+                      </span>
+                    )}
+                  </div>
+                  <SeatWinRateTableRow
+                    label="All Rounds"
+                    rates={allRates}
+                    hasDraws={allRates.drawRate != null}
+                  />
+                  <SeatWinRateTableRow
+                    label="Swiss Only"
+                    rates={tournament.seatWinRatesByPhase.swiss}
+                    hasDraws={allRates.drawRate != null}
+                  />
+                  <SeatWinRateTableRow
+                    label="Top Cut"
+                    rates={tournament.seatWinRatesByPhase.topCut}
+                    hasDraws={allRates.drawRate != null}
+                  />
+                  <SeatWinRateTableRow
+                    label="Top 4"
+                    rates={tournament.seatWinRatesByPhase.finals}
+                    hasDraws={allRates.drawRate != null}
+                  />
+                </div>
+              ) : (
+                <SeatWinRateRowCollapsed rates={allRates} />
               )}
+              <button
+                onClick={() => setExpanded((v) => !v)}
+                className="shrink-0 cursor-pointer self-stretch border-l border-white/60 px-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                <ChevronDownIcon
+                  className={cn(
+                    'h-3 w-3 transition-transform',
+                    expanded && 'rotate-180',
+                  )}
+                />
+              </button>
             </div>
-          )}
+          </div>
+        )}
       </div>
     </div>
   );

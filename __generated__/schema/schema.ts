@@ -579,6 +579,68 @@ export function getSchema(): GraphQLSchema {
             };
         }
     });
+    const SeatWinRatesType: GraphQLObjectType = new GraphQLObjectType({
+        name: "SeatWinRates",
+        fields() {
+            return {
+                drawRate: {
+                    name: "drawRate",
+                    type: GraphQLFloat
+                },
+                seat1: {
+                    name: "seat1",
+                    type: GraphQLFloat
+                },
+                seat2: {
+                    name: "seat2",
+                    type: GraphQLFloat
+                },
+                seat3: {
+                    name: "seat3",
+                    type: GraphQLFloat
+                },
+                seat4: {
+                    name: "seat4",
+                    type: GraphQLFloat
+                }
+            };
+        }
+    });
+    const SeatWinRatesByPhaseType: GraphQLObjectType = new GraphQLObjectType({
+        name: "SeatWinRatesByPhase",
+        fields() {
+            return {
+                all: {
+                    name: "all",
+                    type: SeatWinRatesType,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                finals: {
+                    name: "finals",
+                    type: SeatWinRatesType,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                swiss: {
+                    name: "swiss",
+                    type: SeatWinRatesType,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                topCut: {
+                    name: "topCut",
+                    type: SeatWinRatesType,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                }
+            };
+        }
+    });
     const TournamentType: GraphQLObjectType = new GraphQLObjectType({
         name: "Tournament",
         fields() {
@@ -660,6 +722,13 @@ export function getSchema(): GraphQLSchema {
                 seatWinRate4: {
                     name: "seatWinRate4",
                     type: GraphQLFloat
+                },
+                seatWinRatesByPhase: {
+                    name: "seatWinRatesByPhase",
+                    type: SeatWinRatesByPhaseType,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
                 },
                 size: {
                     name: "size",
@@ -2162,6 +2231,10 @@ export function getSchema(): GraphQLSchema {
             })],
         query: QueryType,
         mutation: MutationType,
+<<<<<<< HEAD
         types: [CommandersSortByType, DiscordRoleType, EntriesSortByType, EntrySortByType, PromoButtonColorType, PromoContentTypeType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentPhaseType, TournamentSortByType, NodeType, CardEntriesFiltersType, CoachingInfoInputType, CommanderStatsFiltersType, CreateTeamInputType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, ClaimProfileResponseType, CoachingInfoResponseType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, CountrySeatWinRateType, CreateTeamResponseType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, LeaderboardEntryType, MonthlySeatWinRateType, MutationType, PageInfoType, PlayerType, ProfileType, PromoRichContentType, QueryType, SearchResultType, TeamType, TeamMemberInviteType, TeamMemberResponseType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType, UpdateProfileResponseType, ViewerType]
+=======
+        types: [CommandersSortByType, DiscordRoleType, EntriesSortByType, EntrySortByType, PromoButtonColorType, PromoContentTypeType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CoachingInfoInputType, CommanderStatsFiltersType, CreateTeamInputType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, ClaimProfileResponseType, CoachingInfoResponseType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, CountrySeatWinRateType, CreateTeamResponseType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, MutationType, PageInfoType, PlayerType, ProfileType, PromoRichContentType, QueryType, SearchResultType, SeatWinRatesType, SeatWinRatesByPhaseType, TeamType, TeamMemberInviteType, TeamMemberResponseType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType, UpdateProfileResponseType, ViewerType]
+>>>>>>> c40e6f2 (Add expandable phase-specific seat win rates to tournament banner)
     });
 }

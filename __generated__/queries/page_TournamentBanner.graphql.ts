@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<23c6304ca5f041c5b07c4d4173d571e0>>
+ * @generated SignedSource<<9b7db591e6de4d2e947b491fd76af32b>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -12,13 +12,39 @@ import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type page_TournamentBanner$data = {
   readonly bracketUrl: string;
-  readonly drawRate: number | null | undefined;
   readonly name: string;
-  readonly seatWinRate1: number | null | undefined;
-  readonly seatWinRate2: number | null | undefined;
-  readonly seatWinRate3: number | null | undefined;
-  readonly seatWinRate4: number | null | undefined;
+  readonly seatWinRatesByPhase: {
+    readonly all: {
+      readonly drawRate: number | null | undefined;
+      readonly seat1: number | null | undefined;
+      readonly seat2: number | null | undefined;
+      readonly seat3: number | null | undefined;
+      readonly seat4: number | null | undefined;
+    };
+    readonly finals: {
+      readonly drawRate: number | null | undefined;
+      readonly seat1: number | null | undefined;
+      readonly seat2: number | null | undefined;
+      readonly seat3: number | null | undefined;
+      readonly seat4: number | null | undefined;
+    };
+    readonly swiss: {
+      readonly drawRate: number | null | undefined;
+      readonly seat1: number | null | undefined;
+      readonly seat2: number | null | undefined;
+      readonly seat3: number | null | undefined;
+      readonly seat4: number | null | undefined;
+    };
+    readonly topCut: {
+      readonly drawRate: number | null | undefined;
+      readonly seat1: number | null | undefined;
+      readonly seat2: number | null | undefined;
+      readonly seat3: number | null | undefined;
+      readonly seat4: number | null | undefined;
+    };
+  };
   readonly size: number;
+  readonly topCut: number;
   readonly tournamentDate: string;
   readonly winner: ReadonlyArray<{
     readonly commander: {
@@ -34,7 +60,45 @@ export type page_TournamentBanner$key = {
   readonly " $fragmentSpreads": FragmentRefs<"page_TournamentBanner">;
 };
 
-const node: ReaderFragment = {
+const node: ReaderFragment = (function(){
+var v0 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "seat1",
+    "storageKey": null
+  },
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "seat2",
+    "storageKey": null
+  },
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "seat3",
+    "storageKey": null
+  },
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "seat4",
+    "storageKey": null
+  },
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "drawRate",
+    "storageKey": null
+  }
+];
+return {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": {
@@ -74,35 +138,58 @@ const node: ReaderFragment = {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
-      "name": "seatWinRate1",
+      "name": "topCut",
       "storageKey": null
     },
     {
       "alias": null,
       "args": null,
-      "kind": "ScalarField",
-      "name": "seatWinRate2",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "seatWinRate3",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "seatWinRate4",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "drawRate",
+      "concreteType": "SeatWinRatesByPhase",
+      "kind": "LinkedField",
+      "name": "seatWinRatesByPhase",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "SeatWinRates",
+          "kind": "LinkedField",
+          "name": "all",
+          "plural": false,
+          "selections": (v0/*: any*/),
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "SeatWinRates",
+          "kind": "LinkedField",
+          "name": "swiss",
+          "plural": false,
+          "selections": (v0/*: any*/),
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "SeatWinRates",
+          "kind": "LinkedField",
+          "name": "topCut",
+          "plural": false,
+          "selections": (v0/*: any*/),
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "SeatWinRates",
+          "kind": "LinkedField",
+          "name": "finals",
+          "plural": false,
+          "selections": (v0/*: any*/),
+          "storageKey": null
+        }
+      ],
       "storageKey": null
     },
     {
@@ -155,7 +242,8 @@ const node: ReaderFragment = {
   "type": "Tournament",
   "abstractKey": null
 };
+})();
 
-(node as any).hash = "193bf7863f6f4ac5f634fb14a695875f";
+(node as any).hash = "1e3828b7a2c1e4639ee26a2450a3b2b7";
 
 export default node;

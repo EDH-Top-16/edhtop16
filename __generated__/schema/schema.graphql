@@ -395,6 +395,21 @@ type SearchResult {
   winnerName: String
 }
 
+type SeatWinRates {
+  drawRate: Float
+  seat1: Float
+  seat2: Float
+  seat3: Float
+  seat4: Float
+}
+
+type SeatWinRatesByPhase {
+  all: SeatWinRates @semanticNonNull
+  finals: SeatWinRates @semanticNonNull
+  swiss: SeatWinRates @semanticNonNull
+  topCut: SeatWinRates @semanticNonNull
+}
+
 type Team implements Node {
   id: ID!
   invites: [TeamMemberInvite!] @semanticNonNull
@@ -430,6 +445,7 @@ type Tournament implements Node {
   seatWinRate2: Float
   seatWinRate3: Float
   seatWinRate4: Float
+  seatWinRatesByPhase: SeatWinRatesByPhase @semanticNonNull
   size: Int @semanticNonNull
   swissRounds: Int @semanticNonNull
   topCut: Int @semanticNonNull
