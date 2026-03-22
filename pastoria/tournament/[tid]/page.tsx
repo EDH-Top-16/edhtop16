@@ -265,7 +265,7 @@ function TournamentBanner(props: {tournament: page_TournamentBanner$key}) {
                     hasDraws={allRates.drawRate != null}
                   />
                   <SeatWinRateTableRow
-                    label="Top Cut"
+                    label={`Top Cut (${tournament.topCut})`}
                     rates={tournament.seatWinRatesByPhase.topCut}
                     hasDraws={allRates.drawRate != null}
                   />
