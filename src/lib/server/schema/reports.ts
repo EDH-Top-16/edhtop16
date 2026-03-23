@@ -60,17 +60,33 @@ class MonthlySeatWinRate {
 }
 
 /** @gqlQueryField */
-export async function monthlySeatWinRates(): Promise<MonthlySeatWinRate[]> {
+export async function monthlySeatWinRates(
+  args: {
+    commanderName?: string | null;
+  } = {},
+): Promise<MonthlySeatWinRate[]> {
   const now = new Date();
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
-  const rows = await db
+  let query = db
     .selectFrom('MatchSeat')
     .innerJoin('Entry', 'Entry.id', 'MatchSeat.entryId')
     .innerJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
     .where('MatchSeat.isBye', '=', 0)
     .where('Tournament.tournamentDate', '>=', '2024-03-01')
-    .where(sql`strftime('%Y-%m', Tournament.tournamentDate)`, '<', currentMonth)
+    .where(
+      sql`strftime('%Y-%m', Tournament.tournamentDate)`,
+      '<',
+      currentMonth,
+    );
+
+  if (args.commanderName) {
+    query = query
+      .innerJoin('Commander', 'Commander.id', 'Entry.commanderId')
+      .where('Commander.name', '=', args.commanderName);
+  }
+
+  const rows = await query
     .select([
       sql<string>`strftime('%Y-%m', Tournament.tournamentDate)`.as('month'),
       sql<number>`count(*)`.as('games'),

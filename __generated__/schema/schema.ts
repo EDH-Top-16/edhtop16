@@ -1639,8 +1639,13 @@ export function getSchema(): GraphQLSchema {
                 monthlySeatWinRates: {
                     name: "monthlySeatWinRates",
                     type: new GraphQLList(new GraphQLNonNull(MonthlySeatWinRateType)),
-                    resolve() {
-                        return assertNonNull(queryMonthlySeatWinRatesResolver());
+                    args: {
+                        commanderName: {
+                            type: GraphQLString
+                        }
+                    },
+                    resolve(_source, args) {
+                        return assertNonNull(queryMonthlySeatWinRatesResolver(args));
                     }
                 },
                 node: {
