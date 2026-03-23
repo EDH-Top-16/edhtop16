@@ -39,16 +39,19 @@ class MonthlySeatWinRate {
   /** @gqlField */
   drawRate: Float;
 
-  constructor(data: {
-    month: string;
-    games: Int;
-    seatWinRate1: Float;
-    seatWinRate2: Float;
-    seatWinRate3: Float;
-    seatWinRate4: Float;
-    drawRate: Float;
-  }) {
-    this.id = data.month;
+  constructor(
+    data: {
+      month: string;
+      games: Int;
+      seatWinRate1: Float;
+      seatWinRate2: Float;
+      seatWinRate3: Float;
+      seatWinRate4: Float;
+      drawRate: Float;
+    },
+    commanderName?: string | null,
+  ) {
+    this.id = commanderName ? `${data.month}:${commanderName}` : data.month;
     this.month = data.month;
     this.games = data.games;
     this.seatWinRate1 = data.seatWinRate1;
@@ -110,7 +113,7 @@ export async function monthlySeatWinRates(
     .orderBy(sql`strftime('%Y-%m', Tournament.tournamentDate)`, 'asc')
     .execute();
 
-  return rows.map((row) => new MonthlySeatWinRate(row));
+  return rows.map((row) => new MonthlySeatWinRate(row, args.commanderName));
 }
 
 /** @gqlQueryField */
