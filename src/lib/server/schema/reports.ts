@@ -1,4 +1,4 @@
-import {Float, Int} from 'grats';
+import {Float, Int, ID} from 'grats';
 import {sql} from 'kysely';
 import {db} from '../db';
 
@@ -18,6 +18,83 @@ interface CountrySeatWinRate {
   seatWinRate4: Float;
   /** @gqlField */
   drawRate: Float;
+}
+
+/** @gqlType */
+class MonthlySeatWinRate {
+  /** @gqlField */
+  id: ID;
+  /** @gqlField */
+  month: string;
+  /** @gqlField */
+  games: Int;
+  /** @gqlField */
+  seatWinRate1: Float;
+  /** @gqlField */
+  seatWinRate2: Float;
+  /** @gqlField */
+  seatWinRate3: Float;
+  /** @gqlField */
+  seatWinRate4: Float;
+  /** @gqlField */
+  drawRate: Float;
+
+  constructor(data: {
+    month: string;
+    games: Int;
+    seatWinRate1: Float;
+    seatWinRate2: Float;
+    seatWinRate3: Float;
+    seatWinRate4: Float;
+    drawRate: Float;
+  }) {
+    this.id = data.month;
+    this.month = data.month;
+    this.games = data.games;
+    this.seatWinRate1 = data.seatWinRate1;
+    this.seatWinRate2 = data.seatWinRate2;
+    this.seatWinRate3 = data.seatWinRate3;
+    this.seatWinRate4 = data.seatWinRate4;
+    this.drawRate = data.drawRate;
+  }
+}
+
+/** @gqlQueryField */
+export async function monthlySeatWinRates(): Promise<MonthlySeatWinRate[]> {
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+  const rows = await db
+    .selectFrom('MatchSeat')
+    .innerJoin('Entry', 'Entry.id', 'MatchSeat.entryId')
+    .innerJoin('Tournament', 'Tournament.id', 'Entry.tournamentId')
+    .where('MatchSeat.isBye', '=', 0)
+    .where('Tournament.tournamentDate', '>=', '2024-03-01')
+    .where(sql`strftime('%Y-%m', Tournament.tournamentDate)`, '<', currentMonth)
+    .select([
+      sql<string>`strftime('%Y-%m', Tournament.tournamentDate)`.as('month'),
+      sql<number>`count(*)`.as('games'),
+      sql<number>`coalesce(avg(case when MatchSeat.seatNumber = 0 then cast(MatchSeat.isWinner as real) end), 0)`.as(
+        'seatWinRate1',
+      ),
+      sql<number>`coalesce(avg(case when MatchSeat.seatNumber = 1 then cast(MatchSeat.isWinner as real) end), 0)`.as(
+        'seatWinRate2',
+      ),
+      sql<number>`coalesce(avg(case when MatchSeat.seatNumber = 2 then cast(MatchSeat.isWinner as real) end), 0)`.as(
+        'seatWinRate3',
+      ),
+      sql<number>`coalesce(avg(case when MatchSeat.seatNumber = 3 then cast(MatchSeat.isWinner as real) end), 0)`.as(
+        'seatWinRate4',
+      ),
+      sql<number>`coalesce(avg(cast(MatchSeat.isDraw as real)), 0)`.as(
+        'drawRate',
+      ),
+    ])
+    .groupBy(sql`strftime('%Y-%m', Tournament.tournamentDate)`)
+    .orderBy(sql`strftime('%Y-%m', Tournament.tournamentDate)`, 'asc')
+    .execute();
+
+  return rows.map((row) => new MonthlySeatWinRate(row));
 }
 
 /** @gqlQueryField */
