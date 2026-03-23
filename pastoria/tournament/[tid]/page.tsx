@@ -95,28 +95,32 @@ function SeatWinRateTableRow(props: {
     return null;
   }
 
+  const values: (number | null | undefined)[] = [
+    rates.seat1,
+    rates.seat2,
+    rates.seat3,
+    rates.seat4,
+  ];
+  if (hasDraws) {
+    values.push(rates.drawRate ?? null);
+  }
+
   return (
     <div className="flex items-center text-center text-xs text-white sm:text-sm">
       <span className="w-18 shrink-0 px-1 text-white/60 sm:w-20 md:w-24">
         {label}
       </span>
-      <span className="min-w-14 flex-1 border-l border-white/30 py-1.5 md:px-3">
-        {formatPercent(rates.seat1)}
-      </span>
-      <span className="min-w-14 flex-1 border-l border-white/30 py-1.5 md:px-3">
-        {formatPercent(rates.seat2)}
-      </span>
-      <span className="min-w-14 flex-1 border-l border-white/30 py-1.5 md:px-3">
-        {formatPercent(rates.seat3)}
-      </span>
-      <span className="min-w-14 flex-1 border-l border-white/30 py-1.5 md:px-3">
-        {formatPercent(rates.seat4)}
-      </span>
-      {hasDraws && (
-        <span className="min-w-14 flex-1 border-l border-white/30 py-1.5 md:px-3">
-          {rates.drawRate != null ? formatPercent(rates.drawRate) : '-'}
+      {values.map((value, i) => (
+        <span
+          key={i}
+          className={cn(
+            'min-w-14 flex-1 border-l border-white/30 py-1.5 md:px-3',
+            value === 0 && 'text-white/30',
+          )}
+        >
+          {value != null ? formatPercent(value) : '-'}
         </span>
-      )}
+      ))}
     </div>
   );
 }
