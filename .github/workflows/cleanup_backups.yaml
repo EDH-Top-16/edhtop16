@@ -33,10 +33,11 @@ jobs:
           use_https = True
           EOF
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - name: Setup Vite+
+        uses: voidzero-dev/setup-vp@v1
         with:
           node-version: "24"
+          run-install: false
 
       - name: Run Cleanup Script
         run: node --experimental-strip-types scripts/cleanup-old-backups.ts

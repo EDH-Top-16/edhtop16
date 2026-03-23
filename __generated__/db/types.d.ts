@@ -43,6 +43,17 @@ export interface Entry {
   winsSwiss: number;
 }
 
+export interface MatchSeat {
+  entryId: number;
+  id: Generated<number | null>;
+  isBye: Generated<number>;
+  isDraw: Generated<number>;
+  isWinner: Generated<number>;
+  round: string;
+  seatNumber: number;
+  tableNumber: number | null;
+}
+
 export interface Player {
   coachingBio: string | null;
   coachingBookingUrl: string | null;
@@ -51,14 +62,27 @@ export interface Player {
   id: Generated<number>;
   name: string;
   offersCoaching: Generated<number>;
+  team: string | null;
+  teamId: string | null;
   topdeckProfile: string | null;
 }
 
 export interface Tournament {
   bracketUrl: string | null;
+  city: string | null;
+  country: string | null;
+  drawRate: number | null;
   id: Generated<number>;
+  latitude: number | null;
+  locationName: string | null;
+  longitude: number | null;
   name: string;
+  seatWinRate1: number | null;
+  seatWinRate2: number | null;
+  seatWinRate3: number | null;
+  seatWinRate4: number | null;
   size: number;
+  state: string | null;
   swissRounds: number;
   TID: string;
   topCut: number;
@@ -70,6 +94,7 @@ export interface DB {
   Commander: Commander;
   DecklistItem: DecklistItem;
   Entry: Entry;
+  MatchSeat: MatchSeat;
   Player: Player;
   Tournament: Tournament;
 }

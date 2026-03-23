@@ -56,6 +56,13 @@ const ALL_KNOWN_CHEATERS: {
   },
 ];
 
+const PLAYER_TAGS = new Map<string, string>([
+  // spuki
+  ['yDmurQQALDMAZ5XelLf8KibSaaB3', 'Coper'],
+  // Alex James Stockwell
+  ['73UqV6xEFaTr5Y5JqFRGFfrCcCT2', 'Chud'],
+]);
+
 const now = Date.now();
 const UNEXPIRED_CHEATERS = new Set(
   ALL_KNOWN_CHEATERS.filter(
@@ -96,11 +103,14 @@ export class Player implements GraphQLNode {
   readonly name: string;
   /** @gqlField */
   readonly topdeckProfile: string | null;
+  /** @gqlField */
+  readonly team: string | null;
 
   constructor(row: Selectable<DB['Player']>) {
     this.id = row.id;
     this.name = row.name;
     this.topdeckProfile = row.topdeckProfile;
+    this.team = row.team;
   }
 
   /** @gqlField */
@@ -242,6 +252,12 @@ export class Player implements GraphQLNode {
     return (
       this.topdeckProfile != null && UNEXPIRED_CHEATERS.has(this.topdeckProfile)
     );
+  }
+
+  /** @gqlField */
+  tag(): string | null {
+    if (this.topdeckProfile == null) return null;
+    return PLAYER_TAGS.get(this.topdeckProfile) ?? null;
   }
 
   /** @gqlQueryField */

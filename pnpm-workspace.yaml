@@ -5,6 +5,19 @@ onlyBuiltDependencies:
   - esbuild
 
 overrides:
-  pastoria: file:./vendor/pastoria.tgz
-  pastoria-runtime: file:./vendor/pastoria-runtime.tgz
-  pastoria-server: file:./vendor/pastoria-server.tgz
+  '@pastoria/vite': file:./vendor/pastoria-vite.tgz
+  '@pastoria/runtime': file:./vendor/pastoria-runtime.tgz
+  '@pastoria/server': file:./vendor/pastoria-server.tgz
+  vite: 'catalog:'
+  vitest: 'catalog:'
+catalog:
+  vite: npm:@voidzero-dev/vite-plus-core@latest
+  vitest: npm:@voidzero-dev/vite-plus-test@latest
+  vite-plus: latest
+peerDependencyRules:
+  allowAny:
+    - vite
+    - vitest
+  allowedVersions:
+    vite: '*'
+    vitest: '*'

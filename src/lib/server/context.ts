@@ -1,5 +1,10 @@
 import type {Request} from 'express';
 import DataLoader from 'dataloader';
+import {auth} from './auth.js';
+import {getDiscordGuildRoles} from './discord.js';
+import {TopDeckClient} from './topdeck_client.js';
+import {fromNodeHeaders} from 'better-auth/node';
+import type {User} from 'better-auth';
 
 /**
  * Base class for GraphQL contexts.
@@ -9,10 +14,14 @@ export class Context {
   /** The Express request object */
   public readonly req: Request;
 
+  /** The authenticated user, or null if not logged in */
+  public readonly user: User | null;
+
   private readonly DERIVED_CACHE = new Map<string, unknown>();
 
-  constructor(req: Request) {
+  constructor(req: Request, user: User | null) {
     this.req = req;
+    this.user = user;
   }
 
   /**
@@ -23,8 +32,41 @@ export class Context {
    * @returns A promise that resolves to the context instance
    */
   static async createFromRequest(req: Request): Promise<Context> {
-    return new this(req);
+    let user: User | null = null;
+    try {
+      const session = await auth.api.getSession({
+        headers: fromNodeHeaders(req.headers),
+      });
+      user = session?.user ?? null;
+    } catch (e) {
+      console.error('Failed to get session:', e);
+    }
+
+    return new this(req, user);
   }
+
+  /**
+   * Returns the authenticated user's role IDs in the EDHTop16 Discord server.
+   * The result is cached for the lifetime of this request.
+   */
+  get topdeckClient(): TopDeckClient {
+    return this.derived(
+      'topdeckClient',
+      () => new TopDeckClient(process.env.TOPDECK_GG_API_KEY!),
+    );
+  }
+
+  async listUserAccounts() {
+    return await auth.api.listUserAccounts({
+      headers: fromNodeHeaders(this.req.headers),
+    });
+  }
+
+  getDiscordRoles = (): Promise<string[]> => {
+    return this.derived('discordRoles', () =>
+      this.user ? getDiscordGuildRoles(this.user.id) : Promise.resolve([]),
+    );
+  };
 
   /**
    * Memoizes a derived value for the lifetime of this context.

@@ -3,14 +3,15 @@
  * well-shaped form.
  */
 
+import {feature} from '@rapideditor/country-coder';
 import {chunkedWorkerPool} from '@reverecre/promise';
 import Database from 'better-sqlite3';
-import Dataloader from 'dataloader';
 import {subYears} from 'date-fns';
 import {
   type InsertObject,
   Kysely,
   PostgresDialect,
+  sql,
   SqliteDialect,
 } from 'kysely';
 import {createWriteStream} from 'node:fs';
@@ -26,182 +27,7 @@ import {
   scryfallCardSchema,
 } from '../src/lib/server/scryfall.ts';
 import type {DB as ProfileDB} from './__generated__/profile_db_types.d.ts';
-
-class TopDeckClient {
-  static readonly player = z.object({
-    id: z.string(),
-    name: z.string().nullish(),
-    username: z.string().nullish(),
-    pronouns: z.string().nullish(),
-    profileImage: z.string().nullish(),
-    headerImage: z.string().nullish(),
-    elo: z.number().nullish(),
-    gamesPlayed: z.number().nullish(),
-    about: z.string().nullish(),
-    twitter: z.string().nullish(),
-    youtube: z.string().nullish(),
-  });
-
-  static readonly tournament = z.object({
-    TID: z.string(),
-    tournamentName: z.string(),
-    swissNum: z.number(),
-    startDate: z.number(),
-    game: z.string(),
-    format: z.string(),
-    averageElo: z.number().optional(),
-    modeElo: z.number().optional(),
-    medianElo: z.number().optional(),
-    topElo: z.number().optional(),
-    eventData: z
-      .object({
-        lat: z.number().optional(),
-        lng: z.number().optional(),
-        city: z.string().optional(),
-        state: z.string().optional(),
-        location: z.string().optional(),
-        headerImage: z.string().optional(),
-      })
-      .optional(),
-    topCut: z.number(),
-    standings: z.array(
-      z.object({
-        id: z.string(),
-        winsSwiss: z.number().int(),
-        winsBracket: z.number().int(),
-        draws: z.number().int(),
-        lossesSwiss: z.number().int(),
-        lossesBracket: z.number().int(),
-        byes: z.number().int(),
-      }),
-    ),
-  });
-
-  static readonly tournamentDetail = z.object({
-    data: z.object({
-      name: z.string(),
-      game: z.string(),
-      format: z.string(),
-      startDate: z.number(),
-    }),
-    standings: z.array(
-      z.object({
-        name: z.string(),
-        id: z.string(),
-        decklist: z.string().nullable(),
-        deckObj: z
-          .object({
-            Commanders: z.record(
-              z.string(),
-              z.object({id: z.string(), count: z.number()}),
-            ),
-            Mainboard: z.record(
-              z.string(),
-              z.object({id: z.string(), count: z.number()}),
-            ),
-            metadata: z.object({
-              game: z.string(),
-              format: z.string(),
-              importedFrom: z.string().optional(),
-            }),
-          })
-          .nullable(),
-        standing: z.number(),
-        points: z.number().nullable(),
-        winRate: z.number().nullish(),
-        opponentWinRate: z.number().nullish(),
-      }),
-    ),
-  });
-
-  private readonly apiKey: string;
-  private readonly baseUrl = 'https://topdeck.gg/api/v2';
-
-  constructor(apiKey: string) {
-    this.apiKey = apiKey;
-  }
-
-  private async request<T>(
-    method: 'GET' | 'POST',
-    endpoint: string,
-    schema: z.ZodType<T>,
-    body?: Record<string, unknown>,
-  ): Promise<T> {
-    const headers: Record<string, string> = {
-      Authorization: this.apiKey,
-      Accept: '*/*',
-      'User-Agent': 'edhtop16/2.0',
-    };
-
-    if (body) {
-      headers['Content-Type'] = 'application/json';
-    }
-
-    const response = await undici.request(`${this.baseUrl}${endpoint}`, {
-      method,
-      headers,
-      body: body ? JSON.stringify(body) : undefined,
-    });
-
-    if (response.statusCode >= 400) {
-      throw new Error(
-        `TopDeck API request failed: ${response.statusCode} - ${await response.body.text()}`,
-      );
-    }
-
-    const json = await response.body.json();
-    return schema.parse(json);
-  }
-
-  readonly players = new Dataloader(
-    (ids: readonly string[]) => {
-      const queryString = ids
-        .map((id) => `id=${encodeURIComponent(id)}`)
-        .join('&');
-
-      return this.request(
-        'GET',
-        `/player?${queryString}`,
-        z.array(TopDeckClient.player),
-      );
-    },
-    {maxBatchSize: 15},
-  );
-
-  readonly tournaments = new Dataloader((tids: readonly string[]) => {
-    return Promise.all(
-      tids.map((tournamentId) => {
-        return this.request(
-          'GET',
-          `/tournaments/${tournamentId}`,
-          TopDeckClient.tournamentDetail,
-        );
-      }),
-    );
-  });
-
-  async listTournaments(options: {last?: number; TID?: string[]}) {
-    return this.request(
-      'POST',
-      '/tournaments',
-      z.array(TopDeckClient.tournament),
-      {
-        game: 'Magic: The Gathering',
-        format: 'EDH',
-        columns: [
-          'id',
-          'winsSwiss',
-          'winsBracket',
-          'draws',
-          'lossesSwiss',
-          'lossesBracket',
-          'byes',
-        ],
-        ...options,
-      },
-    );
-  }
-}
+import {TopDeckClient} from './lib/topdeck-client.ts';
 
 class ScryfallDatabase {
   private static scryfallBulkDataSchema = z.object({
@@ -348,12 +174,28 @@ async function createTournaments(
         swissRounds: t.swissNum,
         topCut: t.topCut,
         bracketUrl: `https://topdeck.gg/bracket/${t.TID}`,
+        locationName: t.eventData?.location ?? null,
+        city: t.eventData?.city ?? null,
+        state: t.eventData?.state ?? null,
+        latitude: t.eventData?.lat ?? null,
+        longitude: t.eventData?.lng ?? null,
+        country:
+          t.eventData?.lat != null && t.eventData?.lng != null
+            ? (feature([t.eventData.lng, t.eventData.lat])?.properties
+                ?.nameEn ?? null)
+            : null,
       })),
     )
     .onConflict((oc) =>
-      oc.column('TID').doUpdateSet({
-        TID: (eb) => eb.ref('excluded.TID'),
-      }),
+      oc.column('TID').doUpdateSet((eb) => ({
+        TID: eb.ref('excluded.TID'),
+        locationName: eb.ref('excluded.locationName'),
+        city: eb.ref('excluded.city'),
+        state: eb.ref('excluded.state'),
+        latitude: eb.ref('excluded.latitude'),
+        longitude: eb.ref('excluded.longitude'),
+        country: eb.ref('excluded.country'),
+      })),
     )
     .returning(['id', 'TID'])
     .execute();
@@ -403,7 +245,7 @@ async function createCommanders(
         name: commanderName(s.deckObj?.Commanders),
         colorId: wubrgify(
           Object.values(s.deckObj?.Commanders ?? {}).flatMap(
-            (c) => oracleCards.cardByScryfallId.get(c.id)?.color_identity ?? [],
+            (c) => oracleCards.cardByOracleId.get(c.id)?.color_identity ?? [],
           ),
         ),
       })),
@@ -415,7 +257,10 @@ async function createCommanders(
     .insertInto('Commander')
     .values(commanders)
     .onConflict((oc) =>
-      oc.column('name').doUpdateSet({name: (eb) => eb.ref('excluded.name')}),
+      oc.column('name').doUpdateSet({
+        name: (eb) => eb.ref('excluded.name'),
+        colorId: (eb) => eb.ref('excluded.colorId'),
+      }),
     )
     .returning(['name', 'id'])
     .execute();
@@ -607,6 +452,91 @@ async function createDecklists(
   );
 }
 
+async function createRounds(
+  tournaments: z.infer<typeof TopDeckClient.tournament>[],
+  tournamentIdByTid: Map<string, number>,
+  entryIdByTidAndProfile: (tid: string, profile: string) => number | undefined,
+): Promise<void> {
+  info`Fetching round data for ${tournaments.length} tournaments...`();
+
+  let isFirst = true;
+  for (const t of tournaments) {
+    if (!isFirst) await new Promise((r) => setTimeout(r, 200));
+    isFirst = false;
+
+    let rounds;
+    try {
+      rounds = await topdeckClient.getRounds(t.TID);
+    } catch (e) {
+      info`Skipping rounds for ${t.tournamentName}: ${String(e)}`();
+      continue;
+    }
+
+    const rows: InsertObject<DB, 'MatchSeat'>[] = [];
+
+    for (const round of rounds) {
+      const roundLabel = String(round.round);
+
+      for (const table of round.tables) {
+        const isBye =
+          table.table === 'Byes' ||
+          String(table.table) === 'Byes' ||
+          table.status === 'Bye'
+            ? 1
+            : 0;
+        const tableNumber =
+          typeof table.table === 'number' ? table.table : null;
+        const isDraw =
+          table.winner_id === 'Draw' || table.winner === 'Draw' ? 1 : 0;
+
+        for (const [i, player] of table.players.entries()) {
+          if (player.id == null) continue;
+          const entryId = entryIdByTidAndProfile(t.TID, player.id);
+          if (entryId == null) continue;
+
+          rows.push({
+            entryId,
+            round: roundLabel,
+            tableNumber,
+            seatNumber: i,
+            isWinner: table.winner_id === player.id ? 1 : 0,
+            isDraw,
+            isBye,
+          });
+        }
+      }
+    }
+
+    if (rows.length === 0) continue;
+
+    // SQLite has a limit of 999 variables per query
+    // MatchSeat has 7 insert fields, so we can insert ~142 rows per batch
+    // Use 120 as a safe batch size
+    await chunkedWorkerPool(
+      rows,
+      async (chunk) => {
+        await db
+          .insertInto('MatchSeat')
+          .values(chunk)
+          .onConflict((oc) =>
+            oc.columns(['entryId', 'round']).doUpdateSet((eb) => ({
+              tableNumber: eb.ref('excluded.tableNumber'),
+              seatNumber: eb.ref('excluded.seatNumber'),
+              isWinner: eb.ref('excluded.isWinner'),
+              isDraw: eb.ref('excluded.isDraw'),
+              isBye: eb.ref('excluded.isBye'),
+            })),
+          )
+          .execute();
+        return chunk;
+      },
+      {chunkSize: 120, workers: 1},
+    );
+  }
+
+  success`Finished loading round data!`();
+}
+
 /** @returns Map of player profile ID to database ID. */
 async function createPlayers(
   tournaments: z.infer<typeof TopDeckClient.tournament>[],
@@ -741,9 +671,46 @@ async function addCardPlayRates() {
   success`Finished calculating play rates!`();
 }
 
+async function addSeatWinRates() {
+  info`Calculating seat win rates and draw rates for tournaments...`();
+
+  await sql`
+    UPDATE "Tournament"
+    SET
+      "seatWinRate1" = sub."seatWinRate1",
+      "seatWinRate2" = sub."seatWinRate2",
+      "seatWinRate3" = sub."seatWinRate3",
+      "seatWinRate4" = sub."seatWinRate4",
+      "drawRate" = sub."drawRate"
+    FROM (
+      SELECT
+        e."tournamentId",
+        SUM(CASE WHEN ms."seatNumber" = 0 AND ms."isWinner" = 1 THEN 1.0 ELSE 0.0 END)
+          / NULLIF(SUM(CASE WHEN ms."seatNumber" = 0 THEN 1 ELSE 0 END), 0) AS "seatWinRate1",
+        SUM(CASE WHEN ms."seatNumber" = 1 AND ms."isWinner" = 1 THEN 1.0 ELSE 0.0 END)
+          / NULLIF(SUM(CASE WHEN ms."seatNumber" = 1 THEN 1 ELSE 0 END), 0) AS "seatWinRate2",
+        SUM(CASE WHEN ms."seatNumber" = 2 AND ms."isWinner" = 1 THEN 1.0 ELSE 0.0 END)
+          / NULLIF(SUM(CASE WHEN ms."seatNumber" = 2 THEN 1 ELSE 0 END), 0) AS "seatWinRate3",
+        SUM(CASE WHEN ms."seatNumber" = 3 AND ms."isWinner" = 1 THEN 1.0 ELSE 0.0 END)
+          / NULLIF(SUM(CASE WHEN ms."seatNumber" = 3 THEN 1 ELSE 0 END), 0) AS "seatWinRate4",
+        SUM(CASE WHEN ms."seatNumber" = 0 AND ms."isDraw" = 1 THEN 1.0 ELSE 0.0 END)
+          / NULLIF(SUM(CASE WHEN ms."seatNumber" = 0 THEN 1 ELSE 0 END), 0) AS "drawRate"
+      FROM "MatchSeat" ms
+      JOIN "Entry" e ON e."id" = ms."entryId"
+      WHERE ms."isBye" = 0
+      GROUP BY e."tournamentId"
+    ) sub
+    WHERE "Tournament"."id" = sub."tournamentId"
+  `.execute(db);
+
+  success`Finished calculating seat win rates!`();
+}
+
 async function updateProfilesFromEDHTop16Platform() {
-  if (!process.env.PROFILE_DATABASE_URL) {
-    info`Skipping profile sync: PROFILE_DATABASE_URL not set`();
+  const profileDatabaseUrl =
+    process.env.DATABASE_URL ?? process.env.PROFILE_DATABASE_URL;
+  if (!profileDatabaseUrl) {
+    info`Skipping profile sync: DATABASE_URL not set`();
     return;
   }
 
@@ -751,7 +718,7 @@ async function updateProfilesFromEDHTop16Platform() {
   const profileDb = new Kysely<ProfileDB>({
     dialect: new PostgresDialect({
       pool: new Pool({
-        connectionString: process.env.PROFILE_DATABASE_URL,
+        connectionString: profileDatabaseUrl,
         ssl: process.env.PROFILE_DATABASE_CA_CERT
           ? {
               rejectUnauthorized: true,
@@ -766,14 +733,17 @@ async function updateProfilesFromEDHTop16Platform() {
     info`Fetching coaching profiles from platform database...`();
     const profiles = await profileDb
       .selectFrom('profile')
+      .leftJoin('team', 'team.id', 'profile.teamId')
       .select([
-        'topdeckProfile',
-        'offersCoaching',
-        'coachingBio',
-        'coachingBookingUrl',
-        'coachingRatePerHour',
+        'profile.topdeckProfile',
+        'profile.offersCoaching',
+        'profile.coachingBio',
+        'profile.coachingBookingUrl',
+        'profile.coachingRatePerHour',
+        'team.name as teamName',
+        'team.id as teamId',
       ])
-      .where('topdeckProfile', 'is not', null)
+      .where('profile.topdeckProfile', 'is not', null)
       .execute();
 
     info`Found ${profiles.length} profiles with TopDeck links`();
@@ -783,7 +753,7 @@ async function updateProfilesFromEDHTop16Platform() {
       return;
     }
 
-    // Update players with coaching information
+    // Update players with coaching and team information
     let updatedCount = 0;
     for (const profile of profiles) {
       const result = await db
@@ -793,6 +763,8 @@ async function updateProfilesFromEDHTop16Platform() {
           coachingBio: profile.coachingBio,
           coachingBookingUrl: profile.coachingBookingUrl,
           coachingRatePerHour: profile.coachingRatePerHour,
+          team: profile.teamName ?? null,
+          teamId: profile.teamId ?? null,
         })
         .where('topdeckProfile', '=', profile.topdeckProfile!)
         .executeTakeFirst();
@@ -802,7 +774,7 @@ async function updateProfilesFromEDHTop16Platform() {
       }
     }
 
-    success`Updated coaching information for ${updatedCount} players`();
+    success`Updated coaching and team information for ${updatedCount} players`();
   } finally {
     await profileDb.destroy();
   }
@@ -837,8 +809,10 @@ async function main({tid: importedTids}: {tid?: string[]}) {
     commanderIdByName,
   );
 
+  await createRounds(tournaments, tournamentIdByTid, entryIdByTidAndProfile);
   await createDecklists(tournaments, cardIdByOracleId, entryIdByTidAndProfile);
   await addCardPlayRates();
+  await addSeatWinRates();
   await updateProfilesFromEDHTop16Platform();
 }
 

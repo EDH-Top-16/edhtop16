@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<27461b4081dd19a4eded500d02a2024c>>
- * @relayHash f58d870e9e29169826b25ea9336637bc
+ * @generated SignedSource<<e69fb6a6ffc90d60de00f56f3737e72f>>
+ * @relayHash 86fac9d8c2353944c65306a21cd17574
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,11 +9,11 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID f58d870e9e29169826b25ea9336637bc
+// @relayRequestID 86fac9d8c2353944c65306a21cd17574
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type CommandersSortBy = "CONVERSION" | "POPULARITY" | "TOP_CUTS" | "%future added value";
+export type CommandersSortBy = "CONVERSION" | "POPULARITY" | "TOP_CUTS" | "WINRATE" | "%future added value";
 export type TimePeriod = "ALL_TIME" | "ONE_MONTH" | "ONE_YEAR" | "POST_BAN" | "SIX_MONTHS" | "THREE_MONTHS" | "%future added value";
 export type TopCommandersQuery$variables = {
   colorId?: string | null | undefined;
@@ -25,7 +25,7 @@ export type TopCommandersQuery$variables = {
   timePeriod: TimePeriod;
 };
 export type TopCommandersQuery$data = {
-  readonly " $fragmentSpreads": FragmentRefs<"commanders_topCommanders">;
+  readonly " $fragmentSpreads": FragmentRefs<"page_topCommanders">;
 };
 export type TopCommandersQuery = {
   response: TopCommandersQuery$data;
@@ -136,7 +136,7 @@ return {
           }
         ],
         "kind": "FragmentSpread",
-        "name": "commanders_topCommanders"
+        "name": "page_topCommanders"
       }
     ],
     "type": "Query",
@@ -242,6 +242,13 @@ return {
                         "kind": "ScalarField",
                         "name": "metaShare",
                         "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "winRate",
+                        "storageKey": null
                       }
                     ],
                     "storageKey": null
@@ -324,14 +331,14 @@ return {
           "minTournamentSize"
         ],
         "handle": "connection",
-        "key": "commanders__commanders",
+        "key": "page__commanders",
         "kind": "LinkedHandle",
         "name": "commanders"
       }
     ]
   },
   "params": {
-    "id": "f58d870e9e29169826b25ea9336637bc",
+    "id": "86fac9d8c2353944c65306a21cd17574",
     "metadata": {},
     "name": "TopCommandersQuery",
     "operationKind": "query",
@@ -340,6 +347,6 @@ return {
 };
 })();
 
-(node as any).hash = "ce5f422630b9caae16afa5ccd3861155";
+(node as any).hash = "0d6847cc3bda4a4eb8c98853b3774b73";
 
 export default node;

@@ -50,7 +50,7 @@ export interface TournamentFilters {
   maxDate?: string;
   minSize?: Int;
   maxSize?: Int;
-  hideUnknownWinners?: string;
+  maxUnknownRatio?: string;
 }
 
 /** @gqlType */
@@ -94,6 +94,17 @@ export class Tournament implements GraphQLNode {
   /** @gqlField */
   tournamentDate: string;
 
+  /** @gqlField */
+  seatWinRate1: Float | null;
+  /** @gqlField */
+  seatWinRate2: Float | null;
+  /** @gqlField */
+  seatWinRate3: Float | null;
+  /** @gqlField */
+  seatWinRate4: Float | null;
+  /** @gqlField */
+  drawRate: Float | null;
+
   constructor(private readonly row: Selectable<DB['Tournament']>) {
     this.id = row.id;
     this.TID = row.TID;
@@ -102,6 +113,11 @@ export class Tournament implements GraphQLNode {
     this.swissRounds = row.swissRounds;
     this.topCut = row.topCut;
     this.tournamentDate = row.tournamentDate;
+    this.seatWinRate1 = row.seatWinRate1 ?? null;
+    this.seatWinRate2 = row.seatWinRate2 ?? null;
+    this.seatWinRate3 = row.seatWinRate3 ?? null;
+    this.seatWinRate4 = row.seatWinRate4 ?? null;
+    this.drawRate = row.drawRate ?? null;
   }
 
   /** @gqlField */
@@ -170,6 +186,11 @@ export class Tournament implements GraphQLNode {
     return getActivePromotions({tid: this.TID})[0];
   }
 
+  /** @gqlField */
+  editorsNote(): string | undefined {
+    return TOURNAMENT_NOTES.get(this.TID);
+  }
+
   /** @gqlQueryField */
   static async tournament(TID: string): Promise<Tournament> {
     const row = await db
@@ -209,38 +230,42 @@ export class Tournament implements GraphQLNode {
       : new Date();
     query = query.where('tournamentDate', '<=', maxDateValue.toISOString());
 
-    if (filters?.hideUnknownWinners === 'true') {
-      query = query.where(({exists, selectFrom}) =>
-        exists(
-          selectFrom('Entry')
-            .leftJoin('Player', 'Player.id', 'Entry.playerId')
+    if (filters?.maxUnknownRatio) {
+      const threshold = parseFloat(filters.maxUnknownRatio);
+      if (!isNaN(threshold) && threshold > 0 && threshold <= 1) {
+        query = query.where(({selectFrom, ref}) => {
+          const unknownRatio = selectFrom('Entry')
             .leftJoin('Commander', 'Commander.id', 'Entry.commanderId')
             .whereRef('Entry.tournamentId', '=', 'Tournament.id')
-            .where('Entry.standing', '=', 1)
-            .where('Player.name', '!=', 'Unknown Player')
-            .where('Commander.name', '!=', 'Unknown Commander')
-            .where('Commander.name', '!=', '')
-            .select(sql.lit(1).as('one')),
-        ),
-      );
+            .select(
+              sql<number>`avg(case when ${ref('Commander.name')} = 'Unknown Commander' or ${ref('Commander.name')} = '' then 1.0 else 0.0 end)`.as(
+                'ratio',
+              ),
+            );
+          if (threshold >= 1) {
+            return sql<boolean>`(${unknownRatio}) = 0`;
+          }
+          return sql<boolean>`(${unknownRatio}) < ${threshold}`;
+        });
+      }
     }
 
     if (after) {
       const cursor = TournamentsCursor.fromString(after);
       if (sortBy === TournamentSortBy.PLAYERS) {
-        query = query.where(({eb, tuple, refTuple}) =>
+        query = query.where((eb) =>
           eb(
-            refTuple('size', 'tournamentDate', 'id'),
+            eb.refTuple('size', 'tournamentDate', 'id'),
             '<',
-            tuple(cursor.size, cursor.date, cursor.id),
+            eb.tuple(cursor.size, cursor.date, cursor.id),
           ),
         );
       } else {
-        query = query.where(({eb, tuple, refTuple}) =>
+        query = query.where((eb) =>
           eb(
-            refTuple('tournamentDate', 'size', 'id'),
+            eb.refTuple('tournamentDate', 'size', 'id'),
             '<',
-            tuple(cursor.date, cursor.size, cursor.id),
+            eb.tuple(cursor.date, cursor.size, cursor.id),
           ),
         );
       }
@@ -292,3 +317,6 @@ class TournamentsCursor {
     return [this.id, this.size, this.date].join(';');
   }
 }
+
+/** EDHTop16's editors notes for a specific tournament. */
+const TOURNAMENT_NOTES = new Map<string, string>([]);

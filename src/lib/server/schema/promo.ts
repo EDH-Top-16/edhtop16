@@ -1,5 +1,25 @@
 import {isWithinInterval} from 'date-fns';
 
+/** @gqlEnum */
+export enum PromoButtonColor {
+  AMBER = 'amber',
+  TEAL = 'teal',
+}
+
+/** @gqlEnum */
+export enum PromoContentType {
+  NORMAL = 'normal',
+  BOLD = 'bold',
+}
+
+/** @gqlType */
+export interface PromoRichContent {
+  /** @gqlField */
+  type: PromoContentType;
+  /** @gqlField */
+  text: string;
+}
+
 /** @gqlType */
 export interface FirstPartyPromo {
   commander?: string;
@@ -9,7 +29,9 @@ export interface FirstPartyPromo {
   /** @gqlField */
   title: string;
   /** @gqlField */
-  description: string[];
+  description?: string[];
+  /** @gqlField */
+  richDescription?: PromoRichContent[];
   /** @gqlField */
   buttonText: string;
   /** @gqlField */
@@ -18,9 +40,33 @@ export interface FirstPartyPromo {
   imageUrl?: string;
   /** @gqlField */
   href: string;
+  /** @gqlField */
+  buttonColor?: PromoButtonColor;
 }
 
 const promos: FirstPartyPromo[] = [
+  {
+    activeFrom: new Date(),
+    activeUntil: new Date('2026-04-01'),
+    title: 'Come support The Quest ($10k) in Portland, OR!',
+    richDescription: [
+      {
+        type: PromoContentType.NORMAL,
+        text: `One of cEDH's largest charity tournaments, sponsored by Tap for Hope `,
+      },
+      {
+        type: PromoContentType.BOLD,
+        text: `to support Children's Cancer Association`,
+      },
+    ],
+    buttonText: 'Register Now',
+    backgroundImageUrl: '/promos/tap_for_hope/banner.png',
+    imageUrl: '/promos/tap_for_hope/button.png',
+    href: 'https://topdeck.gg/event/the-quest-part-1',
+    tid: '*',
+    commander: '*',
+    buttonColor: PromoButtonColor.TEAL,
+  },
   {
     activeFrom: new Date('2025-12-16'),
     activeUntil: new Date('2026-01-24'),

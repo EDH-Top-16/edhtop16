@@ -37,6 +37,13 @@ enum CommandersSortBy {
   CONVERSION
   POPULARITY
   TOP_CUTS
+  WINRATE
+}
+
+enum DiscordRole {
+  CONTRIBUTOR
+  DEVELOPER
+  SUPPORTER
 }
 
 enum EntriesSortBy {
@@ -51,6 +58,16 @@ enum EntrySortBy {
   STANDING
   WINRATE
   WINS
+}
+
+enum PromoButtonColor {
+  amber
+  teal
+}
+
+enum PromoContentType {
+  bold
+  normal
 }
 
 enum SearchResultType {
@@ -87,6 +104,13 @@ input CardEntriesFilters {
   tournamentTID: String
 }
 
+input CoachingInfoInput {
+  coachingBio: String
+  coachingBookingUrl: String
+  coachingRatePerHour: Float
+  offersCoaching: Boolean!
+}
+
 input CommanderStatsFilters {
   colorId: String
   maxDate: String
@@ -94,6 +118,11 @@ input CommanderStatsFilters {
   minDate: String
   minSize: Int
   timePeriod: TimePeriod
+}
+
+input CreateTeamInput {
+  memberProfileUrls: String!
+  name: String!
 }
 
 input EntriesFilter {
@@ -118,9 +147,9 @@ input EntryFilters {
 }
 
 input TournamentFilters {
-  hideUnknownWinners: String
   maxDate: String
   maxSize: Int
+  maxUnknownRatio: String
   minDate: String
   minSize: Int
   timePeriod: TimePeriod
@@ -147,6 +176,16 @@ type Card implements Node {
   type: String @semanticNonNull
 }
 
+type ClaimProfileResponse {
+  error: String
+  success: Boolean @semanticNonNull
+  viewer: Viewer
+}
+
+type CoachingInfoResponse {
+  profile: Profile
+}
+
 type Commander implements Node {
   breakdownUrl: String @semanticNonNull
   cardDetail(cardName: String): Card
@@ -167,6 +206,7 @@ type CommanderCalculatedStats {
   count: Int @semanticNonNull
   metaShare: Float @semanticNonNull
   topCuts: Int @semanticNonNull
+  winRate: Float @semanticNonNull
 }
 
 type CommanderCardStats {
@@ -188,6 +228,20 @@ type CommanderConnection {
 type CommanderEdge {
   cursor: String @semanticNonNull
   node: Commander @semanticNonNull
+}
+
+type CountrySeatWinRate {
+  country: String @semanticNonNull
+  drawRate: Float @semanticNonNull
+  seatWinRate1: Float @semanticNonNull
+  seatWinRate2: Float @semanticNonNull
+  seatWinRate3: Float @semanticNonNull
+  seatWinRate4: Float @semanticNonNull
+  tournaments: Int @semanticNonNull
+}
+
+type CreateTeamResponse {
+  owner: Viewer @semanticNonNull
 }
 
 type Entry implements Node {
@@ -220,11 +274,25 @@ type EntryEdge {
 
 type FirstPartyPromo {
   backgroundImageUrl: String @semanticNonNull
+  buttonColor: PromoButtonColor
   buttonText: String @semanticNonNull
-  description: [String!] @semanticNonNull
+  description: [String!]
   href: String @semanticNonNull
   imageUrl: String
+  richDescription: [PromoRichContent!]
   title: String @semanticNonNull
+}
+
+type Mutation {
+  addTeamMember(profileUrl: String!, teamId: String!): TeamMemberResponse @semanticNonNull
+  claimProfile(profileUrl: String!): ClaimProfileResponse @semanticNonNull
+  createTeam(team: CreateTeamInput!): CreateTeamResponse @semanticNonNull
+  deleteProfile: ClaimProfileResponse @semanticNonNull
+  deleteTeam(teamId: String!): CreateTeamResponse @semanticNonNull
+  removeSelfFromTeam: UpdateProfileResponse @semanticNonNull
+  removeTeamMember(teamId: String!, topdeckProfileId: String!): TeamMemberResponse @semanticNonNull
+  selectTeam(teamId: String!): UpdateProfileResponse @semanticNonNull
+  updateCoachingInfo(coachingInfo: CoachingInfoInput!): CoachingInfoResponse @semanticNonNull
 }
 
 type PageInfo {
@@ -242,10 +310,31 @@ type Player implements Node {
   isKnownCheater: Boolean @semanticNonNull
   losses: Int @semanticNonNull
   name: String @semanticNonNull
+  tag: String
+  team: String
   topCuts: Int @semanticNonNull
   topdeckProfile: String
   winRate: Float @semanticNonNull
   wins: Int @semanticNonNull
+}
+
+type Profile implements Node {
+  coachingBio: String
+  coachingBookingUrl: String
+  coachingRatePerHour: Float
+  id: ID!
+  name: String
+  offersCoaching: Boolean @semanticNonNull
+  profileImage: String @semanticNonNull
+  selectableTeams: [Team!] @semanticNonNull
+  team: Team
+  topdeckProfile: String @semanticNonNull
+  username: String
+}
+
+type PromoRichContent {
+  text: String @semanticNonNull
+  type: PromoContentType @semanticNonNull
 }
 
 type Query {
@@ -253,6 +342,7 @@ type Query {
   cheaters: [Player!] @semanticNonNull
   commander(name: String!): Commander @semanticNonNull
   commanders(after: String, colorId: String, first: Int! = 20, minEntries: Int, minTournamentSize: Int, sortBy: CommandersSortBy! = CONVERSION, timePeriod: TimePeriod! = ONE_MONTH): CommanderConnection @semanticNonNull
+  countrySeatWinRates(minTournaments: Int): [CountrySeatWinRate!] @semanticNonNull
   homePagePromo: FirstPartyPromo
   node(id: ID!): Node
   player(profile: String!): Player @semanticNonNull
@@ -261,6 +351,7 @@ type Query {
   tournament(TID: String!): Tournament @semanticNonNull
   tournamentPagePromo: FirstPartyPromo
   tournaments(after: String, filters: TournamentFilters, first: Int! = 20, sortBy: TournamentSortBy! = DATE): TournamentConnection @semanticNonNull
+  viewer: Viewer
 }
 
 type SearchResult {
@@ -275,14 +366,41 @@ type SearchResult {
   winnerName: String
 }
 
+type Team implements Node {
+  id: ID!
+  invites: [TeamMemberInvite!] @semanticNonNull
+  isOwner: Boolean @semanticNonNull
+  members: [Profile!] @semanticNonNull
+  name: String @semanticNonNull
+}
+
+type TeamMemberInvite {
+  joined: Boolean @semanticNonNull
+  joinedProfile: Profile
+  name: String
+  profileImage: String @semanticNonNull
+  topdeckProfile: String @semanticNonNull
+  username: String
+}
+
+type TeamMemberResponse {
+  team: Team @semanticNonNull
+}
+
 type Tournament implements Node {
   TID: String @semanticNonNull
   bracketUrl: String @semanticNonNull
   breakdown: [TournamentBreakdownGroup!] @semanticNonNull
+  drawRate: Float
+  editorsNote: String
   entries(commander: String, maxStanding: Int): [Entry!] @semanticNonNull
   id: ID!
   name: String @semanticNonNull
   promo: FirstPartyPromo
+  seatWinRate1: Float
+  seatWinRate2: Float
+  seatWinRate3: Float
+  seatWinRate4: Float
   size: Int @semanticNonNull
   swissRounds: Int @semanticNonNull
   topCut: Int @semanticNonNull
@@ -305,4 +423,19 @@ type TournamentConnection {
 type TournamentEdge {
   cursor: String @semanticNonNull
   node: Tournament @semanticNonNull
+}
+
+type UpdateProfileResponse {
+  profile: Profile @semanticNonNull
+}
+
+type Viewer {
+  canCreateTeam: Boolean @semanticNonNull
+  discordRoles: [DiscordRole!] @semanticNonNull
+  email: String @semanticNonNull
+  hideAds: Boolean @semanticNonNull
+  image: String
+  name: String
+  ownedTeam: Team
+  profile: Profile
 }

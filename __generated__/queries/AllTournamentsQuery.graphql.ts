@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<3fb4b36ab3664ced71d6c7d7da420577>>
- * @relayHash 3ec9630584f16ef88ae7b8a618e721ff
+ * @generated SignedSource<<cf4175f2b5f2fa9d1d7b2bf23546a665>>
+ * @relayHash f65f5237806850dabd236b1a5b892482
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 3ec9630584f16ef88ae7b8a618e721ff
+// @relayRequestID f65f5237806850dabd236b1a5b892482
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -18,13 +18,13 @@ export type TournamentSortBy = "DATE" | "PLAYERS" | "%future added value";
 export type AllTournamentsQuery$variables = {
   count?: number | null | undefined;
   cursor?: string | null | undefined;
-  hideUnknownWinners?: string | null | undefined;
+  maxUnknownRatio?: string | null | undefined;
   minSize?: number | null | undefined;
   sortBy: TournamentSortBy;
   timePeriod?: TimePeriod | null | undefined;
 };
 export type AllTournamentsQuery$data = {
-  readonly " $fragmentSpreads": FragmentRefs<"tournaments_Tournaments">;
+  readonly " $fragmentSpreads": FragmentRefs<"page_Tournaments">;
 };
 export type AllTournamentsQuery = {
   response: AllTournamentsQuery$data;
@@ -46,7 +46,7 @@ var v0 = [
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "hideUnknownWinners"
+    "name": "maxUnknownRatio"
   },
   {
     "defaultValue": null,
@@ -74,8 +74,8 @@ v1 = [
     "fields": [
       {
         "kind": "Variable",
-        "name": "hideUnknownWinners",
-        "variableName": "hideUnknownWinners"
+        "name": "maxUnknownRatio",
+        "variableName": "maxUnknownRatio"
       },
       {
         "kind": "Variable",
@@ -137,7 +137,7 @@ return {
           }
         ],
         "kind": "FragmentSpread",
-        "name": "tournaments_Tournaments"
+        "name": "page_Tournaments"
       }
     ],
     "type": "Query",
@@ -314,14 +314,14 @@ return {
           "sortBy"
         ],
         "handle": "connection",
-        "key": "tournaments__tournaments",
+        "key": "page__tournaments",
         "kind": "LinkedHandle",
         "name": "tournaments"
       }
     ]
   },
   "params": {
-    "id": "3ec9630584f16ef88ae7b8a618e721ff",
+    "id": "f65f5237806850dabd236b1a5b892482",
     "metadata": {},
     "name": "AllTournamentsQuery",
     "operationKind": "query",
@@ -330,6 +330,6 @@ return {
 };
 })();
 
-(node as any).hash = "06042db88b86571ce98981bca1f29f17";
+(node as any).hash = "d7249ffc6684d2baefe28043f411e393";
 
 export default node;

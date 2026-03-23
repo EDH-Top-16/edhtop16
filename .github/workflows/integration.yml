@@ -11,17 +11,10 @@ jobs:
     name: Lint Client
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: "20"
-      - name: Setup pnpm
-        run: corepack enable && corepack prepare pnpm@latest --activate
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Check Formatting
-        run: pnpm exec prettier --check .
-      - name: Check Lint
-        run: pnpm exec eslint .
-      - name: Check Types
-        run: pnpm exec tsc
+          node-version: "24"
+          cache: true
+      - name: Check
+        run: vp check

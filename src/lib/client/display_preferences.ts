@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import type {RelayResolverContext} from 'pastoria-runtime';
+import type {RelayResolverContext} from '@pastoria/runtime';
 import type {LiveState} from 'relay-runtime';
 
 export const LIST_STYLE_COOKIE_NAME = 'edhtop16ListStyle';

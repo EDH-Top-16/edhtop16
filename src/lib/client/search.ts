@@ -58,7 +58,7 @@ export function useSearch(list: readonly SearchItem[], term: string) {
   useEffect(() => {
     let cancelled = false;
 
-    FuseLib.then((Fuse) => {
+    void FuseLib.then((Fuse) => {
       // Prevent state update if component unmounted or list changed
       if (cancelled) return;
 

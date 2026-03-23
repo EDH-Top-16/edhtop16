@@ -74,6 +74,7 @@ export enum CommandersSortBy {
   POPULARITY = 'POPULARITY',
   CONVERSION = 'CONVERSION',
   TOP_CUTS = 'TOP_CUTS',
+  WINRATE = 'WINRATE',
 }
 
 /** @gqlEnum */
@@ -127,6 +128,8 @@ interface CommanderCalculatedStats {
   conversionRate: Float;
   /** @gqlField */
   metaShare: Float;
+  /** @gqlField */
+  winRate: Float;
 }
 
 export type CommanderStatsLoader = (
@@ -217,6 +220,39 @@ export function commanderStatsLoader(ctx: Context): CommanderStatsLoader {
                   '/',
                   eb.fn.count<number>('Entry.id'),
                 ).as('conversionRate'),
+              (eb) =>
+                eb(
+                  eb.cast<number>(
+                    eb.fn.sum<number>(
+                      eb(
+                        eb.ref('Entry.winsSwiss'),
+                        '+',
+                        eb.ref('Entry.winsBracket'),
+                      ),
+                    ),
+                    'real',
+                  ),
+                  '/',
+                  eb.fn.sum<number>(
+                    eb(
+                      eb(
+                        eb(
+                          eb.ref('Entry.winsSwiss'),
+                          '+',
+                          eb.ref('Entry.winsBracket'),
+                        ),
+                        '+',
+                        eb(
+                          eb.ref('Entry.lossesSwiss'),
+                          '+',
+                          eb.ref('Entry.lossesBracket'),
+                        ),
+                      ),
+                      '+',
+                      eb.ref('Entry.draws'),
+                    ),
+                  ),
+                ).as('winRate'),
             ])
             .where('Tournament.size', '>=', minSize)
             .where('Tournament.size', '<=', maxSize)
@@ -243,6 +279,7 @@ export function commanderStatsLoader(ctx: Context): CommanderStatsLoader {
               conversionRate: 0,
               count: 0,
               metaShare: 0,
+              winRate: 0,
             },
         );
       },
@@ -303,23 +340,23 @@ export class Commander implements GraphQLNode {
     if (after) {
       const cursor = CommanderEntriesCursor.fromString(after);
       if (sortBy === EntriesSortBy.NEW) {
-        query = query.where(({eb, tuple, refTuple}) =>
+        query = query.where((eb) =>
           eb(
-            refTuple('Tournament.tournamentDate', 'Entry.id'),
+            eb.refTuple('Tournament.tournamentDate', 'Entry.id'),
             '<',
-            tuple(cursor.date, cursor.id),
+            eb.tuple(cursor.date, cursor.id),
           ),
         );
       } else {
-        query = query.where(({eb, tuple, refTuple, and, or}) =>
-          or([
+        query = query.where((eb) =>
+          eb.or([
             eb('standing', '>', cursor.standing),
-            and([
+            eb.and([
               eb('standing', '=', cursor.standing),
               eb(
-                refTuple('Tournament.size', 'Entry.id'),
+                eb.refTuple('Tournament.size', 'Entry.id'),
                 '<',
-                tuple(cursor.size, cursor.id),
+                eb.tuple(cursor.size, cursor.id),
               ),
             ]),
           ]),
@@ -519,23 +556,23 @@ export class Commander implements GraphQLNode {
     if (after) {
       const cursor = CommanderEntriesCursor.fromString(after);
       if (sortBy === EntriesSortBy.NEW) {
-        query = query.where(({eb, tuple, refTuple}) =>
+        query = query.where((eb) =>
           eb(
-            refTuple('Tournament.tournamentDate', 'Entry.id'),
+            eb.refTuple('Tournament.tournamentDate', 'Entry.id'),
             '<',
-            tuple(cursor.date, cursor.id),
+            eb.tuple(cursor.date, cursor.id),
           ),
         );
       } else {
-        query = query.where(({eb, tuple, refTuple, and, or}) =>
-          or([
+        query = query.where((eb) =>
+          eb.or([
             eb('standing', '>', cursor.standing),
-            and([
+            eb.and([
               eb('standing', '=', cursor.standing),
               eb(
-                refTuple('Tournament.size', 'Entry.id'),
+                eb.refTuple('Tournament.size', 'Entry.id'),
                 '<',
-                tuple(cursor.size, cursor.id),
+                eb.tuple(cursor.size, cursor.id),
               ),
             ]),
           ]),
@@ -672,7 +709,9 @@ export class Commander implements GraphQLNode {
         ? 'stats.count'
         : sortBy === CommandersSortBy.TOP_CUTS
           ? 'stats.topCuts'
-          : 'stats.conversionRate';
+          : sortBy === CommandersSortBy.WINRATE
+            ? 'stats.winRate'
+            : 'stats.conversionRate';
 
     let query = db
       .with('stats', (eb) =>
@@ -711,6 +750,38 @@ export class Commander implements GraphQLNode {
               '/',
               eb.fn.count('Entry.id'),
             ).as('conversionRate'),
+            eb(
+              eb.cast(
+                eb.fn.sum(
+                  eb(
+                    eb.ref('Entry.winsSwiss'),
+                    '+',
+                    eb.ref('Entry.winsBracket'),
+                  ),
+                ),
+                'real',
+              ),
+              '/',
+              eb.fn.sum(
+                eb(
+                  eb(
+                    eb(
+                      eb.ref('Entry.winsSwiss'),
+                      '+',
+                      eb.ref('Entry.winsBracket'),
+                    ),
+                    '+',
+                    eb(
+                      eb.ref('Entry.lossesSwiss'),
+                      '+',
+                      eb.ref('Entry.lossesBracket'),
+                    ),
+                  ),
+                  '+',
+                  eb.ref('Entry.draws'),
+                ),
+              ),
+            ).as('winRate'),
           ]),
       )
       .selectFrom('Commander')

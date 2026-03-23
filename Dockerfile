@@ -5,18 +5,16 @@ WORKDIR /build
 
 ENV NODE_OPTIONS=--max-old-space-size=4096
 
-# Install just command runner
-RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
-
-# Install pnpm
+# Install pnpm and vite-plus
 RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN npm install -g vite-plus
 
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY vendor ./vendor/
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm run build
+RUN vp build
 
 # Pull application database
 RUN apt-get update
@@ -38,8 +36,9 @@ EXPOSE 8000
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Install pnpm
+# Install pnpm and vite-plus
 RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN npm install -g vite-plus
 
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY vendor ./vendor/

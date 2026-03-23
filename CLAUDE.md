@@ -87,51 +87,6 @@ code in this repository.
 - `#src/*` → `./src/*`
 - `#genfiles/*` → `./__generated__/*`
 
-## Pastoria Routing System
-
-**Overview**: Custom routing framework that generates type-safe routes via JSDoc
-annotations
-
-**How Pastoria Works**:
-
-1. **Annotation-Based**: Uses JSDoc tags to declare routes and resources
-   - `@route <route-name>` - Creates a new route
-   - `@resource <resource-name>` - Marks exports for lazy loading
-   - `@param <name> <type>` - Documents route parameters with TypeScript types
-
-2. **Code Generation** (pastoria workspace package):
-   - Located in `packages/pastoria/` as a separate pnpm workspace package
-   - Scans all TypeScript files for JSDoc annotations
-   - Generates three files from templates in `packages/pastoria/templates/`:
-     - `__generated__/router/js_resource.ts` - Resource configuration for lazy
-       loading
-     - `__generated__/router/router.tsx` - Client-side router with type-safe
-       routes
-     - `__generated__/router/server_router.ts` - Server-side router
-       configuration
-   - Auto-creates Zod schemas for route parameters enabling runtime validation
-   - Executable via `pastoria` binary command
-
-3. **Type Safety**:
-   - Route parameters are validated at runtime using generated Zod schemas
-   - TypeScript compiler integration via ts-morph for accurate type extraction
-   - Strongly typed navigation functions
-
-**Usage Example**:
-
-```tsx
-/**
- * @route /commander/[commander]
- * @param commander string
- * @resource commander-page
- */
-export function CommanderPage() { ... }
-```
-
-**Integration**: Router connects to the SSR system via `src/entry-server.tsx`
-which calls `createRouterServerApp()` and processes special HTML directives like
-`<!-- @router:render -->`
-
 ## Database System
 
 **Local SQLite** (`edhtop16.db`): Normalized, structured database for the
@@ -228,3 +183,80 @@ This project uses **pnpm workspaces** for managing multiple packages:
 - Database regeneration completely rebuilds the SQLite database
 - Uses experimental Node.js TypeScript support (`--experimental-strip-types`)
 - Uses pnpm workspaces for managing pastoria tooling as separate package
+
+<!--VITE PLUS START-->
+
+# Using Vite+, the Unified Toolchain for the Web
+
+This project is using Vite+, a unified toolchain built on top of Vite, Rolldown, Vitest, tsdown, Oxlint, Oxfmt, and Vite Task. Vite+ wraps runtime management, package management, and frontend tooling in a single global CLI called `vp`. Vite+ is distinct from Vite, but it invokes Vite through `vp dev` and `vp build`.
+
+## Vite+ Workflow
+
+`vp` is a global binary that handles the full development lifecycle. Run `vp help` to print a list of commands and `vp <command> --help` for information about a specific command.
+
+### Start
+
+- create - Create a new project from a template
+- migrate - Migrate an existing project to Vite+
+- config - Configure hooks and agent integration
+- staged - Run linters on staged files
+- install (`i`) - Install dependencies
+- env - Manage Node.js versions
+
+### Develop
+
+- dev - Run the development server
+- check - Run format, lint, and TypeScript type checks
+- lint - Lint code
+- fmt - Format code
+- test - Run tests
+
+### Execute
+
+- run - Run monorepo tasks
+- exec - Execute a command from local `node_modules/.bin`
+- dlx - Execute a package binary without installing it as a dependency
+- cache - Manage the task cache
+
+### Build
+
+- build - Build for production
+- pack - Build libraries
+- preview - Preview production build
+
+### Manage Dependencies
+
+Vite+ automatically detects and wraps the underlying package manager such as pnpm, npm, or Yarn through the `packageManager` field in `package.json` or package manager-specific lockfiles.
+
+- add - Add packages to dependencies
+- remove (`rm`, `un`, `uninstall`) - Remove packages from dependencies
+- update (`up`) - Update packages to latest versions
+- dedupe - Deduplicate dependencies
+- outdated - Check for outdated packages
+- list (`ls`) - List installed packages
+- why (`explain`) - Show why a package is installed
+- info (`view`, `show`) - View package information from the registry
+- link (`ln`) / unlink - Manage local package links
+- pm - Forward a command to the package manager
+
+### Maintain
+
+- upgrade - Update `vp` itself to the latest version
+
+These commands map to their corresponding tools. For example, `vp dev --port 3000` runs Vite's dev server and works the same as Vite. `vp test` runs JavaScript tests through the bundled Vitest. The version of all tools can be checked using `vp --version`. This is useful when researching documentation, features, and bugs.
+
+## Common Pitfalls
+
+- **Using the package manager directly:** Do not use pnpm, npm, or Yarn directly. Vite+ can handle all package manager operations.
+- **Always use Vite commands to run tools:** Don't attempt to run `vp vitest` or `vp oxlint`. They do not exist. Use `vp test` and `vp lint` instead.
+- **Running scripts:** Vite+ commands take precedence over `package.json` scripts. If there is a `test` script defined in `scripts` that conflicts with the built-in `vp test` command, run it using `vp run test`.
+- **Do not install Vitest, Oxlint, Oxfmt, or tsdown directly:** Vite+ wraps these tools. They must not be installed directly. You cannot upgrade these tools by installing their latest versions. Always use Vite+ commands.
+- **Use Vite+ wrappers for one-off binaries:** Use `vp dlx` instead of package-manager-specific `dlx`/`npx` commands.
+- **Import JavaScript modules from `vite-plus`:** Instead of importing from `vite` or `vitest`, all modules should be imported from the project's `vite-plus` dependency. For example, `import { defineConfig } from 'vite-plus';` or `import { expect, test, vi } from 'vite-plus/test';`. You must not install `vitest` to import test utilities.
+- **Type-Aware Linting:** There is no need to install `oxlint-tsgolint`, `vp lint --type-aware` works out of the box.
+
+## Review Checklist for Agents
+
+- [ ] Run `vp install` after pulling remote changes and before getting started.
+- [ ] Run `vp check` and `vp test` to validate changes.
+<!--VITE PLUS END-->

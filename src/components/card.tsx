@@ -41,8 +41,6 @@ export function Card({
               key={src}
               src={src}
               alt={alt}
-              loading="lazy"
-              decoding="async"
             />
           );
         })}
