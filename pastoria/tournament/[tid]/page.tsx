@@ -13,7 +13,14 @@ import ArrowRightIcon from '@heroicons/react/24/solid/ArrowRightIcon';
 import ChevronDownIcon from '@heroicons/react/24/solid/ChevronDownIcon';
 import cn from 'classnames';
 import {format} from 'date-fns';
-import {MouseEvent, Suspense, useCallback, useMemo, useState} from 'react';
+import {
+  MouseEvent,
+  Suspense,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   EntryPoint,
   EntryPointContainer,
@@ -114,7 +121,10 @@ function SeatWinRateTableRow(props: {
   );
 }
 
-function TournamentBanner(props: {tournament: page_TournamentBanner$key}) {
+function TournamentBanner(props: {
+  tournament: page_TournamentBanner$key;
+  initialExpanded: boolean;
+}) {
   const tournament = useFragment(
     graphql`
       fragment page_TournamentBanner on Tournament @throwOnFieldError {
@@ -174,20 +184,40 @@ function TournamentBanner(props: {tournament: page_TournamentBanner$key}) {
     }
   }, [tournament]);
 
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(props.initialExpanded);
 
-  const allRates = tournament.seatWinRatesByPhase.all;
+  const seatWinRates = tournament.seatWinRatesByPhase;
+  const allRates = seatWinRates.all;
   const hasSeatData =
     allRates.seat1 != null &&
     allRates.seat2 != null &&
     allRates.seat3 != null &&
     allRates.seat4 != null;
 
+  // Use a ref to avoid recreating the callback on every toggle
+  const expandedRef = useRef(expanded);
+  expandedRef.current = expanded;
+
+  const toggleSeatWinRates = useCallback(() => {
+    const next = !expandedRef.current;
+    setExpanded(next);
+
+    // Update URL for shareability without triggering router navigation.
+    // Safe to use window APIs here — this only fires on click, never during SSR.
+    const url = new URL(window.location.href);
+    if (next) {
+      url.searchParams.set('seatWinRates', 'true');
+    } else {
+      url.searchParams.delete('seatWinRates');
+    }
+    window.history.replaceState(null, '', url.toString());
+  }, []);
+
   return (
-    <div className="min-h-64 w-full bg-black/60 md:min-h-80">
-      <div className="relative mx-auto flex min-h-64 w-full max-w-(--breakpoint-xl) flex-col items-center pb-0 md:min-h-80">
+    <div className="relative w-full bg-black/60">
+      <div className="relative mx-auto flex w-full max-w-(--breakpoint-xl) flex-col items-center pt-8 sm:pb-3 md:min-h-80 md:pt-12">
         {tournament.winner[0] != null && (
-          <div className="absolute top-0 left-0 flex h-full w-full brightness-40">
+          <div className="absolute inset-0 flex brightness-40">
             {tournament.winner[0].commander.cards
               .flatMap((c) => c.imageUrls)
               .map((src, _i, {length}) => {
@@ -219,7 +249,7 @@ function TournamentBanner(props: {tournament: page_TournamentBanner$key}) {
           </div>
         )}
 
-        <div className="relative flex flex-1 flex-col items-center justify-center">
+        <div className="relative flex flex-col items-center justify-center">
           <h1 className="font-title text-center text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
             {tournament.name}
           </h1>
@@ -230,7 +260,7 @@ function TournamentBanner(props: {tournament: page_TournamentBanner$key}) {
         </div>
 
         {hasSeatData && (
-          <div className="relative z-10 mt-auto w-full border-t border-white/60 bg-black/50 text-white sm:mt-6 sm:mb-3 sm:w-auto sm:rounded-lg sm:border">
+          <div className="relative z-10 mt-4 w-full border-t border-white/60 bg-black/50 text-white sm:mt-6 sm:w-auto sm:rounded-lg sm:border">
             <div className="flex items-center">
               {expanded ? (
                 <div className="flex flex-1 flex-col divide-y divide-white/30">
@@ -261,17 +291,17 @@ function TournamentBanner(props: {tournament: page_TournamentBanner$key}) {
                   />
                   <SeatWinRateTableRow
                     label="Swiss Only"
-                    rates={tournament.seatWinRatesByPhase.swiss}
+                    rates={seatWinRates.swiss}
                     hasDraws={allRates.drawRate != null}
                   />
                   <SeatWinRateTableRow
                     label={`Top Cut (${tournament.topCut})`}
-                    rates={tournament.seatWinRatesByPhase.topCut}
+                    rates={seatWinRates.topCut}
                     hasDraws={allRates.drawRate != null}
                   />
                   <SeatWinRateTableRow
                     label="Top 4"
-                    rates={tournament.seatWinRatesByPhase.finals}
+                    rates={seatWinRates.finals}
                     hasDraws={allRates.drawRate != null}
                   />
                 </div>
@@ -279,7 +309,7 @@ function TournamentBanner(props: {tournament: page_TournamentBanner$key}) {
                 <SeatWinRateRowCollapsed rates={allRates} />
               )}
               <button
-                onClick={() => setExpanded((v) => !v)}
+                onClick={toggleSeatWinRates}
                 className="shrink-0 cursor-pointer self-stretch border-l border-white/60 px-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
               >
                 <ChevronDownIcon
@@ -335,6 +365,7 @@ export const schema = z.object({
   tid: z.string(),
   commander: z.nullish(z.string()),
   tab: z.nullish(z.string()),
+  seatWinRates: z.nullish(z.string()),
 });
 
 export type Queries = {
@@ -361,6 +392,7 @@ export type EntryPoints = {
 export type ExtraProps = {
   commanderName?: string | null;
   tab: string;
+  showSeatWinRates: boolean;
 };
 
 export const getPreloadProps: GetPreloadProps<'/tournament/[tid]'> = ({
@@ -376,6 +408,7 @@ export const getPreloadProps: GetPreloadProps<'/tournament/[tid]'> = ({
     extraProps: {
       commanderName: variables.commander,
       tab,
+      showSeatWinRates: variables.seatWinRates === 'true',
     },
     entryPoints: {
       tournamentEntries:
@@ -402,7 +435,7 @@ export const getPreloadProps: GetPreloadProps<'/tournament/[tid]'> = ({
 export default function TournamentPageShell({
   queries,
   entryPoints,
-  extraProps: {commanderName, tab},
+  extraProps: {commanderName, tab, showSeatWinRates},
 }: PastoriaPageProps<'/tournament/[tid]'>) {
   const {tournament} = usePreloadedQuery(
     graphql`
@@ -450,7 +483,10 @@ export default function TournamentPageShell({
       />
 
       <Navigation />
-      <TournamentBanner tournament={tournament} />
+      <TournamentBanner
+        tournament={tournament}
+        initialExpanded={showSeatWinRates}
+      />
       {tournament.promo && <FirstPartyPromo promo={tournament.promo} />}
       <TournamentEditorsNote tournament={tournament} />
 
