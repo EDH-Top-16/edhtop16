@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<ca5bf3154ca78216a73af6b66d260bbf>>
- * @relayHash eb971ac06eaab0afbbfe3231deb343c7
+ * @generated SignedSource<<5a92814c44f89a9881bcc56fa342990c>>
+ * @relayHash ffa9c9bbfbe20765abb92699ee90016c
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,12 +9,14 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID eb971ac06eaab0afbbfe3231deb343c7
+// @relayRequestID ffa9c9bbfbe20765abb92699ee90016c
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
+export type TournamentPhase = "ALL_ROUNDS" | "FINALS" | "SWISS" | "TOP_CUT" | "%future added value";
 export type page_MonthlySeatWinRatesQuery$variables = {
   commanderName?: string | null | undefined;
+  phase?: TournamentPhase | null | undefined;
 };
 export type page_MonthlySeatWinRatesQuery$data = {
   readonly monthlySeatWinRates: ReadonlyArray<{
@@ -33,6 +35,11 @@ var v0 = [
     "defaultValue": null,
     "kind": "LocalArgument",
     "name": "commanderName"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "phase"
   }
 ],
 v1 = [
@@ -40,6 +47,11 @@ v1 = [
     "kind": "Variable",
     "name": "commanderName",
     "variableName": "commanderName"
+  },
+  {
+    "kind": "Variable",
+    "name": "phase",
+    "variableName": "phase"
   }
 ],
 v2 = {
@@ -154,7 +166,7 @@ return {
     ]
   },
   "params": {
-    "id": "eb971ac06eaab0afbbfe3231deb343c7",
+    "id": "ffa9c9bbfbe20765abb92699ee90016c",
     "metadata": {},
     "name": "page_MonthlySeatWinRatesQuery",
     "operationKind": "query",
@@ -163,7 +175,7 @@ return {
 };
 })();
 
-(node as any).hash = "f8f2f24c4ec29acce09c62f3ff761ef3";
+(node as any).hash = "7249fbd0b89444f9bf4d13ad6356733c";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);

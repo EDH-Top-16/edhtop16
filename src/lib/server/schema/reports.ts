@@ -50,8 +50,12 @@ class MonthlySeatWinRate {
       drawRate: Float;
     },
     commanderName?: string | null,
+    phase?: string | null,
   ) {
-    this.id = commanderName ? `${data.month}:${commanderName}` : data.month;
+    const parts = [data.month];
+    if (commanderName) parts.push(commanderName);
+    if (phase && phase !== 'ALL_ROUNDS') parts.push(phase);
+    this.id = parts.join(':');
     this.month = data.month;
     this.games = data.games;
     this.seatWinRate1 = data.seatWinRate1;
@@ -62,10 +66,14 @@ class MonthlySeatWinRate {
   }
 }
 
+/** @gqlEnum */
+type TournamentPhase = 'ALL_ROUNDS' | 'SWISS' | 'TOP_CUT' | 'FINALS';
+
 /** @gqlQueryField */
 export async function monthlySeatWinRates(
   args: {
     commanderName?: string | null;
+    phase?: TournamentPhase | null;
   } = {},
 ): Promise<MonthlySeatWinRate[]> {
   const now = new Date();
@@ -87,6 +95,15 @@ export async function monthlySeatWinRates(
     query = query
       .innerJoin('Commander', 'Commander.id', 'Entry.commanderId')
       .where('Commander.name', '=', args.commanderName);
+  }
+
+  const phase = args.phase ?? 'ALL_ROUNDS';
+  if (phase === 'SWISS') {
+    query = query.where('MatchSeat.round', 'not like', 'Top%');
+  } else if (phase === 'TOP_CUT') {
+    query = query.where('MatchSeat.round', 'like', 'Top%');
+  } else if (phase === 'FINALS') {
+    query = query.where('MatchSeat.round', '=', 'Top 4');
   }
 
   const rows = await query
@@ -113,7 +130,9 @@ export async function monthlySeatWinRates(
     .orderBy(sql`strftime('%Y-%m', Tournament.tournamentDate)`, 'asc')
     .execute();
 
-  return rows.map((row) => new MonthlySeatWinRate(row, args.commanderName));
+  return rows.map(
+    (row) => new MonthlySeatWinRate(row, args.commanderName, args.phase),
+  );
 }
 
 /** @gqlQueryField */

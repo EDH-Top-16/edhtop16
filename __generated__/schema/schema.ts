@@ -1178,6 +1178,23 @@ export function getSchema(): GraphQLSchema {
             };
         }
     });
+    const TournamentPhaseType: GraphQLEnumType = new GraphQLEnumType({
+        name: "TournamentPhase",
+        values: {
+            ALL_ROUNDS: {
+                value: "ALL_ROUNDS"
+            },
+            FINALS: {
+                value: "FINALS"
+            },
+            SWISS: {
+                value: "SWISS"
+            },
+            TOP_CUT: {
+                value: "TOP_CUT"
+            }
+        }
+    });
     const SearchResultType: GraphQLObjectType = new GraphQLObjectType({
         name: "SearchResult",
         fields() {
@@ -1642,6 +1659,9 @@ export function getSchema(): GraphQLSchema {
                     args: {
                         commanderName: {
                             type: GraphQLString
+                        },
+                        phase: {
+                            type: TournamentPhaseType
                         }
                     },
                     resolve(_source, args) {
@@ -2078,6 +2098,6 @@ export function getSchema(): GraphQLSchema {
             })],
         query: QueryType,
         mutation: MutationType,
-        types: [CommandersSortByType, DiscordRoleType, EntriesSortByType, EntrySortByType, PromoButtonColorType, PromoContentTypeType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentSortByType, NodeType, CardEntriesFiltersType, CoachingInfoInputType, CommanderStatsFiltersType, CreateTeamInputType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, ClaimProfileResponseType, CoachingInfoResponseType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, CountrySeatWinRateType, CreateTeamResponseType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, MonthlySeatWinRateType, MutationType, PageInfoType, PlayerType, ProfileType, PromoRichContentType, QueryType, SearchResultType, TeamType, TeamMemberInviteType, TeamMemberResponseType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType, UpdateProfileResponseType, ViewerType]
+        types: [CommandersSortByType, DiscordRoleType, EntriesSortByType, EntrySortByType, PromoButtonColorType, PromoContentTypeType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentPhaseType, TournamentSortByType, NodeType, CardEntriesFiltersType, CoachingInfoInputType, CommanderStatsFiltersType, CreateTeamInputType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, ClaimProfileResponseType, CoachingInfoResponseType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, CountrySeatWinRateType, CreateTeamResponseType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, MonthlySeatWinRateType, MutationType, PageInfoType, PlayerType, ProfileType, PromoRichContentType, QueryType, SearchResultType, TeamType, TeamMemberInviteType, TeamMemberResponseType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType, UpdateProfileResponseType, ViewerType]
     });
 }
