@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<3dffc0e8ae724d70e7b51359d57eaf6d>>
- * @relayHash d5782d67a63a7f59445989a325020a96
+ * @generated SignedSource<<ca5bf3154ca78216a73af6b66d260bbf>>
+ * @relayHash eb971ac06eaab0afbbfe3231deb343c7
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,11 +9,13 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID d5782d67a63a7f59445989a325020a96
+// @relayRequestID eb971ac06eaab0afbbfe3231deb343c7
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type page_MonthlySeatWinRatesQuery$variables = Record<PropertyKey, never>;
+export type page_MonthlySeatWinRatesQuery$variables = {
+  commanderName?: string | null | undefined;
+};
 export type page_MonthlySeatWinRatesQuery$data = {
   readonly monthlySeatWinRates: ReadonlyArray<{
     readonly id: string;
@@ -26,7 +28,21 @@ export type page_MonthlySeatWinRatesQuery = {
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = {
+var v0 = [
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "commanderName"
+  }
+],
+v1 = [
+  {
+    "kind": "Variable",
+    "name": "commanderName",
+    "variableName": "commanderName"
+  }
+],
+v2 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -35,7 +51,7 @@ var v0 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": [],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": {
       "throwOnFieldError": true
@@ -44,13 +60,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": null,
+        "args": (v1/*: any*/),
         "concreteType": "MonthlySeatWinRate",
         "kind": "LinkedField",
         "name": "monthlySeatWinRates",
         "plural": true,
         "selections": [
-          (v0/*: any*/),
+          (v2/*: any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -70,19 +86,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": [],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
     "name": "page_MonthlySeatWinRatesQuery",
     "selections": [
       {
         "alias": null,
-        "args": null,
+        "args": (v1/*: any*/),
         "concreteType": "MonthlySeatWinRate",
         "kind": "LinkedField",
         "name": "monthlySeatWinRates",
         "plural": true,
         "selections": [
-          (v0/*: any*/),
+          (v2/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -138,7 +154,7 @@ return {
     ]
   },
   "params": {
-    "id": "d5782d67a63a7f59445989a325020a96",
+    "id": "eb971ac06eaab0afbbfe3231deb343c7",
     "metadata": {},
     "name": "page_MonthlySeatWinRatesQuery",
     "operationKind": "query",
@@ -147,7 +163,7 @@ return {
 };
 })();
 
-(node as any).hash = "d1747af3cd3a61bb370eee2e4ec85498";
+(node as any).hash = "f8f2f24c4ec29acce09c62f3ff761ef3";
 
 import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);
