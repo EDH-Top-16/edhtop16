@@ -179,7 +179,7 @@ This project uses **pnpm workspaces** for managing multiple packages:
 - Always run `npm run generate:router` after adding/modifying JSDoc route
   annotations
 - Always run `pnpm run generate:dbtypes` after applying database migrations
-- **Always format code with `pnpm exec prettier --write <files>` before committing**
+- **Always format code with `vp fmt` before committing**
 - Database regeneration completely rebuilds the SQLite database
 - Uses experimental Node.js TypeScript support (`--experimental-strip-types`)
 - Uses pnpm workspaces for managing pastoria tooling as separate package

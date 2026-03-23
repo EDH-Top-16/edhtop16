@@ -41,19 +41,37 @@ export type Queries = {
   monthlySeatWinRatesRef: page_MonthlySeatWinRatesQuery;
 };
 
+const PHASE_OPTIONS = [
+  {value: '', label: 'All Rounds'},
+  {value: 'SWISS', label: 'Swiss'},
+  {value: 'TOP_CUT', label: 'Top Cut'},
+  {value: 'FINALS', label: 'Finals'},
+] as const;
+
 export default function MonthlySeatWinRatesPageShell({
   queries,
 }: PastoriaPageProps<'/reports/monthly_seat_winrates'>) {
-  const {commanderName} = queries.monthlySeatWinRatesRef.variables;
+  const {commanderName, phase} = queries.monthlySeatWinRatesRef.variables;
   const {replaceRoute} = useNavigation();
 
   const selectCommander = useCallback(
     (name: string | null) => {
       replaceRoute('/reports/monthly_seat_winrates', {
         commanderName: name,
+        phase,
       });
     },
-    [replaceRoute],
+    [replaceRoute, phase],
+  );
+
+  const selectPhase = useCallback(
+    (newPhase: string) => {
+      replaceRoute('/reports/monthly_seat_winrates', {
+        commanderName,
+        phase: newPhase || undefined,
+      });
+    },
+    [replaceRoute, commanderName],
   );
 
   return (
@@ -96,6 +114,27 @@ export default function MonthlySeatWinRatesPageShell({
               onSelect={selectCommander}
             />
           </Suspense>
+
+          <div className="flex flex-col gap-1">
+            <label
+              htmlFor="phase-filter"
+              className="text-sm font-medium text-white/60"
+            >
+              Phase
+            </label>
+            <select
+              id="phase-filter"
+              value={phase ?? ''}
+              onChange={(e) => selectPhase(e.target.value)}
+              className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-white/30"
+            >
+              {PHASE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <MonthlySeatWinRatesContent queryRef={queries.monthlySeatWinRatesRef} />
@@ -111,10 +150,11 @@ function MonthlySeatWinRatesContent({
 }) {
   const {monthlySeatWinRates: rows} = usePreloadedQuery(
     graphql`
-      query page_MonthlySeatWinRatesQuery($commanderName: String)
-      @preloadable
-      @throwOnFieldError {
-        monthlySeatWinRates(commanderName: $commanderName) {
+      query page_MonthlySeatWinRatesQuery(
+        $commanderName: String
+        $phase: TournamentPhase
+      ) @preloadable @throwOnFieldError {
+        monthlySeatWinRates(commanderName: $commanderName, phase: $phase) {
           id
           ...page_MonthlySeatWinRateRow
           ...page_MonthlySeatWinRateChart

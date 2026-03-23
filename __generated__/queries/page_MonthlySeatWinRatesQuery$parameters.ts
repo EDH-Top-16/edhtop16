@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<4719e90584175e1a0566bb413f4c631e>>
- * @relayHash eb971ac06eaab0afbbfe3231deb343c7
+ * @generated SignedSource<<38c7591844a27a4a22059be8abe86154>>
+ * @relayHash ffa9c9bbfbe20765abb92699ee90016c
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID eb971ac06eaab0afbbfe3231deb343c7
+// @relayRequestID ffa9c9bbfbe20765abb92699ee90016c
 
 import { PreloadableConcreteRequest } from 'relay-runtime';
 import { page_MonthlySeatWinRatesQuery } from './page_MonthlySeatWinRatesQuery.graphql';
@@ -17,7 +17,7 @@ import { page_MonthlySeatWinRatesQuery } from './page_MonthlySeatWinRatesQuery.g
 const node: PreloadableConcreteRequest<page_MonthlySeatWinRatesQuery> = {
   "kind": "PreloadableConcreteRequest",
   "params": {
-    "id": "eb971ac06eaab0afbbfe3231deb343c7",
+    "id": "ffa9c9bbfbe20765abb92699ee90016c",
     "metadata": {},
     "name": "page_MonthlySeatWinRatesQuery",
     "operationKind": "query",

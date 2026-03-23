@@ -89,6 +89,13 @@ enum TimePeriod {
   THREE_MONTHS
 }
 
+enum TournamentPhase {
+  ALL_ROUNDS
+  FINALS
+  SWISS
+  TOP_CUT
+}
+
 enum TournamentSortBy {
   DATE
   PLAYERS
@@ -354,7 +361,7 @@ type Query {
   commanders(after: String, colorId: String, first: Int! = 20, minEntries: Int, minTournamentSize: Int, sortBy: CommandersSortBy! = CONVERSION, timePeriod: TimePeriod! = ONE_MONTH): CommanderConnection @semanticNonNull
   countrySeatWinRates(minTournaments: Int): [CountrySeatWinRate!] @semanticNonNull
   homePagePromo: FirstPartyPromo
-  monthlySeatWinRates(commanderName: String): [MonthlySeatWinRate!] @semanticNonNull
+  monthlySeatWinRates(commanderName: String, phase: TournamentPhase): [MonthlySeatWinRate!] @semanticNonNull
   node(id: ID!): Node
   player(profile: String!): Player @semanticNonNull
   searchResults(types: [SearchResultType!]!): [SearchResult!] @semanticNonNull
