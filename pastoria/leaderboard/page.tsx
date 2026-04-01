@@ -152,7 +152,7 @@ function TopPlayerCard({entry}: {entry: page_LeaderboardTopPlayer$key}) {
   return (
     <Card
       images={commanderImages}
-      bottomText={`${formatPercent(data.drawRate)} draw rate · ${data.draws} draws · ${data.topCommanders[0]?.name ?? ''}`}
+      bottomText={`${formatPercent(data.drawRate)} draw rate · ${data.draws} draws`}
     >
       <div className="flex h-32 flex-col space-y-2">
         <div className="flex items-center gap-2">
