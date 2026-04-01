@@ -131,6 +131,10 @@ const args = parseArgs({
       type: 'string',
       multiple: true,
     },
+    'leaderboard-only': {
+      type: 'boolean',
+      default: false,
+    },
   },
 });
 
@@ -741,8 +745,18 @@ async function populateLeaderboard() {
         .selectFrom('Entry as e2')
         .innerJoin('Tournament', 'Tournament.id', 'e2.tournamentId')
         .select('e2.playerId')
-        .where('e2.standing', '=', 1)
-        .where('Tournament.size', '>=', 60),
+        .where((eb) =>
+          eb.or([
+            eb.and([
+              eb('e2.standing', '=', 1),
+              eb('Tournament.size', '>=', 60),
+            ]),
+            eb.and([
+              eb('e2.standing', '<=', 4),
+              eb('Tournament.size', '>=', 200),
+            ]),
+          ]),
+        ),
     )
     .groupBy('Entry.playerId')
     .having(sql`sum(Entry.draws)`, '>=', 30)
@@ -879,7 +893,18 @@ async function updateProfilesFromEDHTop16Platform() {
   }
 }
 
-async function main({tid: importedTids}: {tid?: string[]}) {
+async function main({
+  tid: importedTids,
+  'leaderboard-only': leaderboardOnly,
+}: {
+  tid?: string[];
+  'leaderboard-only'?: boolean;
+}) {
+  if (leaderboardOnly) {
+    await populateLeaderboard();
+    return;
+  }
+
   info`Loading Scryfall oracle cards database...`();
   const oracleCards = await ScryfallDatabase.create('oracle_cards');
 
