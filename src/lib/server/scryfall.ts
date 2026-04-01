@@ -21,6 +21,7 @@ export const scryfallCardSchema = scryfallCardFaceSchema.extend({
   oracle_id: z.string().uuid(),
   name: z.string(),
   scryfall_uri: z.string().url(),
+  layout: z.string(),
   card_faces: z.array(scryfallCardFaceSchema).optional(),
   cmc: z.number(),
   color_identity: z.array(z.string()),

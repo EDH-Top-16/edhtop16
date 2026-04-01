@@ -155,8 +155,17 @@ sqliteDb.exec(
   'CREATE UNIQUE INDEX IF NOT EXISTS "Entry_tournamentId_playerId_key" ON "Entry"("tournamentId", "playerId")',
 );
 
-function commanderName(commanders: Record<string, unknown> = {}) {
-  return Object.keys(commanders).sort().join(' / ');
+function commanderName(
+  commanders: Record<string, {id: string}> = {},
+  oracleCards: ScryfallDatabase,
+) {
+  return Object.entries(commanders)
+    .map(([key, val]) => {
+      const scryfallCard = oracleCards.cardByOracleId.get(val.id);
+      return scryfallCard?.name ?? key;
+    })
+    .sort()
+    .join(' / ');
 }
 
 /** @returns Map of TID to database ID. */
@@ -242,7 +251,7 @@ async function createCommanders(
     .filter((t) => 'standings' in t)
     .flatMap((t) =>
       t.standings.map((s) => ({
-        name: commanderName(s.deckObj?.Commanders),
+        name: commanderName(s.deckObj?.Commanders, oracleCards),
         colorId: wubrgify(
           Object.values(s.deckObj?.Commanders ?? {}).flatMap(
             (c) => oracleCards.cardByOracleId.get(c.id)?.color_identity ?? [],
@@ -330,6 +339,7 @@ async function createEntries(
   tournamentIdByTid: Map<string, number>,
   playerIdByProfile: Map<string, number>,
   commanderIdByName: Map<string, number>,
+  oracleCards: ScryfallDatabase,
 ) {
   const entries = await Promise.all(
     tournaments.map(async (t) => {
@@ -347,7 +357,7 @@ async function createEntries(
           const playerId = playerIdByProfile.get(s.id)!;
           const tournamentId = tournamentIdByTid.get(t.TID)!;
           const commanderId = commanderIdByName.get(
-            commanderName(details?.deckObj?.Commanders),
+            commanderName(details?.deckObj?.Commanders, oracleCards),
           )!;
 
           return {
@@ -887,6 +897,7 @@ async function main({tid: importedTids}: {tid?: string[]}) {
     tournamentIdByTid,
     playerIdByProfile,
     commanderIdByName,
+    oracleCards,
   );
 
   await createRounds(tournaments, tournamentIdByTid, entryIdByTidAndProfile);
