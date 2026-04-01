@@ -65,18 +65,18 @@ function LeaderboardContent({
     queryRef,
   );
 
-  const top12 = leaderboard.filter((e) => e.rank <= 12);
-  const rest = leaderboard.filter((e) => e.rank > 12);
+  const top16 = leaderboard.filter((e) => e.rank <= 16);
+  const rest = leaderboard.filter((e) => e.rank > 16);
 
   return (
     <>
-      {top12.length > 0 && (
+      {top16.length > 0 && (
         <div className="mb-10">
           <h2 className="font-title mb-4 text-2xl font-bold text-white">
-            Top 12
+            Top 16
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {top12.map((entry) => (
+            {top16.map((entry) => (
               <TopPlayerCard key={entry.id} entry={entry} />
             ))}
           </div>
