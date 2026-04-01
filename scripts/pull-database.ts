@@ -723,6 +723,7 @@ async function populateLeaderboard() {
   await db.deleteFrom('Leaderboard').execute();
 
   // Calculate draw rate per player, minimum 30 draws
+  // Must have at least one win (standing = 1) in a 60+ player tournament
   const rows = await db
     .selectFrom('Entry')
     .select([
@@ -735,6 +736,14 @@ async function populateLeaderboard() {
         'drawRate',
       ),
     ])
+    .where('Entry.playerId', 'in', (qb) =>
+      qb
+        .selectFrom('Entry as e2')
+        .innerJoin('Tournament', 'Tournament.id', 'e2.tournamentId')
+        .select('e2.playerId')
+        .where('e2.standing', '=', 1)
+        .where('Tournament.size', '>=', 60),
+    )
     .groupBy('Entry.playerId')
     .having(sql`sum(Entry.draws)`, '>=', 30)
     .orderBy('drawRate', 'desc')
