@@ -16,7 +16,7 @@ export function Navigation({
   }, []);
 
   return (
-    <nav className="font-title sticky top-0 z-20 grid w-full grid-cols-[auto_auto_auto_1fr] items-center gap-x-6 gap-y-3 bg-[#312d5a] px-4 py-3 text-white sm:grid-cols-[auto_auto_auto_auto_1fr] md:px-8">
+    <nav className="font-title sticky top-0 z-20 grid w-full grid-cols-[auto_auto_auto_auto_1fr] items-center gap-x-6 gap-y-3 bg-[#312d5a] px-4 py-3 text-white sm:grid-cols-[auto_auto_auto_auto_auto_1fr] md:px-8">
       <Link href="/" className="text-xl font-black">
         EDHTop16
       </Link>
@@ -40,6 +40,13 @@ export function Navigation({
         className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm"
       >
         Staples
+      </Link>
+
+      <Link
+        href="/leaderboard"
+        className="text-xs underline decoration-transparent transition-colors hover:decoration-inherit md:text-sm"
+      >
+        Rankings
       </Link>
 
       <button
