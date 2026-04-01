@@ -10,6 +10,7 @@ import { createTournamentLoader as createTournamentLoader, Tournament as queryTo
 import { Card as queryCardResolver, createCardLoader as createCardLoader, Card as queryStaplesResolver } from "./../../src/lib/server/schema/card";
 import { countrySeatWinRates as queryCountrySeatWinRatesResolver, monthlySeatWinRates as queryMonthlySeatWinRatesResolver } from "./../../src/lib/server/schema/reports";
 import { homePagePromo as queryHomePagePromoResolver, tournamentPagePromo as queryTournamentPagePromoResolver } from "./../../src/lib/server/schema/promo";
+import { leaderboard as queryLeaderboardResolver } from "./../../src/lib/server/schema/leaderboard";
 import { createEntryLoader as createEntryLoader } from "./../../src/lib/server/schema/entry";
 import { searchResults as querySearchResultsResolver } from "./../../src/lib/server/schema/search";
 import { viewer as queryViewerResolver } from "./../../src/lib/server/schema/viewer";
@@ -1115,6 +1116,62 @@ export function getSchema(): GraphQLSchema {
             };
         }
     });
+    const LeaderboardEntryType: GraphQLObjectType = new GraphQLObjectType({
+        name: "LeaderboardEntry",
+        fields() {
+            return {
+                drawRate: {
+                    name: "drawRate",
+                    type: GraphQLFloat,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                draws: {
+                    name: "draws",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                id: {
+                    name: "id",
+                    type: GraphQLID,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                player: {
+                    name: "player",
+                    type: PlayerType,
+                    resolve(source, _args, context) {
+                        return assertNonNull(source.player(createPlayerLoader(context)));
+                    }
+                },
+                rank: {
+                    name: "rank",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                },
+                topCommanders: {
+                    name: "topCommanders",
+                    type: new GraphQLList(new GraphQLNonNull(CommanderType)),
+                    resolve(source, _args, context) {
+                        return assertNonNull(source.topCommanders(createCommanderLoader(context)));
+                    }
+                },
+                totalGames: {
+                    name: "totalGames",
+                    type: GraphQLInt,
+                    resolve(source, args, context, info) {
+                        return assertNonNull(defaultFieldResolver(source, args, context, info));
+                    }
+                }
+            };
+        }
+    });
     const MonthlySeatWinRateType: GraphQLObjectType = new GraphQLObjectType({
         name: "MonthlySeatWinRate",
         fields() {
@@ -1653,6 +1710,13 @@ export function getSchema(): GraphQLSchema {
                         return queryHomePagePromoResolver();
                     }
                 },
+                leaderboard: {
+                    name: "leaderboard",
+                    type: new GraphQLList(new GraphQLNonNull(LeaderboardEntryType)),
+                    resolve() {
+                        return assertNonNull(queryLeaderboardResolver());
+                    }
+                },
                 monthlySeatWinRates: {
                     name: "monthlySeatWinRates",
                     type: new GraphQLList(new GraphQLNonNull(MonthlySeatWinRateType)),
@@ -2098,6 +2162,6 @@ export function getSchema(): GraphQLSchema {
             })],
         query: QueryType,
         mutation: MutationType,
-        types: [CommandersSortByType, DiscordRoleType, EntriesSortByType, EntrySortByType, PromoButtonColorType, PromoContentTypeType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentPhaseType, TournamentSortByType, NodeType, CardEntriesFiltersType, CoachingInfoInputType, CommanderStatsFiltersType, CreateTeamInputType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, ClaimProfileResponseType, CoachingInfoResponseType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, CountrySeatWinRateType, CreateTeamResponseType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, MonthlySeatWinRateType, MutationType, PageInfoType, PlayerType, ProfileType, PromoRichContentType, QueryType, SearchResultType, TeamType, TeamMemberInviteType, TeamMemberResponseType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType, UpdateProfileResponseType, ViewerType]
+        types: [CommandersSortByType, DiscordRoleType, EntriesSortByType, EntrySortByType, PromoButtonColorType, PromoContentTypeType, SearchResultTypeType, SortDirectionType, TimePeriodType, TournamentPhaseType, TournamentSortByType, NodeType, CardEntriesFiltersType, CoachingInfoInputType, CommanderStatsFiltersType, CreateTeamInputType, EntriesFilterType, EntryFiltersType, TournamentFiltersType, CardType, ClaimProfileResponseType, CoachingInfoResponseType, CommanderType, CommanderCalculatedStatsType, CommanderCardStatsType, CommanderCardWinrateStatsType, CommanderConnectionType, CommanderEdgeType, CountrySeatWinRateType, CreateTeamResponseType, EntryType, EntryConnectionType, EntryEdgeType, FirstPartyPromoType, LeaderboardEntryType, MonthlySeatWinRateType, MutationType, PageInfoType, PlayerType, ProfileType, PromoRichContentType, QueryType, SearchResultType, TeamType, TeamMemberInviteType, TeamMemberResponseType, TournamentType, TournamentBreakdownGroupType, TournamentConnectionType, TournamentEdgeType, UpdateProfileResponseType, ViewerType]
     });
 }

@@ -43,6 +43,16 @@ export interface Entry {
   winsSwiss: number;
 }
 
+export interface Leaderboard {
+  drawRate: number;
+  draws: number;
+  id: Generated<number>;
+  playerId: number;
+  rank: number;
+  topCommanderIds: string;
+  totalGames: number;
+}
+
 export interface MatchSeat {
   entryId: number;
   id: Generated<number | null>;
@@ -94,6 +104,7 @@ export interface DB {
   Commander: Commander;
   DecklistItem: DecklistItem;
   Entry: Entry;
+  Leaderboard: Leaderboard;
   MatchSeat: MatchSeat;
   Player: Player;
   Tournament: Tournament;

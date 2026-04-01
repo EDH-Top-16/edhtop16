@@ -706,6 +706,86 @@ async function addSeatWinRates() {
   success`Finished calculating seat win rates!`();
 }
 
+async function populateLeaderboard() {
+  info`Calculating draw rate leaderboard...`();
+
+  // Clear existing leaderboard data
+  await db.deleteFrom('Leaderboard').execute();
+
+  // Calculate draw rate per player, minimum 30 draws
+  const rows = await db
+    .selectFrom('Entry')
+    .select([
+      'Entry.playerId',
+      sql<number>`sum(Entry.winsSwiss + Entry.winsBracket + Entry.lossesSwiss + Entry.lossesBracket + Entry.draws)`.as(
+        'totalGames',
+      ),
+      sql<number>`sum(Entry.draws)`.as('draws'),
+      sql<number>`cast(sum(Entry.draws) as real) / sum(Entry.winsSwiss + Entry.winsBracket + Entry.lossesSwiss + Entry.lossesBracket + Entry.draws)`.as(
+        'drawRate',
+      ),
+    ])
+    .groupBy('Entry.playerId')
+    .having(sql`sum(Entry.draws)`, '>=', 30)
+    .orderBy('drawRate', 'desc')
+    .limit(150)
+    .execute();
+
+  // Get top commander by entry count for each player
+  const playerIds = rows.map((r) => r.playerId);
+  const topCommanders = await db
+    .selectFrom('Entry')
+    .innerJoin('Commander', 'Commander.id', 'Entry.commanderId')
+    .select([
+      'Entry.playerId',
+      'Entry.commanderId',
+      sql<number>`count(*)`.as('cnt'),
+    ])
+    .where('Entry.playerId', 'in', playerIds)
+    .where('Commander.name', '!=', 'Unknown Commander')
+    .where('Commander.name', '!=', '')
+    .groupBy(['Entry.playerId', 'Entry.commanderId'])
+    .orderBy('Entry.playerId')
+    .orderBy('cnt', 'desc')
+    .execute();
+
+  const topCommandersByPlayer = new Map<string, number[]>();
+  for (const row of topCommanders) {
+    const key = String(row.playerId);
+    const existing = topCommandersByPlayer.get(key) ?? [];
+    if (existing.length < 1) {
+      existing.push(row.commanderId);
+      topCommandersByPlayer.set(key, existing);
+    }
+  }
+
+  // Insert leaderboard entries with rank, excluding players without a known commander
+  const filteredRows = rows.filter(
+    (row) => (topCommandersByPlayer.get(String(row.playerId))?.length ?? 0) > 0,
+  );
+  const leaderboardValues = filteredRows.map((row, i) => ({
+    playerId: row.playerId,
+    rank: i + 1,
+    totalGames: row.totalGames,
+    draws: row.draws,
+    drawRate: row.drawRate,
+    topCommanderIds: JSON.stringify(
+      topCommandersByPlayer.get(String(row.playerId)) ?? [],
+    ),
+  }));
+
+  await chunkedWorkerPool(
+    leaderboardValues,
+    async (chunk) => {
+      await db.insertInto('Leaderboard').values(chunk).execute();
+      return chunk;
+    },
+    {chunkSize: 90, workers: 1},
+  );
+
+  success`Populated leaderboard with ${leaderboardValues.length} players!`();
+}
+
 async function updateProfilesFromEDHTop16Platform() {
   const profileDatabaseUrl =
     process.env.DATABASE_URL ?? process.env.PROFILE_DATABASE_URL;
@@ -813,6 +893,7 @@ async function main({tid: importedTids}: {tid?: string[]}) {
   await createDecklists(tournaments, cardIdByOracleId, entryIdByTidAndProfile);
   await addCardPlayRates();
   await addSeatWinRates();
+  await populateLeaderboard();
   await updateProfilesFromEDHTop16Platform();
 }
 

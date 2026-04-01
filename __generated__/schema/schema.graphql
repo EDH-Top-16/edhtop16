@@ -289,6 +289,16 @@ type FirstPartyPromo {
   title: String @semanticNonNull
 }
 
+type LeaderboardEntry {
+  drawRate: Float @semanticNonNull
+  draws: Int @semanticNonNull
+  id: ID @semanticNonNull
+  player: Player @semanticNonNull
+  rank: Int @semanticNonNull
+  topCommanders: [Commander!] @semanticNonNull
+  totalGames: Int @semanticNonNull
+}
+
 type MonthlySeatWinRate {
   drawRate: Float @semanticNonNull
   games: Int @semanticNonNull
@@ -361,6 +371,7 @@ type Query {
   commanders(after: String, colorId: String, first: Int! = 20, minEntries: Int, minTournamentSize: Int, sortBy: CommandersSortBy! = CONVERSION, timePeriod: TimePeriod! = ONE_MONTH): CommanderConnection @semanticNonNull
   countrySeatWinRates(minTournaments: Int): [CountrySeatWinRate!] @semanticNonNull
   homePagePromo: FirstPartyPromo
+  leaderboard: [LeaderboardEntry!] @semanticNonNull
   monthlySeatWinRates(commanderName: String, phase: TournamentPhase): [MonthlySeatWinRate!] @semanticNonNull
   node(id: ID!): Node
   player(profile: String!): Player @semanticNonNull
