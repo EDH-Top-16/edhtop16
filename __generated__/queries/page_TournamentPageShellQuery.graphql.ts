@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<13e77137575dad9a5a03008d01c7e799>>
- * @relayHash d8848c2ef7e18f9dfb5bb5ca22aeb7da
+ * @generated SignedSource<<143d6914a012de799cd2892f2ddd0ec5>>
+ * @relayHash ab48cc01696e122181535bd9366e4f27
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID d8848c2ef7e18f9dfb5bb5ca22aeb7da
+// @relayRequestID ab48cc01696e122181535bd9366e4f27
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -60,44 +60,7 @@ v3 = {
   "name": "editorsNote",
   "storageKey": null
 },
-v4 = [
-  {
-    "alias": null,
-    "args": null,
-    "kind": "ScalarField",
-    "name": "seat1",
-    "storageKey": null
-  },
-  {
-    "alias": null,
-    "args": null,
-    "kind": "ScalarField",
-    "name": "seat2",
-    "storageKey": null
-  },
-  {
-    "alias": null,
-    "args": null,
-    "kind": "ScalarField",
-    "name": "seat3",
-    "storageKey": null
-  },
-  {
-    "alias": null,
-    "args": null,
-    "kind": "ScalarField",
-    "name": "seat4",
-    "storageKey": null
-  },
-  {
-    "alias": null,
-    "args": null,
-    "kind": "ScalarField",
-    "name": "drawRate",
-    "storageKey": null
-  }
-],
-v5 = {
+v4 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -208,58 +171,35 @@ return {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "topCut",
+            "name": "seatWinRate1",
             "storageKey": null
           },
           {
             "alias": null,
             "args": null,
-            "concreteType": "SeatWinRatesByPhase",
-            "kind": "LinkedField",
-            "name": "seatWinRatesByPhase",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "SeatWinRates",
-                "kind": "LinkedField",
-                "name": "all",
-                "plural": false,
-                "selections": (v4/*: any*/),
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "SeatWinRates",
-                "kind": "LinkedField",
-                "name": "swiss",
-                "plural": false,
-                "selections": (v4/*: any*/),
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "SeatWinRates",
-                "kind": "LinkedField",
-                "name": "topCut",
-                "plural": false,
-                "selections": (v4/*: any*/),
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "SeatWinRates",
-                "kind": "LinkedField",
-                "name": "finals",
-                "plural": false,
-                "selections": (v4/*: any*/),
-                "storageKey": null
-              }
-            ],
+            "kind": "ScalarField",
+            "name": "seatWinRate2",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "seatWinRate3",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "seatWinRate4",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "drawRate",
             "storageKey": null
           },
           {
@@ -299,15 +239,15 @@ return {
                         "name": "imageUrls",
                         "storageKey": null
                       },
-                      (v5/*: any*/)
+                      (v4/*: any*/)
                     ],
                     "storageKey": null
                   },
-                  (v5/*: any*/)
+                  (v4/*: any*/)
                 ],
                 "storageKey": null
               },
-              (v5/*: any*/)
+              (v4/*: any*/)
             ],
             "storageKey": "entries(maxStanding:1)"
           },
@@ -397,14 +337,14 @@ return {
             ],
             "storageKey": null
           },
-          (v5/*: any*/)
+          (v4/*: any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "id": "d8848c2ef7e18f9dfb5bb5ca22aeb7da",
+    "id": "ab48cc01696e122181535bd9366e4f27",
     "metadata": {},
     "name": "page_TournamentPageShellQuery",
     "operationKind": "query",

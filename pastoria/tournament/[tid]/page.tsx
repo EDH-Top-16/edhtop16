@@ -1,4 +1,6 @@
 import {page_EditorsNote$key} from '#genfiles/queries/page_EditorsNote.graphql';
+import {page_SeatWinRates$key} from '#genfiles/queries/page_SeatWinRates.graphql';
+import {page_SeatWinRatesByPhaseQuery} from '#genfiles/queries/page_SeatWinRatesByPhaseQuery.graphql';
 import {page_TournamentBanner$key} from '#genfiles/queries/page_TournamentBanner.graphql';
 import {page_TournamentMeta$key} from '#genfiles/queries/page_TournamentMeta.graphql';
 import {page_TournamentPageShellQuery} from '#genfiles/queries/page_TournamentPageShellQuery.graphql';
@@ -13,79 +15,38 @@ import ArrowRightIcon from '@heroicons/react/24/solid/ArrowRightIcon';
 import ChevronDownIcon from '@heroicons/react/24/solid/ChevronDownIcon';
 import cn from 'classnames';
 import {format} from 'date-fns';
-import {
-  MouseEvent,
-  Suspense,
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import {MouseEvent, Suspense, useCallback, useMemo, useState} from 'react';
 import {
   EntryPoint,
   EntryPointContainer,
   graphql,
   useFragment,
+  useLazyLoadQuery,
   usePreloadedQuery,
 } from 'react-relay/hooks';
 import {z} from 'zod/v4-mini';
 
-type SeatWinRateRow = {
-  readonly seat1: number | null | undefined;
-  readonly seat2: number | null | undefined;
-  readonly seat3: number | null | undefined;
-  readonly seat4: number | null | undefined;
-  readonly drawRate: number | null | undefined;
-};
-
-function SeatWinRateRowCollapsed(props: {rates: SeatWinRateRow}) {
-  const {rates} = props;
-  if (
-    rates.seat1 == null ||
-    rates.seat2 == null ||
-    rates.seat3 == null ||
-    rates.seat4 == null
-  ) {
-    return null;
+const SeatWinRatesFragment = graphql`
+  fragment page_SeatWinRates on SeatWinRates {
+    seat1
+    seat2
+    seat3
+    seat4
+    drawRate
   }
+`;
 
-  return (
-    <div className="flex flex-1 items-stretch px-2 text-center text-xs whitespace-nowrap text-white sm:px-3 sm:text-sm">
-      <span className="flex items-center py-2 text-white/60">Win Rate</span>
-      <div className="mx-1.5 border-l border-white/60 sm:mx-2"> </div>
-      <span className="flex items-center py-2">
-        S1: {formatPercent(rates.seat1)}
-      </span>
-      <div className="mx-1.5 border-l border-white/60 sm:mx-2"> </div>
-      <span className="flex items-center py-2">
-        S2: {formatPercent(rates.seat2)}
-      </span>
-      <div className="mx-1.5 border-l border-white/60 sm:mx-2"> </div>
-      <span className="flex items-center py-2">
-        S3: {formatPercent(rates.seat3)}
-      </span>
-      <div className="mx-1.5 border-l border-white/60 sm:mx-2"> </div>
-      <span className="flex items-center py-2">
-        S4: {formatPercent(rates.seat4)}
-      </span>
-      {rates.drawRate != null && (
-        <>
-          <div className="mx-1.5 border-l border-white/60 sm:mx-2"> </div>
-          <span className="flex items-center py-2">
-            Draw: {formatPercent(rates.drawRate)}
-          </span>
-        </>
-      )}
-    </div>
-  );
+function useSeatWinRates(ratesRef: page_SeatWinRates$key) {
+  return useFragment(SeatWinRatesFragment, ratesRef);
 }
 
 function SeatWinRateTableRow(props: {
   label: string;
-  rates: SeatWinRateRow;
+  rates: page_SeatWinRates$key;
   hasDraws: boolean;
 }) {
-  const {label, rates, hasDraws} = props;
+  const {label, hasDraws} = props;
+  const rates = useSeatWinRates(props.rates);
   if (
     rates.seat1 == null ||
     rates.seat2 == null ||
@@ -125,48 +86,96 @@ function SeatWinRateTableRow(props: {
   );
 }
 
-function TournamentBanner(props: {
-  tournament: page_TournamentBanner$key;
-  initialExpanded: boolean;
-}) {
+function SeatWinRateExpandedTable(props: {tid: string; hasDraws: boolean}) {
+  const {tid, hasDraws} = props;
+  const {tournament} = useLazyLoadQuery<page_SeatWinRatesByPhaseQuery>(
+    graphql`
+      query page_SeatWinRatesByPhaseQuery($tid: String!) @throwOnFieldError {
+        tournament(TID: $tid) {
+          topCut
+          seatWinRatesByPhase {
+            all {
+              ...page_SeatWinRates
+            }
+            swiss {
+              ...page_SeatWinRates
+            }
+            topCut {
+              ...page_SeatWinRates
+            }
+            finals {
+              ...page_SeatWinRates
+            }
+          }
+        }
+      }
+    `,
+    {tid},
+  );
+
+  const phases = tournament.seatWinRatesByPhase;
+
+  return (
+    <div className="flex flex-1 flex-col divide-y divide-white/30">
+      <div className="flex items-center text-center text-xs text-white/50">
+        <span className="w-18 shrink-0 sm:w-20 md:w-24"> </span>
+        <span className="min-w-14 flex-1 border-l border-white/30 py-1 md:px-3">
+          S1
+        </span>
+        <span className="min-w-14 flex-1 border-l border-white/30 py-1 md:px-3">
+          S2
+        </span>
+        <span className="min-w-14 flex-1 border-l border-white/30 py-1 md:px-3">
+          S3
+        </span>
+        <span className="min-w-14 flex-1 border-l border-white/30 py-1 md:px-3">
+          S4
+        </span>
+        {hasDraws && (
+          <span className="min-w-14 flex-1 border-l border-white/30 py-1 md:px-3">
+            Draw
+          </span>
+        )}
+      </div>
+      <SeatWinRateTableRow
+        label="All Rounds"
+        rates={phases.all}
+        hasDraws={hasDraws}
+      />
+      <SeatWinRateTableRow
+        label="Swiss"
+        rates={phases.swiss}
+        hasDraws={hasDraws}
+      />
+      <SeatWinRateTableRow
+        label={`Top Cut (${tournament.topCut})`}
+        rates={phases.topCut}
+        hasDraws={hasDraws}
+      />
+      <SeatWinRateTableRow
+        label="Top 4"
+        rates={phases.finals}
+        hasDraws={hasDraws}
+      />
+    </div>
+  );
+}
+
+function TournamentBanner(props: {tournament: page_TournamentBanner$key}) {
   const tournament = useFragment(
     graphql`
       fragment page_TournamentBanner on Tournament @throwOnFieldError {
+        TID
         name
         size
         tournamentDate
         bracketUrl
-        topCut
-        seatWinRatesByPhase {
-          all {
-            seat1
-            seat2
-            seat3
-            seat4
-            drawRate
-          }
-          swiss {
-            seat1
-            seat2
-            seat3
-            seat4
-            drawRate
-          }
-          topCut {
-            seat1
-            seat2
-            seat3
-            seat4
-            drawRate
-          }
-          finals {
-            seat1
-            seat2
-            seat3
-            seat4
-            drawRate
-          }
-        }
+        seatWinRate1
+        seatWinRate2
+        seatWinRate3
+        seatWinRate4
+        drawRate
+
         winner: entries(maxStanding: 1) {
           commander {
             cards {
@@ -188,40 +197,24 @@ function TournamentBanner(props: {
     }
   }, [tournament]);
 
-  const [expanded, setExpanded] = useState(props.initialExpanded);
+  const [expanded, setExpanded] = useState(false);
 
-  const seatWinRates = tournament.seatWinRatesByPhase;
-  const allRates = seatWinRates.all;
   const hasSeatData =
-    allRates.seat1 != null &&
-    allRates.seat2 != null &&
-    allRates.seat3 != null &&
-    allRates.seat4 != null;
-
-  // Use a ref to avoid recreating the callback on every toggle
-  const expandedRef = useRef(expanded);
-  expandedRef.current = expanded;
-
-  const toggleSeatWinRates = useCallback(() => {
-    const next = !expandedRef.current;
-    setExpanded(next);
-
-    // Update URL for shareability without triggering router navigation.
-    // Safe to use window APIs here — this only fires on click, never during SSR.
-    const url = new URL(window.location.href);
-    if (next) {
-      url.searchParams.set('seatWinRates', 'true');
-    } else {
-      url.searchParams.delete('seatWinRates');
-    }
-    window.history.replaceState(null, '', url.toString());
-  }, []);
+    tournament.seatWinRate1 != null &&
+    tournament.seatWinRate2 != null &&
+    tournament.seatWinRate3 != null &&
+    tournament.seatWinRate4 != null;
 
   return (
-    <div className="relative w-full bg-black/60">
-      <div className="relative mx-auto flex w-full max-w-(--breakpoint-xl) flex-col items-center pt-8 sm:pb-3 md:min-h-80 md:pt-12">
+    <div
+      className={cn(
+        'w-full bg-black/60',
+        expanded ? 'h-96 md:h-[28rem]' : 'h-64 md:h-80',
+      )}
+    >
+      <div className="relative mx-auto flex h-full w-full max-w-(--breakpoint-xl) flex-col items-center justify-center space-y-4">
         {tournament.winner[0] != null && (
-          <div className="absolute inset-0 flex brightness-40">
+          <div className="absolute top-0 left-0 flex h-full w-full brightness-40">
             {tournament.winner[0].commander.cards
               .flatMap((c) => c.imageUrls)
               .map((src, _i, {length}) => {
@@ -253,67 +246,59 @@ function TournamentBanner(props: {
           </div>
         )}
 
-        <div className="relative flex flex-col items-center justify-center">
-          <h1 className="font-title text-center text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
-            {tournament.name}
-          </h1>
-          <div className="mt-4 flex w-full max-w-(--breakpoint-md) flex-col items-center justify-evenly gap-1 text-base text-white md:flex-row md:text-lg lg:text-xl">
-            <span>{format(tournament.tournamentDate, 'MMMM do yyyy')}</span>
-            <span>{tournament.size} Players</span>
-          </div>
+        <h1 className="font-title relative text-center text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
+          {tournament.name}
+        </h1>
+        <div className="relative flex w-full max-w-(--breakpoint-md) flex-col items-center justify-evenly gap-1 text-base text-white md:flex-row md:text-lg lg:text-xl">
+          <span>{format(tournament.tournamentDate, 'MMMM do yyyy')}</span>
+          <span>{tournament.size} Players</span>
         </div>
 
         {hasSeatData && (
-          <div className="relative z-10 mt-4 w-full border-t border-white/60 bg-black/50 text-white sm:mt-6 sm:w-auto sm:rounded-lg sm:border">
-            <div className="flex items-center">
+          <div className="absolute bottom-0 z-10 mx-auto flex w-full flex-col items-stretch bg-black/50 text-white sm:bottom-3 sm:w-auto sm:rounded-lg sm:border sm:border-white/60">
+            <div className="flex items-center border-t border-white/60 sm:border-t-0">
               {expanded ? (
-                <div className="flex flex-1 flex-col divide-y divide-white/30">
-                  <div className="flex items-center text-center text-xs text-white/50">
-                    <span className="w-18 shrink-0 sm:w-20 md:w-24"> </span>
-                    <span className="min-w-14 flex-1 border-l border-white/30 py-1 md:px-3">
-                      S1
-                    </span>
-                    <span className="min-w-14 flex-1 border-l border-white/30 py-1 md:px-3">
-                      S2
-                    </span>
-                    <span className="min-w-14 flex-1 border-l border-white/30 py-1 md:px-3">
-                      S3
-                    </span>
-                    <span className="min-w-14 flex-1 border-l border-white/30 py-1 md:px-3">
-                      S4
-                    </span>
-                    {allRates.drawRate != null && (
-                      <span className="min-w-14 flex-1 border-l border-white/30 py-1 md:px-3">
-                        Draw
-                      </span>
-                    )}
-                  </div>
-                  <SeatWinRateTableRow
-                    label="All Rounds"
-                    rates={allRates}
-                    hasDraws={allRates.drawRate != null}
+                <Suspense
+                  fallback={
+                    <LoadingIcon padding={false} className="px-16 py-6" />
+                  }
+                >
+                  <SeatWinRateExpandedTable
+                    tid={tournament.TID}
+                    hasDraws={tournament.drawRate != null}
                   />
-                  <SeatWinRateTableRow
-                    label="Swiss Only"
-                    rates={seatWinRates.swiss}
-                    hasDraws={allRates.drawRate != null}
-                  />
-                  <SeatWinRateTableRow
-                    label={`Top Cut (${tournament.topCut})`}
-                    rates={seatWinRates.topCut}
-                    hasDraws={allRates.drawRate != null}
-                  />
-                  <SeatWinRateTableRow
-                    label="Top 4"
-                    rates={seatWinRates.finals}
-                    hasDraws={allRates.drawRate != null}
-                  />
-                </div>
+                </Suspense>
               ) : (
-                <SeatWinRateRowCollapsed rates={allRates} />
+                <div className="flex flex-1 items-center justify-around px-3 text-center text-sm">
+                  <span className="text-white/60">Win Rate</span>
+                  <div className="mr-1 ml-2 border-l border-white/60 py-2">
+                    &nbsp;
+                  </div>{' '}
+                  Seat 1: {formatPercent(tournament.seatWinRate1!)}
+                  <div className="mr-1 ml-2 border-l border-white/60 py-2">
+                    &nbsp;
+                  </div>{' '}
+                  Seat 2: {formatPercent(tournament.seatWinRate2!)}
+                  <div className="mr-1 ml-2 border-l border-white/60 py-2">
+                    &nbsp;
+                  </div>{' '}
+                  Seat 3: {formatPercent(tournament.seatWinRate3!)}
+                  <div className="mr-1 ml-2 border-l border-white/60 py-2">
+                    &nbsp;
+                  </div>{' '}
+                  Seat 4: {formatPercent(tournament.seatWinRate4!)}
+                  {tournament.drawRate != null && (
+                    <>
+                      <div className="mr-1 ml-2 border-l border-white/60 py-2">
+                        &nbsp;
+                      </div>{' '}
+                      Draws: {formatPercent(tournament.drawRate)}
+                    </>
+                  )}
+                </div>
               )}
               <button
-                onClick={toggleSeatWinRates}
+                onClick={() => setExpanded((v) => !v)}
                 className="shrink-0 cursor-pointer self-stretch border-l border-white/60 px-1.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
               >
                 <ChevronDownIcon
@@ -369,7 +354,6 @@ export const schema = z.object({
   tid: z.string(),
   commander: z.nullish(z.string()),
   tab: z.nullish(z.string()),
-  seatWinRates: z.nullish(z.string()),
 });
 
 export type Queries = {
@@ -396,7 +380,6 @@ export type EntryPoints = {
 export type ExtraProps = {
   commanderName?: string | null;
   tab: string;
-  showSeatWinRates: boolean;
 };
 
 export const getPreloadProps: GetPreloadProps<'/tournament/[tid]'> = ({
@@ -412,7 +395,6 @@ export const getPreloadProps: GetPreloadProps<'/tournament/[tid]'> = ({
     extraProps: {
       commanderName: variables.commander,
       tab,
-      showSeatWinRates: variables.seatWinRates === 'true',
     },
     entryPoints: {
       tournamentEntries:
@@ -439,7 +421,7 @@ export const getPreloadProps: GetPreloadProps<'/tournament/[tid]'> = ({
 export default function TournamentPageShell({
   queries,
   entryPoints,
-  extraProps: {commanderName, tab, showSeatWinRates},
+  extraProps: {commanderName, tab},
 }: PastoriaPageProps<'/tournament/[tid]'>) {
   const {tournament} = usePreloadedQuery(
     graphql`
@@ -487,10 +469,7 @@ export default function TournamentPageShell({
       />
 
       <Navigation />
-      <TournamentBanner
-        tournament={tournament}
-        initialExpanded={showSeatWinRates}
-      />
+      <TournamentBanner tournament={tournament} />
       {tournament.promo && <FirstPartyPromo promo={tournament.promo} />}
       <TournamentEditorsNote tournament={tournament} />
 
