@@ -26,27 +26,24 @@ import {
 } from 'react-relay/hooks';
 import {z} from 'zod/v4-mini';
 
-const SeatWinRatesFragment = graphql`
-  fragment page_SeatWinRates on SeatWinRates {
-    seat1
-    seat2
-    seat3
-    seat4
-    drawRate
-  }
-`;
-
-function useSeatWinRates(ratesRef: page_SeatWinRates$key) {
-  return useFragment(SeatWinRatesFragment, ratesRef);
-}
-
 function SeatWinRateTableRow(props: {
   label: string;
   rates: page_SeatWinRates$key;
   hasDraws: boolean;
 }) {
   const {label, hasDraws} = props;
-  const rates = useSeatWinRates(props.rates);
+  const rates = useFragment(
+    graphql`
+      fragment page_SeatWinRates on SeatWinRates {
+        seat1
+        seat2
+        seat3
+        seat4
+        drawRate
+      }
+    `,
+    props.rates,
+  );
   if (
     rates.seat1 == null ||
     rates.seat2 == null ||
