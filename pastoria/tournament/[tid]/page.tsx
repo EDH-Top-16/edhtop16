@@ -257,7 +257,7 @@ function TournamentBanner(props: {
           <h1 className="font-title text-center text-2xl font-semibold text-white md:text-4xl lg:text-5xl">
             {tournament.name}
           </h1>
-          <div className="mt-2 flex w-full max-w-(--breakpoint-md) flex-col items-center justify-evenly gap-1 text-base text-white md:flex-row md:text-lg lg:text-xl">
+          <div className="mt-4 flex w-full max-w-(--breakpoint-md) flex-col items-center justify-evenly gap-1 text-base text-white md:flex-row md:text-lg lg:text-xl">
             <span>{format(tournament.tournamentDate, 'MMMM do yyyy')}</span>
             <span>{tournament.size} Players</span>
           </div>
