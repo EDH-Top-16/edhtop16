@@ -3,6 +3,23 @@ import tailwindcss from '@tailwindcss/vite';
 import {defineConfig} from 'vite-plus';
 
 export default defineConfig({
+  run: {
+    tasks: {
+      'generate:schema': {
+        command: 'grats',
+        input: ['src/lib/server/schema/**'],
+      },
+      'generate:relay': {
+        command: 'relay-compiler',
+        dependsOn: ['generate:schema'],
+      },
+      'generate:router': {
+        command: 'pastoria',
+        input: ['pastoria/**'],
+        dependsOn: ['generate:relay'],
+      },
+    },
+  },
   staged: {
     '*': 'vp check --fix',
   },

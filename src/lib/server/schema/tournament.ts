@@ -76,6 +76,82 @@ export class TournamentBreakdownGroup {
 }
 
 /** @gqlType */
+export class SeatWinRates {
+  constructor(
+    /** @gqlField */
+    readonly seat1: Float | null,
+    /** @gqlField */
+    readonly seat2: Float | null,
+    /** @gqlField */
+    readonly seat3: Float | null,
+    /** @gqlField */
+    readonly seat4: Float | null,
+    /** @gqlField */
+    readonly drawRate: Float | null,
+  ) {}
+}
+
+/** @gqlType */
+export class SeatWinRatesByPhase {
+  constructor(
+    /** @gqlField */
+    readonly all: SeatWinRates,
+    /** @gqlField */
+    readonly swiss: SeatWinRates,
+    /** @gqlField */
+    readonly topCut: SeatWinRates,
+    /** @gqlField */
+    readonly finals: SeatWinRates,
+  ) {}
+}
+
+function computeSeatWinRates(
+  rows: {seatNumber: number; isWinner: number; isDraw: number}[],
+): SeatWinRates {
+  let c0 = 0,
+    c1 = 0,
+    c2 = 0,
+    c3 = 0;
+  let w0 = 0,
+    w1 = 0,
+    w2 = 0,
+    w3 = 0;
+  let drawCount = 0;
+  let totalForDrawRate = 0;
+
+  for (const r of rows) {
+    switch (r.seatNumber) {
+      case 0:
+        c0++;
+        if (r.isWinner) w0++;
+        totalForDrawRate++;
+        if (r.isDraw) drawCount++;
+        break;
+      case 1:
+        c1++;
+        if (r.isWinner) w1++;
+        break;
+      case 2:
+        c2++;
+        if (r.isWinner) w2++;
+        break;
+      case 3:
+        c3++;
+        if (r.isWinner) w3++;
+        break;
+    }
+  }
+
+  return new SeatWinRates(
+    c0 > 0 ? w0 / c0 : null,
+    c1 > 0 ? w1 / c1 : null,
+    c2 > 0 ? w2 / c2 : null,
+    c3 > 0 ? w3 / c3 : null,
+    totalForDrawRate > 0 ? drawCount / totalForDrawRate : null,
+  );
+}
+
+/** @gqlType */
 export class Tournament implements GraphQLNode {
   id;
   __typename = 'Tournament' as const;
@@ -177,6 +253,33 @@ export class Tournament implements GraphQLNode {
           r.entries,
           r.conversionRate,
         ),
+    );
+  }
+
+  /** @gqlField */
+  async seatWinRatesByPhase(): Promise<SeatWinRatesByPhase> {
+    const rows = await db
+      .selectFrom('MatchSeat')
+      .innerJoin('Entry', 'Entry.id', 'MatchSeat.entryId')
+      .select([
+        'MatchSeat.round',
+        'MatchSeat.seatNumber',
+        'MatchSeat.isWinner',
+        'MatchSeat.isDraw',
+      ])
+      .where('Entry.tournamentId', '=', this.id)
+      .where('MatchSeat.isBye', '=', 0)
+      .execute();
+
+    const swissRows = rows.filter((r) => !r.round.startsWith('Top'));
+    const topCutRows = rows.filter((r) => r.round.startsWith('Top'));
+    const finalsRows = rows.filter((r) => r.round === 'Top 4');
+
+    return new SeatWinRatesByPhase(
+      computeSeatWinRates(rows),
+      computeSeatWinRates(swissRows),
+      computeSeatWinRates(topCutRows),
+      computeSeatWinRates(finalsRows),
     );
   }
 

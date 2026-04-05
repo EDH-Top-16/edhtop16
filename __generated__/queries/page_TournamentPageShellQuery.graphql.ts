@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<11093a7a8982ae58047a0e1c8d29cecd>>
- * @relayHash 3cce27237d48a8507b9cfa85cf90bab7
+ * @generated SignedSource<<143d6914a012de799cd2892f2ddd0ec5>>
+ * @relayHash ab48cc01696e122181535bd9366e4f27
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 3cce27237d48a8507b9cfa85cf90bab7
+// @relayRequestID ab48cc01696e122181535bd9366e4f27
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -344,7 +344,7 @@ return {
     ]
   },
   "params": {
-    "id": "3cce27237d48a8507b9cfa85cf90bab7",
+    "id": "ab48cc01696e122181535bd9366e4f27",
     "metadata": {},
     "name": "page_TournamentPageShellQuery",
     "operationKind": "query",

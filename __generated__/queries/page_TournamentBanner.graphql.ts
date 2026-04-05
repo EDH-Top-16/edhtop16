@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<23c6304ca5f041c5b07c4d4173d571e0>>
+ * @generated SignedSource<<de2a64cddbc30cd85f0d4a7377b392f4>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,6 +11,7 @@
 import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type page_TournamentBanner$data = {
+  readonly TID: string;
   readonly bracketUrl: string;
   readonly drawRate: number | null | undefined;
   readonly name: string;
@@ -42,6 +43,13 @@ const node: ReaderFragment = {
   },
   "name": "page_TournamentBanner",
   "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "TID",
+      "storageKey": null
+    },
     {
       "alias": null,
       "args": null,
@@ -156,6 +164,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "193bf7863f6f4ac5f634fb14a695875f";
+(node as any).hash = "88a9facc28c55efa2f251dc73b39e76b";
 
 export default node;
